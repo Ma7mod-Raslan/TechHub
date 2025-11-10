@@ -1,21 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import AppRouter from './routes/AppRouter'; // 👈 استيراد الـRouter اللي عملناه
-import './index.css';
 
-// 1. تحديد الـRoot Element
-const rootElement = document.getElementById('root');
+  import { createRoot } from "react-dom/client";
+  import App from "./App";
+  import "./index.css";
 
-if (rootElement) {
-  // 2. إنشاء الـRoot
-  const root = ReactDOM.createRoot(rootElement);
-
-  // 3. عرض الـAppRouter (الذي يحتوي على جميع الصفحات والـRouting)
-  root.render(
-    <React.StrictMode>
-      <AppRouter /> 
-    </React.StrictMode>,
-  );
-} else {
-  console.error("Failed to find the root element with ID 'root'");
-}
+  createRoot(document.getElementById("root")!).render(<App />);
+  
