@@ -1,0 +1,22 @@
+name: Notify Slack on Push
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "TechHub Bot"
+          SLACK_TITLE: "🚀 New Update in TechHub Repository"
+          SLACK_MESSAGE: "${{ github.actor }} just pushed code to *${{ github.ref_name }}* branch"
+          SLACK_FOOTER: "GitHub → Slack Integration"

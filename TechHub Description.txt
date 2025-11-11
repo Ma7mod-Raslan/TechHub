@@ -1,0 +1,43 @@
+TechHub Description 
+
+
+Now our project is about TechHub platform is e-learning platform designed for computer science students and all students need to learn the computer science field it's basically consists of 3 dashboards and the home page that define what's TechHub and why choose TechHub and signin/up page you can signup as student or as teacher, The Admin have their own root username and password.
+The 3 dashboards are:
+1) Student dashboard that consists of:
+   - Dashboard tab that preview the student progress and some analytics.
+   - My Courses tap that have courses categorized by "All courses", "In progress" , "Completed"
+   - Assignments tab that contain the assignments for the enrolled courses
+   - Certificates tab that have the virtual certificates for the completed courses the student achieved
+   - Community tab that have the communities for the courses the student enrolled(the community that have all students enrolled for this course and the instructor for this course)
+   - Roadmaps tab that have some roadmaps for some tracks with it's courses in the platform
+   - Compiler tab that contain an embedded compiler with console output 
+   - Notifications tab that have all notificatios for this student
+   - Profile tab that have all profile info and can edit it 
+   - Settings tab that conatain some features like "Light Mode", "Change Password", and etc.
+   - Contact Us tab that allow student to contact us 
+   - Sign Out button
+
+2) Instructor dashboard that consists of:
+   - Dashboard tab that preview some analytics and can add new course from it.
+   - My Courses tap that have courses categorized by "All courses", "Published" , "Draft"
+   - Analytics tab that contain the analytics for the instructor's courses
+   - Community tab that have the communities for instructor's courses
+   - Notifications tab that have all notificatios for this instructor
+   - Profile tab that have all profile info and can edit it 
+   - Settings tab that conatain some features like "Light Mode", "Change Password", and etc.
+   - Contact Us tab that allow student to contact us 
+   - Sign Out button
+
+3) Admin dashboard that consists of:
+   - Dashboard tab that preview the analytics for every thing in the platform.
+   - Users tap that have all users categorized by "Instructors", "Students".
+   - Courses tab that contain the list of all courses in the platform.
+   - Communities tab that have the all communities.
+   - Reports that have reports from the instructors and students.
+   - Notifications tab that have all notificatios for this Admin
+   - Profile tab that have all profile info and can edit it 
+   - Settings tab that conatain some features like "Light Mode", "Change Password", and etc.
+   - Sign Out button
+
+
+And the last thing there is bottom-right icon for AI Assistant (chatbot) appear in the 3 dashboards to help students and instructor
