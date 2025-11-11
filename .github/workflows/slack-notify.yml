@@ -12,11 +12,24 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Get last commit info
+        id: commit
+        run: |
+          echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+          echo "url=${{ github.event.head_commit.url }}" >> $GITHUB_OUTPUT
+          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
+          echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
       - name: Send notification to Slack
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: "TechHub Bot"
-          SLACK_TITLE: "🚀 New Update in TechHub Repository"
-          SLACK_MESSAGE: "${{ github.actor }} just pushed code to *${{ github.ref_name }}* branch"
-          SLACK_FOOTER: "GitHub → Slack Integration"
+          SLACK_USERNAME: "TechHub Bot 🤖"
+          SLACK_TITLE: "🚀 New Commit in TechHub Repository"
+          SLACK_MESSAGE: |
+            *Commit by:* ${{ steps.commit.outputs.author }}
+            *Branch:* `${{ steps.commit.outputs.branch }}`
+            *Message:* _${{ steps.commit.outputs.msg }}_
+            🔗 [View Commit](${{ steps.commit.outputs.url }})
+          SLACK_COLOR: "#36a64f"
+          SLACK_FOOTER: "GitHub → Slack Integration | Powered by Mahmoud Raslan"
