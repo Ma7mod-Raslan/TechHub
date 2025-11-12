@@ -1,4 +1,4 @@
-name: Notify Slack on Push
+name: Notify Slack on Push and PRs
 
 on:
   push:
@@ -6,35 +6,47 @@ on:
       - main
       - dev
   pull_request:
-    types: [opened, closed]
+    types: [opened, reopened, closed]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
-      # ✅ Step 1: Checkout the repository so git log works
+      # ✅ Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ✅ Step 2: Get last commit info
-      - name: Get last commit info
-        id: commit
+      # ✅ Step 2: Detect event type
+      - name: Set event info
+        id: event
         run: |
-          echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
-          echo "url=${{ github.event.head_commit.url }}" >> $GITHUB_OUTPUT
-          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
-          echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "type=push" >> $GITHUB_OUTPUT
+            echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.head_commit.url }}" >> $GITHUB_OUTPUT
+            echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+            echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          else
+            echo "type=pr" >> $GITHUB_OUTPUT
+            echo "msg=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+            echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+            echo "action=${{ github.event.action }}" >> $GITHUB_OUTPUT
+          fi
 
-      # ✅ Step 3: Send message to Slack
+      # ✅ Step 3: Send Slack notification
       - name: Send notification to Slack
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_USERNAME: "TechHub Bot 🤖"
-          SLACK_TITLE: "🚀 New Commit in TechHub Repository"
-          SLACK_MESSAGE: |
-            *Commit by:* ${{ steps.commit.outputs.author }}
-            *Branch:* `${{ steps.commit.outputs.branch }}`
-            *Message:* _${{ steps.commit.outputs.msg }}_)
           SLACK_COLOR: "#36a64f"
           SLACK_FOOTER: "GitHub → Slack Integration | Powered by Mahmoud Raslan"
+
+          SLACK_TITLE: |
+            ${{ steps.event.outputs.type == 'push' && '🚀 New Commit in TechHub Repository' || '📦 Pull Request Update' }}
+
+          SLACK_MESSAGE: |
+            ${{ steps.event.outputs.type == 'push' && format('*Commit by:* {0}\n*Branch:* `{1}`\n*Message:* _{2}_\n🔗 [View Commit]({3})', steps.event.outputs.actor, steps.event.outputs.branch, steps.event.outputs.msg, steps.event.outputs.url)
+            || format('*PR by:* {0}\n*Action:* _{1}_\n*Title:* {2}\n🔗 [View PR]({3})', steps.event.outputs.actor, steps.event.outputs.action, steps.event.outputs.msg, steps.event.outputs.url) }}
