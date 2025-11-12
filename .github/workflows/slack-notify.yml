@@ -1,0 +1,40 @@
+name: Notify Slack on Push
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      # ✅ Step 1: Checkout the repository so git log works
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ✅ Step 2: Get last commit info
+      - name: Get last commit info
+        id: commit
+        run: |
+          echo "msg=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+          echo "url=${{ github.event.head_commit.url }}" >> $GITHUB_OUTPUT
+          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
+          echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
+      # ✅ Step 3: Send message to Slack
+      - name: Send notification to Slack
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "TechHub Bot 🤖"
+          SLACK_TITLE: "🚀 New Commit in TechHub Repository"
+          SLACK_MESSAGE: |
+            *Commit by:* ${{ steps.commit.outputs.author }}
+            *Branch:* `${{ steps.commit.outputs.branch }}`
+            *Message:* _${{ steps.commit.outputs.msg }}_)
+          SLACK_COLOR: "#36a64f"
+          SLACK_FOOTER: "GitHub → Slack Integration | Powered by Mahmoud Raslan"
