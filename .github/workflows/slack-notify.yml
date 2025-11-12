@@ -35,7 +35,6 @@ jobs:
           SLACK_MESSAGE: |
             *Commit by:* ${{ steps.commit.outputs.author }}
             *Branch:* `${{ steps.commit.outputs.branch }}`
-            *Message:* _${{ steps.commit.outputs.msg }}_
-            🔗 [View Commit](${{ steps.commit.outputs.url }})
+            *Message:* _${{ steps.commit.outputs.msg }}_)
           SLACK_COLOR: "#36a64f"
           SLACK_FOOTER: "GitHub → Slack Integration | Powered by Mahmoud Raslan"
