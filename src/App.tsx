@@ -5,10 +5,6 @@ import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
 import ForgotPassword from './pages/auth/ForgotPassword';
 
-import CourseDetails from './pages/CourseDetails';
-import Community from './pages/Community';
-import About from './pages/About';
-import Contact from './pages/Contact';
 
 import { Toaster } from './components/ui/sonner';
 
@@ -55,17 +51,7 @@ export default function App() {
       case 'forgot-password':
         return <ForgotPassword navigate={navigate} />;
       
-      // Shared Routes
-      case 'course-details':
-        return <CourseDetails navigate={navigate} userRole={userRole} />;
-      case 'community':
-        return <Community navigate={navigate} logout={logout} userRole={userRole} initialCommunityId={navigationState?.communityId} />;
-      case 'about':
-        return <About navigate={navigate} />;
-      case 'contact':
-        return <Contact navigate={navigate} />;
-      default:
-        // return <NotFound navigate={navigate} />;
+      
     }
   };
 
