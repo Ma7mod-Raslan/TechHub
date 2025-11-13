@@ -4,6 +4,12 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import InstructorDashboard from './pages/instructor/Dashboard';
+import InstructorCourses from './pages/instructor/MyCourses';
+import InstructorAnalytics from './pages/instructor/Analytics';
+
+
+import InstructorContact from './pages/instructor/Contact';
 
 
 import { Toaster } from './components/ui/sonner';
@@ -50,7 +56,21 @@ export default function App() {
         return <SignUp navigate={navigate} />;
       case 'forgot-password':
         return <ForgotPassword navigate={navigate} />;
-      
+      // Instructor Routes
+      case 'instructor-dashboard':
+        return <InstructorDashboard navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-courses':
+        return <InstructorCourses navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-analytics':
+        return <InstructorAnalytics navigate={navigate} logout={logout} userRole="instructor" />;
+      // case 'instructor-profile':
+      //   return <InstructorProfile navigate={navigate} logout={logout} userRole="instructor" />;
+      // case 'instructor-settings':
+      //   return <InstructorSettings navigate={navigate} logout={logout} userRole="instructor" />;
+      // case 'instructor-notifications':
+      //   return <InstructorNotifications navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-contact':
+        return <InstructorContact navigate={navigate} logout={logout} userRole="instructor" />;
       
     }
   };
