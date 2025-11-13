@@ -1,6 +1,8 @@
 
 -- Create Database Schema for TechHub Platform
 
+USE TechHub;
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   full_name VARCHAR(100) NOT NULL,
@@ -21,6 +23,16 @@ CREATE TABLE courses (
   level VARCHAR(20) CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
   status VARCHAR(20) CHECK (status IN ('Published', 'Draft')) DEFAULT 'Draft',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_videos (
+    id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
+    video_order INT DEFAULT 1,
+    title VARCHAR(200),
+    video_url VARCHAR(300) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE enrollments (
@@ -81,5 +93,4 @@ CREATE TABLE notifications (
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
