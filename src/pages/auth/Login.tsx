@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Code2, Mail, Lock, Eye, EyeOff, Github } from 'lucide-react';
+import { loginWithGoogle } from "../../firebase";
+import { Code2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -17,21 +18,66 @@ export default function Login({ navigate }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Google login handler (inside component scope)
+  const handleGoogleLogin = async (): Promise<void> => {
+    try {
+      console.log('[Google] start login');
+      const result = await loginWithGoogle();
+      console.log('[Google] popup result:', result);
+
+      const user = result.user;
+      if (!user) {
+        console.warn('[Google] no user returned');
+        return;
+      }
+
+      const idToken = await user.getIdToken();
+      console.log('[Google] idToken length:', idToken?.length);
+
+      // Optional: send token to backend for verification and role decision
+      // const res = await fetch("http://localhost:4000/api/auth/google", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: `Bearer ${idToken}`,
+      //   },
+      //   body: JSON.stringify({ displayName: user.displayName, email: user.email }),
+      // });
+      // const data = await res.json();
+
+      // For now: simple client-side role decision (demo)
+      if (user.email === 'admin@techhub.com') {
+        navigate('admin-dashboard', 'admin');
+        return;
+      }
+      if (user.email?.includes('instructor') || user.email === 'sarah@techhub.com') {
+        navigate('instructor-dashboard', 'instructor');
+        return;
+      }
+      navigate('student-dashboard', 'student');
+      console.log('[Google] navigation done');
+    } catch (err: any) {
+      console.error('[Google] login error:', err);
+      alert('Google login failed: ' + (err.message || err.code || String(err)));
+    }
+  };
+
+  // Regular email/password login handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Check for admin credentials
     if (email === 'admin@techhub.com' && password === 'admin123') {
       navigate('admin-dashboard', 'admin');
       return;
     }
-    
+
     // Check for instructor (mock)
     if (email.includes('instructor') || email === 'sarah@techhub.com') {
       navigate('instructor-dashboard', 'instructor');
       return;
     }
-    
+
     // Default to student
     navigate('student-dashboard', 'student');
   };
@@ -132,7 +178,11 @@ export default function Login({ navigate }: LoginProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" type="button">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={handleGoogleLogin}
+              >
                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -153,10 +203,6 @@ export default function Login({ navigate }: LoginProps) {
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" type="button">
-                <Github className="h-5 w-5 mr-2" />
-                GitHub
-              </Button>
             </div>
 
             <p className="text-center text-sm text-gray-600 mt-6">
@@ -168,7 +214,7 @@ export default function Login({ navigate }: LoginProps) {
                 Sign up
               </button>
             </p>
-            
+
             <div className="mt-6 p-4 bg-gradient-to-br from-violet-50 to-cyan-50 rounded-lg border border-violet-200">
               <p className="text-sm mb-2">
                 <strong>Test Credentials:</strong>
