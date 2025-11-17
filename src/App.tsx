@@ -7,6 +7,9 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import InstructorCourses from './pages/instructor/MyCourses';
 import InstructorAnalytics from './pages/instructor/Analytics';
+import InstructorProfile from './pages/instructor/Profile';
+import InstructorSettings from './pages/instructor/Settings';
+import InstructorNotifications from './pages/instructor/Notifications';
 
 
 import InstructorContact from './pages/instructor/Contact';
@@ -63,12 +66,12 @@ export default function App() {
         return <InstructorCourses navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-analytics':
         return <InstructorAnalytics navigate={navigate} logout={logout} userRole="instructor" />;
-      // case 'instructor-profile':
-      //   return <InstructorProfile navigate={navigate} logout={logout} userRole="instructor" />;
-      // case 'instructor-settings':
-      //   return <InstructorSettings navigate={navigate} logout={logout} userRole="instructor" />;
-      // case 'instructor-notifications':
-      //   return <InstructorNotifications navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-profile':
+        return <InstructorProfile navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-settings':
+        return <InstructorSettings navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-notifications':
+        return <InstructorNotifications navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-contact':
         return <InstructorContact navigate={navigate} logout={logout} userRole="instructor" />;
       

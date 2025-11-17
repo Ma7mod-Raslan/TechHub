@@ -214,13 +214,6 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                 transition={{ duration: 3, repeat: Infinity }}
                 className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg"
               >
-                <div className="flex items-center gap-2">
-                  <Award className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <div className="text-sm text-gray-600">Certificates</div>
-                    <div className="text-xl">250K+ Issued</div>
-                  </div>
-                </div>
               </motion.div>
             </motion.div>
           </div>
