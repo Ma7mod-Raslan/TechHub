@@ -25,7 +25,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
 import AIAssistant from '../../components/AIAssistant';
-import { ImageWithFallback } from '../../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 

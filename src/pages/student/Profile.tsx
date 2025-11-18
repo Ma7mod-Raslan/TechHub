@@ -25,7 +25,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Progress } from '../../components/ui/progress';
-import { ImageWithFallback } from '../../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';

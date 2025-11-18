@@ -8,7 +8,7 @@ import { Badge } from '../components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { UserRole } from '../App';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 
 interface CourseDetailsProps {
   navigate: (page: string) => void;

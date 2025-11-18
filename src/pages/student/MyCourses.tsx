@@ -25,7 +25,7 @@ import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import AIAssistant from '../../components/AIAssistant';
-import { ImageWithFallback } from '../../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 

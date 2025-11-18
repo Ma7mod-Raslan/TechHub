@@ -6,7 +6,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { UserRole } from '../App';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import AIAssistant from '../components/AIAssistant';
 import HeaderIcons from '../components/HeaderIcons';
 import { toast } from 'sonner';
@@ -777,7 +777,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
                       <Button 
                         className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                        onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation();
                           setSelectedCommunity(community.id);
                         }}

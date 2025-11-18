@@ -3,7 +3,7 @@ import { Target, Users, Award, TrendingUp, Heart, Zap } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Card, CardContent } from '../components/ui/card';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 
 interface AboutProps {
   navigate: (page: string) => void;
