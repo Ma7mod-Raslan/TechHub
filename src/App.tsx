@@ -10,9 +10,17 @@ import InstructorAnalytics from './pages/instructor/Analytics';
 import InstructorProfile from './pages/instructor/Profile';
 import InstructorSettings from './pages/instructor/Settings';
 import InstructorNotifications from './pages/instructor/Notifications';
-
-
 import InstructorContact from './pages/instructor/Contact';
+import StudentDashboard from './pages/student/Dashboard';
+import StudentCourses from './pages/student/MyCourses';
+import StudentAssignments from './pages/student/Assignments';
+import StudentCertificates from './pages/student/Certificates';
+import StudentCompiler from './pages/student/Compiler';
+import StudentRoadmaps from './pages/student/Roadmaps';
+import StudentProfile from './pages/student/Profile';
+import StudentSettings from './pages/student/Settings';
+import StudentNotifications from './pages/student/Notifications';
+import StudentContact from './pages/student/Contact';
 
 
 import { Toaster } from './components/ui/sonner';
@@ -37,12 +45,12 @@ export default function App() {
       setNavigationState(null);
       return;
     }
-    
+
     // If navigating to login, reset role to guest
     if (page === 'login') {
       setUserRole('guest');
     }
-    
+
     setCurrentPage(page);
     if (role) setUserRole(role);
     if (state) setNavigationState(state);
@@ -74,7 +82,28 @@ export default function App() {
         return <InstructorNotifications navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-contact':
         return <InstructorContact navigate={navigate} logout={logout} userRole="instructor" />;
-      
+      // Student Routes
+      case 'student-dashboard':
+        return <StudentDashboard navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-courses':
+        return <StudentCourses navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-assignments':
+        return <StudentAssignments navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-certificates':
+        return <StudentCertificates navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-compiler':
+        return <StudentCompiler navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-roadmaps':
+        return <StudentRoadmaps navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-profile':
+        return <StudentProfile navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-settings':
+        return <StudentSettings navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-notifications':
+        return <StudentNotifications navigate={navigate} logout={logout} userRole="student" />;
+      case 'student-contact':
+        return <StudentContact navigate={navigate} logout={logout} userRole="student" />;
+
     }
   };
 
