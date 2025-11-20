@@ -6,6 +6,8 @@ import meRoutes from "./routes/me.js";
 
 dotenv.config();
 
+console.log("JWT_SECRET =", process.env.JWT_SECRET ? "[SET]" : "[NOT SET]");
+
 const app = express();
 app.use(express.json());
 
