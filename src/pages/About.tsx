@@ -31,7 +31,7 @@ export default function About({ navigate }: AboutProps) {
             <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <h2 className="text-4xl mb-6">Our Story</h2>
               <p className="text-lg text-gray-600 mb-4">
-                Founded in 2020, TechHub was born from a simple belief: quality tech education should be accessible to everyone, everywhere.
+                Founded in 2025, TechHub was born from a simple belief: quality tech education should be accessible to everyone, everywhere.
               </p>
               <p className="text-lg text-gray-600 mb-4">
                 We started with a small team of passionate educators and developers who wanted to create something different - a platform that combines expert instruction, hands-on projects, and a supportive community.

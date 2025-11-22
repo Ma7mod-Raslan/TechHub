@@ -12,7 +12,7 @@ import InstructorSettings from './pages/instructor/Settings';
 import InstructorNotifications from './pages/instructor/Notifications';
 import InstructorContact from './pages/instructor/Contact';
 import StudentDashboard from './pages/student/Dashboard';
-import StudentCourses from './pages/student/MyCourses';
+import StudentCourses from './pages/student/Courses';
 import StudentAssignments from './pages/student/Assignments';
 import StudentCertificates from './pages/student/Certificates';
 import StudentCompiler from './pages/student/Compiler';
@@ -21,6 +21,13 @@ import StudentProfile from './pages/student/Profile';
 import StudentSettings from './pages/student/Settings';
 import StudentNotifications from './pages/student/Notifications';
 import StudentContact from './pages/student/Contact';
+
+import NotFound from './pages/NotFound';
+
+import CourseDetails from './pages/CourseDetails';
+import Community from './pages/Community';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 
 import { Toaster } from './components/ui/sonner';
@@ -103,6 +110,17 @@ export default function App() {
         return <StudentNotifications navigate={navigate} logout={logout} userRole="student" />;
       case 'student-contact':
         return <StudentContact navigate={navigate} logout={logout} userRole="student" />;
+      // Shared Routes
+      case 'course-details':
+        return <CourseDetails navigate={navigate} userRole={userRole} />;
+      case 'community':
+        return <Community navigate={navigate} logout={logout} userRole={userRole} initialCommunityId={navigationState?.communityId} />;
+      case 'about':
+        return <About navigate={navigate} />;
+      case 'contact':
+        return <Contact navigate={navigate} />;
+      default:
+        return <NotFound navigate={navigate} />;  
 
     }
   };

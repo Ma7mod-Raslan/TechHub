@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import AIAssistant from '../components/AIAssistant';
 
 interface HomeProps {
   navigate: (page: string) => void;
@@ -447,6 +448,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       </section>
 
       <Footer navigate={navigate} />
+      <AIAssistant/>
     </div>
   );
 }

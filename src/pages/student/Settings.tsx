@@ -45,7 +45,7 @@ export default function StudentSettings({ navigate, logout, userRole }: StudentS
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: 'student-courses' },
+    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
     { icon: FileText, label: 'Assignments', page: 'student-assignments' },
     { icon: Award, label: 'Certificates', page: 'student-certificates' },
     { icon: Users, label: 'Community', page: 'community' },
