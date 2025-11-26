@@ -58,15 +58,15 @@ export default function AIAssistant() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40"
           >
             <Button
               variant="ghost"
               size="lg"
               onClick={() => setIsOpen(true)}
-              className="h-14 w-14 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <Sparkles className="h-6 w-6" />
+              <Sparkles className="h-5 w-5 md:h-6 md:w-6" />
             </Button>
           </motion.div>
         )}
@@ -79,7 +79,7 @@ export default function AIAssistant() {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-6 right-6 z-50 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
+            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 w-[calc(100vw-2rem)] sm:w-96 h-[500px] max-h-[calc(100vh-2rem)] bg-white rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-violet-600 to-cyan-500 p-4 flex items-center justify-between">

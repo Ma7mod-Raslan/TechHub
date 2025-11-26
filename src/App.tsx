@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
+import Verification from './pages/auth/Verification';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import InstructorCourses from './pages/instructor/MyCourses';
@@ -22,14 +23,12 @@ import StudentSettings from './pages/student/Settings';
 import StudentNotifications from './pages/student/Notifications';
 import StudentContact from './pages/student/Contact';
 
-import NotFound from './pages/NotFound';
-
 import CourseDetails from './pages/CourseDetails';
+import AllCourses from './pages/AllCourses';
 import Community from './pages/Community';
 import About from './pages/About';
 import Contact from './pages/Contact';
-
-
+import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/sonner';
 
 export type UserRole = 'guest' | 'student' | 'instructor' | 'admin';
@@ -72,6 +71,8 @@ export default function App() {
         return <Login navigate={navigate} />;
       case 'signup':
         return <SignUp navigate={navigate} />;
+      case 'verification':
+        return <Verification navigate={navigate} />;
       case 'forgot-password':
         return <ForgotPassword navigate={navigate} />;
       // Instructor Routes
@@ -110,18 +111,24 @@ export default function App() {
         return <StudentNotifications navigate={navigate} logout={logout} userRole="student" />;
       case 'student-contact':
         return <StudentContact navigate={navigate} logout={logout} userRole="student" />;
+
       // Shared Routes
       case 'course-details':
         return <CourseDetails navigate={navigate} userRole={userRole} />;
+      case 'all-courses':
+        return <AllCourses navigate={navigate} isLoggedIn={userRole !== 'guest'} userRole={userRole} logout={logout} />;
       case 'community':
+        if (userRole === 'guest') {
+          return <Home navigate={navigate} logout={logout} />;
+        }
         return <Community navigate={navigate} logout={logout} userRole={userRole} initialCommunityId={navigationState?.communityId} />;
+
       case 'about':
         return <About navigate={navigate} />;
       case 'contact':
         return <Contact navigate={navigate} />;
       default:
-        return <NotFound navigate={navigate} />;  
-
+        return <NotFound navigate={navigate} />;
     }
   };
 

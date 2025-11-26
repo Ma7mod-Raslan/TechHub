@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Play, RotateCcw, Save, LogOut, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Play, RotateCcw, Save, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
@@ -42,6 +42,7 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
   const [code, setCode] = useState(initialCode.python);
   const [output, setOutput] = useState('');
   const [isRunning, setIsRunning] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
@@ -83,8 +84,8 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -92,32 +93,47 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
           logout={logout}
           userRole="student"
           activePage="student-compiler"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Code Compiler</h1>
-                <p className="text-gray-600">Practice coding in your browser</p>
+        <div className="flex-1 lg:ml-0 w-full">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              {/* Mobile Menu Button */}
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden flex-shrink-0"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+                
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl md:text-2xl truncate">Code Compiler</h1>
+                  <p className="text-gray-600 text-sm md:text-base truncate">Practice coding in your browser</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={handleReset}>
+              
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <Button variant="outline" size="sm" onClick={handleReset} className="hidden md:flex">
                   <RotateCcw className="mr-2 h-4 w-4" />Reset
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" size="sm" className="hidden md:flex">
                   <Save className="mr-2 h-4 w-4" />Save
                 </Button>
-                <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300" onClick={handleRun} disabled={isRunning}>
+                <Button size="sm" className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300" onClick={handleRun} disabled={isRunning}>
                   <Play className="mr-2 h-4 w-4" />
-                  {isRunning ? 'Running...' : 'Run Code'}
+                  {isRunning ? 'Running...' : 'Run'}
                 </Button>
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
               </div>
             </div>
           </header>
 
-          <main className="p-6 h-[calc(100vh-120px)]">
+          <main className="p-4 md:p-6 h-[calc(100vh-120px)]">
             <div className="h-full flex flex-col gap-6">
               <Tabs value={language} onValueChange={handleLanguageChange}>
                 <TabsList>

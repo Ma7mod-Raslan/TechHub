@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { MessageSquare, ThumbsUp, MessageCircle, Search, Plus, TrendingUp, Users, Code2, Sparkles, LayoutDashboard, BookOpen, FileText, Award, Map, Code, Bell, User, Settings, LogOut, BarChart3, Shield, EyeOff, Trash2 } from 'lucide-react';
+import { MessageSquare, ThumbsUp, MessageCircle, Search, Plus, TrendingUp, Users, Code2, Sparkles, LayoutDashboard, BookOpen, FileText, Award, Map, Code, Bell, User, Settings, LogOut, BarChart3, Shield, EyeOff, Trash2, Menu } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -15,7 +16,7 @@ import Sidebar from '../components/Sidebar';
 interface CommunityProps {
   navigate: (page: string) => void;
   logout: () => void;
-  userRole: UserRole;
+  userRole: 'student' | 'instructor' | 'admin';
   initialCommunityId?: number;
 }
 
@@ -76,6 +77,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const [hiddenPosts, setHiddenPosts] = useState<number[]>([]);
   const [selectedThread, setSelectedThread] = useState<number | null>(null);
   const [hiddenReplies, setHiddenReplies] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleHidePost = (postId: number) => {
     if (hiddenPosts.includes(postId)) {
@@ -117,21 +120,36 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     }
   };
 
+  // Filter communities based on search query
+  const filteredCommunities = React.useMemo(() => {
+    if (!searchQuery.trim()) {
+      return communities;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return communities.filter((community) => {
+      return (
+        community.courseName.toLowerCase().includes(query) ||
+        community.topic.toLowerCase().includes(query)
+      );
+    });
+  }, [searchQuery]);
+
   const menuItems = userRole === 'admin'
     ? [
-        { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-        { icon: Users, label: 'Users', page: 'admin-users' },
-        { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-        { icon: MessageSquare, label: 'Communities', page: 'admin-communities', active: selectedCommunity !== null || selectedThread !== null },
-        { icon: FileText, label: 'Reports', page: 'admin-reports' },
-        { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-        { icon: User, label: 'Profile', page: 'admin-profile' },
-        { icon: Settings, label: 'Settings', page: 'admin-settings' },
-      ]
-    : userRole === 'instructor' 
-    ? [
+      { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
+      { icon: Users, label: 'Users', page: 'admin-users' },
+      { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
+      { icon: MessageSquare, label: 'Communities', page: 'admin-communities', active: selectedCommunity !== null || selectedThread !== null },
+      { icon: FileText, label: 'Reports', page: 'admin-reports' },
+      { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
+      { icon: User, label: 'Profile', page: 'admin-profile' },
+      { icon: Settings, label: 'Settings', page: 'admin-settings' },
+    ]
+    : userRole === 'instructor'
+      ? [
         { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-        { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
+        { icon: BookOpen, label: 'Courses', page: 'instructor-courses' },
         { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
         { icon: Users, label: 'Community', page: 'community', active: true },
         { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
@@ -139,7 +157,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         { icon: Settings, label: 'Settings', page: 'instructor-settings' },
         { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
       ]
-    : [
+      : [
         { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
         { icon: BookOpen, label: 'Courses', page: 'student-courses' },
         { icon: FileText, label: 'Assignments', page: 'student-assignments' },
@@ -233,7 +251,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     const isPostHidden = hiddenPosts.includes(currentPost.id);
 
     return (
-      <motion.div 
+      <motion.div
         className="min-h-screen bg-gray-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -242,11 +260,13 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         <div className="flex">
           {/* Sidebar - Always visible */}
           <Sidebar
-            userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
+            userRole={userRole}
             navigate={navigate}
             logout={logout}
             menuItems={menuItems}
             activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+            isMobileOpen={isMobileOpen}
+            setIsMobileOpen={setIsMobileOpen}
           />
 
           {/* Main Content - Thread View */}
@@ -254,8 +274,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             <header className="bg-white border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     onClick={() => setSelectedThread(null)}
                     className="mb-2"
                   >
@@ -271,17 +291,12 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                       Moderation Mode: ON
                     </Badge>
                   )}
-                  <HeaderIcons
-                    navigate={navigate}
-                    logout={logout}
-                    userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
-                  />
-
+                  <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
                 </div>
               </div>
             </header>
 
-            <main className="p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
+            <main className="p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
               <div className="max-w-4xl mx-auto space-y-6">
                 {/* Original Post */}
                 <motion.div
@@ -318,11 +333,10 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleHidePost(currentPost.id)}
-                                  className={`transition-all duration-300 ${
-                                    isPostHidden 
-                                      ? 'text-green-600 hover:bg-green-50 border-green-200' 
-                                      : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                  }`}
+                                  className={`transition-all duration-300 ${isPostHidden
+                                    ? 'text-green-600 hover:bg-green-50 border-green-200'
+                                    : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                    }`}
                                 >
                                   <EyeOff className="h-4 w-4" />
                                 </Button>
@@ -397,11 +411,10 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                           size="sm"
                                           variant="outline"
                                           onClick={() => handleHideReply(reply.id)}
-                                          className={`transition-all duration-300 ${
-                                            isReplyHidden 
-                                              ? 'text-green-600 hover:bg-green-50 border-green-200' 
-                                              : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                          }`}
+                                          className={`transition-all duration-300 ${isReplyHidden
+                                            ? 'text-green-600 hover:bg-green-50 border-green-200'
+                                            : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                            }`}
                                         >
                                           <EyeOff className="h-4 w-4" />
                                         </Button>
@@ -453,7 +466,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             </main>
           </div>
         </div>
-        
+
         <AIAssistant />
       </motion.div>
     );
@@ -465,7 +478,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     if (!community) return null;
 
     return (
-      <motion.div 
+      <motion.div
         className="min-h-screen bg-gray-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -474,22 +487,22 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         <div className="flex">
           {/* Sidebar - Always visible */}
           <Sidebar
-            userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
+            userRole={userRole}
             navigate={navigate}
             logout={logout}
             menuItems={menuItems}
             activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+            isMobileOpen={isMobileOpen}
+            setIsMobileOpen={setIsMobileOpen}
           />
-
-
 
           {/* Main Content - Community Detail */}
           <div className="flex-1">
             <header className="bg-white border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     onClick={handleBackToCommunities}
                     className="mb-2"
                   >
@@ -505,12 +518,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                       Moderation Mode: ON
                     </Badge>
                   )}
-                  <HeaderIcons
-                    navigate={navigate}
-                    logout={logout}
-                    userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
-                  />
-
+                  <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
                   {userRole === 'instructor' && (
                     <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
                       <Plus className="mr-2 h-5 w-5" />
@@ -598,9 +606,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                           key={post.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className={`border rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer ${
-                            isHidden ? 'opacity-50 bg-gray-50' : 'hover:border-violet-200'
-                          }`}
+                          className={`border rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer ${isHidden ? 'opacity-50 bg-gray-50' : 'hover:border-violet-200'
+                            }`}
                           onClick={() => setSelectedThread(post.id)}
                         >
                           <div className="flex gap-4">
@@ -631,14 +638,12 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                       variant="outline"
                                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                         e.stopPropagation();
-                                        handleHidePost(post.id);
+                                        setSelectedCommunity(community.id);
                                       }}
-
-                                      className={`transition-all duration-300 ${
-                                        isHidden 
-                                          ? 'text-green-600 hover:bg-green-50 border-green-200' 
-                                          : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                      }`}
+                                      className={`transition-all duration-300 ${isHidden
+                                        ? 'text-green-600 hover:bg-green-50 border-green-200'
+                                        : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                        }`}
                                     >
                                       <EyeOff className="h-4 w-4" />
                                     </Button>
@@ -647,9 +652,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                       variant="outline"
                                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                         e.stopPropagation();
-                                        handleHidePost(post.id);
+                                        setSelectedCommunity(community.id);
                                       }}
-
                                       className="text-red-600 hover:bg-red-50 border-red-200 transition-all duration-300"
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -658,14 +662,14 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                 )}
                               </div>
                               <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <button 
+                                <button
                                   className="flex items-center gap-1 hover:text-violet-600 transition-colors"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <ThumbsUp className="h-4 w-4" />
                                   <span>{post.likes}</span>
                                 </button>
-                                <button 
+                                <button
                                   className="flex items-center gap-1 hover:text-cyan-600 transition-colors"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -687,7 +691,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             </main>
           </div>
         </div>
-        
+
         <AIAssistant />
       </motion.div>
     );
@@ -695,47 +699,79 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
   // Community list view
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
+      <div className="flex relative overflow-hidden">
         {/* Sidebar - Always visible */}
         <Sidebar
-          userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
+          userRole={userRole}
           navigate={navigate}
           logout={logout}
           menuItems={menuItems}
           activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-
         {/* Main Content */}
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
+        <div className="flex-1 lg:ml-0 w-full overflow-hidden">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            {/* Mobile: Two-row layout */}
+            <div className="lg:hidden">
+              <div className="flex items-start justify-between mb-4 gap-4">
+                {/* Mobile Menu Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div className="flex-1">
+                  <h1 className="text-xl">Communities</h1>
+                  <p className="text-gray-600 text-sm">Connect with learners in your courses</p>
+                </div>
+                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search communities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-violet-400 focus:outline-none transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            {/* Desktop: Single-row layout with search in the middle */}
+            <div className="hidden lg:flex items-center justify-between gap-6">
+              <div className="flex-shrink-0">
                 <h1 className="text-2xl">Communities</h1>
                 <p className="text-gray-600">Connect with learners in your courses</p>
               </div>
-              <HeaderIcons
-                navigate={navigate}
-                logout={logout}
-                userRole={userRole === 'guest' ? 'student' : (userRole as 'student' | 'instructor' | 'admin')}
-              />
-
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search communities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-violet-400 focus:outline-none transition-all duration-200"
+                />
+              </div>
+              <div className="flex-shrink-0">
+                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              </div>
             </div>
           </header>
 
-          <main className="p-6">
-            {/* Search */}
-            <div className="mb-6">
-              <div className="relative max-w-xl">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input placeholder="Search communities..." className="pl-10" />
-              </div>
-            </div>
-
+          <main className="p-4 md:p-6">
             {/* Community Cards Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {communities.map((community, index) => (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {filteredCommunities.map((community, index) => (
                 <motion.div
                   key={community.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -743,7 +779,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
                 >
-                  <Card 
+                  <Card
                     className="overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
                     onClick={() => setSelectedCommunity(community.id)}
                   >
@@ -763,7 +799,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                     {/* Course Info */}
                     <CardContent className="p-4">
                       <h3 className="text-lg mb-3 line-clamp-2">{community.courseName}</h3>
-                      
+
                       <div className="flex items-center justify-between text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
@@ -775,13 +811,12 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                         </div>
                       </div>
 
-                      <Button 
+                      <Button
                         className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                         onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation();
                           setSelectedCommunity(community.id);
                         }}
-
                       >
                         View Community
                       </Button>
@@ -793,7 +828,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -18,16 +19,20 @@ import {
   ArrowRight,
   LogOut,
   MessageSquare,
+  Menu,
+  Star,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import TestimonialForm from '../../components/TestimonialForm';
 
 interface StudentDashboardProps {
   navigate: (page: string) => void;
@@ -66,6 +71,9 @@ const recentActivity = [
 ];
 
 export default function StudentDashboard({ navigate, logout, userRole }: StudentDashboardProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isTestimonialOpen, setIsTestimonialOpen] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard', active: true },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -86,8 +94,8 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -95,25 +103,37 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
           logout={logout}
           userRole="student"
           activePage="student-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 lg:ml-0 w-full">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Welcome back, Alex!</h1>
-                <p className="text-gray-600">Continue your learning journey</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden flex-shrink-0"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl">Welcome back, Alex!</h1>
+                <p className="text-gray-600 text-sm md:text-base">Continue your learning journey</p>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
           {/* Content */}
-          <main className="p-6">
+          <main className="p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                 <Card>
                   <CardContent className="pt-6">
@@ -179,25 +199,25 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                       {enrolledCourses.map((course) => (
                         <div
                           key={course.id}
-                          className="flex gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                          className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                           onClick={() => navigate('course-details')}
                         >
                           <ImageWithFallback
                             src={course.image}
                             alt={course.title}
-                            className="w-24 h-24 rounded-lg object-cover"
+                            className="w-full sm:w-24 h-48 sm:h-24 rounded-lg object-cover"
                           />
                           <div className="flex-1">
                             <h3 className="mb-2">{course.title}</h3>
                             <p className="text-sm text-gray-600 mb-2">Next: {course.nextLesson}</p>
                             <div className="flex items-center gap-3">
-                              <Progress value={course.progress} className="flex-1 h-2" />
+                              <Progress value={course.progress} className="flex-1 h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500" />
                               <span className="text-sm">{course.progress}%</span>
                             </div>
                           </div>
                           <Button 
                             size="sm" 
-                            className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                            className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300 w-full sm:w-auto"
                           >
                             Continue
                           </Button>
@@ -250,11 +270,18 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('community')}>
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200" 
+                onClick={() => setIsTestimonialOpen(true)}
+              >
                 <CardContent className="pt-6">
-                  <Users className="h-12 w-12 text-blue-600 mb-3" />
-                  <h3 className="mb-2">Community</h3>
-                  <p className="text-sm text-gray-600">Connect with fellow learners</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <h3 className="mb-2 bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent">Share Your Experience</h3>
+                  <p className="text-sm text-gray-600">Help others by sharing your learning journey</p>
                 </CardContent>
               </Card>
             </div>
@@ -263,6 +290,17 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
       </div>
 
       <AIAssistant />
+      
+      {/* Testimonial Dialog */}
+      <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+          <TestimonialForm 
+            onClose={() => setIsTestimonialOpen(false)}
+            studentName="Alex Johnson"
+            studentRole="Software Engineering Student"
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

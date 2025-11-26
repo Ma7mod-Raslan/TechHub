@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
+
 interface HeaderIconsProps {
   navigate: (page: string) => void;
   logout: () => void;

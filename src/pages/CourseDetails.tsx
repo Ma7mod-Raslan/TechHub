@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { UserRole } from '../App';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import { toast } from 'sonner';
 
 interface CourseDetailsProps {
   navigate: (page: string) => void;
@@ -16,8 +17,26 @@ interface CourseDetailsProps {
 }
 
 export default function CourseDetails({ navigate, userRole }: CourseDetailsProps) {
+  const handleEnroll = () => {
+    if (userRole === 'guest') {
+      toast.error('Please sign up or log in to enroll in this course');
+      setTimeout(() => {
+        navigate('signup');
+      }, 1000);
+    } else if (userRole === 'student') {
+      toast.success('Successfully enrolled in the course!');
+      setTimeout(() => {
+        navigate('student-courses');
+      }, 1000);
+    } else if (userRole === 'instructor') {
+      toast.error('Instructors cannot enroll in courses. Please sign in with a student account.');
+    } else if (userRole === 'admin') {
+      toast.error('Admins cannot enroll in courses. Please sign in with a student account.');
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-y-auto scrollbar-hide">
       <Navbar navigate={navigate} isLoggedIn={userRole !== 'guest'} userRole={userRole} />
 
       <div className="container mx-auto px-4 py-8">
@@ -197,7 +216,7 @@ export default function CourseDetails({ navigate, userRole }: CourseDetailsProps
                   />
                   <div className="p-6">
                     <div className="text-3xl mb-4">$89.99</div>
-                    <Button className="w-full mb-3 bg-gradient-to-r from-cyan-500 to-blue-600">
+                    <Button className="w-full mb-3 bg-gradient-to-r from-cyan-500 to-blue-600" onClick={handleEnroll}>
                       Enroll Now
                     </Button>
                     <Button variant="outline" className="w-full mb-6">

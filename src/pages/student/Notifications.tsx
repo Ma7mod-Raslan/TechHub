@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -18,6 +19,7 @@ import {
   AlertCircle,
   LogOut,
   MessageSquare,
+  Menu,
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -81,6 +83,8 @@ const notifications = [
 ];
 
 export default function StudentNotifications({ navigate, logout, userRole }: StudentNotificationsProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -101,8 +105,8 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -110,23 +114,38 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
           logout={logout}
           userRole="student"
           activePage="student-notifications"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Notifications</h1>
-                <p className="text-gray-600">Stay updated with your learning activity</p>
+        <div className="flex-1 lg:ml-0 w-full">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              {/* Mobile Menu Button */}
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden flex-shrink-0"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+                
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl md:text-2xl truncate">Notifications</h1>
+                  <p className="text-gray-600 text-sm md:text-base truncate">Stay updated with your learning activity</p>
+                </div>
               </div>
+              
               <div className="flex items-center gap-2">
-                <Button variant="outline">Mark All as Read</Button>
+                <Button variant="outline" size="sm" className="hidden md:flex">Mark All as Read</Button>
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="notifications" />
               </div>
             </div>
           </header>
 
-          <main className="p-6 max-w-4xl">
+          <main className="p-4 md:p-6 max-w-4xl">
             <div className="space-y-3">
               {notifications.map((notification) => (
                 <motion.div
