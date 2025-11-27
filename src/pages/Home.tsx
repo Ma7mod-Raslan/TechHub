@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Code, Database, Brain, Shield, Smartphone, Globe, Users, Award, Star, ChevronRight, BookOpen, TrendingUp } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -7,7 +7,6 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
-import AIAssistant from '../components/AIAssistant';
 
 interface HomeProps {
   navigate: (page: string) => void;
@@ -105,6 +104,17 @@ const stats = [
 
 export default function Home({ navigate, isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
+  const [allTestimonials, setAllTestimonials] = useState(testimonials);
+
+  useEffect(() => {
+    // Load user testimonials from localStorage
+    const userTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
+    
+    // Combine user testimonials with default ones
+    // Show latest 3 user testimonials first, then default ones
+    const combined = [...userTestimonials.slice(-3).reverse(), ...testimonials].slice(0, 3);
+    setAllTestimonials(combined);
+  }, []);
 
   const handleRoleSelect = (role: 'student' | 'instructor') => {
     setSelectedRole(role);
@@ -118,15 +128,15 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-hidden scrollbar-hide">
       <Navbar navigate={navigate} isLoggedIn={isLoggedIn} userRole={userRole} transparent logout={handleLogout} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
         
-        <div className="container mx-auto px-4 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
@@ -135,20 +145,20 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <Badge className="mb-4 bg-gradient-to-r from-violet-600 to-cyan-500">
                 🚀 Join 500,000+ Learners
               </Badge>
-              <h1 className="text-5xl lg:text-6xl mb-6 bg-gradient-to-r from-gray-900 via-violet-900 to-cyan-900 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 md:mb-6 bg-gradient-to-r from-gray-900 via-violet-900 to-cyan-900 bg-clip-text text-transparent">
                 Master Tech Skills That Matter
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Learn from industry experts, build real projects, and accelerate your career in technology with TechHub's comprehensive courses.
               </p>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
                 {!isLoggedIn ? (
                   <>
                     <Button
                       size="lg"
                       onClick={() => navigate('signup')}
-                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300 w-full sm:w-auto"
                     >
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
@@ -157,7 +167,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                       size="lg" 
                       variant="outline" 
                       onClick={() => navigate('course-details')}
-                      className="transition-all duration-300"
+                      className="transition-all duration-300 w-full sm:w-auto"
                     >
                       <BookOpen className="mr-2 h-5 w-5" />
                       Browse Courses
@@ -168,12 +178,12 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                     <Button
                       size="lg"
                       onClick={() => navigate('instructor-dashboard')}
-                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 w-full sm:w-auto"
                     >
                       Start Teaching
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => navigate('instructor-courses')}>
+                    <Button size="lg" variant="outline" onClick={() => navigate('instructor-courses')} className="w-full sm:w-auto">
                       <BookOpen className="mr-2 h-5 w-5" />
                       My Courses
                     </Button>
@@ -183,12 +193,12 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                     <Button
                       size="lg"
                       onClick={() => navigate('student-dashboard')}
-                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 w-full sm:w-auto"
                     >
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => navigate('student-courses')}>
+                    <Button size="lg" variant="outline" onClick={() => navigate('student-courses')} className="w-full sm:w-auto">
                       <BookOpen className="mr-2 h-5 w-5" />
                       Browse Courses
                     </Button>
@@ -201,7 +211,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative hidden lg:block"
             >
               <div className="relative z-10">
                 <ImageWithFallback
@@ -213,8 +223,15 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <motion.div
                 animate={{ y: [0, -20, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg"
+                className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg hidden xl:block"
               >
+                <div className="flex items-center gap-2">
+                  <Award className="h-8 w-8 text-yellow-500" />
+                  <div>
+                    <div className="text-sm text-gray-600">Certificates</div>
+                    <div className="text-xl">250K+ Issued</div>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           </div>
@@ -351,7 +368,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <h2 className="text-4xl mb-2">Featured Courses</h2>
               <p className="text-xl text-gray-600">Most popular courses among our learners</p>
             </div>
-            <Button variant="outline" onClick={() => navigate('course-details')}>
+            <Button variant="outline" onClick={() => navigate('all-courses')}>
               View All
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
@@ -412,7 +429,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {allTestimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
@@ -448,7 +465,6 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       </section>
 
       <Footer navigate={navigate} />
-      <AIAssistant/>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, CheckCircle2, Circle, ArrowRight, LogOut, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, CheckCircle2, Circle, ArrowRight, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -63,6 +64,8 @@ const roadmaps = [
 ];
 
 export default function StudentRoadmaps({ navigate, logout, userRole }: StudentRoadmapsProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -83,8 +86,8 @@ export default function StudentRoadmaps({ navigate, logout, userRole }: StudentR
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -92,20 +95,32 @@ export default function StudentRoadmaps({ navigate, logout, userRole }: StudentR
           logout={logout}
           userRole="student"
           activePage="student-roadmaps"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Learning Roadmaps</h1>
-                <p className="text-gray-600">AI-powered personalized learning paths</p>
+        <div className="flex-1 lg:ml-0 w-full">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden flex-shrink-0"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl">Learning Roadmaps</h1>
+                <p className="text-gray-600 text-sm md:text-base">AI-powered personalized learning paths</p>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
-          <main className="p-6">
+          <main className="p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
             <div className="space-y-6">
               {roadmaps.map((roadmap, index) => (
                 <motion.div key={roadmap.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>

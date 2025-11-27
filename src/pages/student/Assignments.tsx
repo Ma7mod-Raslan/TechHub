@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Calendar, CheckCircle2, Clock, Upload, ArrowRight, LogOut, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Calendar, CheckCircle2, Clock, Upload, ArrowRight, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -23,6 +24,8 @@ const assignments = [
 ];
 
 export default function StudentAssignments({ navigate, logout, userRole }: StudentAssignmentsProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -100,8 +103,8 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -109,20 +112,32 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
           logout={logout}
           userRole="student"
           activePage="student-assignments"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Assignments</h1>
-                <p className="text-gray-600">Track your assignments and submissions</p>
+        <div className="flex-1 lg:ml-0 w-full">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden flex-shrink-0"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl">Assignments</h1>
+                <p className="text-gray-600 text-sm md:text-base">Track your assignments and submissions</p>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
-          <main className="p-6">
+          <main className="p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
             <Tabs defaultValue="all">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>

@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -20,6 +21,7 @@ import {
   ArrowRight,
   LogOut,
   MessageSquare,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -37,6 +39,8 @@ interface StudentProfileProps {
 }
 
 export default function StudentProfile({ navigate, logout, userRole }: StudentProfileProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -71,8 +75,8 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 relative">
+      <div className="flex relative">
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
@@ -80,20 +84,32 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
           logout={logout}
           userRole="student"
           activePage="student-profile"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">My Profile</h1>
-                <p className="text-gray-600">Manage your personal information</p>
+        <div className="flex-1 lg:ml-0 w-full">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden flex-shrink-0"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+              
+              <div className="flex-1">
+                <h1 className="text-xl md:text-2xl">My Profile</h1>
+                <p className="text-gray-600 text-sm md:text-base">Manage your personal information</p>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile" />
             </div>
           </header>
 
-          <main className="p-6">
+          <main className="p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
             <div className="grid lg:grid-cols-3 gap-6 mb-6">
               {/* Profile Info Card */}
               <Card className="lg:col-span-1">
