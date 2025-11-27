@@ -1,8 +1,5 @@
-
 -- Create Database Schema for TechHub Platform
-
-USE TechHub;
-
+USE techhub;
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   full_name VARCHAR(100) NOT NULL,
@@ -11,30 +8,34 @@ CREATE TABLE users (
   role VARCHAR(20) CHECK (role IN ('student', 'instructor', 'admin')) DEFAULT 'student',
   profile_image VARCHAR(255),
   bio TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_verified BOOLEAN DEFAULT false,
+  verification_code VARCHAR(10),
+  verification_expires_at TIMESTAMP,
+  google_id VARCHAR(255),
+  auth_provider VARCHAR(50) DEFAULT 'local'
 );
-
 CREATE TABLE courses (
   id SERIAL PRIMARY KEY,
   title VARCHAR(150) NOT NULL,
   description TEXT,
   category VARCHAR(100),
   instructor_id INT REFERENCES users(id) ON DELETE CASCADE,
-  level VARCHAR(20) CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
+  level VARCHAR(20) CHECK (
+    level IN ('Beginner', 'Intermediate', 'Advanced')
+  ),
   status VARCHAR(20) CHECK (status IN ('Published', 'Draft')) DEFAULT 'Draft',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE course_videos (
-    id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES courses(id) ON DELETE CASCADE,
-    video_order INT DEFAULT 1,
-    title VARCHAR(200),
-    video_url VARCHAR(300) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  id SERIAL PRIMARY KEY,
+  course_id INT REFERENCES courses(id) ON DELETE CASCADE,
+  video_order INT DEFAULT 1,
+  title VARCHAR(200),
+  video_url VARCHAR(300) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE enrollments (
   id SERIAL PRIMARY KEY,
   student_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -43,7 +44,6 @@ CREATE TABLE enrollments (
   completed BOOLEAN DEFAULT FALSE,
   enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE assignments (
   id SERIAL PRIMARY KEY,
   course_id INT REFERENCES courses(id) ON DELETE CASCADE,
@@ -52,7 +52,6 @@ CREATE TABLE assignments (
   deadline DATE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE submissions (
   id SERIAL PRIMARY KEY,
   assignment_id INT REFERENCES assignments(id) ON DELETE CASCADE,
@@ -61,7 +60,6 @@ CREATE TABLE submissions (
   grade FLOAT,
   submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE certificates (
   id SERIAL PRIMARY KEY,
   student_id INT REFERENCES users(id),
@@ -69,14 +67,12 @@ CREATE TABLE certificates (
   certificate_link VARCHAR(255),
   issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE communities (
   id SERIAL PRIMARY KEY,
   course_id INT REFERENCES courses(id),
   name VARCHAR(100),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
   community_id INT REFERENCES communities(id),
@@ -84,7 +80,6 @@ CREATE TABLE messages (
   message TEXT NOT NULL,
   sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id),
@@ -93,4 +88,3 @@ CREATE TABLE notifications (
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-

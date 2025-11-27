@@ -11,6 +11,9 @@ console.log("JWT_SECRET =", process.env.JWT_SECRET ? "[SET]" : "[NOT SET]");
 const app = express();
 app.use(express.json());
 
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
 // Public routes
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", coursesRoutes);
