@@ -1,11 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import pkg from "pg";
 const { Pool } = pkg;
 
-export const db = new Pool({
-  user: "techhub_user",
-  host: "localhost",
-  database: "techhub",
-  password: "12345",
-  port: 5432
+const isNeon = process.env.DATABASE_URL && process.env.DATABASE_URL.includes("neon.tech");
+
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: isNeon ? { rejectUnauthorized: false } : false
 });
 
+export default db;

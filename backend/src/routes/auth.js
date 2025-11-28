@@ -4,7 +4,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../db.js";
-import sendVerificationEmail from "../utils/sendEmail.js";
+import { sendVerificationEmail } from "../services/mail.js";
 import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
