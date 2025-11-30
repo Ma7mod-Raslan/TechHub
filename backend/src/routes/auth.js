@@ -80,11 +80,22 @@ router.post("/google", async (req, res) => {
 // =========================
 router.post("/signup", async (req, res) => {
   try {
-    const { full_name, email, password } = req.body;
+    const { full_name, email, password, role } = req.body;
 
-    if (!full_name || !email || !password)
-      return res.status(400).json({ error: "Missing fields" });
+    // Validate fields
+    if (!full_name || !email || !password || !role) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
+    // Validate role
+    const allowedRoles = ["student", "instructor"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({
+        error: "Role must be either 'student' or 'instructor'",
+      });
+    }
+
+    // Check if user exists
     const exists = await db.query(
       "SELECT auth_provider FROM users WHERE email=$1",
       [email]
@@ -99,32 +110,38 @@ router.post("/signup", async (req, res) => {
       return res.status(409).json({ error: "Email already registered" });
     }
 
+    // Hash password
     const hashed = await bcrypt.hash(password, 10);
 
+    // Create user
     const result = await db.query(
       `INSERT INTO users (full_name, email, password, role, auth_provider)
-       VALUES ($1, $2, $3, 'student', 'local')
+       VALUES ($1, $2, $3, $4, 'local')
        RETURNING id, full_name, email, role`,
-      [full_name, email, hashed]
+      [full_name, email, hashed, role]
     );
 
     const user = result.rows[0];
 
+    // Generate verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MIN || 30);
     const expiresAt = new Date(Date.now() + ttlMin * 60000);
 
+    // Save code
     await db.query(
       "UPDATE users SET verification_code=$1, verification_expires_at=$2 WHERE id=$3",
       [code, expiresAt, user.id]
     );
 
+    // Send email
     sendVerificationEmail(user.email, code, user.id).catch(console.error);
 
     res.status(201).json({
       user,
       message: "Account created. Verification code sent to your email.",
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
