@@ -1,39 +1,112 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
-import { Code2, Mail, Lock, Eye, EyeOff, Github } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { Checkbox } from '../../components/ui/checkbox';
-import { Card, CardContent } from '../../components/ui/card';
-import { Separator } from '../../components/ui/separator';
+// src/pages/auth/Login.tsx
+import { useState } from "react";
+import { motion } from "motion/react";
+import { loginWithGoogle } from "../../firebase";
+import { Code2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Card, CardContent } from "../../components/ui/card";
+import { Separator } from "../../components/ui/separator";
+import api from "../../api";
 
 interface LoginProps {
-  navigate: (page: string, role?: 'student' | 'instructor' | 'admin') => void;
+  navigate: (page: string, role?: "student" | "instructor" | "admin") => void;
 }
 
 export default function Login({ navigate }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // ========================
+  //  LOGIN WITH BACKEND
+  // ========================
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Check for admin credentials
-    if (email === 'admin@techhub.com' && password === 'admin123') {
-      navigate('admin-dashboard', 'admin');
+    setLoading(true);
+
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      const { token, user } = res.data;
+
+      // save login token + user
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // navigate based on role
+      if (user.role === "admin") {
+        navigate("admin-dashboard", "admin");
+      } else if (user.role === "instructor") {
+        navigate("instructor-dashboard", "instructor");
+      } else {
+        navigate("student-dashboard", "student");
+      }
       return;
+    } catch (err: any) {
+      const msg = err?.response?.data?.error;
+
+      // user is not verified
+      if (msg === "Please verify your email before login.") {
+        const backendRole = err?.response?.data?.role || "student";
+
+        localStorage.setItem(
+          "pendingVerification",
+          JSON.stringify({ email, role: backendRole })
+        );
+
+        alert("Please verify your email before logging in.");
+        navigate("verification", backendRole);
+        setLoading(false);
+        return;
+      }
+
+      alert(msg || "Login failed");
+    } finally {
+      setLoading(false);
     }
-    
-    // Check for instructor (mock)
-    if (email.includes('instructor') || email === 'sarah@techhub.com') {
-      navigate('instructor-dashboard', 'instructor');
-      return;
+  };
+
+  // ============================
+  // GOOGLE LOGIN (connected to backend)
+  // ============================
+  const handleGoogleLogin = async (): Promise<void> => {
+    try {
+      const result = await loginWithGoogle();
+      const user = result.user;
+      if (!user) return;
+
+      const idToken = await user.getIdToken();
+
+      const res = await api.post("/auth/google", { id_token: idToken });
+      const { token, user: backendUser } = res.data;
+
+      // save token + user
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(backendUser));
+
+      // navigate by backend role
+      if (backendUser.role === "admin") {
+        navigate("admin-dashboard", "admin");
+      } else if (backendUser.role === "instructor") {
+        navigate("instructor-dashboard", "instructor");
+      } else {
+        navigate("student-dashboard", "student");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(
+        err?.response?.data?.error ||
+        err?.message ||
+        "Google login failed"
+      );
     }
-    
-    // Default to student
-    navigate('student-dashboard', 'student');
   };
 
   return (
@@ -48,7 +121,7 @@ export default function Login({ navigate }: LoginProps) {
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-2 cursor-pointer mb-4"
-            onClick={() => navigate('home')}
+            onClick={() => navigate("home")}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl">
               <Code2 className="h-8 w-8 text-white" />
@@ -86,7 +159,7 @@ export default function Login({ navigate }: LoginProps) {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     className="pl-10 pr-10"
                     value={password}
@@ -98,7 +171,11 @@ export default function Login({ navigate }: LoginProps) {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -112,15 +189,19 @@ export default function Login({ navigate }: LoginProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate('forgot-password')}
+                  onClick={() => navigate("forgot-password")}
                   className="text-sm text-cyan-600 hover:text-cyan-700"
                 >
                   Forgot password?
                 </button>
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
-                Sign In
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-violet-600 to-cyan-500"
+              >
+                {loading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
@@ -132,57 +213,27 @@ export default function Login({ navigate }: LoginProps) {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" type="button">
+              <Button variant="outline" type="button" onClick={handleGoogleLogin}>
                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
                 Google
               </Button>
-              <Button variant="outline" type="button">
-                <Github className="h-5 w-5 mr-2" />
-                GitHub
-              </Button>
+
             </div>
 
             <p className="text-center text-sm text-gray-600 mt-6">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
-                onClick={() => navigate('signup')}
+                onClick={() => navigate("signup")}
                 className="text-cyan-600 hover:text-cyan-700"
               >
                 Sign up
               </button>
             </p>
-            
-            <div className="mt-6 p-4 bg-gradient-to-br from-violet-50 to-cyan-50 rounded-lg border border-violet-200">
-              <p className="text-sm mb-2">
-                <strong>Test Credentials:</strong>
-              </p>
-              <p className="text-xs text-gray-600 mb-1">
-                <strong>Admin:</strong> admin@techhub.com / admin123
-              </p>
-              <p className="text-xs text-gray-600 mb-1">
-                <strong>Instructor:</strong> sarah@techhub.com / password
-              </p>
-              <p className="text-xs text-gray-600">
-                <strong>Student:</strong> any email / any password
-              </p>
-            </div>
           </CardContent>
         </Card>
       </motion.div>
