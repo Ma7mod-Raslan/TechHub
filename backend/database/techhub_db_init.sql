@@ -24,6 +24,7 @@ CREATE TABLE courses (
     level IN ('Beginner', 'Intermediate', 'Advanced')
   ),
   status VARCHAR(20) CHECK (status IN ('Published', 'Draft')) DEFAULT 'Draft',
+  thumbnail VARCHAR(300),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE course_videos (
