@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import AIAssistant from '../components/AIAssistant';
 
 interface HomeProps {
   navigate: (page: string) => void;
@@ -109,7 +110,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
   useEffect(() => {
     // Load user testimonials from localStorage
     const userTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
-    
+
     // Combine user testimonials with default ones
     // Show latest 3 user testimonials first, then default ones
     const combined = [...userTestimonials.slice(-3).reverse(), ...testimonials].slice(0, 3);
@@ -134,7 +135,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
-        
+
         <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
@@ -151,7 +152,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Learn from industry experts, build real projects, and accelerate your career in technology with TechHub's comprehensive courses.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
                 {!isLoggedIn ? (
                   <>
@@ -163,9 +164,9 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button 
-                      size="lg" 
-                      variant="outline" 
+                    <Button
+                      size="lg"
+                      variant="outline"
                       onClick={() => navigate('course-details')}
                       className="transition-all duration-300 w-full sm:w-auto"
                     >
@@ -225,13 +226,6 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                 transition={{ duration: 3, repeat: Infinity }}
                 className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg hidden xl:block"
               >
-                <div className="flex items-center gap-2">
-                  <Award className="h-8 w-8 text-yellow-500" />
-                  <div>
-                    <div className="text-sm text-gray-600">Certificates</div>
-                    <div className="text-xl">250K+ Issued</div>
-                  </div>
-                </div>
               </motion.div>
             </motion.div>
           </div>
@@ -462,9 +456,12 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
             ))}
           </div>
         </div>
+
       </section>
 
+
       <Footer navigate={navigate} />
+      <AIAssistant />
     </div>
   );
 }
