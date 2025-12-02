@@ -242,7 +242,6 @@ router.post("/resend-verification", async (req, res) => {
   }
 });
 
-
 // =========================
 //          LOGIN
 // =========================
@@ -299,5 +298,137 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// =========================
+//          Forget Password
+// =========================
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email)
+      return res.status(400).json({ error: "Email is required" });
+
+    const result = await db.query(
+      "SELECT id, auth_provider FROM users WHERE email=$1",
+      [email]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "User not found" });
+
+    const user = result.rows[0];
+
+    if (user.auth_provider === "google") {
+      return res.status(400).json({
+        error: "Google accounts do not use passwords. Please sign in with Google."
+      });
+    }
+
+    // Generate new reset code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 15 * 60000); // 15 minutes
+
+    await db.query(
+      `UPDATE users SET verification_code=$1, verification_expires_at=$2 WHERE id=$3`,
+      [code, expires, user.id]
+    );
+
+    sendVerificationEmail(email, code, user.id);
+
+    res.json({ message: "Reset code sent to your email." });
+
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// =========================
+// verify reset code
+// =========================
+router.post("/verify-reset", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code)
+      return res.status(400).json({ error: "Email and code are required" });
+
+    const result = await db.query(
+      `SELECT id, verification_code, verification_expires_at 
+       FROM users WHERE email=$1`,
+      [email]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "User not found" });
+
+    const user = result.rows[0];
+
+    if (user.verification_code !== code)
+      return res.status(400).json({ error: "Invalid code" });
+
+    if (new Date() > user.verification_expires_at)
+      return res.status(400).json({ error: "Code expired" });
+
+    res.json({ message: "Code verified successfully" });
+
+  } catch (err) {
+    console.error("Verify Reset Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// =========================
+//        RESET PASSWORD
+// =========================
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, code, new_password } = req.body;
+
+    if (!email || !code || !new_password)
+      return res.status(400).json({
+        error: "Email, code, and new password are required"
+      });
+
+    const result = await db.query(
+      `SELECT id, verification_code, verification_expires_at 
+       FROM users WHERE email=$1`,
+      [email]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "User not found" });
+
+    const user = result.rows[0];
+
+    // Validate code
+    if (user.verification_code !== code)
+      return res.status(400).json({ error: "Invalid code" });
+
+    if (new Date() > user.verification_expires_at)
+      return res.status(400).json({ error: "Code expired" });
+
+    // Update password
+    const hashed = await bcrypt.hash(new_password, 10);
+
+    await db.query(
+      `UPDATE users 
+       SET password=$1, verification_code=NULL, verification_expires_at=NULL 
+       WHERE id=$2`,
+      [hashed, user.id]
+    );
+
+    res.json({ message: "Password updated successfully" });
+
+  } catch (err) {
+    console.error("Reset Password Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 
 export default router;
