@@ -276,45 +276,56 @@ router.delete(
 /* ---------------------------------------
    INSTRUCTOR: Add video
 --------------------------------------- */
-router.post(
-  "/:id/videos",
-  authMiddleware,
-  allowRoles("instructor"),
-  async (req, res) => {
-    try {
-      const courseId = req.params.id;
-      const { title, video_url, description, video_order } = req.body;
+router.post("/:id/videos", authMiddleware, allowRoles("instructor"), async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const instructorId = req.user.id;
+    const { title, description, video_url, video_order } = req.body;
 
-      if (!title || !video_url || !video_order)
-        return res.status(400).json({ error: "Missing fields" });
+    // Only owner instructor can add videos
+    const owner = await db.query(
+      "SELECT id, instructor_id FROM courses WHERE id=$1",
+      [courseId]
+    );
 
-      // check ownership
-      const c = await db.query(
-        "SELECT instructor_id FROM courses WHERE id=$1",
-        [courseId]
-      );
+    if (owner.rows.length === 0)
+      return res.status(404).json({ error: "Course not found" });
 
-      if (c.rows.length === 0)
-        return res.status(404).json({ error: "Course not found" });
+    if (owner.rows[0].instructor_id !== instructorId)
+      return res.status(403).json({ error: "You do not own this course" });
 
-      if (c.rows[0].instructor_id !== req.user.id)
-        return res.status(403).json({ error: "Not allowed" });
+    // Prevent Duplicate video_order
+    const existsOrder = await db.query(
+      `SELECT id FROM course_videos
+       WHERE course_id=$1 AND video_order=$2`,
+      [courseId, video_order]
+    );
 
-      const result = await db.query(
-        `INSERT INTO course_videos 
-        (course_id, video_order, title, video_url, description)
-         VALUES ($1, $2, $3, $4, $5)
-         RETURNING *`,
-        [courseId, video_order, title, video_url, description]
-      );
-
-      res.json({ message: "Video added", video: result.rows[0] });
-
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    if (existsOrder.rows.length > 0) {
+      return res.status(400).json({
+        error: "video_order already exists for this course"
+      });
     }
+
+    // Insert new video
+    const result = await db.query(
+      `INSERT INTO course_videos (course_id, title, description, video_url, video_order)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [courseId, title, description, video_url, video_order]
+    );
+
+    res.status(201).json({
+      message: "Video added",
+      video: result.rows[0],
+    });
+
+  } catch (err) {
+    console.error("Add video error:", err);
+    res.status(500).json({ error: err.message });
   }
-);
+});
+
 
 
 
