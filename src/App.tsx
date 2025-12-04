@@ -5,6 +5,8 @@ import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
 import Verification from './pages/auth/Verification';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import VerifyResetCode from './pages/auth/VerifyResetCode';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import InstructorCourses from './pages/instructor/MyCourses';
 import InstructorAnalytics from './pages/instructor/Analytics';
@@ -75,6 +77,10 @@ export default function App() {
         return <Verification navigate={navigate} />;
       case 'forgot-password':
         return <ForgotPassword navigate={navigate} />;
+      case 'verify-reset-code':
+        return <VerifyResetCode navigate={navigate} />;
+      case 'reset-password':
+        return <ResetPasswordPage navigate={navigate} />;
       // Instructor Routes
       case 'instructor-dashboard':
         return <InstructorDashboard navigate={navigate} logout={logout} userRole="instructor" />;
@@ -122,7 +128,6 @@ export default function App() {
           return <Home navigate={navigate} logout={logout} />;
         }
         return <Community navigate={navigate} logout={logout} userRole={userRole} initialCommunityId={navigationState?.communityId} />;
-
       case 'about':
         return <About navigate={navigate} />;
       case 'contact':

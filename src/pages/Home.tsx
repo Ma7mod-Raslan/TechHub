@@ -32,7 +32,6 @@ const featuredCourses = [
     instructor: 'Sarah Johnson',
     rating: 4.9,
     students: 12500,
-    price: 89.99,
     image: 'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9ncmFtbWluZyUyMGNvZGUlMjBjb21wdXRlcnxlbnwxfHx8fDE3NjI2MTM4NTZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'Web Development',
     level: 'Beginner',
@@ -43,7 +42,6 @@ const featuredCourses = [
     instructor: 'Dr. Alex Chen',
     rating: 4.8,
     students: 9800,
-    price: 99.99,
     image: 'https://images.unsplash.com/photo-1688413709025-5f085266935a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHRlY2hub2xvZ3klMjBwYXR0ZXJufGVufDF8fHx8MTc2MjY0NjI5Mnww&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'AI & ML',
     level: 'Intermediate',
@@ -54,7 +52,6 @@ const featuredCourses = [
     instructor: 'Maria Garcia',
     rating: 4.9,
     students: 15200,
-    price: 79.99,
     image: 'https://images.unsplash.com/photo-1762330910399-95caa55acf04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobm9sb2d5JTIwZWR1Y2F0aW9uJTIwbGVhcm5pbmd8ZW58MXx8fHwxNzYyNzAxOTc0fDA&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'Data Science',
     level: 'Beginner',
@@ -65,7 +62,6 @@ const featuredCourses = [
     instructor: 'James Wilson',
     rating: 4.7,
     students: 7500,
-    price: 94.99,
     image: 'https://images.unsplash.com/photo-1646153114001-495dfb56506d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3b3Jrc3BhY2UlMjB0ZWNofGVufDF8fHx8MTc2MjYxMjQyOXww&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'Mobile Dev',
     level: 'Intermediate',
@@ -110,7 +106,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
   useEffect(() => {
     // Load user testimonials from localStorage
     const userTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
-
+    
     // Combine user testimonials with default ones
     // Show latest 3 user testimonials first, then default ones
     const combined = [...userTestimonials.slice(-3).reverse(), ...testimonials].slice(0, 3);
@@ -135,7 +131,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
-
+        
         <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
@@ -152,7 +148,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Learn from industry experts, build real projects, and accelerate your career in technology with TechHub's comprehensive courses.
               </p>
-
+              
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
                 {!isLoggedIn ? (
                   <>
@@ -164,9 +160,9 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
                       onClick={() => navigate('course-details')}
                       className="transition-all duration-300 w-full sm:w-auto"
                     >
@@ -221,12 +217,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                   className="rounded-2xl shadow-2xl"
                 />
               </div>
-              <motion.div
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg hidden xl:block"
-              >
-              </motion.div>
+              
             </motion.div>
           </div>
         </div>
@@ -399,7 +390,6 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                         <span className="text-sm">{course.rating}</span>
                         <span className="text-xs text-gray-500">({course.students.toLocaleString()})</span>
                       </div>
-                      <span className="text-lg">${course.price}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -456,12 +446,10 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
             ))}
           </div>
         </div>
-
       </section>
-
+      <AIAssistant/>
 
       <Footer navigate={navigate} />
-      <AIAssistant />
     </div>
   );
 }

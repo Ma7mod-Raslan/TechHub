@@ -80,7 +80,7 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   return (
@@ -186,7 +186,7 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
           </main>
         </div>
       </div>
-      <AIAssistant />
+      <AIAssistant contextType="compiler" />
     </div>
   );
 }

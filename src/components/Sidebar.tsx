@@ -5,7 +5,6 @@ import { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Button } from './ui/button';
 
-
 interface MenuItem {
   icon: LucideIcon;
   label: string;
@@ -55,8 +54,9 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
 
   const handleMobileNavigation = (page?: string) => {
     if (page) {
-      navigate?.(page);
-      setIsMobileOpen?.(false);
+      navigate(page);
+      setIsMobileOpen?.(false)
+
     }
   };
 
@@ -71,7 +71,8 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMobileOpen?.(false)}
+              onClick={() => setIsMobileOpen?.(false)
+              }
               className="lg:hidden fixed inset-0 bg-black/50 z-40"
             />
 
@@ -89,8 +90,9 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
                   <div
                     className="flex items-center gap-2 cursor-pointer mb-8"
                     onClick={() => {
-                      navigate?.(getDashboardPage());
-                      setIsMobileOpen?.(false);
+                      navigate(getDashboardPage());
+                      setIsMobileOpen?.(false)
+
                     }}
                   >
                     <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-2 rounded-xl">
@@ -111,8 +113,8 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
                           key={index}
                           onClick={() => handleMobileNavigation(item.page)}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${isActive
-                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
-                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
+                              ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
+                              : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
                             }`}
                         >
                           <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -127,8 +129,9 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
                 <div className="mt-auto p-6 border-t">
                   <button
                     onClick={() => {
-                      logout?.();
-                      setIsMobileOpen?.(false); 
+                      logout();
+                      setIsMobileOpen?.(false)
+
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 text-red-600 hover:bg-red-50 hover:shadow-md"
                   >
@@ -224,8 +227,8 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
                           whileHover={{ x: isCollapsed ? 0 : 4 }}
                           onClick={() => item.page && navigate(item.page)}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${isActive
-                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
-                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
+                              ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
+                              : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
                             } ${isCollapsed ? 'justify-center' : ''}`}
                         >
                           <item.icon className="h-5 w-5 flex-shrink-0" style={{ opacity: 1 }} />

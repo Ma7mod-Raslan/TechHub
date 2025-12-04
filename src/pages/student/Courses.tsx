@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -18,22 +18,20 @@ import {
   ArrowRight,
   LogOut,
   MessageSquare,
-  ShoppingBag,
-  CheckCircle2,
-  Search,
   Menu,
+  Search,
+  ShoppingBag,
+  CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
-import { Progress } from '../../components/ui/progress';
-import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Progress } from '../../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
-import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
-import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
-import React from 'react';
+import HeaderIcons from '../../components/HeaderIcons';
+import AIAssistant from '../../components/AIAssistant';
 
 interface StudentCoursesProps {
   navigate: (page: string) => void;
@@ -120,7 +118,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   // Filter courses based on search query

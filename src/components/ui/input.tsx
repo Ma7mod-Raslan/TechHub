@@ -1,13 +1,10 @@
-// components/ui/input.tsx
 import * as React from "react";
+
 import { cn } from "./utils";
 
-type Props = React.ComponentProps<"input">;
-
-const Input = React.forwardRef<HTMLInputElement, Props>(({ className, type, ...props }, ref) => {
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
-      ref={ref}
       type={type}
       data-slot="input"
       className={cn(
@@ -19,8 +16,6 @@ const Input = React.forwardRef<HTMLInputElement, Props>(({ className, type, ...p
       {...props}
     />
   );
-});
-
-Input.displayName = "Input";
+}
 
 export { Input };

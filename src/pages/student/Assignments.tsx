@@ -42,7 +42,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   // Helper function to render assignment card
@@ -165,7 +165,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
           </main>
         </div>
       </div>
-      <AIAssistant />
+      <AIAssistant contextType="assignments" />
     </div>
   );
 }

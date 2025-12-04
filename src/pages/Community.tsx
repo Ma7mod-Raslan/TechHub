@@ -125,7 +125,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     if (!searchQuery.trim()) {
       return communities;
     }
-
+    
     const query = searchQuery.toLowerCase();
     return communities.filter((community) => {
       return (
@@ -137,17 +137,17 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
   const menuItems = userRole === 'admin'
     ? [
-      { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-      { icon: Users, label: 'Users', page: 'admin-users' },
-      { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-      { icon: MessageSquare, label: 'Communities', page: 'admin-communities', active: selectedCommunity !== null || selectedThread !== null },
-      { icon: FileText, label: 'Reports', page: 'admin-reports' },
-      { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-      { icon: User, label: 'Profile', page: 'admin-profile' },
-      { icon: Settings, label: 'Settings', page: 'admin-settings' },
-    ]
-    : userRole === 'instructor'
-      ? [
+        { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
+        { icon: Users, label: 'Users', page: 'admin-users' },
+        { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
+        { icon: MessageSquare, label: 'Communities', page: 'admin-communities', active: selectedCommunity !== null || selectedThread !== null },
+        { icon: FileText, label: 'Reports', page: 'admin-reports' },
+        { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
+        { icon: User, label: 'Profile', page: 'admin-profile' },
+        { icon: Settings, label: 'Settings', page: 'admin-settings' },
+      ]
+    : userRole === 'instructor' 
+    ? [
         { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
         { icon: BookOpen, label: 'Courses', page: 'instructor-courses' },
         { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
@@ -157,7 +157,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         { icon: Settings, label: 'Settings', page: 'instructor-settings' },
         { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
       ]
-      : [
+    : [
         { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
         { icon: BookOpen, label: 'Courses', page: 'student-courses' },
         { icon: FileText, label: 'Assignments', page: 'student-assignments' },
@@ -251,7 +251,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     const isPostHidden = hiddenPosts.includes(currentPost.id);
 
     return (
-      <motion.div
+      <motion.div 
         className="min-h-screen bg-gray-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -274,8 +274,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             <header className="bg-white border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Button
-                    variant="ghost"
+                  <Button 
+                    variant="ghost" 
                     onClick={() => setSelectedThread(null)}
                     className="mb-2"
                   >
@@ -333,10 +333,11 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleHidePost(currentPost.id)}
-                                  className={`transition-all duration-300 ${isPostHidden
-                                    ? 'text-green-600 hover:bg-green-50 border-green-200'
-                                    : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                    }`}
+                                  className={`transition-all duration-300 ${
+                                    isPostHidden 
+                                      ? 'text-green-600 hover:bg-green-50 border-green-200' 
+                                      : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                  }`}
                                 >
                                   <EyeOff className="h-4 w-4" />
                                 </Button>
@@ -411,10 +412,11 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                           size="sm"
                                           variant="outline"
                                           onClick={() => handleHideReply(reply.id)}
-                                          className={`transition-all duration-300 ${isReplyHidden
-                                            ? 'text-green-600 hover:bg-green-50 border-green-200'
-                                            : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                            }`}
+                                          className={`transition-all duration-300 ${
+                                            isReplyHidden 
+                                              ? 'text-green-600 hover:bg-green-50 border-green-200' 
+                                              : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                          }`}
                                         >
                                           <EyeOff className="h-4 w-4" />
                                         </Button>
@@ -466,7 +468,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             </main>
           </div>
         </div>
-
+        
         <AIAssistant />
       </motion.div>
     );
@@ -478,7 +480,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     if (!community) return null;
 
     return (
-      <motion.div
+      <motion.div 
         className="min-h-screen bg-gray-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -501,8 +503,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             <header className="bg-white border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Button
-                    variant="ghost"
+                  <Button 
+                    variant="ghost" 
                     onClick={handleBackToCommunities}
                     className="mb-2"
                   >
@@ -606,8 +608,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                           key={post.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className={`border rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer ${isHidden ? 'opacity-50 bg-gray-50' : 'hover:border-violet-200'
-                            }`}
+                          className={`border rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer ${
+                            isHidden ? 'opacity-50 bg-gray-50' : 'hover:border-violet-200'
+                          }`}
                           onClick={() => setSelectedThread(post.id)}
                         >
                           <div className="flex gap-4">
@@ -636,23 +639,24 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                      onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedCommunity(community.id);
+                                        handleHidePost(post.id);
                                       }}
-                                      className={`transition-all duration-300 ${isHidden
-                                        ? 'text-green-600 hover:bg-green-50 border-green-200'
-                                        : 'text-orange-600 hover:bg-orange-50 border-orange-200'
-                                        }`}
+                                      className={`transition-all duration-300 ${
+                                        isHidden 
+                                          ? 'text-green-600 hover:bg-green-50 border-green-200' 
+                                          : 'text-orange-600 hover:bg-orange-50 border-orange-200'
+                                      }`}
                                     >
                                       <EyeOff className="h-4 w-4" />
                                     </Button>
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                      onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedCommunity(community.id);
+                                        handleDeletePost(post.id);
                                       }}
                                       className="text-red-600 hover:bg-red-50 border-red-200 transition-all duration-300"
                                     >
@@ -662,14 +666,14 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                                 )}
                               </div>
                               <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <button
+                                <button 
                                   className="flex items-center gap-1 hover:text-violet-600 transition-colors"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <ThumbsUp className="h-4 w-4" />
                                   <span>{post.likes}</span>
                                 </button>
-                                <button
+                                <button 
                                   className="flex items-center gap-1 hover:text-cyan-600 transition-colors"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -691,7 +695,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             </main>
           </div>
         </div>
-
+        
         <AIAssistant />
       </motion.div>
     );
@@ -727,7 +731,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-
+                
                 <div className="flex-1">
                   <h1 className="text-xl">Communities</h1>
                   <p className="text-gray-600 text-sm">Connect with learners in your courses</p>
@@ -779,7 +783,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
                 >
-                  <Card
+                  <Card 
                     className="overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
                     onClick={() => setSelectedCommunity(community.id)}
                   >
@@ -799,7 +803,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                     {/* Course Info */}
                     <CardContent className="p-4">
                       <h3 className="text-lg mb-3 line-clamp-2">{community.courseName}</h3>
-
+                      
                       <div className="flex items-center justify-between text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
@@ -811,9 +815,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                         </div>
                       </div>
 
-                      <Button
+                      <Button 
                         className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCommunity(community.id);
                         }}
@@ -828,7 +832,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           </main>
         </div>
       </div>
-
+      
       <AIAssistant />
     </div>
   );

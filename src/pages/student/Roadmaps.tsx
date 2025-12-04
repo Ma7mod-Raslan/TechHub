@@ -82,7 +82,7 @@ export default function StudentRoadmaps({ navigate, logout, userRole }: StudentR
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   return (

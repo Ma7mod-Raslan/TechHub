@@ -37,7 +37,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   return (
@@ -71,7 +71,6 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                 <h1 className="text-xl md:text-2xl">My Certificates</h1>
                 <p className="text-gray-600 text-sm md:text-base">Your achievements and completed courses</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
@@ -93,7 +92,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
                 {certificates.map((cert) => (
-                  <motion.div key={cert.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
+                  <div key={cert.id}>
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300">
                       <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-500 p-8 text-white text-center">
                         <Trophy className="h-16 w-16 mx-auto mb-4" />
@@ -114,7 +113,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                         </div>
                       </CardContent>
                     </Card>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}

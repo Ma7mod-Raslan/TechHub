@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["vite/client", "react", "react-dom"]
   },
-  "include": ["src", "services/api.ts"]
+  "include": ["src", "api.ts"]
 }

@@ -25,7 +25,6 @@ const allCourses = [
     instructor: 'Sarah Johnson',
     rating: 4.9,
     students: 12500,
-    price: 89.99,
     duration: '42 hours',
     image: 'https://images.unsplash.com/photo-1593720213681-e9a8778330a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWIlMjBkZXZlbG9wbWVudCUyMHByb2dyYW1taW5nfGVufDF8fHx8MTc2NDA5ODU0MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Web Development',
@@ -38,7 +37,6 @@ const allCourses = [
     instructor: 'Dr. Michael Chen',
     rating: 4.8,
     students: 8900,
-    price: 94.99,
     duration: '38 hours',
     image: 'https://images.unsplash.com/photo-1666875753105-c63a6f3bdc86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXRhJTIwc2NpZW5jZSUyMGFuYWx5dGljc3xlbnwxfHx8fDE3NjQxNjc0NDN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Data Science',
@@ -51,7 +49,6 @@ const allCourses = [
     instructor: 'Emily Rodriguez',
     rating: 4.7,
     students: 6200,
-    price: 79.99,
     duration: '35 hours',
     image: 'https://images.unsplash.com/photo-1633250391894-397930e3f5f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBkZXZlbG9wbWVudHxlbnwxfHx8fDE3NjQxNjMxNDh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Mobile Development',
@@ -64,7 +61,6 @@ const allCourses = [
     instructor: 'Dr. James Wilson',
     rating: 4.9,
     students: 5400,
-    price: 99.99,
     duration: '45 hours',
     image: 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWNoaW5lJTIwbGVhcm5pbmclMjBBSXxlbnwxfHx8fDE3NjQxNDgzNjR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Machine Learning',
@@ -77,7 +73,6 @@ const allCourses = [
     instructor: 'David Thompson',
     rating: 4.8,
     students: 7800,
-    price: 84.99,
     duration: '30 hours',
     image: 'https://images.unsplash.com/photo-1667984390553-7f439e6ae401?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjbG91ZCUyMGNvbXB1dGluZyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzY0MTI3NTQyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Cloud Computing',
@@ -90,7 +85,6 @@ const allCourses = [
     instructor: 'Rachel Kim',
     rating: 4.7,
     students: 4500,
-    price: 74.99,
     duration: '28 hours',
     image: 'https://images.unsplash.com/photo-1691435828932-911a7801adfb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjeWJlcnNlY3VyaXR5JTIwbmV0d29ya3xlbnwxfHx8fDE3NjQwODQ2NjB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Cybersecurity',
@@ -103,7 +97,6 @@ const allCourses = [
     instructor: 'Sarah Johnson',
     rating: 4.9,
     students: 9200,
-    price: 89.99,
     duration: '40 hours',
     image: 'https://images.unsplash.com/photo-1593720213681-e9a8778330a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWIlMjBkZXZlbG9wbWVudCUyMHByb2dyYW1taW5nfGVufDF8fHx8MTc2NDA5ODU0MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Web Development',
@@ -116,7 +109,6 @@ const allCourses = [
     instructor: 'Dr. Michael Chen',
     rating: 4.8,
     students: 11000,
-    price: 79.99,
     duration: '32 hours',
     image: 'https://images.unsplash.com/photo-1666875753105-c63a6f3bdc86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXRhJTIwc2NpZW5jZSUyMGFuYWx5dGljc3xlbnwxfHx8fDE3NjQxNjc0NDN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     category: 'Data Science',
@@ -145,8 +137,8 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
 
   const filteredCourses = allCourses.filter((course) => {
     const matchesCategory = selectedCategory === 'All Courses' || course.category === selectedCategory;
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -240,10 +232,11 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ duration: 0.2 }}
                               onClick={() => setSelectedCategory(category)}
-                              className={`w-full text-left px-4 py-2.5 rounded-lg transition-all duration-200 text-sm ${selectedCategory === category
+                              className={`w-full text-left px-4 py-2.5 rounded-lg transition-all duration-200 text-sm ${
+                                selectedCategory === category
                                   ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-md'
                                   : 'hover:bg-gray-100 text-gray-700'
-                                }`}
+                              }`}
                             >
                               {category}
                             </motion.button>
@@ -312,8 +305,9 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                           <ImageWithFallback
                             src={course.image}
                             alt={course.title}
-                            className={`w-full object-cover group-hover:scale-110 transition-transform duration-300 ${viewMode === 'grid' ? 'h-48' : 'h-48 sm:h-full'
-                              }`}
+                            className={`w-full object-cover group-hover:scale-110 transition-transform duration-300 ${
+                              viewMode === 'grid' ? 'h-48' : 'h-48 sm:h-full'
+                            }`}
                           />
                           {course.bestseller && (
                             <Badge className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 border-0">
@@ -353,16 +347,14 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                           </div>
 
                           <div className="mt-auto flex items-center justify-between pt-3 border-t">
-                            <span className="text-2xl text-violet-600">${course.price}</span>
                             <Button
-                              size="sm"
-                              className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300 w-full"
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 navigate('course-details');
                               }}
                             >
-                              Enroll Now
+                              Enroll
                             </Button>
                           </div>
                         </div>

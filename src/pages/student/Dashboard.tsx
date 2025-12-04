@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -20,18 +20,17 @@ import {
   LogOut,
   MessageSquare,
   Menu,
-  Star,
+  Star
 } from 'lucide-react';
-import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
-import { Progress } from '../../components/ui/progress';
+import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import AIAssistant from '../../components/AIAssistant';
+import { Progress } from '../../components/ui/progress';
+import { Dialog, DialogContent } from '../../components/ui/dialog';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
-import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import HeaderIcons from '../../components/HeaderIcons';
+import AIAssistant from '../../components/AIAssistant';
 import TestimonialForm from '../../components/TestimonialForm';
 
 interface StudentDashboardProps {
@@ -90,7 +89,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   return (
@@ -289,7 +288,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
         </div>
       </div>
 
-      <AIAssistant />
+      <AIAssistant contextType="dashboard" />
       
       {/* Testimonial Dialog */}
       <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
