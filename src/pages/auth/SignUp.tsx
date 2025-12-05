@@ -1,7 +1,7 @@
 // src/pages/auth/SignUp.tsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
-import { Code2, Mail, Lock, Eye, EyeOff, User, GraduationCap, Presentation } from "lucide-react";
+import { Code2, Mail, Lock, Eye, EyeOff, User, Presentation, GraduationCap } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -11,72 +11,41 @@ import { RadioGroup, RadioGroupItem } from "../../components/ui/radio-group";
 import api from "../../api";
 import { toast } from "sonner";
 import AIAssistant from "../../components/AIAssistant";
+import GoogleGSIButton from "../../GoogleGSIButton";
 
+import { validatePassword, STRONG_PASSWORD_REGEX } from "../../utils/passwordValidation";
 
 interface SignUpProps {
   navigate: (page: string, role?: "student" | "instructor") => void;
-  setVerificationData?: (data: { email: string; role: "student" | "instructor" }) => void;
+  setVerificationData?: (data: { email: string; role: "student" | "instructor"; name?: string }) => void;
 }
 
 declare global {
   interface Window {
     google?: any;
+    __gsi_initialized?: boolean;
   }
 }
 
 const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ?? "";
-console.log("GSI client id =", GOOGLE_CLIENT_ID);
 
 export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [role, setRole] = useState<"student" | "instructor">("student");
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [gsiReady, setGsiReady] = useState(false);
 
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) {
-      console.warn("VITE_GOOGLE_CLIENT_ID is not set");
-      return;
-    }
+  // Select password rule
+  const PASSWORD_REGEX = STRONG_PASSWORD_REGEX;
 
-    const init = () => {
-      if (!window.google || !window.google.accounts || !window.google.accounts.id) {
-        setGsiReady(false);
-        return;
-      }
-      try {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleGsiCallback,
-          ux_mode: "popup",
-        });
-        setGsiReady(true);
-      } catch (e) {
-        console.warn("GSI init error", e);
-        setGsiReady(false);
-      }
-    };
+  // Validate password on change
+  function handlePasswordChange(value: string) {
+    setFormData({ ...formData, password: value });
+    setPasswordError(validatePassword(value, PASSWORD_REGEX));
+  }
 
-    const id = "google-identity-script";
-    const existing = document.getElementById(id) as HTMLScriptElement | null;
-    if (!existing) {
-      const s = document.createElement("script");
-      s.src = "https://accounts.google.com/gsi/client";
-      s.async = true;
-      s.defer = true;
-      s.id = id;
-      s.onload = init;
-      s.onerror = () => console.warn("Failed to load Google Identity Services script");
-      document.head.appendChild(s);
-    } else {
-      init();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ===== Google signup handler (GSI) =====
+  // Google signup handler (GSI)
   async function handleGsiCallback(response: any) {
     const idToken: string | undefined = response?.credential;
     if (!idToken) {
@@ -89,51 +58,73 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
       const res = await api.post("/auth/google", { id_token: idToken, role });
       const data = res.data;
 
-      if (data?.token) localStorage.setItem("accessToken", data.token);
-      if (data?.user) localStorage.setItem("user", JSON.stringify(data.user));
+      if (data?.user && data?.token) {
+        localStorage.setItem("accessToken", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        toast.success("Logged in with Google");
+        const u = data.user;
+        if (u.role === "admin") navigate("admin-dashboard", "admin" as any);
+        else if (u.role === "instructor") navigate("instructor-dashboard", "instructor");
+        else navigate("student-dashboard", "student");
+        setLoading(false);
+        return;
+      }
 
-      const pendingEmail = data?.user?.email ?? JSON.parse(atob(idToken.split(".")[1])).email;
-      localStorage.setItem("pendingVerification", JSON.stringify({ email: pendingEmail, role }));
+      if (data?.user && data?.user.is_verified) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        toast.success("Account created with Google");
+        const u = data.user;
+        if (u.role === "admin") navigate("admin-dashboard", "admin" as any);
+        else if (u.role === "instructor") navigate("instructor-dashboard", "instructor");
+        else navigate("student-dashboard", "student");
+        setLoading(false);
+        return;
+      }
 
-      toast.success("Account created with Google. Please verify your email.");
+      const pendingEmail = (() => {
+        try { return JSON.parse(atob(idToken.split(".")[1])).email; } catch { return ""; }
+      })();
 
-      if (setVerificationData) setVerificationData({ email: pendingEmail, role });
-
-      const backendRole: "student" | "instructor" | undefined = data?.user?.role;
-      const finalRole = backendRole ?? role;
-
-      navigate("verification", finalRole);
+      if (pendingEmail) {
+        localStorage.setItem("pendingVerification", JSON.stringify({ email: pendingEmail, role, name: formData.name }));
+        if (setVerificationData) setVerificationData({ email: pendingEmail, role });
+        toast.success("Account created with Google. Please verify your email if required.");
+        navigate("verification", role);
+      } else {
+        toast.success("Account created with Google.");
+        navigate("student-dashboard", "student");
+      }
     } catch (error: any) {
       console.error("Google Signup Error:", error);
-      toast.error(error?.response?.data?.error || error?.message || "Google signup failed");
+      const msg = error?.response?.data?.error || error?.message || "";
+
+      if (String(msg).toLowerCase().includes("registered with a password") || String(msg).toLowerCase().includes("email already registered") || String(msg).toLowerCase().includes("already registered")) {
+        toast.error(msg || "This email is already registered. Please sign in.");
+        navigate("login");
+        setLoading(false);
+        return;
+      }
+
+      toast.error(msg || "Google signup failed");
     } finally {
       setLoading(false);
     }
   }
 
-  // Trigger Google Sign-In (custom button)
-  const handleGoogleSignup = async (): Promise<void> => {
-    if (!gsiReady || !window.google || !window.google.accounts) {
-      toast.error("Google Sign-In not ready yet");
-      return;
-    }
-    try {
-      window.google.accounts.id.prompt(); // will open popup/chooser
-    } catch (e) {
-      console.error("GSI prompt error:", e);
-      toast.error("Google Sign-In failed to open");
-    }
-  };
-
-  // ===== regular signup handler (email/password) =====
+  // Regular signup handler
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!formData.name || !formData.email || !formData.password) {
       toast.error("Please fill in all fields");
       return;
     }
-    if (formData.password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+
+    // Validate password before sending the request
+    const err = validatePassword(formData.password, PASSWORD_REGEX);
+    setPasswordError(err);
+    if (err) {
+      toast.error(err);
       return;
     }
 
@@ -153,7 +144,14 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
       navigate("verification", role);
     } catch (err: any) {
       console.error("Signup error", err);
-      toast.error(err?.response?.data?.error || err?.message || "Signup failed");
+      const msg = err?.response?.data?.error || err?.message || "Signup failed";
+
+      if (String(msg).toLowerCase().includes("email already registered") || String(msg).toLowerCase().includes("this email is registered")) {
+        toast.error(msg);
+        navigate("login");
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -218,10 +216,12 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="Create a strong password" className="pl-10 pr-10" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="Create a strong password" className="pl-10 pr-10" value={formData.password} onChange={(e) => handlePasswordChange(e.target.value)} required />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                {passwordError && <p className="mt-1 text-sm text-red-600">{passwordError}</p>}
               </div>
 
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
@@ -234,21 +234,25 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">Or continue with</span>
             </div>
 
-            <Button variant="outline" type="button" className="w-full" onClick={handleGoogleSignup} disabled={loading}>
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-              </svg>
-              Google
-            </Button>
+            {/* GSI button container: pass clientId and callback */}
+            <GoogleGSIButton clientId={GOOGLE_CLIENT_ID} onCredential={handleGsiCallback} />
 
             <p className="text-center text-sm text-gray-600 mt-6">Already have an account? <button onClick={() => navigate("login")} className="text-cyan-600 hover:text-cyan-700">Sign in</button></p>
           </CardContent>
+          
         </Card>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex gap-2">
+              <Mail className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-900">
+                <p className="font-medium mb-1">Instructors cannot sign in using Google</p>
+                <p className="text-blue-700">Please complete the sign-up form instead.</p>
+              </div>
+            </div>
+          </motion.div>
       </motion.div>
-      <AIAssistant/>
+
+      <AIAssistant />
     </div>
   );
 }

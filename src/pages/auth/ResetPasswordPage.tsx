@@ -10,7 +10,7 @@ import api from '../../api';
 import { toast } from 'sonner';
 import AIAssistant from "../../components/AIAssistant";
 
-
+import { validatePassword, STRONG_PASSWORD_REGEX } from '../../utils/passwordValidation';
 
 interface ResetPasswordPageProps {
   navigate: (page: string) => void;
@@ -24,6 +24,11 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [resetCode, setResetCode] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Choose which password regex to use
+  const PASSWORD_REGEX = STRONG_PASSWORD_REGEX;
+  // (If you want digits-only rule, import DIGITS_ONLY_REGEX and use it here)
 
   useEffect(() => {
     const savedEmail = localStorage.getItem('resetEmail');
@@ -37,16 +42,34 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
     }
   }, [navigate]);
 
+  // Validate new password on change and set inline error
+  function handleNewPasswordChange(value: string) {
+    setFormData(prev => ({ ...prev, newPassword: value }));
+    const err = validatePassword(value, PASSWORD_REGEX);
+    setPasswordError(err);
+  }
+
+  function handleConfirmPasswordChange(value: string) {
+    setFormData(prev => ({ ...prev, confirmPassword: value }));
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.newPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
+
+    // Validate password using shared util
+    const err = validatePassword(formData.newPassword, PASSWORD_REGEX);
+    setPasswordError(err);
+    if (err) {
+      toast.error(err);
       return;
     }
+
+    // Confirm match
     if (formData.newPassword !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
+
     if (!userEmail || !resetCode) {
       toast.error('Missing email or code — start process again');
       navigate('forgot-password');
@@ -109,14 +132,14 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
                       placeholder="Enter new password"
                       className="pl-10 pr-10"
                       value={formData.newPassword}
-                      onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                      onChange={(e) => handleNewPasswordChange(e.target.value)}
                       required
                     />
                     <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                       {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+                  {passwordError && <p className="mt-1 text-sm text-red-600">{passwordError}</p>}
                 </div>
 
                 <div>
@@ -129,7 +152,7 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
                       placeholder="Confirm new password"
                       className="pl-10 pr-10"
                       value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                      onChange={(e) => handleConfirmPasswordChange(e.target.value)}
                       required
                     />
                     <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
