@@ -79,15 +79,25 @@ router.post("/google", async (req, res) => {
 //        SIGNUP
 // =========================
 router.post("/signup", async (req, res) => {
-  try {
-    const { full_name, email, password, role } = req.body;
+  const client = await db.connect();
 
-    // Validate fields
+  try {
+    const {
+      full_name,
+      email,
+      password,
+      role,
+      job_title,
+      linkedin,
+      expertise,
+    } = req.body;
+
+    // 1️⃣ Validate common fields
     if (!full_name || !email || !password || !role) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Validate role
+    // 2️⃣ Validate role
     const allowedRoles = ["student", "instructor"];
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({
@@ -95,46 +105,72 @@ router.post("/signup", async (req, res) => {
       });
     }
 
-    // Check if user exists
-    const exists = await db.query(
+    // 3️⃣ Instructor extra validation
+    if (role === "instructor") {
+      if (!job_title || !expertise) {
+        return res.status(400).json({
+          error: "Instructor must provide job_title and expertise",
+        });
+      }
+    }
+
+    await client.query("BEGIN");
+
+    // 4️⃣ Check if user exists
+    const exists = await client.query(
       "SELECT auth_provider FROM users WHERE email=$1",
       [email]
     );
 
     if (exists.rows.length > 0) {
+      await client.query("ROLLBACK");
+
       if (exists.rows[0].auth_provider === "google") {
         return res.status(400).json({
           error: "This email is registered using Google Sign-In.",
         });
       }
+
       return res.status(409).json({ error: "Email already registered" });
     }
 
-    // Hash password
-    const hashed = await bcrypt.hash(password, 10);
+    // 5️⃣ Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const result = await db.query(
+    // 6️⃣ Create user
+    const userResult = await client.query(
       `INSERT INTO users (full_name, email, password, role, auth_provider)
        VALUES ($1, $2, $3, $4, 'local')
        RETURNING id, full_name, email, role`,
-      [full_name, email, hashed, role]
+      [full_name, email, hashedPassword, role]
     );
 
-    const user = result.rows[0];
+    const user = userResult.rows[0];
 
-    // Generate verification code
+    // 7️⃣ Create instructor profile if needed
+    if (role === "instructor") {
+      await client.query(
+        `INSERT INTO instructor_profiles (user_id, job_title, linkedin, expertise)
+         VALUES ($1, $2, $3, $4)`,
+        [user.id, job_title, linkedin || null, expertise]
+      );
+    }
+
+    // 8️⃣ Generate verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const ttlMin = Number(process.env.VERIFICATION_CODE_TTL_MIN || 30);
     const expiresAt = new Date(Date.now() + ttlMin * 60000);
 
-    // Save code
-    await db.query(
-      "UPDATE users SET verification_code=$1, verification_expires_at=$2 WHERE id=$3",
+    await client.query(
+      `UPDATE users
+       SET verification_code=$1, verification_expires_at=$2
+       WHERE id=$3`,
       [code, expiresAt, user.id]
     );
 
-    // Send email
+    await client.query("COMMIT");
+
+    // 9️⃣ Send email async
     sendVerificationEmail(user.email, code, user.id).catch(console.error);
 
     res.status(201).json({
@@ -143,10 +179,14 @@ router.post("/signup", async (req, res) => {
     });
 
   } catch (err) {
+    await client.query("ROLLBACK");
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Signup failed" });
+  } finally {
+    client.release();
   }
 });
+
 
 // =========================
 //     VERIFY EMAIL
