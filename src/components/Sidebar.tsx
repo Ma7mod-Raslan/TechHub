@@ -4,6 +4,10 @@ import { Code2, ChevronLeft, ChevronRight, LogOut, X } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Button } from './ui/button';
+import { UserRole } from '../App';
+import { NavigateFn } from '../types/Navigation';
+
+
 
 interface MenuItem {
   icon: LucideIcon;
@@ -12,15 +16,17 @@ interface MenuItem {
   active?: boolean;
 }
 
+
 interface SidebarProps {
   menuItems: MenuItem[];
-  navigate: (page: string) => void;
+  navigate: NavigateFn;    
   logout: () => void;
-  userRole: 'student' | 'instructor' | 'admin';
+  userRole: UserRole;
   activePage?: string;
   isMobileOpen?: boolean;
   setIsMobileOpen?: (open: boolean) => void;
 }
+
 
 export default function Sidebar({ menuItems, navigate, logout, userRole, activePage, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);

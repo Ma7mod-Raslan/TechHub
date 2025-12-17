@@ -192,40 +192,6 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
-                    Payment Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Payout Method</Label>
-                    <Select defaultValue="paypal">
-                      <SelectTrigger className="w-full mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="paypal">PayPal</SelectItem>
-                        <SelectItem value="bank">Bank Transfer</SelectItem>
-                        <SelectItem value="stripe">Stripe</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>PayPal Email</Label>
-                    <Input type="email" placeholder="your@email.com" className="mt-2" />
-                  </div>
-
-                  <Button className="bg-gradient-to-r from-violet-600 to-cyan-500">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Update Payment Info
-                  </Button>
-                </CardContent>
-              </Card>
-
               <div className="flex justify-end gap-3">
                 <Button variant="outline">Cancel</Button>
                 <Button className="bg-gradient-to-r from-violet-600 to-cyan-500">Save Changes</Button>

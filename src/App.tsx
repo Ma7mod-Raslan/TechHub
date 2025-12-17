@@ -9,6 +9,9 @@ import VerifyResetCode from './pages/auth/VerifyResetCode';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import InstructorCourses from './pages/instructor/MyCourses';
+import InstructorCourseView from './pages/instructor/CourseView';
+import InstructorEditCourse from './pages/instructor/EditCourse';
+import InstructorCreateCourse from './pages/instructor/CreateCourse';
 import InstructorAnalytics from './pages/instructor/Analytics';
 import InstructorProfile from './pages/instructor/Profile';
 import InstructorSettings from './pages/instructor/Settings';
@@ -86,6 +89,12 @@ export default function App() {
         return <InstructorDashboard navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-courses':
         return <InstructorCourses navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-course-view':
+        return <InstructorCourseView navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
+      case 'instructor-edit-course':
+        return <InstructorEditCourse navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
+      case 'instructor-create-course':
+        return <InstructorCreateCourse navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-analytics':
         return <InstructorAnalytics navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-profile':

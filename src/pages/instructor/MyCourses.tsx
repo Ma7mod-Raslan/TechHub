@@ -17,6 +17,7 @@ import {
   Search,
   Filter,
   LogOut,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
@@ -39,11 +40,15 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 
+import { NavigateFn } from '../../types/Navigation';
+import { UserRole } from '../../App';
+
 interface InstructorCoursesProps {
-  navigate: (page: string) => void;
+  navigate: NavigateFn;
   logout: () => void;
-  userRole: 'instructor';
+  userRole: UserRole;
 }
+
 
 const courses = [
   {
@@ -139,8 +144,13 @@ const courses = [
 ];
 
 export default function InstructorCourses({ navigate, logout, userRole }: InstructorCoursesProps) {
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [step, setStep] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; courseId: number | null; courseTitle: string }>({
+    open: false,
+    courseId: null,
+    courseTitle: '',
+  });
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
@@ -152,6 +162,44 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
     { icon: Settings, label: 'Settings', page: 'instructor-settings' },
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
+
+  // DEVELOPER: Filter courses based on search query and active tab
+  const filteredCourses = courses.filter((course) => {
+    // Search filter
+    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Tab filter
+    let matchesTab = true;
+    if (activeTab === 'published') {
+      matchesTab = course.status === 'published';
+    } else if (activeTab === 'draft') {
+      matchesTab = course.status === 'draft';
+    }
+
+    return matchesSearch && matchesTab;
+  });
+
+  // DEVELOPER: Handle course deletion
+  const handleDeleteCourse = async () => {
+    const courseId = deleteDialog.courseId;
+
+    // API Call: DELETE /api/courses/:courseId
+    // On success:
+    // - Remove course from courses array
+    // - Show toast: "Course deleted successfully"
+    // On error:
+    // - Show error toast
+
+    // Mock implementation
+    console.log(`DELETE /api/courses/${courseId}`);
+    setDeleteDialog({ open: false, courseId: null, courseTitle: '' });
+    // Show toast: "Course deleted successfully"
+  };
+
+  // DEVELOPER: Open delete confirmation dialog
+  const openDeleteDialog = (courseId: number, courseTitle: string) => {
+    setDeleteDialog({ open: true, courseId, courseTitle });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -174,11 +222,24 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                 <h1 className="text-2xl">My Courses</h1>
                 <p className="text-gray-600">Manage and create your courses</p>
               </div>
+              {/* DEVELOPER: Centered Search Bar in Header */}
+              <div className="flex-1 max-w-md mx-8">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search courses..."
+                    className="pl-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
               <div className="flex items-center gap-3">
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                {/* DEVELOPER: Create Course button navigates to instructor-create-course */}
                 <Button
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                  onClick={() => setShowCreateDialog(true)}
+                  onClick={() => navigate('instructor-create-course')}
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Create Course
@@ -189,20 +250,8 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
 
           {/* Content */}
           <main className="p-6">
-            {/* Search and Filter */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input placeholder="Search courses..." className="pl-10" />
-              </div>
-              <Button variant="outline">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-
             {/* Tabs */}
-            <Tabs defaultValue="all" className="mb-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList>
                 <TabsTrigger value="all">All Courses ({courses.length})</TabsTrigger>
                 <TabsTrigger value="published">
@@ -213,70 +262,31 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses.map((course) => (
-                    <motion.div
-                      key={course.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <Card className="overflow-hidden">
-                        <div className="relative">
-                          <ImageWithFallback
-                            src={course.image}
-                            alt={course.title}
-                            className="w-full h-48 object-cover"
-                          />
-                          <Badge className="absolute top-2 right-2">
-                            {course.status === 'published' ? 'Published' : 'Draft'}
-                          </Badge>
-                        </div>
-                        <CardContent className="p-4">
-                          <Badge className="mb-2" variant="outline">
-                            {course.category}
-                          </Badge>
-                          <h3 className="mb-2 line-clamp-1">{course.title}</h3>
-                          <div className="space-y-2 text-sm text-gray-600 mb-4">
-                            <div className="flex justify-between">
-                              <span>Students:</span>
-                              <span>{course.students}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Rating:</span>
-                              <span>{course.rating || 'N/A'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Revenue:</span>
-                              <span>${course.revenue.toLocaleString()}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" className="flex-1">
-                              <Edit className="mr-1 h-4 w-4" />
-                              Edit
-                            </Button>
-                            <Button size="sm" variant="outline" className="flex-1">
-                              <Eye className="mr-1 h-4 w-4" />
-                              View
-                            </Button>
-                            <Button size="sm" variant="ghost">
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="published">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses
-                    .filter((c) => c.status === 'published')
-                    .map((course) => (
+              <TabsContent value={activeTab}>
+                {filteredCourses.length === 0 ? (
+                  <div className="text-center py-12">
+                    <BookOpen className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                    <h3 className="text-xl mb-2">
+                      {searchQuery ? 'No courses found' : 'No courses yet'}
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      {searchQuery
+                        ? 'Try adjusting your search query'
+                        : 'Create your first course to get started'}
+                    </p>
+                    {!searchQuery && (
+                      <Button
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                        onClick={() => navigate('instructor-create-course')}
+                      >
+                        <Plus className="mr-2 h-5 w-5" />
+                        Create Course
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCourses.map((course) => (
                       <motion.div
                         key={course.id}
                         initial={{ opacity: 0, y: 20 }}
@@ -290,8 +300,11 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                               alt={course.title}
                               className="w-full h-48 object-cover"
                             />
-                            <Badge className="absolute top-2 right-2 bg-green-600">
-                              Published
+                            <Badge
+                              className={`absolute top-2 right-2 ${course.status === 'published' ? 'bg-green-600' : 'bg-yellow-600'
+                                }`}
+                            >
+                              {course.status === 'published' ? 'Published' : 'Draft'}
                             </Badge>
                           </div>
                           <CardContent className="p-4">
@@ -302,87 +315,62 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                             <div className="space-y-2 text-sm text-gray-600 mb-4">
                               <div className="flex justify-between">
                                 <span>Students:</span>
-                                <span>{course.students}</span>
+                                <span>{course.status === 'draft' ? 'N/A' : course.students}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>Rating:</span>
-                                <span>{course.rating}</span>
+                                <span>{course.status === 'draft' ? 'N/A' : course.rating}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>Revenue:</span>
-                                <span>${course.revenue.toLocaleString()}</span>
+                                <span>{course.status === 'draft' ? 'Status:' : 'Revenue:'}</span>
+                                <span>
+                                  {course.status === 'draft'
+                                    ? <span className="text-yellow-600">In Progress</span>
+                                    : `$${course.revenue.toLocaleString()}`
+                                  }
+                                </span>
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <Button size="sm" variant="outline" className="flex-1">
+                              {/* DEVELOPER: Edit button - navigates to edit page with courseId */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => navigate(
+                                  'instructor-edit-course',
+                                  undefined,
+                                  { courseId: course.id }
+                                )
+                                }
+                              >
                                 <Edit className="mr-1 h-4 w-4" />
-                                Edit
+                                {course.status === 'draft' ? 'Continue' : 'Edit'}
                               </Button>
-                              <Button size="sm" variant="outline" className="flex-1">
+                              {/* DEVELOPER: View button - navigates to course view with courseId */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => navigate(
+                                  'instructor-course-view',
+                                  undefined,
+                                  {
+                                    courseId: course.id,
+                                    courseStatus: course.status,
+                                  }
+                                )
+                                }
+                              >
                                 <Eye className="mr-1 h-4 w-4" />
                                 View
                               </Button>
-                              <Button size="sm" variant="ghost">
-                                <Trash2 className="h-4 w-4 text-red-600" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="draft">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {courses
-                    .filter((c) => c.status === 'draft')
-                    .map((course) => (
-                      <motion.div
-                        key={course.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ y: -5 }}
-                      >
-                        <Card className="overflow-hidden">
-                          <div className="relative">
-                            <ImageWithFallback
-                              src={course.image}
-                              alt={course.title}
-                              className="w-full h-48 object-cover"
-                            />
-                            <Badge className="absolute top-2 right-2 bg-yellow-600">
-                              Draft
-                            </Badge>
-                          </div>
-                          <CardContent className="p-4">
-                            <Badge className="mb-2" variant="outline">
-                              {course.category}
-                            </Badge>
-                            <h3 className="mb-2 line-clamp-1">{course.title}</h3>
-                            <div className="space-y-2 text-sm text-gray-600 mb-4">
-                              <div className="flex justify-between">
-                                <span>Students:</span>
-                                <span>Not published yet</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Rating:</span>
-                                <span>N/A</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Status:</span>
-                                <span className="text-yellow-600">In Progress</span>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                className="flex-1 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                              {/* DEVELOPER: Delete button - opens confirmation modal */}
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openDeleteDialog(course.id, course.title)}
                               >
-                                <Edit className="mr-1 h-4 w-4" />
-                                Continue Editing
-                              </Button>
-                              <Button size="sm" variant="ghost">
                                 <Trash2 className="h-4 w-4 text-red-600" />
                               </Button>
                             </div>
@@ -390,109 +378,52 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                         </Card>
                       </motion.div>
                     ))}
-                </div>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </main>
         </div>
       </div>
 
-      {/* Create Course Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl">
+      {/* Delete Confirmation Dialog */}
+      {/* DEVELOPER: Confirmation modal for course deletion
+          - On confirm: DELETE /api/courses/:courseId
+          - On success: Remove from list, show toast */}
+      <Dialog open={deleteDialog.open} onOpenChange={(open) =>
+        setDeleteDialog({ ...deleteDialog, open })
+      }>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Course - Step {step} of 3</DialogTitle>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Course
+            </DialogTitle>
           </DialogHeader>
-
-          {step === 1 && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Course Title</Label>
-                <Input id="title" placeholder="e.g., Complete Python Bootcamp" />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Describe what students will learn..." rows={4} />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="web">Web Development</SelectItem>
-                    <SelectItem value="data">Data Science</SelectItem>
-                    <SelectItem value="ai">AI & ML</SelectItem>
-                    <SelectItem value="mobile">Mobile Development</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="level">Level</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300" onClick={() => setStep(2)}>
-                  Next: Curriculum
-                </Button>
-              </div>
+          <div className="py-4">
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete <strong>{deleteDialog.courseTitle}</strong>?
+            </p>
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-900">
+                ⚠️ <strong>Warning:</strong> This action cannot be undone. All course content, videos, and student enrollments will be permanently removed.
+              </p>
             </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
-              <p className="text-gray-600">Add sections and lectures to your course curriculum.</p>
-              <Button variant="outline" className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Section
-              </Button>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setStep(1)}>
-                  Back
-                </Button>
-                <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300" onClick={() => setStep(3)}>
-                  Next: Assignments
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-4">
-              <p className="text-gray-600">Create assignments to assess student learning.</p>
-              <Button variant="outline" className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Assignment
-              </Button>
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setStep(2)}>
-                  Back
-                </Button>
-                <Button
-                  className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                  onClick={() => {
-                    setShowCreateDialog(false);
-                    setStep(1);
-                  }}
-                >
-                  Publish Course
-                </Button>
-              </div>
-            </div>
-          )}
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialog({ open: false, courseId: null, courseTitle: '' })}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDeleteCourse}
+            >
+              Delete Course
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

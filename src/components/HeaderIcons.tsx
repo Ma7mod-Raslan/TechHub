@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 
+import { UserRole } from '../App';
+import { NavigateFn } from '../types/Navigation';
+
 interface HeaderIconsProps {
-  navigate: (page: string) => void;
+  userRole: UserRole;
+  navigate: NavigateFn;
   logout: () => void;
-  userRole: 'student' | 'instructor' | 'admin';
-  currentPage?: string; // e.g., 'notifications', 'profile', 'settings'
+  currentPage?: string;
 }
 
 export default function HeaderIcons({ navigate, logout, userRole, currentPage }: HeaderIconsProps) {

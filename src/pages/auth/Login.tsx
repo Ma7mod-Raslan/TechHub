@@ -107,14 +107,14 @@ export default function Login({ navigate }: LoginProps) {
 
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(backendUser));
-      toast.success("Logged in with Google");
+      toast.success("Signed in with Google");
 
       if (backendUser.role === "admin") navigate("admin-dashboard", "admin");
       else if (backendUser.role === "instructor") navigate("instructor-dashboard", "instructor");
       else navigate("student-dashboard", "student");
     } catch (err: any) {
       console.error("Google login error:", err);
-      toast.error(err?.response?.data?.error || err?.message || "Google login failed");
+      toast.error(err?.response?.data?.error || err?.message || "Google Sign in failed");
     } finally {
       setLoading(false);
     }

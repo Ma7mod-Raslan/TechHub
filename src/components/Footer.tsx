@@ -1,8 +1,11 @@
 import { Code2, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { Button } from './ui/button';
+import { NavigateFn } from '../types/Navigation';
+
+
 
 interface FooterProps {
-  navigate: (page: string) => void;
+  navigate: NavigateFn;
 }
 
 export default function Footer({ navigate }: FooterProps) {

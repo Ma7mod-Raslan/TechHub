@@ -11,14 +11,17 @@ import {
 } from './ui/dropdown-menu';
 import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'motion/react';
+import { NavigateFn } from '../types/Navigation';
+import { UserRole } from '../App';
 
 interface NavbarProps {
-  navigate: (page: string) => void;
+  navigate: NavigateFn;      
   isLoggedIn?: boolean;
-  userRole?: 'student' | 'instructor' | 'admin' | 'guest';
+  userRole?: UserRole;       
   transparent?: boolean;
   logout?: () => void;
 }
+
 
 export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest', transparent = false, logout }: NavbarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
