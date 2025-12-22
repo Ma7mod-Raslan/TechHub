@@ -51,8 +51,9 @@ router.post(
   }
 );
 
-/* ---------- GET course videos (only for enrolled students or instructor owner) ---------- */
-/* GET /api/courses/:id/videos */
+/* ---------------------------------------
+   INSTRUCTOR: Create course (Draft)
+--------------------------------------- */
 router.post(
   "/create",
   authMiddleware,
@@ -102,63 +103,109 @@ router.post(
 
 
 /* ---------------------------------------
-   PUBLIC: Get all published courses
+   INSTRUCTOR: Get my courses (Draft / Published)
 --------------------------------------- */
-router.get("/", async (req, res) => {
-  try {
-    const result = await db.query(
-      `SELECT id, title, description, category, level, thumbnail, created_at
-       FROM courses
-       WHERE status='Published'
-       ORDER BY created_at DESC`
-    );
-
-    res.json(result.rows);
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-/* ---------------------------------------
-   INSTRUCTOR: Create course (Draft)
---------------------------------------- */
-router.post(
-  "/create",
+router.get(
+  "/instructor",
   authMiddleware,
   allowRoles("instructor"),
   async (req, res) => {
-    console.log("REQ.USER = ", req.user);
     try {
-      const { title, description, category, level, thumbnail } = req.body;
+      const instructorId = req.user.id;
+      const { status } = req.query;
 
-      // required fields
-      if (!title || !description || !category || !level || !thumbnail) {
-        return res.status(400).json({
-          error: "All fields including thumbnail are required",
-        });
+      let query = `
+        SELECT 
+          id,
+          title,
+          description,
+          category,
+          level,
+          status,
+          thumbnail,
+          created_at
+        FROM courses
+        WHERE instructor_id = $1
+      `;
+
+      const values = [instructorId];
+
+      // Optional filter by status
+      if (status) {
+        query += " AND status = $2";
+        values.push(status);
       }
 
-      const instructorId = req.user.id;
+      query += " ORDER BY created_at DESC";
 
-      const result = await db.query(
-        `INSERT INTO courses
-         (title, description, category, instructor_id, level, status, thumbnail)
-         VALUES ($1, $2, $3, $4, $5, 'Draft', $6)
-         RETURNING *`,
-        [title, description, category, instructorId, level, thumbnail]
-      );
+      const result = await db.query(query, values);
 
-      res.status(201).json({
-        message: "Course created (Draft)",
-        course: result.rows[0],
+      res.json({
+        count: result.rows.length,
+        courses: result.rows,
       });
 
     } catch (err) {
+      console.error("Get instructor courses error:", err);
       res.status(500).json({ error: err.message });
     }
   }
 );
+
+/* ---------------------------------------
+   GET course details
+   - Instructor owner: can see Draft & Published
+   - Others: Published only
+--------------------------------------- */
+router.get(
+  "/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const userId = req.user?.id;
+
+      // Get course
+      const courseRes = await db.query(
+        `SELECT
+           id,
+           title,
+           description,
+           category,
+           level,
+           status,
+           thumbnail,
+           instructor_id,
+           created_at
+         FROM courses
+         WHERE id = $1`,
+        [courseId]
+      );
+
+      if (courseRes.rows.length === 0) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      const course = courseRes.rows[0];
+
+      // If course is Draft → only owner instructor can view
+      if (course.status === "Draft") {
+        if (!userId || course.instructor_id !== userId) {
+          return res.status(403).json({
+            error: "Course is in draft mode"
+          });
+        }
+      }
+
+      res.json(course);
+
+    } catch (err) {
+      console.error("Get course details error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 /* ---------------------------------------
    INSTRUCTOR: Publish course
@@ -326,6 +373,124 @@ router.post("/:id/videos", authMiddleware, allowRoles("instructor"), async (req,
   }
 });
 
+/* ---------------------------------------
+   INSTRUCTOR: Update video
+--------------------------------------- */
+router.put(
+  "/:courseId/videos/:videoId",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const { courseId, videoId } = req.params;
+      const instructorId = req.user.id;
+      const { title, description, video_url, video_order } = req.body;
+
+      // Check course ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Check video exists
+      const video = await db.query(
+        "SELECT id FROM course_videos WHERE id=$1 AND course_id=$2",
+        [videoId, courseId]
+      );
+
+      if (video.rows.length === 0)
+        return res.status(404).json({ error: "Video not found" });
+
+      // Prevent duplicate video_order
+      if (video_order !== undefined) {
+        const orderExists = await db.query(
+          `SELECT id FROM course_videos
+           WHERE course_id=$1 AND video_order=$2 AND id<>$3`,
+          [courseId, video_order, videoId]
+        );
+
+        if (orderExists.rows.length > 0) {
+          return res.status(400).json({
+            error: "video_order already exists for this course",
+          });
+        }
+      }
+
+      const result = await db.query(
+        `UPDATE course_videos
+         SET title=$1,
+             description=$2,
+             video_url=$3,
+             video_order=$4
+         WHERE id=$5
+         RETURNING *`,
+        [title, description, video_url, video_order, videoId]
+      );
+
+      res.json({
+        message: "Video updated",
+        video: result.rows[0],
+      });
+
+    } catch (err) {
+      console.error("Update video error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+/* ---------------------------------------
+   INSTRUCTOR: Delete video
+--------------------------------------- */
+router.delete(
+  "/:courseId/videos/:videoId",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const { courseId, videoId } = req.params;
+      const instructorId = req.user.id;
+
+      // Check course ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Check video exists
+      const video = await db.query(
+        "SELECT id FROM course_videos WHERE id=$1 AND course_id=$2",
+        [videoId, courseId]
+      );
+
+      if (video.rows.length === 0)
+        return res.status(404).json({ error: "Video not found" });
+
+      await db.query(
+        "DELETE FROM course_videos WHERE id=$1",
+        [videoId]
+      );
+
+      res.json({ message: "Video deleted" });
+
+    } catch (err) {
+      console.error("Delete video error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 
 
