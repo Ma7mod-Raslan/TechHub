@@ -116,27 +116,34 @@ router.get(
 
       let query = `
         SELECT 
-          id,
-          title,
-          description,
-          category,
-          level,
-          status,
-          thumbnail,
-          created_at
-        FROM courses
-        WHERE instructor_id = $1
+          c.id,
+          c.title,
+          c.description,
+          c.category,
+          c.level,
+          c.status,
+          c.thumbnail,
+          c.created_at,
+          COUNT(DISTINCT v.id) AS videos_count,
+          COUNT(DISTINCT e.id) AS enrollments_count
+        FROM courses c
+        LEFT JOIN course_videos v ON v.course_id = c.id
+        LEFT JOIN enrollments e ON e.course_id = c.id
+        WHERE c.instructor_id = $1
       `;
 
       const values = [instructorId];
 
       // Optional filter by status
       if (status) {
-        query += " AND status = $2";
+        query += " AND c.status = $2";
         values.push(status);
       }
 
-      query += " ORDER BY created_at DESC";
+      query += `
+        GROUP BY c.id
+        ORDER BY c.created_at DESC
+      `;
 
       const result = await db.query(query, values);
 
@@ -151,6 +158,7 @@ router.get(
     }
   }
 );
+
 
 /* ---------------------------------------
    GET course details
