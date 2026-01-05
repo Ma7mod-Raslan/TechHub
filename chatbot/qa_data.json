@@ -8,7 +8,7 @@
     "answer": "The account creation and registration process on TechHub is straightforward. To establish a new user profile or get started, click the 'Sign Up' button on the homepage and complete the simple onboarding form."
   },
   {
-    "topic": "login sign in log in access account enter account",
+    "topic": "tell me how i sign in login log in access account enter account",
     "answer": "To access your personalized learning environment or log into your TechHub account, navigate to the Login Page and securely enter your registered email and password credentials."
   },
   {
@@ -16,7 +16,7 @@
     "answer": "If you experience password loss or forget your credentials, click 'Forgot Password' on the login page. Follow the instructions sent to your registered email address to perform a secure password reset and establish a new one."
   },
   {
-    "topic": "logout sign out log out exit account",
+    "topic": "tell me how i log out sign out log out exit account",
     "answer": "To safely log out of your TechHub account and end your active session, open the main left sidebar, scroll down, and select the red 'Sign Out' button at the bottom."
   },
   {
@@ -25,11 +25,11 @@
   },
   {
     "topic": "change email update email edit email account email",
-    "answer": "Direct email address changes are not permitted within the platform settings for security reasons. If you require an update to your registered email, please contact the dedicated support team for manual assistance. 👤"
+    "answer": "Direct email address changes are not permitted within the platform settings for security reasons. If you require an update to your registered email, please contact the dedicated support team for manual assistance."
   },
   {
     "topic": "delete account remove account close account account deletion",
-    "answer": "To initiate the permanent deletion of your account or removal of your user profile, please formally contact TechHub Support. Upon security confirmation, all your personal data will be removed. 🔒"
+    "answer": "To initiate the permanent deletion of your account or removal of your user profile, please formally contact TechHub Support. Upon security confirmation, all your personal data will be removed."
   },
   {
     "topic": "mobile access mobile version phone tablet responsive platform",
@@ -313,11 +313,11 @@
   },
   {
     "topic": "mobile learning study on phone mobile friendly platform",
-    "answer": "TechHub is fully optimized for mobile devices and performs seamlessly on mobile browsers and tablets. Students can easily access all courses and engage in mobile learning anytime using their smartphone. 📱"
+    "answer": "TechHub is fully optimized for mobile devices and performs seamlessly on mobile browsers and tablets. Students can easily access all courses and engage in mobile learning anytime using their smartphone."
   },
   {
     "topic": "email change update email account email edit",
-    "answer": "Direct modification of the registered email is not supported. For account email updates, students must formally contact the support team for manual verification and assistance. 👤"
+    "answer": "Direct modification of the registered email is not supported. For account email updates, students must formally contact the support team for manual verification and assistance."
   },
   {
     "topic": "real projects practical projects hands on experience industry projects",
@@ -329,14 +329,14 @@
   },
   {
     "topic": "account deletion delete account remove profile close account",
-    "answer": "To permanently delete a TechHub profile or request account termination, students must contact the support team and formally initiate the account removal process. 🔒"
+    "answer": "To permanently delete a TechHub profile or request account termination, students must contact the support team and formally initiate the account removal process."
   },
   {
     "topic": "hi hello hey greeting welcome",
     "answer": "Hello! I am here to assist you with any questions or support you might need today. How may I help you?"
   },
   {
-    "topic": "thank you thanks thx appreciate",
+    "topic": "thx thank you thanks  appreciate",
     "answer": "You are most welcome! It is my pleasure to provide assistance and support whenever you need it."
   },
   {
