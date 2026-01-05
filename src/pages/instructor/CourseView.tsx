@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -15,6 +15,10 @@ import {
   Edit,
   Trash2,
   CheckCircle,
+  AlertCircle,
+  Upload,
+  Save,
+  X,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -27,23 +31,35 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../../components/ui/dialog';
+import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
+import { Label } from '../../components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
-
-import { NavigateFn } from '../../types/Navigation';
 import { UserRole } from '../../App';
 
 interface InstructorCourseViewProps {
-  navigate: NavigateFn;
+  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
-  userRole: UserRole;
-  navigationState?: {
-    courseId?: number;
-    courseStatus?: 'draft' | 'published';
-  };
+  userRole: 'instructor';
+  navigationState?: any;
+}
+
+interface Video {
+  id: number;
+  title: string;
+  video_url: string;
+  video_order: number;
 }
 
 export default function InstructorCourseView({
@@ -63,35 +79,265 @@ export default function InstructorCourseView({
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
 
-  const courseId = navigationState?.courseId;
+  const courseId = navigationState?.courseId ?? null;
 
-  const [course, setCourse] = useState({
-    id: courseId ?? 1,
-    title: 'Complete Web Development Bootcamp',
-    description:
-      'Learn web development from scratch with hands-on projects and real-world examples.',
-    category: 'Web Development',
-    level: 'Beginner',
-    status: navigationState?.courseStatus ?? 'draft',
-    thumbnail:
-      'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1',
-    students: 1250,
-    rating: 4.9,
-    revenue: 24500,
-    videos: [
-      { id: 1, title: 'Introduction', duration: '12:34', order: 1 },
-      { id: 2, title: 'HTML Basics', duration: '25:18', order: 2 },
-    ],
-  });
+  const [course, setCourse] = useState<any>(null);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  if (!courseId) {
+    return <div className="p-6 text-red-600">Invalid course</div>;
+  }
+
+
 
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [showAddVideoDialog, setShowAddVideoDialog] = useState(false);
+  const [showEditVideoDialog, setShowEditVideoDialog] = useState(false);
+  const [showDeleteVideoDialog, setShowDeleteVideoDialog] = useState(false);
 
-  const handlePublishCourse = async () => {
-    // PUT /api/courses/:id/publish
-    setCourse({ ...course, status: 'published' });
-    setShowPublishDialog(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+
+  const [videoFormData, setVideoFormData] = useState({
+    title: '',
+    url: '',
+    order: 1,
+  });
+
+  const fetchCourse = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    const res = await fetch(`http://localhost:3000/api/courses/${courseId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+
+    setCourse({
+      ...data,
+      students: 0,
+      rating: 0,
+      revenue: 0,
+    });
   };
+
+
+
+  const fetchVideos = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    const res = await fetch(
+      `http://localhost:3000/api/courses/${courseId}/videos`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+
+
+    const data = await res.json();
+
+    const normalizedVideos = Array.isArray(data)
+      ? data
+      : Array.isArray(data.videos)
+        ? data.videos
+        : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+    setVideos(normalizedVideos);
+  };
+
+
+  useEffect(() => {
+    const load = async () => {
+      await fetchCourse();
+      await fetchVideos();
+      setLoading(false);
+    };
+    load();
+  }, [courseId]);
+
+  const handleAddVideo = async () => {
+    const token = localStorage.getItem('accessToken');
+
+    await fetch(`http://localhost:3000/api/courses/${courseId}/videos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        title: videoFormData.title,
+        video_url: videoFormData.url,
+        video_order: videoFormData.order,
+      }),
+    });
+
+    await fetchVideos();
+    setShowAddVideoDialog(false);
+  };
+
+  const handleEditVideo = async () => {
+    if (!selectedVideo) return;
+
+    const token = localStorage.getItem('accessToken');
+
+    await fetch(
+      `http://localhost:3000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: videoFormData.title,
+          video_url: videoFormData.url,
+          video_order: videoFormData.order,
+        }),
+      }
+    );
+
+    await fetchVideos();
+    setShowEditVideoDialog(false);
+    setSelectedVideo(null);
+  };
+
+  const handleDeleteVideo = async () => {
+    if (!selectedVideo) return;
+
+    const token = localStorage.getItem('accessToken');
+
+    await fetch(
+      `http://localhost:3000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    await fetchVideos();
+    setShowDeleteVideoDialog(false);
+    setSelectedVideo(null);
+  };
+
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    category: '',
+    level: '',
+    thumbnail: '',
+  });
+
+  const [formErrors, setFormErrors] = useState({
+    title: '',
+    description: '',
+    videoTitle: '',
+    videoUrl: '',
+    videoDuration: '',
+  });
+
+  const getCategoryValue = (category: string) => {
+    return category?.toLowerCase() ?? '';
+  };
+
+  const getCategoryDisplay = (category: string) => {
+    return category?.charAt(0).toUpperCase() + category.slice(1);
+  };
+
+  const handleCancelEdit = () => {
+    setEditFormData({
+      title: course.title,
+      description: course.description,
+      category: getCategoryValue(course.category),
+      level: course.level.toLowerCase(),
+      thumbnail: course.thumbnail,
+    });
+
+    setFormErrors({
+      title: '',
+      description: '',
+      videoTitle: '',
+      videoUrl: '',
+      videoDuration: '',
+    });
+
+    setIsEditMode(false);
+  };
+
+  const validateCourseForm = () => {
+    let valid = true;
+    const errors: any = {};
+
+    if (!editFormData.title.trim()) {
+      errors.title = 'Title is required';
+      valid = false;
+    }
+
+    if (!editFormData.description.trim()) {
+      errors.description = 'Description is required';
+      valid = false;
+    }
+
+    setFormErrors({
+      ...formErrors,
+      ...errors,
+    });
+
+    return valid;
+  };
+
+
+
+  const handleSaveCourse = async () => {
+    if (!validateCourseForm()) return;
+
+    setIsSaving(true);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${courseId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title: editFormData.title,
+            description: editFormData.description,
+            category: editFormData.category,
+            level: editFormData.level,
+            thumbnail: editFormData.thumbnail,
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error('Failed to update course');
+      }
+
+      const data = await res.json();
+
+      setCourse(data.course ?? data);
+
+      setIsEditMode(false);
+    } catch (error) {
+      console.error(error);
+      alert('Error while saving course');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (!course) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,9 +351,11 @@ export default function InstructorCourseView({
         />
 
         <div className="flex-1">
+          {/* Header */}
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
+                {/* DEVELOPER: Back button navigates to instructor-courses */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -116,129 +364,241 @@ export default function InstructorCourseView({
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div>
-                  <h1 className="text-2xl">Course Details</h1>
-                  <p className="text-gray-600">View and manage your course</p>
+                  <h1 className="text-2xl">
+                    {isEditMode ? 'Edit Course Details' : 'Course Details'}
+                  </h1>
+                  <p className="text-gray-600">
+                    {isEditMode ? 'Update your course information' : 'View and manage your course'}
+                  </p>
                 </div>
               </div>
-
               <div className="flex items-center gap-3">
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                {/* DEVELOPER: Show different buttons based on edit mode */}
+                {!isEditMode ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        navigate(
+                          'instructor-edit-course',
+                          'instructor',
+                          { courseId }
+                        )
+                      }
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Details
+                    </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    navigate('instructor-edit-course', undefined, {
-                      courseId: course.id,
-                    })
-                  }
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Course
-                </Button>
 
-                {course.status === 'draft' && (
-                  <Button
-                    className="bg-gradient-to-r from-violet-600 to-cyan-500"
-                    onClick={() => setShowPublishDialog(true)}
-                  >
-                    <CheckCircle className="mr-2 h-5 w-5" />
-                    Publish
-                  </Button>
+
+
+                    {/* DEVELOPER: Publish button only shows for draft courses */}
+                    {course.status === 'draft' && (
+                      <Button
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                        onClick={() => setShowPublishDialog(true)}
+                      >
+                        <CheckCircle className="mr-2 h-5 w-5" />
+                        Publish Course
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                    >
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button
+                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                      onClick={handleSaveCourse}
+                      disabled={isSaving}
+                    >
+                      <Save className="mr-2 h-5 w-5" />
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
           </header>
 
-          <main className="p-6">
-            <Card className="mb-6">
-              <CardContent className="p-6 grid md:grid-cols-3 gap-6">
-                <ImageWithFallback
-                  src={course.thumbnail}
-                  alt={course.title}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
 
+          {/* Course Info Section */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Course Image */}
+                <div>
+                  <ImageWithFallback
+                    src={course.thumbnail || 'https://via.placeholder.com/400x250'}
+                    alt={course.title}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+
+                {/* Course Details */}
                 <div className="md:col-span-2 space-y-4">
-                  <h2 className="text-3xl">{course.title}</h2>
+                  <h2 className="text-2xl font-semibold">
+                    {course.title}
+                  </h2>
 
-                  <div className="flex gap-2">
-                    <Badge variant="outline">{course.category}</Badge>
-                    <Badge variant="outline">{course.level}</Badge>
-                    <Badge
-                      className={
-                        course.status === 'published'
-                          ? 'bg-green-600'
-                          : 'bg-yellow-600'
-                      }
-                    >
-                      {course.status}
-                    </Badge>
+                  <div className="flex gap-2 flex-wrap">
+                    {course.category && (
+                      <Badge variant="outline">{course.category}</Badge>
+                    )}
+                    {course.level && (
+                      <Badge variant="outline">{course.level}</Badge>
+                    )}
+                    {course.status && (
+                      <Badge className="bg-yellow-600 text-white">
+                        {course.status}
+                      </Badge>
+                    )}
                   </div>
 
-                  <p className="text-gray-600">{course.description}</p>
+                  <p className="text-gray-600">
+                    {course.description || 'No description provided for this course.'}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
+
+          <main className="p-6">
+            {/* Videos Section */}
             <Card>
               <CardContent className="p-6">
-                <div className="flex justify-between mb-6">
-                  <h3 className="text-xl">Videos</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl">Course Videos</h3>
                   <Button
-                    onClick={() => setShowAddVideoDialog(true)}
-                    className="bg-gradient-to-r from-violet-600 to-cyan-500"
+                    className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                    onClick={() => {
+                      setVideoFormData({
+                        title: '',
+                        url: '',
+                        order: videos.length + 1,
+                      });
+                      setShowAddVideoDialog(true);
+                    }}
                   >
                     <Plus className="mr-2 h-5 w-5" />
                     Add Video
                   </Button>
                 </div>
 
-                {course.videos.length === 0 ? (
-                  <div className="text-center text-gray-500 py-10">
-                    <Play className="mx-auto h-10 w-10 mb-3" />
-                    No videos yet
+                {videos.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Play className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                    <p>No videos added yet. Start by adding your first video.</p>
                   </div>
                 ) : (
-                  course.videos.map((video) => (
-                    <motion.div
-                      key={video.id}
-                      className="flex justify-between p-4 border rounded-lg mb-2"
-                    >
-                      <div>
-                        <h4>{video.title}</h4>
-                        <p className="text-sm text-gray-600">{video.duration}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="ghost">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost">
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))
+                  <div className="space-y-3">
+                    {videos.map((video, index) => (
+                      <motion.div
+                        key={video.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 text-violet-600">
+                            {video.video_order}
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{video.title}</h4>
+                            <p className="text-sm text-gray-600">
+                              YouTube Video
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
+                              setVideoFormData({
+                                title: video.title,
+                                url: video.video_url,
+                                order: video.video_order,
+                              });
+                              setShowEditVideoDialog(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
+                              setShowDeleteVideoDialog(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
+
           </main>
         </div>
       </div>
 
-      {/* Publish Dialog */}
-      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+      {/* ADD VIDEO */}
+      <Dialog open={showAddVideoDialog} onOpenChange={setShowAddVideoDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Publish Course</DialogTitle>
+            <DialogTitle>Add Video</DialogTitle>
           </DialogHeader>
-          <p className="py-4">
-            Are you sure you want to publish this course?
-          </p>
+          <Input placeholder="Title" onChange={e => setVideoFormData({ ...videoFormData, title: e.target.value })} />
+          <Input placeholder="URL" onChange={e => setVideoFormData({ ...videoFormData, url: e.target.value })} />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
-              Cancel
+            <Button onClick={handleAddVideo}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* EDIT VIDEO */}
+      <Dialog open={showEditVideoDialog} onOpenChange={setShowEditVideoDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Video</DialogTitle>
+          </DialogHeader>
+          <Input value={videoFormData.title} onChange={e => setVideoFormData({ ...videoFormData, title: e.target.value })} />
+          <Input value={videoFormData.url} onChange={e => setVideoFormData({ ...videoFormData, url: e.target.value })} />
+          <DialogFooter>
+            <Button onClick={handleEditVideo}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DELETE VIDEO */}
+      <Dialog open={showDeleteVideoDialog} onOpenChange={setShowDeleteVideoDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Video?</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="destructive" onClick={handleDeleteVideo}>
+              Delete
             </Button>
-            <Button onClick={handlePublishCourse}>Publish</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
