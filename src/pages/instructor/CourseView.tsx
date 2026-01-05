@@ -290,6 +290,33 @@ export default function InstructorCourseView({
     return valid;
   };
 
+  const handlePublishCourse = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${course.id}/publish`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error('Failed to publish course');
+      }
+
+      const data = await res.json();
+
+      // 👇 تحديث الداتا في الفرونت
+      setCourse(data.course);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to publish course');
+    }
+  };
 
 
   const handleSaveCourse = async () => {
@@ -394,16 +421,18 @@ export default function InstructorCourseView({
 
 
 
-                    {/* DEVELOPER: Publish button only shows for draft courses */}
-                    {course.status === 'draft' && (
+
+
+
+                    {course.status === 'Draft' && (
                       <Button
-                        className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                        onClick={() => setShowPublishDialog(true)}
+                        onClick={handlePublishCourse}
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
                       >
-                        <CheckCircle className="mr-2 h-5 w-5" />
                         Publish Course
                       </Button>
                     )}
+
                   </>
                 ) : (
                   <>

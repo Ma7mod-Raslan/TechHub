@@ -28,96 +28,56 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const getContextualResponse = (message: string): string => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Context-specific responses
-    if (contextType === 'dashboard') {
-      if (lowerMessage.includes('progress') || lowerMessage.includes('track')) {
-        return 'You can track your learning progress through the dashboard cards showing completed courses, assignments, and certificates. The progress bars give you a visual representation of your achievements!';
+  const sendMessageToBot = async (message: string): Promise<string> => {
+    try {
+      const response = await fetch("http://localhost:5000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch");
       }
-      if (lowerMessage.includes('course') || lowerMessage.includes('enroll')) {
-        return 'To enroll in a new course, navigate to "My Courses" from the sidebar and browse available courses. Click "Enroll" on any course that interests you to get started!';
-      }
+
+      const data = await response.json();
+      return data.answer ?? "No answer returned from bot.";
+    } catch (error) {
+      console.error(error);
+      return "Sorry, the chatbot server is not available right now.";
     }
-    
-    if (contextType === 'assignments') {
-      if (lowerMessage.includes('submit') || lowerMessage.includes('deadline')) {
-        return 'To submit an assignment, click on it from your assignments list, complete the required tasks, and upload your work before the deadline. You\'ll receive feedback from your instructor!';
-      }
-      if (lowerMessage.includes('late') || lowerMessage.includes('overdue')) {
-        return 'If you miss a deadline, you can still submit late assignments, but they may be marked as overdue. It\'s best to contact your instructor if you need an extension.';
-      }
-    }
-    
-    if (contextType === 'compiler') {
-      if (lowerMessage.includes('language') || lowerMessage.includes('support')) {
-        return 'The compiler supports multiple programming languages including JavaScript, Python, Java, C++, and more. Select your preferred language from the dropdown menu!';
-      }
-      if (lowerMessage.includes('error') || lowerMessage.includes('debug')) {
-        return 'When you encounter an error, check the console output for details. Common issues include syntax errors, missing semicolons, or undefined variables. I can help explain specific error messages!';
-      }
-    }
-    
-    // General responses
-    if (lowerMessage.includes('help') || lowerMessage.includes('how')) {
-      return 'I\'m here to help! You can ask me about navigating the platform, understanding course content, completing assignments, or getting coding help. What specific area would you like assistance with?';
-    }
-    
-    if (lowerMessage.includes('certificate')) {
-      return 'You can earn certificates by completing all course lectures and assignments. View your certificates in the "Certificates" section from the sidebar menu!';
-    }
-    
-    if (lowerMessage.includes('community') || lowerMessage.includes('forum')) {
-      return 'Join our community forum to connect with other learners, ask questions, share projects, and collaborate. Access it through the "Community" menu in the sidebar!';
-    }
-    
-    if (lowerMessage.includes('roadmap')) {
-      return 'Learning roadmaps provide structured paths to achieve your goals. Check out the "Roadmaps" section to find curated learning paths for different career tracks!';
-    }
-    
-    if (lowerMessage.includes('code') || lowerMessage.includes('programming')) {
-      return 'For hands-on coding practice, use our built-in compiler accessible from the sidebar. You can write, run, and test code in multiple programming languages!';
-    }
-    
-    if (lowerMessage.includes('profile') || lowerMessage.includes('settings')) {
-      return 'You can update your profile information and preferences in the "Settings" section. Customize your learning experience to match your needs!';
-    }
-    
-    // Default response
-    return 'That\'s a great question! I can help you with courses, assignments, coding problems, certificates, and navigating the platform. Could you provide more details about what you need help with?';
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
-    
+
     const userMessage: ChatMessage = {
       id: chatMessages.length + 1,
-      role: 'user',
+      role: "user",
       content: newMessage,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp: new Date().toLocaleTimeString(),
     };
-    
+
     setChatMessages(prev => [...prev, userMessage]);
     const currentMessage = newMessage;
-    setNewMessage('');
+    setNewMessage("");
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responseContent = getContextualResponse(currentMessage);
-      
-      const aiResponse: ChatMessage = {
-        id: chatMessages.length + 2,
-        role: 'assistant',
-        content: responseContent,
-        timestamp: new Date().toLocaleTimeString()
-      };
-      
-      setChatMessages(prev => [...prev, aiResponse]);
-      setIsTyping(false);
-    }, 1500);
+    const botReply = await sendMessageToBot(currentMessage);
+
+    const aiResponse: ChatMessage = {
+      id: chatMessages.length + 2,
+      role: "assistant",
+      content: botReply,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setChatMessages(prev => [...prev, aiResponse]);
+    setIsTyping(false);
   };
+
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -125,11 +85,11 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
     }
   }, [chatMessages]);
 
-  const quickActions = contextType === 'compiler' 
+  const quickActions = contextType === 'compiler'
     ? ['How do I run code?', 'Supported languages?', 'Debug help']
     : contextType === 'assignments'
-    ? ['How to submit?', 'Deadline info', 'Late submission']
-    : ['Getting started', 'Course help', 'Certificate info'];
+      ? ['How to submit?', 'Deadline info', 'Late submission']
+      : ['Getting started', 'Course help', 'Certificate info'];
 
   return (
     <>
@@ -161,7 +121,7 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
                 </button>
               </div>
             </div>
-            
+
             <div className="h-96 overflow-y-auto scrollbar-hide p-4 bg-gray-50">
               <div className="space-y-4">
                 {chatMessages.map((message) => (
@@ -169,9 +129,8 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
                     key={message.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex items-start gap-2 ${
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
+                    className={`flex items-start gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'
+                      }`}
                   >
                     {message.role === 'assistant' && (
                       <div className="w-8 h-8 bg-gradient-to-r from-violet-600 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -179,16 +138,14 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
                       </div>
                     )}
                     <div
-                      className={`max-w-[75%] px-4 py-3 rounded-2xl ${
-                        message.role === 'user'
-                          ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white rounded-br-none'
-                          : 'bg-white text-gray-800 shadow-sm rounded-bl-none'
-                      }`}
+                      className={`max-w-[75%] px-4 py-3 rounded-2xl ${message.role === 'user'
+                        ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white rounded-br-none'
+                        : 'bg-white text-gray-800 shadow-sm rounded-bl-none'
+                        }`}
                     >
                       <p className="text-sm leading-relaxed">{message.content}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.role === 'user' ? 'text-white/70' : 'text-gray-400'
-                      }`}>{message.timestamp}</p>
+                      <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-white/70' : 'text-gray-400'
+                        }`}>{message.timestamp}</p>
                     </div>
                     {message.role === 'user' && (
                       <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
@@ -230,7 +187,7 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
                 <div ref={chatEndRef} />
               </div>
             </div>
-            
+
             <div className="p-4 border-t bg-white rounded-b-xl">
               <div className="flex gap-2">
                 <input
