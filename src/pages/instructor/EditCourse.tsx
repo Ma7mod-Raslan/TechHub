@@ -1,14 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { useEffect, useState } from 'react';
 import {
-  LayoutDashboard,
-  BookOpen,
-  BarChart3,
-  Users,
-  Bell,
-  User,
-  Settings,
-  MessageSquare,
   ArrowLeft,
   Upload,
   Save,
@@ -26,14 +17,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select';
+import {
+  LayoutDashboard,
+  BookOpen,
+  BarChart3,
+  Users,
+  Bell,
+  User,
+  Settings,
+  MessageSquare,
+} from 'lucide-react';
 
-import HeaderIcons from '../../components/HeaderIcons';
+
 import Sidebar from '../../components/Sidebar';
+import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 
-import { UserRole } from '../../App';
 import { NavigateFn } from '../../types/Navigation';
+import { UserRole } from '../../App';
+
+
 
 interface InstructorEditCourseProps {
   navigate: NavigateFn;
@@ -44,15 +48,13 @@ interface InstructorEditCourseProps {
   };
 }
 
-/**
- * This page allows instructors to edit existing course details.
- */
 export default function InstructorEditCourse({
   navigate,
   logout,
   userRole,
   navigationState,
 }: InstructorEditCourseProps) {
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
@@ -64,65 +66,139 @@ export default function InstructorEditCourse({
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
 
-  // ✅ Extract courseId safely
-  const courseId = navigationState?.courseId ?? 1;
 
-  // Form state (will be replaced with API data)
+
+
+  /* =======================
+     COURSE ID
+  ======================= */
+  const courseId = navigationState?.courseId ?? null;
+
+  /* =======================
+     STATE (ALL HOOKS FIRST)
+  ======================= */
   const [formData, setFormData] = useState({
-    title: 'Complete Web Development Bootcamp',
-    description:
-      'Learn web development from scratch with hands-on projects and real-world examples.',
-    category: 'web',
-    level: 'beginner',
-    thumbnail:
-      'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1',
+    title: '',
+    description: '',
+    category: '',
+    level: '',
+    thumbnail: '',
   });
 
-  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [thumbnailError, setThumbnailError] = useState('');
 
-  // Fetch course data
-  useEffect(() => {
-    // API: GET /api/courses/:courseId
-    // setFormData(response.data)
-  }, [courseId]);
 
+
+  /* =======================
+     HELPERS
+  ======================= */
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const isValidImageUrl = (url: string) =>
+    /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
 
-    setIsUploading(true);
+  /* =======================
+     FETCH COURSE
+  ======================= */
+  useEffect(() => {
+    if (!courseId) {
+      setError('Invalid course. No course ID provided.');
+      setIsLoading(false);
+      return;
+    }
 
-    // Mock upload
-    setTimeout(() => {
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail: URL.createObjectURL(file),
-      }));
-      setIsUploading(false);
-    }, 1500);
-  };
+    const fetchCourse = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
 
-  const handleSaveCourse = (e: React.FormEvent) => {
+        const res = await fetch(
+          `http://localhost:3000/api/courses/${courseId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!res.ok) throw new Error('Failed to load course');
+
+        const data = await res.json();
+
+        setFormData({
+          title: data.title ?? '',
+          description: data.description ?? '',
+          category: data.category ?? '',
+          level: data.level ?? '',
+          thumbnail: data.thumbnail ?? '',
+        });
+
+      } catch (err) {
+        setError('Failed to load course data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourse();
+  }, [courseId]);
+
+  /* =======================
+     SAVE COURSE
+  ======================= */
+  const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (thumbnailError) return;
+
     setIsSaving(true);
 
-    // API: PUT /api/courses/:courseId
+    try {
+      const token = localStorage.getItem('accessToken');
 
-    setTimeout(() => {
-      setIsSaving(false);
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${courseId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
       navigate('instructor-course-view', undefined, { courseId });
-    }, 1000);
+    } catch {
+      alert('Failed to save course');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
+  /* =======================
+     EARLY RETURNS (SAFE)
+  ======================= */
+  if (isLoading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">{error}</div>;
+  }
+
+  /* =======================
+     UI
+  ======================= */
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
           navigate={navigate}
@@ -147,7 +223,9 @@ export default function InstructorEditCourse({
                 </Button>
                 <div>
                   <h1 className="text-2xl">Edit Course</h1>
-                  <p className="text-gray-600">Update your course information</p>
+                  <p className="text-gray-600">
+                    Update your course information
+                  </p>
                 </div>
               </div>
 
@@ -163,7 +241,8 @@ export default function InstructorEditCourse({
           <main className="p-6">
             <form onSubmit={handleSaveCourse}>
               <div className="max-w-4xl mx-auto space-y-6">
-                {/* Basic Info */}
+
+                {/* Course Info */}
                 <Card>
                   <CardContent className="p-6 space-y-4">
                     <div>
@@ -194,38 +273,43 @@ export default function InstructorEditCourse({
                         <Label>Category *</Label>
                         <Select
                           value={formData.category}
-                          onValueChange={(v) =>
-                            handleInputChange('category', v)
-                          }
+                          onValueChange={(v) => handleInputChange('category', v)}
                         >
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Select category" />
                           </SelectTrigger>
+
                           <SelectContent>
                             <SelectItem value="web">Web Development</SelectItem>
                             <SelectItem value="data">Data Science</SelectItem>
                             <SelectItem value="ai">AI & ML</SelectItem>
+                            <SelectItem value="mobile">Mobile Development</SelectItem>
+                            <SelectItem value="security">Cybersecurity</SelectItem>
+                            <SelectItem value="cloud">Cloud Computing</SelectItem>
+                            <SelectItem value="devops">DevOps</SelectItem>
+                            <SelectItem value="database">Database</SelectItem>
                           </SelectContent>
                         </Select>
+
                       </div>
 
                       <div>
                         <Label>Level *</Label>
                         <Select
                           value={formData.level}
-                          onValueChange={(v) =>
-                            handleInputChange('level', v)
-                          }
+                          onValueChange={(v) => handleInputChange('level', v)}
                         >
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Select level" />
                           </SelectTrigger>
+
                           <SelectContent>
-                            <SelectItem value="beginner">Beginner</SelectItem>
-                            <SelectItem value="intermediate">Intermediate</SelectItem>
-                            <SelectItem value="advanced">Advanced</SelectItem>
+                            <SelectItem value="Beginner">Beginner</SelectItem>
+                            <SelectItem value="Intermediate">Intermediate</SelectItem>
+                            <SelectItem value="Advanced">Advanced</SelectItem>
                           </SelectContent>
                         </Select>
+
                       </div>
                     </div>
                   </CardContent>
@@ -234,23 +318,42 @@ export default function InstructorEditCourse({
                 {/* Thumbnail */}
                 <Card>
                   <CardContent className="p-6 space-y-4">
-                    {formData.thumbnail && (
-                      <ImageWithFallback
-                        src={formData.thumbnail}
-                        alt="Course thumbnail"
-                        className="w-full max-w-md h-48 object-cover rounded-lg"
-                      />
+                    <Label>Thumbnail Image URL</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/image.jpg"
+                      value={formData.thumbnail}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        handleInputChange('thumbnail', value);
+
+                        if (value && !isValidImageUrl(value)) {
+                          setThumbnailError(
+                            'Please enter a direct image URL (.jpg, .png, .webp)'
+                          );
+                        } else {
+                          setThumbnailError('');
+                        }
+                      }}
+                    />
+
+                    {thumbnailError && (
+                      <p className="text-red-600 text-sm">{thumbnailError}</p>
                     )}
 
-                    <label className="flex items-center justify-center w-full max-w-md h-32 border-2 border-dashed rounded-lg cursor-pointer">
-                      <Upload className="h-6 w-6 text-gray-400" />
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleThumbnailUpload}
-                        disabled={isUploading}
-                      />
-                    </label>
+                    <div className="flex items-center justify-center w-full max-w-md h-48 border-2 border-dashed rounded-lg bg-gray-50">
+                      {formData.thumbnail && !thumbnailError ? (
+                        <ImageWithFallback
+                          src={formData.thumbnail}
+                          alt="Course thumbnail"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-sm">
+                          Image preview will appear here
+                        </span>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 

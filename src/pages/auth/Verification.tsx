@@ -124,23 +124,25 @@ export default function Verification({ navigate, email, role }: VerificationProp
 
     setIsVerifying(true);
     try {
-      // call backend verify endpoint
       const res = await api.post("/auth/verify-email", {
         email: userEmail,
         code: verificationCode,
       });
 
+      localStorage.setItem("accessToken", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
       toast.success(res.data?.message || "Email verified successfully!");
       localStorage.removeItem("pendingVerification");
 
-      // small delay so user sees toast
       setTimeout(() => {
-        if (userRole === "instructor") {
+        if (res.data.user.role === "instructor") {
           navigate("instructor-dashboard", "instructor");
         } else {
           navigate("student-dashboard", "student");
         }
       }, 900);
+
     } catch (err: any) {
       const msg = err?.response?.data?.error || err?.message || "Verification failed";
       toast.error(msg);
@@ -276,7 +278,7 @@ export default function Verification({ navigate, email, role }: VerificationProp
           </div>
         </motion.div>
       </motion.div>
-      <AIAssistant/>
+      <AIAssistant />
     </div>
   );
 }

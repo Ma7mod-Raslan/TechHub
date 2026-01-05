@@ -1,5 +1,5 @@
 // src/pages/auth/SignUp.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   Code2,
@@ -51,6 +51,14 @@ const GOOGLE_CLIENT_ID =
 export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"student" | "instructor">("student");
+  
+  useEffect(() => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
+  localStorage.removeItem("pendingVerification");
+
+}, []);
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -412,7 +420,7 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
             <div className="relative my-6">
               <Separator />
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">
-                Or continue with
+                Or continue as Student with
               </span>
             </div>
 

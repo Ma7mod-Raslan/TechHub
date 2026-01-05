@@ -35,6 +35,14 @@ export default function Login({ navigate }: LoginProps) {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("pendingVerification");
+
+  }, []);
+
+
   // Choose the password rule to apply for the app
   const PASSWORD_REGEX = STRONG_PASSWORD_REGEX;
   // If you want digits-only rule, use DIGITS_ONLY_REGEX from the utils file.

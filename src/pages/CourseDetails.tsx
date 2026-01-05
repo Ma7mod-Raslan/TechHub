@@ -949,14 +949,6 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
                       <div>
                         <h2 className="text-2xl mb-2">Sarah Johnson</h2>
                         <p className="text-gray-600 mb-4">Senior Full Stack Developer at Tech Corp</p>
-                        <div className="flex gap-4 text-sm text-gray-600 mb-4">
-                          <span className="flex items-center gap-1"><Star className="h-4 w-4" />4.9 Rating</span>
-                          <span className="flex items-center gap-1"><Users className="h-4 w-4" />65K Students</span>
-                          <span className="flex items-center gap-1"><Award className="h-4 w-4" />12 Courses</span>
-                        </div>
-                        <p className="text-gray-600">
-                          Sarah is a passionate educator with over 10 years of experience in web development. She has worked with Fortune 500 companies and taught thousands of students worldwide.
-                        </p>
                       </div>
                     </div>
                   </CardContent>

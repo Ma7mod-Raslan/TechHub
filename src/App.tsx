@@ -44,10 +44,18 @@ export default function App() {
   const [navigationState, setNavigationState] = useState<any>(null);
 
   const logout = () => {
-    setUserRole('guest');
-    setCurrentPage('login');
-    setNavigationState(null);
-  };
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("user");
+  localStorage.removeItem("pendingVerification");
+
+  // axios instance
+  // delete api.defaults.headers.common["Authorization"];
+
+  setUserRole('guest');
+  setCurrentPage('login');
+  setNavigationState(null);
+};
+
 
   const navigate = (page: string, role?: UserRole, state?: any) => {
     // If navigating to home, don't log out - just go to home

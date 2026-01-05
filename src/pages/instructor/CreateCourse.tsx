@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -11,7 +11,8 @@ import {
   MessageSquare,
   ArrowLeft,
   Upload,
-  Save,
+  Plus,
+  X,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -33,23 +34,20 @@ import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 
 import { UserRole } from '../../App';
-import { NavigateFn } from '../../types/Navigation';
+import { createCourse } from '../../services/courseApi';
+import { toast } from 'sonner';
 
-interface InstructorEditCourseProps {
-  navigate: NavigateFn;
+interface InstructorCreateCourseProps {
+  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
-  userRole: UserRole;
-  navigationState?: {
-    courseId?: number;
-  };
+  userRole: 'instructor';
 }
 
-export default function InstructorEditCourse({
+export default function InstructorCreateCourse({
   navigate,
   logout,
   userRole,
-  navigationState,
-}: InstructorEditCourseProps) {
+}: InstructorCreateCourseProps) {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
@@ -61,31 +59,30 @@ export default function InstructorEditCourse({
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
 
-  // 🔹 Extract courseId from navigationState
-  const courseId = navigationState?.courseId ?? 1;
-
-  // 🔹 Form state (will be replaced by API response)
   const [formData, setFormData] = useState({
-    title: 'Complete Web Development Bootcamp',
-    description:
-      'Learn web development from scratch with hands-on projects and real-world examples.',
-    category: 'web',
-    level: 'beginner',
-    thumbnail:
-      'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1',
+    title: '',
+    description: '',
+    category: '',
+    level: '',
+    thumbnail: '',
   });
 
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const LEVEL_MAP: Record<string, string> = {
+    beginner: "Beginner",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+  };
 
-  // 🔹 Fetch course data on mount
-  useEffect(() => {
-    // API: GET /api/courses/:courseId
-    // setFormData(response.data)
-  }, [courseId]);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isUploading, setIsUploading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
   };
 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,32 +91,83 @@ export default function InstructorEditCourse({
 
     setIsUploading(true);
 
-    // Mock upload
+    // mock upload (زي ما كان)
     setTimeout(() => {
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail: URL.createObjectURL(file),
-      }));
+      setFormData({ ...formData, thumbnail: URL.createObjectURL(file) });
       setIsUploading(false);
-    }, 1200);
+    }, 1500);
   };
 
-  const handleSaveCourse = (e: React.FormEvent) => {
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.length < 10) {
+      newErrors.title = 'Title must be at least 10 characters';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.length < 50) {
+      newErrors.description = 'Description must be at least 50 characters';
+    }
+
+    if (!formData.category) {
+      newErrors.category = 'Category is required';
+    }
+
+    if (!formData.level) {
+      newErrors.level = 'Level is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ✅ التعديل الوحيد الحقيقي هنا
+  const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
 
-    // API: PUT /api/courses/:courseId
+    if (!validateForm()) return;
 
-    setTimeout(() => {
-      setIsSaving(false);
-      navigate('instructor-course-view', undefined, { courseId });
-    }, 1000);
+    setIsCreating(true);
+
+    try {
+      const response = await createCourse({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        level: LEVEL_MAP[formData.level],
+        thumbnail: formData.thumbnail,
+      });
+
+
+
+      const courseId = response.course.id;
+
+      setIsCreating(false);
+
+      navigate("instructor-course-view", "instructor", {
+        courseId: response.course.id,
+      });
+
+    } catch (err: any) {
+      console.error(err);
+      setIsCreating(false);
+      toast.error(err?.response?.data?.error || 'Failed to create course');
+    }
   };
+  const isDirectImageUrl = (url: string) => {
+    return /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+  };
+  const [thumbnailError, setThumbnailError] = useState('');
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
           navigate={navigate}
@@ -129,147 +177,203 @@ export default function InstructorEditCourse({
         />
 
         <div className="flex-1">
-          {/* Header */}
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
-                    navigate('instructor-course-view', undefined, { courseId })
-                  }
+                  onClick={() => navigate('instructor-courses')}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
                 <div>
-                  <h1 className="text-2xl">Edit Course</h1>
-                  <p className="text-gray-600">Update your course information</p>
+                  <h1 className="text-2xl">Create New Course</h1>
+                  <p className="text-gray-600">Start building your course</p>
                 </div>
               </div>
-
-              <HeaderIcons
-                navigate={navigate}
-                logout={logout}
-                userRole={userRole}
-              />
+              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
-          {/* Content */}
           <main className="p-6">
-            <form onSubmit={handleSaveCourse}>
+            <form onSubmit={handleCreateCourse}>
               <div className="max-w-4xl mx-auto space-y-6">
-                {/* Basic Info */}
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 bg-blue-50 border border-blue-200 rounded-lg"
+                >
+                  <p className="text-sm text-blue-900">
+                    📚 Your course will be created as a <strong>draft</strong>. You can add videos, assignments, and other content before publishing it.
+                  </p>
+                </motion.div>
+                {/* Basic Information */}
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl mb-4">Basic Information</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="title">Course Title *</Label>
+                        <Input
+                          id="title"
+                          value={formData.title}
+                          onChange={(e) => handleInputChange('title', e.target.value)}
+                          placeholder="e.g., Complete Python Bootcamp"
+                          className={errors.title ? 'border-red-500' : ''}
+                        />
+                        {errors.title && (
+                          <p className="text-sm text-red-600 mt-1">{errors.title}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="description">Description *</Label>
+                        <Textarea
+                          id="description"
+                          value={formData.description}
+                          onChange={(e) => handleInputChange('description', e.target.value)}
+                          placeholder="Describe what students will learn in this course..."
+                          rows={6}
+                          className={errors.description ? 'border-red-500' : ''}
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formData.description.length}/50 minimum characters
+                        </p>
+                        {errors.description && (
+                          <p className="text-sm text-red-600 mt-1">{errors.description}</p>
+                        )}
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="category">Category *</Label>
+                          <Select
+                            value={formData.category}
+                            onValueChange={(value) => handleInputChange('category', value)}
+                          >
+                            <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="web">Web Development</SelectItem>
+                              <SelectItem value="data">Data Science</SelectItem>
+                              <SelectItem value="ai">AI & ML</SelectItem>
+                              <SelectItem value="mobile">Mobile Development</SelectItem>
+                              <SelectItem value="security">Cybersecurity</SelectItem>
+                              <SelectItem value="cloud">Cloud Computing</SelectItem>
+                              <SelectItem value="devops">DevOps</SelectItem>
+                              <SelectItem value="database">Database</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.category && (
+                            <p className="text-sm text-red-600 mt-1">{errors.category}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <Label htmlFor="level">Difficulty Level *</Label>
+                          <Select
+                            value={formData.level}
+                            onValueChange={(value) => handleInputChange('level', value)}
+                          >
+                            <SelectTrigger className={errors.level ? 'border-red-500' : ''}>
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="beginner">Beginner</SelectItem>
+                              <SelectItem value="intermediate">Intermediate</SelectItem>
+                              <SelectItem value="advanced">Advanced</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {errors.level && (
+                            <p className="text-sm text-red-600 mt-1">{errors.level}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Course Thumbnail */}
                 <Card>
                   <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl">Course Thumbnail</h3>
+                    <p className="text-sm text-gray-600">
+                      Upload your image to an image hosting service and paste the image URL below.
+                    </p>
+
+                    {/* URL Input */}
                     <div>
-                      <Label>Course Title *</Label>
+                      <Label htmlFor="thumbnail">Thumbnail Image URL</Label>
                       <Input
-                        value={formData.title}
-                        onChange={(e) =>
-                          handleInputChange('title', e.target.value)
-                        }
-                        required
-                      />
-                    </div>
+                        id="thumbnail"
+                        type="url"
+                        placeholder="https://i.imgur.com/example.jpg"
+                        value={formData.thumbnail}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          handleInputChange('thumbnail', value);
 
-                    <div>
-                      <Label>Description *</Label>
-                      <Textarea
-                        rows={6}
-                        value={formData.description}
-                        onChange={(e) =>
-                          handleInputChange('description', e.target.value)
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label>Category *</Label>
-                        <Select
-                          value={formData.category}
-                          onValueChange={(v) =>
-                            handleInputChange('category', v)
+                          if (value && !isDirectImageUrl(value)) {
+                            setThumbnailError(
+                              'Please enter a direct image URL (ending with .jpg, .png, etc.)'
+                            );
+                          } else {
+                            setThumbnailError('');
                           }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="web">Web Development</SelectItem>
-                            <SelectItem value="data">Data Science</SelectItem>
-                            <SelectItem value="ai">AI & ML</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                        }}
+                      />
 
-                      <div>
-                        <Label>Level *</Label>
-                        <Select
-                          value={formData.level}
-                          onValueChange={(v) =>
-                            handleInputChange('level', v)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="beginner">Beginner</SelectItem>
-                            <SelectItem value="intermediate">Intermediate</SelectItem>
-                            <SelectItem value="advanced">Advanced</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {/* Helper text */}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Tip: Right-click the image → “Copy image address”
+                      </p>
+
+                      {/* Error message */}
+                      {thumbnailError && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {thumbnailError}
+                        </p>
+                      )}
                     </div>
+
+
+                    {/* Preview – upload */}
+                    <div className="flex items-center justify-center w-full max-w-md h-48 border-2 border-dashed rounded-lg bg-gray-50">
+                      {formData.thumbnail && !thumbnailError ? (
+                        <ImageWithFallback
+                          src={formData.thumbnail}
+                          alt="Course thumbnail preview"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-sm text-center px-4">
+                          Paste a direct image URL to preview the thumbnail
+                        </span>
+                      )}
+                    </div>
+
                   </CardContent>
                 </Card>
 
-                {/* Thumbnail */}
-                <Card>
-                  <CardContent className="p-6 space-y-4">
-                    {formData.thumbnail && (
-                      <ImageWithFallback
-                        src={formData.thumbnail}
-                        alt="thumbnail"
-                        className="w-full max-w-md h-48 object-cover rounded-lg"
-                      />
-                    )}
 
-                    <label className="flex items-center justify-center w-full max-w-md h-32 border-2 border-dashed rounded-lg cursor-pointer">
-                      <Upload className="h-6 w-6 text-gray-400" />
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleThumbnailUpload}
-                        disabled={isUploading}
-                      />
-                    </label>
-                  </CardContent>
-                </Card>
-
-                {/* Actions */}
-                <div className="flex justify-between">
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between pb-8">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      navigate('instructor-course-view', undefined, { courseId })
-                    }
+                    onClick={() => navigate('instructor-courses')}
                   >
                     Cancel
                   </Button>
-
                   <Button
                     type="submit"
-                    disabled={isSaving}
-                    className="bg-gradient-to-r from-violet-600 to-cyan-500"
+                    className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                    disabled={isCreating}
                   >
-                    <Save className="mr-2 h-5 w-5" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    <Plus className="mr-2 h-5 w-5" />
+                    {isCreating ? 'Creating...' : 'Create Course'}
                   </Button>
                 </div>
               </div>
