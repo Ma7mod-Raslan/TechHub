@@ -4,9 +4,43 @@ import { authMiddleware } from "../middleware/auth.js";
 import { allowRoles } from "../middleware/roles.js";
 import { checkEnrollment } from "../middleware/enrollment.js";
 
-
-
 const router = express.Router();
+
+/* ---------------------------------------
+   PUBLIC: Get all published courses (for students)
+--------------------------------------- */
+router.get("/", async (req, res) => {
+  try {
+    const result = await db.query(
+      `
+      SELECT
+        c.id,
+        c.title,
+        c.description,
+        c.category,
+        c.level,
+        c.thumbnail,
+        c.created_at,
+        u.full_name AS instructor_name
+      FROM courses c
+      JOIN users u ON u.id = c.instructor_id
+      WHERE c.status = 'Published'
+      ORDER BY c.created_at DESC
+      `
+    );
+
+    res.json({
+      count: result.rows.length,
+      courses: result.rows,
+    });
+
+  } catch (err) {
+    console.error("Get published courses error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 /* ---------- ENROLL a student in a course ---------- */
 /* POST /api/courses/:id/enroll  (student only) */
@@ -101,6 +135,110 @@ router.post(
   }
 );
 
+/* ---------------------------------------
+   INSTRUCTOR: Add course outcomes
+--------------------------------------- */
+router.post(
+  "/:id/outcomes",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+      const { items } = req.body;
+
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Outcomes are required" });
+      }
+
+      // Check ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Remove old outcomes
+      await db.query(
+        "DELETE FROM course_outcomes WHERE course_id=$1",
+        [courseId]
+      );
+
+      // Insert new outcomes
+      for (const item of items) {
+        await db.query(
+          "INSERT INTO course_outcomes (course_id, description) VALUES ($1, $2)",
+          [courseId, item]
+        );
+      }
+
+      res.json({ message: "Course outcomes saved successfully" });
+
+    } catch (err) {
+      console.error("Add outcomes error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+/* ---------------------------------------
+   INSTRUCTOR: Add course requirements
+--------------------------------------- */
+router.post(
+  "/:id/requirements",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+      const { items } = req.body;
+
+      if (!Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ error: "Requirements are required" });
+      }
+
+      // Check ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Remove old requirements
+      await db.query(
+        "DELETE FROM course_requirements WHERE course_id=$1",
+        [courseId]
+      );
+
+      // Insert new requirements
+      for (const item of items) {
+        await db.query(
+          "INSERT INTO course_requirements (course_id, description) VALUES ($1, $2)",
+          [courseId, item]
+        );
+      }
+
+      res.json({ message: "Course requirements saved successfully" });
+
+    } catch (err) {
+      console.error("Add requirements error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 /* ---------------------------------------
    INSTRUCTOR: Get my courses (Draft / Published)
@@ -173,7 +311,7 @@ router.get(
       const courseId = req.params.id;
       const userId = req.user?.id;
 
-      // Get course
+      // 1️⃣ Get course
       const courseRes = await db.query(
         `SELECT
            id,
@@ -196,7 +334,7 @@ router.get(
 
       const course = courseRes.rows[0];
 
-      // If course is Draft → only owner instructor can view
+      // 2️⃣ If course is Draft → only owner instructor can view
       if (course.status === "Draft") {
         if (!userId || course.instructor_id !== userId) {
           return res.status(403).json({
@@ -204,6 +342,22 @@ router.get(
           });
         }
       }
+
+      // 3️⃣ Get outcomes
+      const outcomesRes = await db.query(
+        "SELECT description FROM course_outcomes WHERE course_id=$1",
+        [courseId]
+      );
+
+      // 4️⃣ Get requirements
+      const reqRes = await db.query(
+        "SELECT description FROM course_requirements WHERE course_id=$1",
+        [courseId]
+      );
+
+      // Attach them to response
+      course.outcomes = outcomesRes.rows.map(r => r.description);
+      course.requirements = reqRes.rows.map(r => r.description);
 
       res.json(course);
 
@@ -213,7 +367,6 @@ router.get(
     }
   }
 );
-
 
 /* ---------------------------------------
    INSTRUCTOR: Publish course
@@ -295,6 +448,105 @@ router.put(
     }
   }
 );
+
+/* ---------------------------------------
+   INSTRUCTOR: Update course outcomes
+--------------------------------------- */
+router.put(
+  "/:id/outcomes",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+      const { items } = req.body;
+
+      if (!Array.isArray(items)) {
+        return res.status(400).json({ error: "Items must be an array" });
+      }
+
+      // Check ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Replace outcomes
+      await db.query("DELETE FROM course_outcomes WHERE course_id=$1", [courseId]);
+
+      for (const item of items) {
+        await db.query(
+          "INSERT INTO course_outcomes (course_id, description) VALUES ($1, $2)",
+          [courseId, item]
+        );
+      }
+
+      res.json({ message: "Course outcomes updated successfully" });
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
+/* ---------------------------------------
+   INSTRUCTOR: Update course requirements
+--------------------------------------- */
+router.put(
+  "/:id/requirements",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+      const { items } = req.body;
+
+      if (!Array.isArray(items)) {
+        return res.status(400).json({ error: "Items must be an array" });
+      }
+
+      // Check ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
+
+      if (course.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "Not allowed" });
+
+      // Replace requirements
+      await db.query(
+        "DELETE FROM course_requirements WHERE course_id=$1",
+        [courseId]
+      );
+
+      for (const item of items) {
+        await db.query(
+          "INSERT INTO course_requirements (course_id, description) VALUES ($1, $2)",
+          [courseId, item]
+        );
+      }
+
+      res.json({ message: "Course requirements updated successfully" });
+
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 /* ---------------------------------------
    INSTRUCTOR: Delete course
@@ -499,8 +751,6 @@ router.delete(
     }
   }
 );
-
-
 
 /* ---------- 
   GET course videos (only for enrolled students or instructor owner)

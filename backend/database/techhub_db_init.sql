@@ -27,6 +27,21 @@ CREATE TABLE courses (
   thumbnail VARCHAR(300),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE course_outcomes (
+  id SERIAL PRIMARY KEY,
+  course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+  description TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_requirements (
+  id SERIAL PRIMARY KEY,
+  course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+  description TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE course_videos (
   id SERIAL PRIMARY KEY,
   course_id INT REFERENCES courses(id) ON DELETE CASCADE,
@@ -36,6 +51,7 @@ CREATE TABLE course_videos (
   description TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE enrollments (
   id SERIAL PRIMARY KEY,
   student_id INT REFERENCES users(id) ON DELETE CASCADE,
@@ -44,6 +60,7 @@ CREATE TABLE enrollments (
   completed BOOLEAN DEFAULT FALSE,
   enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE assignments (
   id SERIAL PRIMARY KEY,
   course_id INT REFERENCES courses(id) ON DELETE CASCADE,
@@ -52,6 +69,7 @@ CREATE TABLE assignments (
   deadline DATE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE submissions (
   id SERIAL PRIMARY KEY,
   assignment_id INT REFERENCES assignments(id) ON DELETE CASCADE,

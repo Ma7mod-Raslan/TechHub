@@ -1,8 +1,39 @@
 import express from "express";
 import db from "../db.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { upload } from "../middleware/upload.js";
+import { uploadProfileImage } from "../services/cloudinary.js";
 
 const router = express.Router();
+
+
+router.put(
+  "/profile-image",
+  authMiddleware,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image is required" });
+      }
+
+      const imageUrl = await uploadProfileImage(req.file.buffer);
+
+      await db.query(
+        "UPDATE users SET profile_image=$1 WHERE id=$2",
+        [imageUrl, req.user.id]
+      );
+
+      res.json({
+        message: "Profile image updated",
+        profile_image: imageUrl,
+      });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
