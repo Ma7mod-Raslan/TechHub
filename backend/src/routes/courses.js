@@ -3,6 +3,8 @@ import db from "../db.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { allowRoles } from "../middleware/roles.js";
 import { checkEnrollment } from "../middleware/enrollment.js";
+import { upload } from "../middleware/upload.js";
+import { uploadProfileImage } from "../services/cloudinary.js";
 
 const router = express.Router();
 
@@ -86,25 +88,32 @@ router.post(
 );
 
 /* ---------------------------------------
-   INSTRUCTOR: Create course (Draft)
+   INSTRUCTOR: Create course (with thumbnail)
 --------------------------------------- */
 router.post(
   "/create",
   authMiddleware,
   allowRoles("instructor"),
+  upload.single("file"),
   async (req, res) => {
     try {
-      const { title, description, category, level, thumbnail } = req.body;
+      const { title, description, category, level } = req.body;
 
-      if (!title || !description || !category || !level || !thumbnail) {
+      if (!title || !description || !category || !level) {
         return res.status(400).json({
-          error: "All fields including thumbnail are required",
+          error: "All fields are required",
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: "Course thumbnail is required",
         });
       }
 
       const instructorId = req.user.id;
 
-      // prevent duplicate course with same title for same instructor
+      // prevent duplicate title
       const dup = await db.query(
         "SELECT id FROM courses WHERE instructor_id=$1 AND title=$2",
         [instructorId, title]
@@ -116,24 +125,30 @@ router.post(
         });
       }
 
+      // Upload thumbnail to Cloudinary
+      const thumbnailUrl = await uploadProfileImage(req.file.buffer);
+
+      // Create course
       const result = await db.query(
         `INSERT INTO courses
          (title, description, category, instructor_id, level, status, thumbnail)
          VALUES ($1, $2, $3, $4, $5, 'Draft', $6)
          RETURNING *`,
-        [title, description, category, instructorId, level, thumbnail]
+        [title, description, category, instructorId, level, thumbnailUrl]
       );
 
       res.status(201).json({
-        message: "Course created (Draft)",
+        message: "Course created successfully",
         course: result.rows[0],
       });
 
     } catch (err) {
+      console.error("Create course error:", err);
       res.status(500).json({ error: err.message });
     }
   }
 );
+
 
 /* ---------------------------------------
    INSTRUCTOR: Add course outcomes
@@ -234,6 +249,59 @@ router.post(
 
     } catch (err) {
       console.error("Add requirements error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
+/* ---------------------------------------
+   INSTRUCTOR: Upload course thumbnail
+--------------------------------------- */
+router.put(
+  "/:id/thumbnail",
+  authMiddleware,
+  allowRoles("instructor"),
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+
+      if (!req.file) {
+        return res.status(400).json({ error: "Thumbnail image is required" });
+      }
+
+      // Check course ownership
+      const course = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (course.rows.length === 0) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (course.rows[0].instructor_id !== instructorId) {
+        return res.status(403).json({ error: "Not allowed" });
+      }
+
+      // Upload to Cloudinary
+      const imageUrl = await uploadProfileImage(req.file.buffer);
+
+      // Update course thumbnail
+      await db.query(
+        "UPDATE courses SET thumbnail=$1 WHERE id=$2",
+        [imageUrl, courseId]
+      );
+
+      res.json({
+        message: "Course thumbnail updated",
+        thumbnail: imageUrl,
+      });
+
+    } catch (err) {
+      console.error("Upload course thumbnail error:", err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -417,7 +485,7 @@ router.put(
   async (req, res) => {
     try {
       const courseId = req.params.id;
-      const { title, description, category, level, thumbnail } = req.body;
+      const { title, description, category, level } = req.body;
 
       const c = await db.query(
         "SELECT instructor_id FROM courses WHERE id=$1",
@@ -432,10 +500,10 @@ router.put(
 
       const result = await db.query(
         `UPDATE courses
-         SET title=$1, description=$2, category=$3, level=$4, thumbnail=$5
-         WHERE id=$6
+         SET title=$1, description=$2, category=$3, level=$4
+         WHERE id=$5
          RETURNING *`,
-        [title, description, category, level, thumbnail, courseId]
+        [title, description, category, level, courseId]
       );
 
       res.json({
@@ -448,6 +516,7 @@ router.put(
     }
   }
 );
+
 
 /* ---------------------------------------
    INSTRUCTOR: Update course outcomes

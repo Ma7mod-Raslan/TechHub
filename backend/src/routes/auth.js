@@ -195,42 +195,73 @@ router.post("/verify-email", async (req, res) => {
   try {
     const { email, code } = req.body;
 
-    if (!email || !code)
+    if (!email || !code) {
       return res.status(400).json({ error: "email and code required" });
+    }
 
     const result = await db.query(
-      "SELECT * FROM users WHERE email=$1",
+      "SELECT id, full_name, email, role, auth_provider, is_verified, verification_code, verification_expires_at FROM users WHERE email=$1",
       [email]
     );
 
-    if (result.rows.length === 0)
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
+    }
 
     const user = result.rows[0];
 
     if (user.auth_provider === "google") {
       return res.status(400).json({
-        error: "Google users do not need email verification.",
+        error: "Google users do not need email verification",
       });
     }
 
-    if (user.is_verified)
-      return res.json({ message: "Already verified" });
+    if (user.is_verified) {
+      return res.status(400).json({
+        error: "Email already verified",
+      });
+    }
 
-    if (user.verification_code !== code)
+    if (user.verification_code !== code) {
       return res.status(400).json({ error: "Invalid verification code" });
+    }
 
-    if (new Date() > user.verification_expires_at)
+    if (new Date() > user.verification_expires_at) {
       return res.status(400).json({ error: "Verification code expired" });
+    }
 
+    // Mark user as verified
     await db.query(
-      "UPDATE users SET is_verified=true, verification_code=NULL, verification_expires_at=NULL WHERE id=$1",
+      `UPDATE users
+       SET is_verified=true,
+           verification_code=NULL,
+           verification_expires_at=NULL
+       WHERE id=$1`,
       [user.id]
     );
 
-    res.json({ message: "Email verified successfully" });
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      user: {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
+
   } catch (err) {
-    console.error(err);
+    console.error("Verify email error:", err);
     res.status(500).json({ error: err.message });
   }
 });
