@@ -869,44 +869,80 @@ router.delete(
   authMiddleware,
   allowRoles("instructor"),
   async (req, res) => {
+    const client = await db.connect();
+
     try {
       const { courseId, videoId } = req.params;
       const instructorId = req.user.id;
 
-      // Check course ownership
-      const course = await db.query(
+      await client.query("BEGIN");
+
+      // 1️⃣ Check course ownership
+      const course = await client.query(
         "SELECT instructor_id FROM courses WHERE id=$1",
         [courseId]
       );
 
-      if (course.rows.length === 0)
+      if (course.rows.length === 0) {
+        await client.query("ROLLBACK");
         return res.status(404).json({ error: "Course not found" });
+      }
 
-      if (course.rows[0].instructor_id !== instructorId)
+      if (course.rows[0].instructor_id !== instructorId) {
+        await client.query("ROLLBACK");
         return res.status(403).json({ error: "Not allowed" });
+      }
 
-      // Check video exists
-      const video = await db.query(
-        "SELECT id FROM course_videos WHERE id=$1 AND course_id=$2",
+      // 2️⃣ Get video order before deletion
+      const video = await client.query(
+        `
+        SELECT id, video_order
+        FROM course_videos
+        WHERE id=$1 AND course_id=$2
+        `,
         [videoId, courseId]
       );
 
-      if (video.rows.length === 0)
+      if (video.rows.length === 0) {
+        await client.query("ROLLBACK");
         return res.status(404).json({ error: "Video not found" });
+      }
 
-      await db.query(
+      const deletedVideoOrder = video.rows[0].video_order;
+
+      // 3️⃣ Delete the video
+      await client.query(
         "DELETE FROM course_videos WHERE id=$1",
         [videoId]
       );
 
-      res.json({ message: "Video deleted" });
+      // 4️⃣ Reorder remaining videos
+      await client.query(
+        `
+        UPDATE course_videos
+        SET video_order = video_order - 1
+        WHERE course_id = $1
+          AND video_order > $2
+        `,
+        [courseId, deletedVideoOrder]
+      );
+
+      await client.query("COMMIT");
+
+      res.json({
+        message: "Video deleted and videos reordered successfully"
+      });
 
     } catch (err) {
+      await client.query("ROLLBACK");
       console.error("Delete video error:", err);
       res.status(500).json({ error: err.message });
+    } finally {
+      client.release();
     }
   }
 );
+
 
 /* ---------- 
   GET course videos (only for enrolled students or instructor owner)
