@@ -53,6 +53,23 @@ CREATE TABLE course_videos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE video_questions (
+  id SERIAL PRIMARY KEY,
+  video_id INTEGER NOT NULL,
+  question_text TEXT NOT NULL,
+  question_order INTEGER DEFAULT 1,
+  created_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT fk_video_question FOREIGN KEY (video_id) REFERENCES course_videos(id) ON DELETE CASCADE
+);
+
+CREATE TABLE video_question_choices (
+  id SERIAL PRIMARY KEY,
+  question_id INTEGER NOT NULL,
+  choice_text TEXT NOT NULL,
+  is_correct BOOLEAN DEFAULT FALSE,
+  CONSTRAINT fk_question_choice FOREIGN KEY (question_id) REFERENCES video_questions(id) ON DELETE CASCADE
+);
+
 CREATE TABLE student_video_progress (
   student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   video_id INTEGER NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
