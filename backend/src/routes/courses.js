@@ -475,6 +475,7 @@ router.get(
            id,
            title,
            duration,
+           description,
            video_order
          FROM course_videos
          WHERE course_id=$1
