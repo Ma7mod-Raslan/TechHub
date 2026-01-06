@@ -386,20 +386,23 @@ router.get(
 
       // 1️⃣ Get course
       const courseRes = await db.query(
-        `SELECT
-           id,
-           title,
-           description,
-           category,
-           level,
-           status,
-           thumbnail,
-           instructor_id,
-           created_at
-         FROM courses
-         WHERE id = $1`,
-        [courseId]
-      );
+      `SELECT
+        c.id,
+        c.title,
+        c.description,
+        c.category,
+        c.level,
+        c.status,
+        c.thumbnail,
+        c.instructor_id,
+        c.created_at,
+        u.full_name AS instructor_name
+      FROM courses c
+      JOIN users u ON u.id = c.instructor_id
+      WHERE c.id = $1`,
+      [courseId]
+    );
+
 
       if (courseRes.rows.length === 0) {
         return res.status(404).json({ error: "Course not found" });
@@ -440,6 +443,54 @@ router.get(
     }
   }
 );
+
+/* ---------------------------------------
+   PUBLIC: Course curriculum preview
+--------------------------------------- */
+router.get(
+  "/:courseId/videos-preview",
+  async (req, res) => {
+    try {
+      const { courseId } = req.params;
+
+      // Check course exists and is Published
+      const courseRes = await db.query(
+        "SELECT status FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (courseRes.rows.length === 0) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      if (courseRes.rows[0].status !== "Published") {
+        return res.status(403).json({
+          error: "Course preview is not available",
+        });
+      }
+
+      // Fetch preview videos (no video_url)
+      const videosRes = await db.query(
+        `SELECT
+           id,
+           title,
+           duration,
+           video_order
+         FROM course_videos
+         WHERE course_id=$1
+         ORDER BY video_order ASC`,
+        [courseId]
+      );
+
+      res.json(videosRes.rows);
+
+    } catch (err) {
+      console.error("Videos preview error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 /* ---------------------------------------
    INSTRUCTOR: Publish course
