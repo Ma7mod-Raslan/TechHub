@@ -13,6 +13,7 @@ console.log(
 // ===== Import routes =====
 import authRoutes from "./routes/auth.js";
 import coursesRoutes from "./routes/courses.js";
+import videosRoutes from "./routes/videos.js";
 import meRoutes from "./routes/me.js";
 import videoQuestionsRoutes from "./routes/videoQuestions.js";
 
@@ -22,23 +23,32 @@ const app = express();
 // ===== Middlewares =====
 app.use(express.json());
 
-// CORS (must be before routes)
+// ===== CORS (must be before routes) =====
 app.use(
   cors({
     origin: "http://localhost:5173", // Vite dev server
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
-    // credentials: true // enable if using cookies
+    // credentials: true
   })
 );
 
 // ===== Routes =====
-app.use("/api/auth", authRoutes);
-app.use("/api/courses", coursesRoutes);
-app.use("/api/me", meRoutes);
 
-// Video questions & answers
+// Auth
+app.use("/api/auth", authRoutes);
+
+// Courses (course CRUD)
+app.use("/api/courses", coursesRoutes);
+
+// Videos (add / update / delete / reorder)
+app.use("/api/courses", videosRoutes);
+
+// Practice questions (video questions)
 app.use("/api", videoQuestionsRoutes);
+
+// User profile
+app.use("/api/me", meRoutes);
 
 // ===== Start server =====
 app.listen(3000, () => {
