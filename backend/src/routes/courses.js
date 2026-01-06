@@ -5,6 +5,11 @@ import { allowRoles } from "../middleware/roles.js";
 import { checkEnrollment } from "../middleware/enrollment.js";
 import { upload } from "../middleware/upload.js";
 import { uploadProfileImage } from "../services/cloudinary.js";
+import {
+  extractVideoId,
+  getYoutubeVideoDuration
+} from "../utils/youtube.js";
+
 
 const router = express.Router();
 
@@ -652,55 +657,85 @@ router.delete(
 /* ---------------------------------------
    INSTRUCTOR: Add video
 --------------------------------------- */
-router.post("/:id/videos", authMiddleware, allowRoles("instructor"), async (req, res) => {
-  try {
-    const courseId = req.params.id;
-    const instructorId = req.user.id;
-    const { title, description, video_url, video_order } = req.body;
+router.post(
+  "/:id/videos",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const instructorId = req.user.id;
+      const { title, description, video_url, video_order } = req.body;
 
-    // Only owner instructor can add videos
-    const owner = await db.query(
-      "SELECT id, instructor_id FROM courses WHERE id=$1",
-      [courseId]
-    );
+      // 1️⃣ Validate required fields
+      if (!title || !video_url || video_order === undefined) {
+        return res.status(400).json({
+          error: "title, video_url and video_order are required"
+        });
+      }
 
-    if (owner.rows.length === 0)
-      return res.status(404).json({ error: "Course not found" });
+      // 2️⃣ Check course ownership
+      const owner = await db.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
 
-    if (owner.rows[0].instructor_id !== instructorId)
-      return res.status(403).json({ error: "You do not own this course" });
+      if (owner.rows.length === 0)
+        return res.status(404).json({ error: "Course not found" });
 
-    // Prevent Duplicate video_order
-    const existsOrder = await db.query(
-      `SELECT id FROM course_videos
-       WHERE course_id=$1 AND video_order=$2`,
-      [courseId, video_order]
-    );
+      if (owner.rows[0].instructor_id !== instructorId)
+        return res.status(403).json({ error: "You do not own this course" });
 
-    if (existsOrder.rows.length > 0) {
-      return res.status(400).json({
-        error: "video_order already exists for this course"
+      // 3️⃣ Prevent duplicate video_order
+      const existsOrder = await db.query(
+        `
+        SELECT id
+        FROM course_videos
+        WHERE course_id=$1 AND video_order=$2
+        `,
+        [courseId, video_order]
+      );
+
+      if (existsOrder.rows.length > 0) {
+        return res.status(400).json({
+          error: "video_order already exists for this course"
+        });
+      }
+
+      // 4️⃣ Extract YouTube video ID
+      const youtubeVideoId = extractVideoId(video_url);
+      if (!youtubeVideoId) {
+        return res.status(400).json({ error: "Invalid YouTube URL" });
+      }
+
+      // 5️⃣ Get video duration from YouTube
+      const duration = await getYoutubeVideoDuration(youtubeVideoId);
+
+      // 6️⃣ Insert new video with duration
+      const result = await db.query(
+        `
+        INSERT INTO course_videos
+        (course_id, title, description, video_url, video_order, duration)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *
+        `,
+        [courseId, title, description, video_url, video_order, duration]
+      );
+
+      res.status(201).json({
+        message: "Video added successfully",
+        video: result.rows[0]
+      });
+
+    } catch (err) {
+      console.error("Add video error:", err);
+      res.status(500).json({
+        error: err.message
       });
     }
-
-    // Insert new video
-    const result = await db.query(
-      `INSERT INTO course_videos (course_id, title, description, video_url, video_order)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [courseId, title, description, video_url, video_order]
-    );
-
-    res.status(201).json({
-      message: "Video added",
-      video: result.rows[0],
-    });
-
-  } catch (err) {
-    console.error("Add video error:", err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
+
 
 /* ---------------------------------------
    INSTRUCTOR: Update video
@@ -825,51 +860,70 @@ router.delete(
   GET course videos (only for enrolled students or instructor owner)
 ---------- */
 /* GET /api/courses/:id/videos */
-router.get("/:id/videos", authMiddleware, checkEnrollment, async (req, res) => {
-  try {
-    const courseId = req.params.id;
+router.get(
+  "/:id/videos",
+  authMiddleware,
+  checkEnrollment,
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
 
-    // fetch course (to check status and owner)
-    const courseRes = await db.query(
-      "SELECT id, instructor_id, status FROM courses WHERE id=$1",
-      [courseId]
-    );
-    if (courseRes.rows.length === 0) {
-      return res.status(404).json({ error: "Course not found" });
-    }
-    const course = courseRes.rows[0];
+      // fetch course (to check status and owner)
+      const courseRes = await db.query(
+        "SELECT id, instructor_id, status FROM courses WHERE id=$1",
+        [courseId]
+      );
 
-    // if course is Draft: only instructor owner can view videos
-    if (course.status === "Draft") {
-      if (!req.user || req.user.id !== course.instructor_id) {
-        return res.status(403).json({ error: "Course is in draft" });
+      if (courseRes.rows.length === 0) {
+        return res.status(404).json({ error: "Course not found" });
       }
-      // owner can view videos
-    } else {
-      // Published course: videos visible only to enrolled students or instructor owner
-      const isOwner = req.user && req.user.id === course.instructor_id;
-      const isEnrolled = !!req.enrollment;
 
-      if (!isOwner && !isEnrolled) {
-        return res.status(403).json({ error: "You must enroll to view videos" });
+      const course = courseRes.rows[0];
+
+      // if course is Draft: only instructor owner can view videos
+      if (course.status === "Draft") {
+        if (!req.user || req.user.id !== course.instructor_id) {
+          return res.status(403).json({ error: "Course is in draft" });
+        }
+      } else {
+        // Published course: videos visible only to enrolled students or instructor owner
+        const isOwner = req.user && req.user.id === course.instructor_id;
+        const isEnrolled = !!req.enrollment;
+
+        if (!isOwner && !isEnrolled) {
+          return res
+            .status(403)
+            .json({ error: "You must enroll to view videos" });
+        }
       }
+
+      // fetch videos ordered by video_order asc
+      const v = await db.query(
+        `
+        SELECT
+          id,
+          course_id,
+          video_order,
+          title,
+          video_url,
+          description,
+          duration,
+          created_at
+        FROM course_videos
+        WHERE course_id=$1
+        ORDER BY video_order ASC
+        `,
+        [courseId]
+      );
+
+      res.json(v.rows);
+    } catch (err) {
+      console.error("Get videos error:", err);
+      res.status(500).json({ error: err.message });
     }
-
-    // fetch videos ordered by video_order asc
-    const v = await db.query(
-      `SELECT id, course_id, video_order, title, video_url, description, created_at
-       FROM course_videos
-       WHERE course_id=$1
-       ORDER BY video_order ASC`,
-      [courseId]
-    );
-
-    res.json(v.rows);
-  } catch (err) {
-    console.error("Get videos error:", err);
-    res.status(500).json({ error: err.message });
   }
-});
+);
+
 
 
 export default router;

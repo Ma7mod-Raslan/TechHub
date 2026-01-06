@@ -49,7 +49,17 @@ CREATE TABLE course_videos (
   title VARCHAR(200),
   video_url VARCHAR(300) NOT NULL,
   description TEXT,
+  duration INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE student_video_progress (
+  student_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  video_id INTEGER NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+  watched_duration INTEGER DEFAULT 0,
+  is_completed BOOLEAN DEFAULT FALSE,
+  completed_at TIMESTAMP,
+  PRIMARY KEY (student_id, video_id)
 );
 
 CREATE TABLE enrollments (
