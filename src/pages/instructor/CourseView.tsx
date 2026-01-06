@@ -19,6 +19,7 @@ import {
   Upload,
   Save,
   X,
+  Menu,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -68,6 +69,8 @@ export default function InstructorCourseView({
   userRole,
   navigationState,
 }: InstructorCourseViewProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
@@ -310,7 +313,6 @@ export default function InstructorCourseView({
 
       const data = await res.json();
 
-      // 👇 تحديث الداتا في الفرونت
       setCourse(data.course);
     } catch (error) {
       console.error(error);
@@ -375,14 +377,23 @@ export default function InstructorCourseView({
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {/* DEVELOPER: Back button navigates to instructor-courses */}
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -390,18 +401,24 @@ export default function InstructorCourseView({
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
+
+                {/* Title */}
                 <div>
                   <h1 className="text-2xl">
                     {isEditMode ? 'Edit Course Details' : 'Course Details'}
                   </h1>
                   <p className="text-gray-600">
-                    {isEditMode ? 'Update your course information' : 'View and manage your course'}
+                    {isEditMode
+                      ? 'Update your course information'
+                      : 'View and manage your course'}
                   </p>
                 </div>
               </div>
+
+              {/* Right side actions */}
               <div className="flex items-center gap-3">
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
-                {/* DEVELOPER: Show different buttons based on edit mode */}
+
                 {!isEditMode ? (
                   <>
                     <Button
@@ -418,12 +435,6 @@ export default function InstructorCourseView({
                       Edit Details
                     </Button>
 
-
-
-
-
-
-
                     {course.status === 'Draft' && (
                       <Button
                         onClick={handlePublishCourse}
@@ -432,7 +443,6 @@ export default function InstructorCourseView({
                         Publish Course
                       </Button>
                     )}
-
                   </>
                 ) : (
                   <>
@@ -444,6 +454,7 @@ export default function InstructorCourseView({
                       <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
+
                     <Button
                       className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                       onClick={handleSaveCourse}
@@ -457,6 +468,7 @@ export default function InstructorCourseView({
               </div>
             </div>
           </header>
+
 
 
           {/* Course Info Section */}

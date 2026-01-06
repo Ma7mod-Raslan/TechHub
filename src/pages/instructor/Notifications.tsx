@@ -1,4 +1,6 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
+
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,6 +16,7 @@ import {
   TrendingUp,
   UserPlus,
   LogOut,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
@@ -77,6 +80,8 @@ const notifications = [
 ];
 
 export default function InstructorNotifications({ navigate, logout, userRole }: InstructorNotificationsProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
@@ -98,21 +103,42 @@ export default function InstructorNotifications({ navigate, logout, userRole }: 
           logout={logout}
           userRole="instructor"
           activePage="instructor-notifications"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
+
         <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Notifications</h1>
-                <p className="text-gray-600">Stay updated with your teaching activity</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+
+              <div className="flex items-center gap-3">
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div>
+                  <h1 className="text-2xl">Notifications</h1>
+                  <p className="text-gray-600">
+                    Stay updated with your teaching activity
+                  </p>
+                </div>
               </div>
+
               <div className="flex items-center gap-3">
                 <Button variant="outline">Mark All as Read</Button>
+
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="notifications" />
               </div>
             </div>
           </header>
+
 
           <main className="p-6 max-w-4xl">
             <div className="space-y-3">
@@ -126,18 +152,16 @@ export default function InstructorNotifications({ navigate, logout, userRole }: 
                   <Card className={`cursor-pointer transition-all ${!notification.read ? 'border-l-4 border-l-violet-600 bg-violet-50/30' : ''}`}>
                     <CardContent className="p-4">
                       <div className="flex gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          notification.type === 'revenue' ? 'bg-green-100' :
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${notification.type === 'revenue' ? 'bg-green-100' :
                           notification.type === 'review' ? 'bg-yellow-100' :
-                          notification.type === 'achievement' ? 'bg-purple-100' :
-                          'bg-blue-100'
-                        }`}>
-                          <notification.icon className={`h-6 w-6 ${
-                            notification.type === 'revenue' ? 'text-green-600' :
+                            notification.type === 'achievement' ? 'bg-purple-100' :
+                              'bg-blue-100'
+                          }`}>
+                          <notification.icon className={`h-6 w-6 ${notification.type === 'revenue' ? 'text-green-600' :
                             notification.type === 'review' ? 'text-yellow-600' :
-                            notification.type === 'achievement' ? 'text-purple-600' :
-                            'text-blue-600'
-                          }`} />
+                              notification.type === 'achievement' ? 'text-purple-600' :
+                                'text-blue-600'
+                            }`} />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-1">
@@ -158,7 +182,7 @@ export default function InstructorNotifications({ navigate, logout, userRole }: 
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

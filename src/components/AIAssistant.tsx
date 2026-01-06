@@ -10,11 +10,8 @@ interface ChatMessage {
   timestamp: string;
 }
 
-interface AIAssistantProps {
-  contextType?: 'course' | 'dashboard' | 'assignments' | 'compiler' | 'general';
-}
 
-export default function AIAssistant({ contextType = 'general' }: AIAssistantProps) {
+export default function AIAssistant() {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -84,12 +81,6 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
-
-  const quickActions = contextType === 'compiler'
-    ? ['How do I run code?', 'Supported languages?', 'Debug help']
-    : contextType === 'assignments'
-      ? ['How to submit?', 'Deadline info', 'Late submission']
-      : ['Getting started', 'Course help', 'Certificate info'];
 
   return (
     <>
@@ -206,17 +197,6 @@ export default function AIAssistant({ contextType = 'general' }: AIAssistantProp
                 >
                   <Send className="h-4 w-4" />
                 </Button>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {quickActions.map((action, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setNewMessage(action)}
-                    className="text-xs px-3 py-1.5 bg-violet-50 text-violet-600 rounded-full hover:bg-violet-100 transition-colors duration-200"
-                  >
-                    {action}
-                  </button>
-                ))}
               </div>
             </div>
           </motion.div>

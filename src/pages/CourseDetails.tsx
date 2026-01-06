@@ -14,10 +14,15 @@ import Sidebar from '../components/Sidebar';
 import HeaderIcons from '../components/HeaderIcons';
 
 interface CourseDetailsProps {
-  navigate: (page: string) => void;
+  navigate: (page: string, role?: UserRole, state?: any) => void;
   userRole: UserRole;
   logout?: () => void;
+  navigationState?: {
+    courseId?: number;
+  };
 }
+
+
 
 interface Lecture {
   id: number;
@@ -42,9 +47,15 @@ interface Note {
   videoTime: number;
 }
 
-export default function CourseDetails({ navigate, userRole, logout }: CourseDetailsProps) {
+export default function CourseDetails({
+  navigate,
+  userRole,
+  logout,
+  navigationState,
+}: CourseDetailsProps) {
+
   // Simulating enrollment status - in real app, this would come from backend/localStorage
-  const [isEnrolled, setIsEnrolled] = useState(userRole === 'student');
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Lecture | null>(null);
   const [completedLectures, setCompletedLectures] = useState<Set<number>>(new Set([1, 2]));
   const [activeTab, setActiveTab] = useState('overview');
@@ -54,6 +65,19 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
   const [newNote, setNewNote] = useState('');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [course, setCourse] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const id = navigationState?.courseId;
+  const [courseSections, setCourseSections] = useState<Section[]>([]);
+  const allLectures = courseSections.flatMap(section => section.lectures);
+  const totalLectures = allLectures.length;
+
+
+
+
+
+
+
 
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -75,6 +99,8 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
     return [];
   };
 
+  console.log(course);
+
   const handleLogout = () => {
     if (logout) {
       logout();
@@ -82,240 +108,99 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
     navigate('home');
   };
 
-  // Course sections with video data
-  const courseSections: Section[] = [
-    {
-      title: 'Introduction to Web Development',
-      duration: '1h 30m',
-      lectures: [
-        { 
-          id: 1, 
-          title: 'Welcome to the Course', 
-          duration: '5:30', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 
-          completed: true,
-          description: 'Get started with an introduction to the course structure, learning objectives, and what you can expect to achieve.',
-          resources: ['Course Syllabus.pdf', 'Welcome Guide.pdf', 'Community Guidelines.pdf']
-        },
-        { 
-          id: 2, 
-          title: 'What is Web Development?', 
-          duration: '12:45', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 
-          completed: true,
-          description: 'Learn about the fundamentals of web development, frontend vs backend, and the modern web development landscape.',
-          resources: ['Web Development Overview.pdf', 'Technology Stack Guide.pdf']
-        },
-        { 
-          id: 3, 
-          title: 'Setting Up Your Development Environment', 
-          duration: '18:20', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 
+  const fetchCourseVideos = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${id}/videos`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!res.ok) return;
+
+      const videos = await res.json();
+      console.log("VIDEOS FROM BACKEND:", videos);
+
+
+      // نحول الفيديوهات لـ Section واحد
+      const section: Section = {
+        title: "Course Content",
+        duration: `${videos.length} lectures`,
+        lectures: videos.map((video: any) => ({
+          id: video.id,
+          title: video.title,
+          duration: "—",
+          videoUrl: video.video_url,
           completed: false,
-          description: 'Step-by-step guide to installing and configuring your development tools, IDE, and essential software.',
-          resources: ['VS Code Setup Guide.pdf', 'Essential Extensions.pdf', 'Terminal Basics.pdf']
-        },
-        { 
-          id: 4, 
-          title: 'Overview of Web Technologies', 
-          duration: '15:10', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', 
-          completed: false,
-          description: 'Explore the ecosystem of web technologies including HTML, CSS, JavaScript, and modern frameworks.',
-          resources: ['Technology Roadmap.pdf', 'Quick Reference Guide.pdf']
-        },
-      ]
-    },
-    {
-      title: 'HTML & CSS Fundamentals',
-      duration: '2h 45m',
-      lectures: [
-        { 
-          id: 5, 
-          title: 'Introduction to HTML', 
-          duration: '20:15', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', 
-          completed: false,
-          description: 'Master the building blocks of web pages with HTML structure, semantic elements, and best practices.',
-          resources: ['HTML Cheat Sheet.pdf', 'Semantic HTML Guide.pdf']
-        },
-        { 
-          id: 6, 
-          title: 'HTML Elements and Tags', 
-          duration: '25:30', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', 
-          completed: false,
-          description: 'Deep dive into HTML elements, attributes, forms, tables, and multimedia integration.',
-          resources: ['HTML Elements Reference.pdf', 'Form Building Guide.pdf']
-        },
-        { 
-          id: 7, 
-          title: 'CSS Basics and Selectors', 
-          duration: '22:40', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', 
-          completed: false,
-          description: 'Learn CSS fundamentals including selectors, specificity, and the cascade.',
-          resources: ['CSS Selectors Guide.pdf', 'Specificity Calculator.pdf']
-        },
-        { 
-          id: 8, 
-          title: 'CSS Box Model', 
-          duration: '18:45', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', 
-          completed: false,
-          description: 'Understand the CSS box model, margins, padding, borders, and layout techniques.',
-          resources: ['Box Model Visualization.pdf', 'Layout Examples.pdf']
-        },
-      ]
-    },
-    {
-      title: 'JavaScript Basics',
-      duration: '3h 20m',
-      lectures: [
-        { 
-          id: 9, 
-          title: 'Introduction to JavaScript', 
-          duration: '16:20', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4', 
-          completed: false,
-          description: 'Get started with JavaScript programming, syntax, and core concepts.',
-          resources: ['JavaScript Basics.pdf', 'Setup Guide.pdf']
-        },
-        { 
-          id: 10, 
-          title: 'Variables and Data Types', 
-          duration: '24:15', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', 
-          completed: false,
-          description: 'Learn about variables, data types, type conversion, and operators in JavaScript.',
-          resources: ['Data Types Guide.pdf', 'Practice Exercises.pdf']
-        },
-        { 
-          id: 11, 
-          title: 'Functions and Scope', 
-          duration: '28:30', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4', 
-          completed: false,
-          description: 'Master JavaScript functions, closures, scope, and execution context.',
-          resources: ['Functions Deep Dive.pdf', 'Scope Examples.pdf']
-        },
-        { 
-          id: 12, 
-          title: 'Arrays and Objects', 
-          duration: '26:45', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4', 
-          completed: false,
-          description: 'Work with JavaScript arrays, objects, and their built-in methods.',
-          resources: ['Array Methods.pdf', 'Object Manipulation.pdf']
-        },
-      ]
-    },
-    {
-      title: 'React Framework',
-      duration: '4h 15m',
-      lectures: [
-        { 
-          id: 13, 
-          title: 'What is React?', 
-          duration: '14:20', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4', 
-          completed: false,
-          description: 'Introduction to React, virtual DOM, and component-based architecture.',
-          resources: ['React Overview.pdf', 'Getting Started.pdf']
-        },
-        { 
-          id: 14, 
-          title: 'Components and Props', 
-          duration: '32:15', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 
-          completed: false,
-          description: 'Build reusable components and pass data using props.',
-          resources: ['Component Patterns.pdf', 'Props Guide.pdf']
-        },
-        { 
-          id: 15, 
-          title: 'State and Lifecycle', 
-          duration: '35:40', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 
-          completed: false,
-          description: 'Manage component state and understand React lifecycle methods.',
-          resources: ['State Management.pdf', 'Lifecycle Diagram.pdf']
-        },
-        { 
-          id: 16, 
-          title: 'Hooks and Effects', 
-          duration: '38:25', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 
-          completed: false,
-          description: 'Master React Hooks including useState, useEffect, and custom hooks.',
-          resources: ['Hooks API Reference.pdf', 'Custom Hooks.pdf']
-        },
-      ]
-    },
-    {
-      title: 'Backend with Node.js',
-      duration: '3h 50m',
-      lectures: [
-        { 
-          id: 17, 
-          title: 'Introduction to Node.js', 
-          duration: '18:30', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', 
-          completed: false,
-          description: 'Learn Node.js fundamentals, npm, and building server-side applications.',
-          resources: ['Node.js Setup.pdf', 'NPM Guide.pdf']
-        },
-        { 
-          id: 18, 
-          title: 'Building REST APIs', 
-          duration: '42:20', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', 
-          completed: false,
-          description: 'Create RESTful APIs with Express.js and handle HTTP requests.',
-          resources: ['REST API Design.pdf', 'Express Middleware.pdf']
-        },
-        { 
-          id: 19, 
-          title: 'Database Integration', 
-          duration: '38:15', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', 
-          completed: false,
-          description: 'Connect to databases, perform CRUD operations, and manage data.',
-          resources: ['MongoDB Guide.pdf', 'SQL Basics.pdf']
-        },
-        { 
-          id: 20, 
-          title: 'Authentication & Security', 
-          duration: '45:50', 
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', 
-          completed: false,
-          description: 'Implement authentication, authorization, and security best practices.',
-          resources: ['JWT Authentication.pdf', 'Security Checklist.pdf']
-        },
-      ]
+          description: "",
+          resources: [],
+        })),
+      };
+
+      setCourseSections([section]);
+    } catch (err) {
+      console.error(err);
     }
-  ];
+  };
+
+
+
 
   // Flatten all lectures for navigation
-  const allLectures = courseSections.flatMap(section => section.lectures);
-  const totalLectures = allLectures.length;
   const completedCount = completedLectures.size;
-  const progressPercentage = Math.round((completedCount / totalLectures) * 100);
+  const progressPercentage = totalLectures === 0 ? 0 : Math.round((completedCount / totalLectures) * 100);
 
-  const handleEnroll = () => {
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/courses/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await res.json();
+        setCourse(data);
+
+        await fetchCourseVideos();
+
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [id]);
+
+
+
+  const handleEnroll = async () => {
     if (userRole === 'guest') {
       toast.error('Please sign up or log in to enroll in this course');
       setTimeout(() => {
         navigate('signup');
       }, 1000);
     } else if (userRole === 'student') {
-      setIsEnrolled(true);
-      toast.success('Successfully enrolled in the course!');
-    } else if (userRole === 'instructor') {
-      toast.error('Instructors cannot enroll in courses. Please sign in with a student account.');
-    } else if (userRole === 'admin') {
-      toast.error('Admins cannot enroll in courses. Please sign in with a student account.');
+      try {
+        await fetch(`/api/courses/${id}/enroll`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        setIsEnrolled(true);
+        toast.success("Successfully enrolled in the course!");
+      } catch {
+        toast.error("Enrollment failed");
+      }
     }
+
   };
 
   const handleLectureClick = (lecture: Lecture) => {
@@ -365,14 +250,14 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
 
   const handleAddNote = () => {
     if (!newNote.trim() || !videoRef.current) return;
-    
+
     const note: Note = {
       id: Date.now(),
       timestamp: new Date().toLocaleString(),
       content: newNote,
       videoTime: Math.floor(videoRef.current.currentTime)
     };
-    
+
     setNotes([...notes, note]);
     setNewNote('');
     toast.success('Note added successfully!');
@@ -390,13 +275,31 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
   };
 
   const currentLectureIndex = selectedVideo ? allLectures.findIndex(l => l.id === selectedVideo.id) : -1;
-  const currentSection = selectedVideo ? courseSections.find(section => 
+  const currentSection = selectedVideo ? courseSections.find(section =>
     section.lectures.some(lecture => lecture.id === selectedVideo.id)
   ) : null;
 
   // Show sidebar only for students
   const showSidebar = userRole === 'student';
   const menuItems = getMenuItems();
+
+  if (!id) {
+    return (
+      <div className="p-10 text-center text-gray-600">
+        No course selected
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-10 text-center">
+        Loading course...
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -423,15 +326,24 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
                 <Button
                   variant="ghost"
                   size="icon"
+                  onClick={() => navigate('student-courses')}
+                  className="mr-2"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="lg:hidden flex-shrink-0"
                   onClick={() => setIsMobileOpen(true)}
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-                
+
                 <div className="flex-1">
                   <h1 className="text-xl md:text-2xl">Course Details</h1>
-                  <p className="text-gray-600 text-sm md:text-base">Complete Web Development Bootcamp</p>
+                  <p className="text-gray-600 text-sm md:text-base">{course?.title}</p>
                 </div>
                 <HeaderIcons navigate={navigate} logout={handleLogout} userRole={userRole} />
               </div>
@@ -675,7 +587,7 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
                           {/* Notes Tab */}
                           <TabsContent value="notes" className="p-6 m-0">
                             <h4 className="text-lg mb-4">My Notes</h4>
-                            
+
                             {/* Add Note */}
                             <Card className="mb-4 border-violet-200">
                               <CardContent className="p-4">
@@ -724,7 +636,7 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
                           {/* Settings Tab */}
                           <TabsContent value="settings" className="p-6 m-0">
                             <h4 className="text-lg mb-4">Video Settings</h4>
-                            
+
                             {/* Playback Speed */}
                             <Card className="mb-4">
                               <CardContent className="p-4">
@@ -778,271 +690,278 @@ export default function CourseDetails({ navigate, userRole, logout }: CourseDeta
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Badge className="mb-4">Web Development</Badge>
-              <h1 className="text-4xl mb-4">Complete Web Development Bootcamp</h1>
-              <p className="text-xl text-gray-600 mb-6">
-                Learn HTML, CSS, JavaScript, React, Node.js, and more. Build real-world projects and become a full-stack developer.
-              </p>
+                    <Badge className="mb-4">Web Development</Badge>
+                    <h1 className="text-4xl mb-4">
+                      {course?.title}
+                    </h1>
+                    <p className="text-xl text-gray-600 mb-6">
+                      {course?.description}
+                    </p>
 
-              <div className="flex flex-wrap gap-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span>4.9 (12,500 ratings)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  <span>45,320 students</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  <span>42 hours</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  <span>English</span>
-                </div>
-              </div>
 
-              <div className="mb-6">
-                <p className="text-gray-600">Created by <span className="text-cyan-600">Sarah Johnson</span></p>
-              </div>
-
-              {/* Progress Bar for Enrolled Students */}
-              {isEnrolled && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6"
-                >
-                  <Card className="border-violet-200 bg-gradient-to-r from-violet-50 to-cyan-50">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm">Your Progress</span>
-                        <span className="text-sm text-violet-600">{progressPercentage}% Complete</span>
+                    <div className="flex flex-wrap gap-6 mb-6">
+                      <div className="flex items-center gap-2">
+                        <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                        <span>4.9 (12,500 ratings)</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${progressPercentage}%` }}
-                          transition={{ duration: 0.5 }}
-                          className="bg-gradient-to-r from-violet-600 to-cyan-500 h-2.5 rounded-full"
-                        />
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        <span>45,320 students</span>
                       </div>
-                      <p className="text-xs text-gray-600 mt-2">{completedCount} of {totalLectures} lectures completed</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              )}
-            </motion.div>
-
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
-              <TabsList className="w-full justify-start">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-                <TabsTrigger value="instructor">Instructor</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="mt-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl mb-4">What you'll learn</h2>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {[
-                        'Build responsive websites with HTML, CSS, and JavaScript',
-                        'Master React and modern frontend development',
-                        'Create backend APIs with Node.js and Express',
-                        'Work with databases like MongoDB and PostgreSQL',
-                        'Deploy full-stack applications to the cloud',
-                        'Implement authentication and authorization',
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-start gap-2">
-                          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="mt-6">
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl mb-4">Requirements</h2>
-                    <ul className="space-y-2 list-disc list-inside">
-                      <li>Basic computer skills</li>
-                      <li>No prior programming experience needed</li>
-                      <li>A computer with internet connection</li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="curriculum" className="mt-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl mb-4">Course Curriculum</h2>
-                    <Accordion type="single" collapsible className="w-full">
-                      {courseSections.map((section, sectionIndex) => (
-                        <AccordionItem key={sectionIndex} value={`section-${sectionIndex}`}>
-                          <AccordionTrigger>
-                            <div className="flex items-center justify-between w-full pr-4">
-                              <span>{section.title}</span>
-                              <span className="text-sm text-gray-600">{section.lectures.length} lectures • {section.duration}</span>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-2">
-                              {section.lectures.map((lecture) => (
-                                <div
-                                  key={lecture.id}
-                                  className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-200 ${
-                                    isEnrolled
-                                      ? 'hover:bg-violet-50 cursor-pointer'
-                                      : 'opacity-60'
-                                  }`}
-                                  onClick={() => handleLectureClick(lecture)}
-                                >
-                                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                    completedLectures.has(lecture.id)
-                                      ? 'bg-green-500'
-                                      : isEnrolled
-                                      ? 'bg-gradient-to-r from-violet-600 to-cyan-500'
-                                      : 'bg-gray-300'
-                                  }`}>
-                                    {completedLectures.has(lecture.id) ? (
-                                      <CheckCircle2 className="h-4 w-4 text-white" />
-                                    ) : isEnrolled ? (
-                                      <Play className="h-4 w-4 text-white" />
-                                    ) : (
-                                      <Lock className="h-4 w-4 text-white" />
-                                    )}
-                                  </div>
-                                  <div className="flex-1">
-                                    <p className="text-sm">{lecture.title}</p>
-                                    <p className="text-xs text-gray-500">{lecture.duration}</p>
-                                  </div>
-                                  {completedLectures.has(lecture.id) && (
-                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                      Completed
-                                    </Badge>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="instructor" className="mt-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <ImageWithFallback
-                        src="https://images.unsplash.com/photo-1758270704025-0e1a1793e1ca?w=200"
-                        alt="Instructor"
-                        className="w-24 h-24 rounded-full object-cover"
-                      />
-                      <div>
-                        <h2 className="text-2xl mb-2">Sarah Johnson</h2>
-                        <p className="text-gray-600 mb-4">Senior Full Stack Developer at Tech Corp</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        <span>42 hours</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-5 w-5" />
+                        <span>English</span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
-              <TabsContent value="reviews" className="mt-6">
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-2xl mb-6">Student Reviews</h2>
-                    <div className="space-y-4">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="border-b pb-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="flex">
-                              {Array.from({ length: 5 }).map((_, j) => (
-                                <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              ))}
-                            </div>
-                            <span>John Doe</span>
-                            <span className="text-sm text-gray-500">• 2 days ago</span>
-                          </div>
-                          <p className="text-gray-600">
-                            Excellent course! Very comprehensive and well-structured. The instructor explains everything clearly.
-                          </p>
-                        </div>
-                      ))}
+                    <div className="mb-6">
+                      <p className="text-gray-600">Created by <span className="text-cyan-600">Sarah Johnson</span></p>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
 
-          <div className="lg:col-span-1">
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24">
-              <Card>
-                <CardContent className="p-0">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1675495277087-10598bf7bcd1?w=600"
-                    alt="Course"
-                    className="w-full h-48 object-cover rounded-t-lg"
-                  />
-                  <div className="p-6">
-                    {isEnrolled ? (
-                      <div className="space-y-3 mb-6">
-                        <Badge className="w-full justify-center py-2 bg-green-500">
-                          <CheckCircle2 className="h-4 w-4 mr-1" />
-                          Enrolled
-                        </Badge>
-                        <Button
-                          className="w-full bg-gradient-to-r from-violet-600 to-cyan-500"
-                          onClick={() => {
-                            if (allLectures.length > 0) {
-                              handleLectureClick(allLectures[0]);
-                            }
-                          }}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Start Learning
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <Button className="w-full mb-6 bg-gradient-to-r from-cyan-500 to-blue-600" onClick={handleEnroll}>
-                          Enroll
-                        </Button>
-                      </>
+                    {/* Progress Bar for Enrolled Students */}
+                    {isEnrolled && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6"
+                      >
+                        <Card className="border-violet-200 bg-gradient-to-r from-violet-50 to-cyan-50">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm">Your Progress</span>
+                              <span className="text-sm text-violet-600">{progressPercentage}% Complete</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progressPercentage}%` }}
+                                transition={{ duration: 0.5 }}
+                                className="bg-gradient-to-r from-violet-600 to-cyan-500 h-2.5 rounded-full"
+                              />
+                            </div>
+                            <p className="text-xs text-gray-600 mt-2">{completedCount} of {totalLectures} lectures completed</p>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
                     )}
+                  </motion.div>
 
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Includes:</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span>42 hours on-demand video</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        <span>15 downloadable resources</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4" />
-                        <span>Certificate of completion</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        <span>Access to community</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+                    <TabsList className="w-full justify-start">
+                      <TabsTrigger value="overview">Overview</TabsTrigger>
+                      <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+                      <TabsTrigger value="instructor">Instructor</TabsTrigger>
+                      <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="overview" className="mt-6">
+                      <Card>
+                        <CardContent className="p-6">
+                          <h2 className="text-2xl mb-4">What you'll learn</h2>
+                          <div className="grid md:grid-cols-2 gap-4">
+                            {course?.outcomes && course.outcomes.length > 0 ? (
+                              course?.outcomes?.map((item: string, index: number) => (
+                                <div key={index} className="flex items-start gap-2">
+                                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                  <span>{item}</span>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-gray-500">No learning outcomes available.</p>
+                            )}
+
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="mt-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-2xl mb-4">Requirements</h2>
+
+                          <ul className="space-y-2 list-disc list-inside">
+                            {course?.requirements && course.requirements.length > 0 ? (
+                              course?.requirements?.map((req: string, index: number) => (
+                                <li key={index}>{req}</li>
+                              ))
+                            ) : (
+                              <li className="text-gray-500 list-none">
+                                No requirements available.
+                              </li>
+                            )}
+                          </ul>
+                        </CardContent>
+                      </Card>
+
+                    </TabsContent>
+
+                    <TabsContent value="curriculum" className="mt-6">
+                      <Card>
+                        <CardContent className="p-6">
+                          <h2 className="text-2xl mb-4">Course Curriculum</h2>
+                          <Accordion type="single" collapsible className="w-full">
+                            {courseSections.map((section, sectionIndex) => (
+                              <AccordionItem key={sectionIndex} value={`section-${sectionIndex}`}>
+                                <AccordionTrigger>
+                                  <div className="flex items-center justify-between w-full pr-4">
+                                    <span>{section.title}</span>
+                                    <span className="text-sm text-gray-600">{section.lectures.length} lectures • {section.duration}</span>
+                                  </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="space-y-2">
+                                    {section.lectures.map((lecture) => (
+                                      <div
+                                        key={lecture.id}
+                                        className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-200 ${isEnrolled
+                                          ? 'hover:bg-violet-50 cursor-pointer'
+                                          : 'opacity-60'
+                                          }`}
+                                        onClick={() => handleLectureClick(lecture)}
+                                      >
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${completedLectures.has(lecture.id)
+                                          ? 'bg-green-500'
+                                          : isEnrolled
+                                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500'
+                                            : 'bg-gray-300'
+                                          }`}>
+                                          {completedLectures.has(lecture.id) ? (
+                                            <CheckCircle2 className="h-4 w-4 text-white" />
+                                          ) : isEnrolled ? (
+                                            <Play className="h-4 w-4 text-white" />
+                                          ) : (
+                                            <Lock className="h-4 w-4 text-white" />
+                                          )}
+                                        </div>
+                                        <div className="flex-1">
+                                          <p className="text-sm">{lecture.title}</p>
+                                          <p className="text-xs text-gray-500">{lecture.duration}</p>
+                                        </div>
+                                        {completedLectures.has(lecture.id) && (
+                                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                            Completed
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            ))}
+                          </Accordion>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="instructor" className="mt-6">
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <ImageWithFallback
+                              src="https://images.unsplash.com/photo-1758270704025-0e1a1793e1ca?w=200"
+                              alt="Instructor"
+                              className="w-24 h-24 rounded-full object-cover"
+                            />
+                            <div>
+                              <h2 className="text-2xl mb-2">Sarah Johnson</h2>
+                              <p className="text-gray-600 mb-4">Senior Full Stack Developer at Tech Corp</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="reviews" className="mt-6">
+                      <Card>
+                        <CardContent className="p-6">
+                          <h2 className="text-2xl mb-6">Student Reviews</h2>
+                          <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                              <div key={i} className="border-b pb-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="flex">
+                                    {Array.from({ length: 5 }).map((_, j) => (
+                                      <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                    ))}
+                                  </div>
+                                  <span>John Doe</span>
+                                  <span className="text-sm text-gray-500">• 2 days ago</span>
+                                </div>
+                                <p className="text-gray-600">
+                                  Excellent course! Very comprehensive and well-structured. The instructor explains everything clearly.
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+
+                <div className="lg:col-span-1">
+                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="sticky top-24">
+                    <Card>
+                      <CardContent className="p-0">
+                        <ImageWithFallback
+                          src={course?.thumbnail}
+                          alt="Course"
+                          className="w-full h-48 object-cover rounded-t-lg"
+                        />
+                        <div className="p-6">
+                          {isEnrolled ? (
+                            <div className="space-y-3 mb-6">
+                              <Badge className="w-full justify-center py-2 bg-green-500">
+                                <CheckCircle2 className="h-4 w-4 mr-1" />
+                                Enrolled
+                              </Badge>
+                              <Button
+                                className="w-full bg-gradient-to-r from-violet-600 to-cyan-500"
+                                onClick={() => {
+                                  if (allLectures.length > 0) {
+                                    handleLectureClick(allLectures[0]);
+                                  }
+                                }}
+                              >
+                                <Play className="h-4 w-4 mr-2" />
+                                Start Learning
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <Button className="w-full mb-6 bg-gradient-to-r from-cyan-500 to-blue-600" onClick={handleEnroll}>
+                                Enroll
+                              </Button>
+                            </>
+                          )}
+
+                          <div className="space-y-3 text-sm">
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-600">Includes:</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              <span>42 hours on-demand video</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              <span>15 downloadable resources</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Award className="h-4 w-4" />
+                              <span>Certificate of completion</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MessageSquare className="h-4 w-4" />
+                              <span>Access to community</span>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </motion.div>
                 </div>
               </div>

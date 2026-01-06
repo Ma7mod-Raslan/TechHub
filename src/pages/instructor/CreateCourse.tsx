@@ -13,6 +13,7 @@ import {
   Upload,
   Plus,
   X,
+  Menu,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -48,6 +49,17 @@ export default function InstructorCreateCourse({
   logout,
   userRole,
 }: InstructorCreateCourseProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isCreating, setIsCreating] = useState(false);
+
+  const [outcomes, setOutcomes] = useState<string[]>([]);
+  const [requirements, setRequirements] = useState<string[]>([]);
+
+  const [outcomeInput, setOutcomeInput] = useState('');
+  const [requirementInput, setRequirementInput] = useState('');
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
@@ -64,7 +76,8 @@ export default function InstructorCreateCourse({
     description: '',
     category: '',
     level: '',
-    thumbnail: '',
+    thumbnail: null as File | null,
+    thumbnailPreview: '',
   });
 
   const LEVEL_MAP: Record<string, string> = {
@@ -74,9 +87,6 @@ export default function InstructorCreateCourse({
   };
 
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isUploading, setIsUploading] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -85,18 +95,7 @@ export default function InstructorCreateCourse({
     }
   };
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    setIsUploading(true);
-
-    // mock upload (زي ما كان)
-    setTimeout(() => {
-      setFormData({ ...formData, thumbnail: URL.createObjectURL(file) });
-      setIsUploading(false);
-    }, 1500);
-  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -125,26 +124,79 @@ export default function InstructorCreateCourse({
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ التعديل الوحيد الحقيقي هنا
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
+
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      toast.error("Unauthorized");
+      return;
+    }
+
 
     setIsCreating(true);
 
     try {
-      const response = await createCourse({
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        level: LEVEL_MAP[formData.level],
-        thumbnail: formData.thumbnail,
-      });
+      const data = new FormData();
+
+      data.append('title', formData.title);
+      data.append('description', formData.description);
+      data.append('category', formData.category);
+      data.append('level', LEVEL_MAP[formData.level]);
+
+
+
+      if (!formData.thumbnail) {
+        toast.error('Please upload a thumbnail image');
+        setIsCreating(false);
+        return;
+      }
+
+      data.append('file', formData.thumbnail);
+
+
+
+
+      const response = await createCourse(data);
 
 
 
       const courseId = response.course.id;
+
+      if (requirements.length > 0) {
+        await fetch(
+          `http://localhost:3000/api/courses/${courseId}/requirements`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              items: requirements,
+            }),
+          }
+        );
+      }
+
+      if (outcomes.length > 0) {
+        await fetch(
+          `http://localhost:3000/api/courses/${courseId}/outcomes`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              items: outcomes,
+            }),
+          }
+        );
+      }
+
 
       setIsCreating(false);
 
@@ -158,10 +210,7 @@ export default function InstructorCreateCourse({
       toast.error(err?.response?.data?.error || 'Failed to create course');
     }
   };
-  const isDirectImageUrl = (url: string) => {
-    return /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-  };
-  const [thumbnailError, setThumbnailError] = useState('');
+
 
 
 
@@ -174,12 +223,23 @@ export default function InstructorCreateCourse({
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
+
         <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -187,14 +247,20 @@ export default function InstructorCreateCourse({
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
+
                 <div>
                   <h1 className="text-2xl">Create New Course</h1>
                   <p className="text-gray-600">Start building your course</p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons
+                navigate={navigate}
+                logout={logout}
+                userRole={userRole}
+              />
             </div>
           </header>
+
 
           <main className="p-6">
             <form onSubmit={handleCreateCourse}>
@@ -295,63 +361,117 @@ export default function InstructorCreateCourse({
                   </CardContent>
                 </Card>
 
+                {/* Course Outcomes */}
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl">What you’ll learn</h3>
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={outcomeInput}
+                        onChange={(e) => setOutcomeInput(e.target.value)}
+                        placeholder="Add learning outcome"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (!outcomeInput.trim()) return;
+                          setOutcomes([...outcomes, outcomeInput]);
+                          setOutcomeInput('');
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+
+                    <ul className="list-disc list-inside space-y-1">
+                      {outcomes.map((o, i) => (
+                        <li key={i}>{o}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Course Requirements */}
+                <Card>
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl">Requirements</h3>
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={requirementInput}
+                        onChange={(e) => setRequirementInput(e.target.value)}
+                        placeholder="Add requirement"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (!requirementInput.trim()) return;
+                          setRequirements([...requirements, requirementInput]);
+                          setRequirementInput('');
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+
+                    <ul className="list-disc list-inside space-y-1">
+                      {requirements.map((r, i) => (
+                        <li key={i}>{r}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+
+
                 {/* Course Thumbnail */}
                 <Card>
                   <CardContent className="p-6 space-y-4">
                     <h3 className="text-xl">Course Thumbnail</h3>
                     <p className="text-sm text-gray-600">
-                      Upload your image to an image hosting service and paste the image URL below.
+                      Upload a thumbnail image from your device.
                     </p>
+
 
                     {/* URL Input */}
                     <div>
                       <Label htmlFor="thumbnail">Thumbnail Image URL</Label>
-                      <Input
-                        id="thumbnail"
-                        type="url"
-                        placeholder="https://i.imgur.com/example.jpg"
-                        value={formData.thumbnail}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          handleInputChange('thumbnail', value);
+                      <label className="flex items-center justify-center w-full max-w-md h-32 border-2 border-dashed rounded-lg cursor-pointer">
+                        <Upload className="h-6 w-6 text-gray-400" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
 
-                          if (value && !isDirectImageUrl(value)) {
-                            setThumbnailError(
-                              'Please enter a direct image URL (ending with .jpg, .png, etc.)'
-                            );
-                          } else {
-                            setThumbnailError('');
-                          }
-                        }}
-                      />
-
-                      {/* Helper text */}
-                      <p className="text-xs text-gray-500 mt-1">
-                        Tip: Right-click the image → “Copy image address”
-                      </p>
-
-                      {/* Error message */}
-                      {thumbnailError && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {thumbnailError}
-                        </p>
-                      )}
+                            setFormData(prev => ({
+                              ...prev,
+                              thumbnail: file,
+                              thumbnailPreview: URL.createObjectURL(file),
+                            }));
+                          }}
+                        />
+                      </label>
                     </div>
 
 
                     {/* Preview – upload */}
                     <div className="flex items-center justify-center w-full max-w-md h-48 border-2 border-dashed rounded-lg bg-gray-50">
-                      {formData.thumbnail && !thumbnailError ? (
+                      {formData.thumbnailPreview ? (
                         <ImageWithFallback
-                          src={formData.thumbnail}
+                          src={formData.thumbnailPreview}
                           alt="Course thumbnail preview"
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
                         <span className="text-gray-400 text-sm text-center px-4">
-                          Paste a direct image URL to preview the thumbnail
+                          No image selected
                         </span>
                       )}
+
                     </div>
 
                   </CardContent>

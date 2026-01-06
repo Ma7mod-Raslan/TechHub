@@ -129,11 +129,24 @@ export default function Verification({ navigate, email, role }: VerificationProp
         code: verificationCode,
       });
 
+      console.log("VERIFY RESPONSE 👉", res.data);
+
+      // 🛑 تأكدي إن الداتا موجودة
+      if (!res.data?.user || !res.data?.token) {
+        throw new Error("Invalid verification response");
+      }
+
+      // ✅ خزني
       localStorage.setItem("accessToken", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      toast.success(res.data?.message || "Email verified successfully!");
+      // header للـ axios
+      api.defaults.headers.common["Authorization"] =
+        `Bearer ${res.data.token}`;
+
       localStorage.removeItem("pendingVerification");
+
+      toast.success("Email verified successfully!");
 
       setTimeout(() => {
         if (res.data.user.role === "instructor") {
@@ -141,7 +154,8 @@ export default function Verification({ navigate, email, role }: VerificationProp
         } else {
           navigate("student-dashboard", "student");
         }
-      }, 900);
+      }, 500);
+
 
     } catch (err: any) {
       const msg = err?.response?.data?.error || err?.message || "Verification failed";

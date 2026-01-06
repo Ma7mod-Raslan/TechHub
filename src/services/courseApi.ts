@@ -33,16 +33,21 @@ api.interceptors.request.use(
  * Create new course (Draft)
  * POST /api/courses/create
  */
-export const createCourse = async (data: {
-  title: string;
-  description: string;
-  category: string;
-  level: string;
-  thumbnail?: string;
-}) => {
-  const res = await api.post("/courses/create", data);
+export const createCourse = async (formData: FormData) => {
+  const res = await api.post(
+    "/courses/create",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+
   return res.data;
 };
+
+
 
 /**
  * Get instructor courses
@@ -101,6 +106,20 @@ export const deleteCourse = async (courseId: number) => {
   const res = await api.delete(`/courses/${courseId}`);
   return res.data;
 };
+
+/* =========================
+   COURSES – STUDENT / PUBLIC
+========================= */
+
+/**
+ * Get all published courses (for students)
+ * GET /api/courses
+ */
+export const getAllCourses = async () => {
+  const res = await api.get("/courses");
+  return res.data.courses; // مهم جدًا
+};
+
 
 /* =========================
    VIDEOS

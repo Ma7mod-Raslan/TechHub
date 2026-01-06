@@ -18,6 +18,7 @@ import {
   Filter,
   LogOut,
   AlertTriangle,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
@@ -54,6 +55,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
     courseId: null,
     courseTitle: '',
   });
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
@@ -112,7 +114,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
 
 
   const handleDeleteCourse = async (courseId: number) => {
-    
+
     try {
       const token = localStorage.getItem('accessToken');
 
@@ -151,20 +153,38 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
+
 
         {/* Main Content */}
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">My Courses</h1>
-                <p className="text-gray-600">Manage and create your courses</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+
+              {/* Left side: Menu + Title */}
+              <div className="flex items-center gap-3">
+
+                {/* ☰ Menu (mobile only) */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div>
+                  <h1 className="text-2xl">My Courses</h1>
+                  <p className="text-gray-600">Manage and create your courses</p>
+                </div>
               </div>
-              {/* DEVELOPER: Centered Search Bar in Header */}
-              <div className="flex-1 max-w-md mx-8">
-                <div className="relative">
+
+              <div className="hidden md:flex flex-1 max-w-md mx-8">
+                <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     placeholder="Search courses..."
@@ -174,9 +194,10 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                   />
                 </div>
               </div>
+
               <div className="flex items-center gap-3">
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
-                {/* DEVELOPER: Create Course button navigates to instructor-create-course */}
+
                 <Button
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                   onClick={() => navigate('instructor-create-course')}
@@ -186,7 +207,20 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                 </Button>
               </div>
             </div>
+
+            <div className="mt-3 md:hidden">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search courses..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
           </header>
+
 
           {/* Content */}
           <main className="p-6">

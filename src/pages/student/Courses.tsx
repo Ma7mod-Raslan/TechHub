@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -32,76 +32,27 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import Sidebar from '../../components/Sidebar';
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
+import { getAllCourses } from "../../services/courseApi";
+
 
 interface StudentCoursesProps {
-  navigate: (page: string) => void;
+  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-const courses = [
-  {
-    id: 1,
-    title: 'Complete Web Development Bootcamp',
-    instructor: 'Sarah Johnson',
-    progress: 65,
-    rating: 4.9,
-    duration: '42 hours',
-    image: 'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1?w=400',
-  },
-  {
-    id: 2,
-    title: 'Python for Data Science',
-    instructor: 'Dr. Alex Chen',
-    progress: 42,
-    rating: 4.8,
-    duration: '36 hours',
-    image: 'https://images.unsplash.com/photo-1762330910399-95caa55acf04?w=400',
-  },
-  {
-    id: 3,
-    title: 'React Masterclass',
-    instructor: 'Maria Garcia',
-    progress: 100,
-    rating: 4.9,
-    duration: '28 hours',
-    image: 'https://images.unsplash.com/photo-1646153114001-495dfb56506d?w=400',
-  },
-  {
-    id: 4,
-    title: 'Machine Learning Fundamentals',
-    instructor: 'Dr. James Wilson',
-    progress: 28,
-    rating: 4.7,
-    duration: '45 hours',
-    image: 'https://images.unsplash.com/photo-1688413709025-5f085266935a?w=400',
-  },
-  {
-    id: 5,
-    title: 'Advanced JavaScript',
-    instructor: 'Emily Davis',
-    progress: 85,
-    rating: 4.8,
-    duration: '32 hours',
-    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=400',
-  },
-  {
-    id: 6,
-    title: 'Node.js Complete Guide',
-    instructor: 'Michael Brown',
-    progress: 100,
-    rating: 4.9,
-    duration: '38 hours',
-    image: 'https://images.unsplash.com/photo-1618477247222-acbdb0e159b3?w=400',
-  },
-];
+
+
 
 export default function StudentCourses({ navigate, logout, userRole }: StudentCoursesProps) {
   const [activeView, setActiveView] = React.useState<'all' | 'my'>('all');
   const [myCoursesTab, setMyCoursesTab] = React.useState<'in-progress' | 'completed'>('in-progress');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses', active: true },
@@ -116,6 +67,28 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
   ];
 
+
+
+  useEffect(() => {
+
+    const fetchCourses = async () => {
+      try {
+        const data = await getAllCourses();
+        setCourses(data);
+
+      } catch (err) {
+        console.error("Error fetching courses", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+
+
+
   const handleLogout = () => {
     logout();
     navigate('login');
@@ -126,37 +99,39 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
     if (!searchQuery.trim()) {
       return courses;
     }
-    
+
     const query = searchQuery.toLowerCase();
     return courses.filter((course) => {
       return (
         course.title.toLowerCase().includes(query) ||
-        course.instructor.toLowerCase().includes(query) ||
-        course.duration.toLowerCase().includes(query)
+        course.instructor_name.toLowerCase().includes(query)
       );
     });
-  }, [searchQuery]);
+  }, [searchQuery, courses]);
+
 
   // Helper function to render course card for "All Courses" view
-  const renderAllCoursesCard = (course: typeof courses[0]) => (
-    <motion.div 
-      key={course.id} 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
+  const renderAllCoursesCard = (course: any) => (
+    <motion.div
+      key={course.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() => navigate('course-details')}>
-        <ImageWithFallback src={course.image} alt={course.title} className="w-full h-48 object-cover" />
+      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() => navigate("course-details", undefined, { courseId: course.id })}
+
+      >
+        <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
         <CardContent className="p-4">
           <h3 className="mb-2 line-clamp-2">{course.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{course.instructor}</p>
+          <p className="text-sm text-gray-600 mb-3">{course.instructor_name}</p>
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{course.rating}</span>
+            <span>{course.rating ?? 4.8}</span>
             <span>•</span>
             <Clock className="h-4 w-4" />
-            <span>{course.duration}</span>
+            <span>{course.duration ?? "—"}</span>
           </div>
           <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
             <ShoppingBag className="mr-2 h-4 w-4" />
@@ -168,25 +143,28 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
   );
 
   // Helper function to render course card for "My Courses" view
-  const renderMyCoursesCard = (course: typeof courses[0]) => (
-    <motion.div 
-      key={course.id} 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
+  const renderMyCoursesCard = (course: any) => (
+    <motion.div
+      key={course.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() => navigate('course-details')}>
-        <ImageWithFallback src={course.image} alt={course.title} className="w-full h-48 object-cover" />
+      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() =>
+        navigate('course-details', undefined, { courseId: course.id })
+      }
+      >
+        <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
         <CardContent className="p-4">
           <h3 className="mb-2 line-clamp-2">{course.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{course.instructor}</p>
+          <p className="text-sm text-gray-600 mb-3">{course.instructor_name}</p>
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{course.rating}</span>
+            <span>{course.rating ?? 4.8}</span>
             <span>•</span>
             <Clock className="h-4 w-4" />
-            <span>{course.duration}</span>
+            <span>{course.duration ?? "—"}</span>
           </div>
           {course.progress === 100 ? (
             <div className="mb-4 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-100 to-cyan-100 rounded-lg py-2">
@@ -210,6 +188,15 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
       </Card>
     </motion.div>
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        Loading courses...
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 relative overflow-hidden">
@@ -239,7 +226,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-                
+
                 <div className="flex-1">
                   <h1 className="text-xl">My Courses</h1>
                   <p className="text-gray-600 text-sm">Track your learning progress</p>
@@ -285,21 +272,19 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
             <div className="inline-flex bg-gray-100 rounded-full p-1 mb-6 w-full sm:w-auto justify-center">
               <button
                 onClick={() => setActiveView('all')}
-                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 rounded-full transition-all duration-200 text-sm ${
-                  activeView === 'all'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 rounded-full transition-all duration-200 text-sm ${activeView === 'all'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 All Courses
               </button>
               <button
                 onClick={() => setActiveView('my')}
-                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 rounded-full transition-all duration-200 text-sm ${
-                  activeView === 'my'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className={`flex-1 sm:flex-initial px-4 sm:px-6 py-2 rounded-full transition-all duration-200 text-sm ${activeView === 'my'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
               >
                 My Courses
               </button>
@@ -329,21 +314,19 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 <div className="flex gap-2 mb-6">
                   <button
                     onClick={() => setMyCoursesTab('in-progress')}
-                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${
-                      myCoursesTab === 'in-progress'
-                        ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
-                        : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
-                    }`}
+                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'in-progress'
+                      ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
+                      : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
+                      }`}
                   >
                     In Progress
                   </button>
                   <button
                     onClick={() => setMyCoursesTab('completed')}
-                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${
-                      myCoursesTab === 'completed'
-                        ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
-                        : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
-                    }`}
+                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'completed'
+                      ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
+                      : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
+                      }`}
                   >
                     Completed
                   </button>

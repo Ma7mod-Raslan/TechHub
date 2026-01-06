@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Upload,
   Save,
+  Menu,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -54,6 +55,8 @@ export default function InstructorEditCourse({
   userRole,
   navigationState,
 }: InstructorEditCourseProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
@@ -82,13 +85,22 @@ export default function InstructorEditCourse({
     description: '',
     category: '',
     level: '',
-    thumbnail: '',
+    thumbnailUrl: '',
+    thumbnailFile: null as File | null,
+    thumbnailPreview: '',
   });
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [thumbnailError, setThumbnailError] = useState('');
+
+  const [outcomes, setOutcomes] = useState<string[]>([]);
+  const [requirements, setRequirements] = useState<string[]>([]);
+
+  const [outcomeInput, setOutcomeInput] = useState("");
+  const [requirementInput, setRequirementInput] = useState("");
+
 
 
 
@@ -98,9 +110,6 @@ export default function InstructorEditCourse({
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
-  const isValidImageUrl = (url: string) =>
-    /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
 
   /* =======================
      FETCH COURSE
@@ -129,12 +138,17 @@ export default function InstructorEditCourse({
 
         const data = await res.json();
 
+        setOutcomes(data.outcomes ?? []);
+        setRequirements(data.requirements ?? []);
+
         setFormData({
           title: data.title ?? '',
           description: data.description ?? '',
           category: data.category ?? '',
           level: data.level ?? '',
-          thumbnail: data.thumbnail ?? '',
+          thumbnailUrl: data.thumbnail ?? '',
+          thumbnailPreview: data.thumbnail ?? '',
+          thumbnailFile: null,
         });
 
       } catch (err) {
@@ -152,35 +166,81 @@ export default function InstructorEditCourse({
   ======================= */
   const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (thumbnailError) return;
-
     setIsSaving(true);
 
     try {
       const token = localStorage.getItem('accessToken');
 
-      const res = await fetch(
-        `http://localhost:3000/api/courses/${courseId}`,
+      await fetch(`http://localhost:3000/api/courses/${courseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          level: formData.level,
+        }),
+      });
+
+      await fetch(
+        `http://localhost:3000/api/courses/${courseId}/requirements`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({
+            items: requirements,
+          }),
         }
       );
 
-      if (!res.ok) throw new Error();
+      await fetch(
+        `http://localhost:3000/api/courses/${courseId}/outcomes`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            items: outcomes,
+          }),
+        }
+      );
+
+
+
+      if (formData.thumbnailFile) {
+        const fd = new FormData();
+        fd.append('file', formData.thumbnailFile);
+
+        await fetch(
+          `http://localhost:3000/api/courses/${courseId}/thumbnail`,
+          {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: fd,
+          }
+        );
+      }
 
       navigate('instructor-course-view', undefined, { courseId });
-    } catch {
+    } catch (error) {
+      console.error(error);
       alert('Failed to save course');
     } finally {
       setIsSaving(false);
     }
   };
+
+
 
   /* =======================
      EARLY RETURNS (SAFE)
@@ -205,13 +265,27 @@ export default function InstructorEditCourse({
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
+
 
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+
+              <div className="flex items-center gap-3">
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
                 <Button
                   variant="ghost"
                   size="sm"
@@ -221,6 +295,7 @@ export default function InstructorEditCourse({
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
+
                 <div>
                   <h1 className="text-2xl">Edit Course</h1>
                   <p className="text-gray-600">
@@ -236,6 +311,7 @@ export default function InstructorEditCourse({
               />
             </div>
           </header>
+
 
           {/* Content */}
           <main className="p-6">
@@ -315,47 +391,134 @@ export default function InstructorEditCourse({
                   </CardContent>
                 </Card>
 
+                {/* Course Outcomes */}
+                <Card className="mt-6">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl font-semibold">What you’ll learn</h3>
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={outcomeInput}
+                        onChange={(e) => setOutcomeInput(e.target.value)}
+                        placeholder="Add learning outcome"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (!outcomeInput.trim()) return;
+                          setOutcomes([...outcomes, outcomeInput]);
+                          setOutcomeInput("");
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+
+                    <ul className="list-disc list-inside space-y-1">
+                      {outcomes.map((o, i) => (
+                        <li key={i} className="flex justify-between">
+                          <span>{o}</span>
+                          <button
+                            type="button"
+                            className="text-red-500"
+                            onClick={() =>
+                              setOutcomes(outcomes.filter((_, index) => index !== i))
+                            }
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Course Requirements */}
+                <Card className="mt-6">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl font-semibold">Requirements</h3>
+
+                    <div className="flex gap-2">
+                      <Input
+                        value={requirementInput}
+                        onChange={(e) => setRequirementInput(e.target.value)}
+                        placeholder="Add requirement"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          if (!requirementInput.trim()) return;
+                          setRequirements([...requirements, requirementInput]);
+                          setRequirementInput("");
+                        }}
+                      >
+                        Add
+                      </Button>
+                    </div>
+
+                    <ul className="list-disc list-inside space-y-1">
+                      {requirements.map((r, i) => (
+                        <li key={i} className="flex justify-between">
+                          <span>{r}</span>
+                          <button
+                            type="button"
+                            className="text-red-500"
+                            onClick={() =>
+                              setRequirements(
+                                requirements.filter((_, index) => index !== i)
+                              )
+                            }
+                          >
+                            ✕
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+
+
                 {/* Thumbnail */}
                 <Card>
                   <CardContent className="p-6 space-y-4">
-                    <Label>Thumbnail Image URL</Label>
-                    <Input
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      value={formData.thumbnail}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        handleInputChange('thumbnail', value);
+                    <Label>Course Thumbnail</Label>
 
-                        if (value && !isValidImageUrl(value)) {
-                          setThumbnailError(
-                            'Please enter a direct image URL (.jpg, .png, .webp)'
-                          );
-                        } else {
-                          setThumbnailError('');
-                        }
-                      }}
-                    />
+                    <label className="flex items-center justify-center w-full max-w-md h-32 border-2 border-dashed rounded-lg cursor-pointer">
+                      <Upload className="h-6 w-6 text-gray-400" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
 
-                    {thumbnailError && (
-                      <p className="text-red-600 text-sm">{thumbnailError}</p>
-                    )}
+                          setFormData(prev => ({
+                            ...prev,
+                            thumbnailFile: file,
+                            thumbnailPreview: URL.createObjectURL(file),
+                          }));
+                        }}
+                      />
+                    </label>
 
                     <div className="flex items-center justify-center w-full max-w-md h-48 border-2 border-dashed rounded-lg bg-gray-50">
-                      {formData.thumbnail && !thumbnailError ? (
+                      {formData.thumbnailPreview ? (
                         <ImageWithFallback
-                          src={formData.thumbnail}
+                          src={formData.thumbnailPreview}
                           alt="Course thumbnail"
                           className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
                         <span className="text-gray-400 text-sm">
-                          Image preview will appear here
+                          No image selected
                         </span>
                       )}
                     </div>
                   </CardContent>
                 </Card>
+
 
                 {/* Actions */}
                 <div className="flex justify-between">

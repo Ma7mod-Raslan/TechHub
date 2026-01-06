@@ -44,17 +44,17 @@ export default function App() {
   const [navigationState, setNavigationState] = useState<any>(null);
 
   const logout = () => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("user");
-  localStorage.removeItem("pendingVerification");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("pendingVerification");
 
-  // axios instance
-  // delete api.defaults.headers.common["Authorization"];
+    // axios instance
+    // delete api.defaults.headers.common["Authorization"];
 
-  setUserRole('guest');
-  setCurrentPage('login');
-  setNavigationState(null);
-};
+    setUserRole('guest');
+    setCurrentPage('login');
+    setNavigationState(null);
+  };
 
 
   const navigate = (page: string, role?: UserRole, state?: any) => {
@@ -75,6 +75,7 @@ export default function App() {
     if (state) setNavigationState(state);
     else setNavigationState(null);
   };
+
 
   const renderPage = () => {
     switch (currentPage) {
@@ -137,7 +138,7 @@ export default function App() {
 
       // Shared Routes
       case 'course-details':
-        return <CourseDetails navigate={navigate} userRole={userRole} />;
+        return <CourseDetails navigate={navigate} userRole={userRole} navigationState={navigationState} />;
       case 'all-courses':
         return <AllCourses navigate={navigate} isLoggedIn={userRole !== 'guest'} userRole={userRole} logout={logout} />;
       case 'community':

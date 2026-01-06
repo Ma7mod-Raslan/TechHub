@@ -1,4 +1,6 @@
 import { motion } from 'motion/react';
+import { useState } from 'react';
+
 import {
   LayoutDashboard,
   BookOpen,
@@ -10,6 +12,7 @@ import {
   MessageSquare,
   Code2,
   Mail,
+  Menu,
   Phone,
   MapPin,
   Send,
@@ -33,6 +36,9 @@ interface InstructorContactProps {
 }
 
 export default function InstructorContact({ navigate, logout, userRole }: InstructorContactProps) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
@@ -59,20 +65,35 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
           logout={logout}
           userRole="instructor"
           activePage="instructor-contact"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
+
 
         {/* Main Content */}
         <div className="flex-1">
           {/* Header */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Contact Us</h1>
-                <p className="text-gray-600">Get in touch with our support team</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div>
+                  <h1 className="text-2xl">Contact Us</h1>
+                  <p className="text-gray-600">Get in touch with our support team</p>
+                </div>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
+
 
           {/* Content */}
           <main className="p-6">
@@ -215,7 +236,7 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

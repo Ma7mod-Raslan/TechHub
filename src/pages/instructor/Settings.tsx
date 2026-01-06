@@ -17,6 +17,7 @@ import {
   DollarSign,
   CreditCard,
   LogOut,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -39,6 +40,7 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [studentMessages, setStudentMessages] = useState(true);
   const [courseUpdates, setCourseUpdates] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [email, setEmail] = useState('sarah.johnson@email.com');
 
   const menuItems = [
@@ -62,18 +64,37 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
           logout={logout}
           userRole="instructor"
           activePage="instructor-settings"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
+
         <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">Settings</h1>
-                <p className="text-gray-600">Manage your preferences and account settings</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div>
+                  <h1 className="text-2xl">Settings</h1>
+                  <p className="text-gray-600">
+                    Manage your preferences and account settings
+                  </p>
+                </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="settings" />
+
+              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="settings"/>
             </div>
           </header>
+
 
           <main className="p-6 max-w-4xl">
             <div className="space-y-6">
@@ -200,7 +221,7 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

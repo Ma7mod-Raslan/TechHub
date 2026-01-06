@@ -22,6 +22,7 @@ import {
   Edit,
   X,
   Plus,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -44,10 +45,11 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
   const [editingExpertise, setEditingExpertise] = useState(false);
   const [editingLinkedIn, setEditingLinkedIn] = useState(false);
   const [editingLocation, setEditingLocation] = useState(false);
-  
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const [about, setAbout] = useState('Experienced software engineer with 10+ years in full-stack development. Passionate about teaching and helping students achieve their career goals. Specialized in React, Node.js, and cloud technologies. Former senior engineer at top tech companies.');
   const [tempAbout, setTempAbout] = useState(about);
-  
+
   const [expertise, setExpertise] = useState([
     'JavaScript',
     'React',
@@ -62,10 +64,10 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
   ]);
   const [tempExpertise, setTempExpertise] = useState([...expertise]);
   const [newSkill, setNewSkill] = useState('');
-  
+
   const [linkedIn, setLinkedIn] = useState('linkedin.com/in/sarahj');
   const [tempLinkedIn, setTempLinkedIn] = useState(linkedIn);
-  
+
   const [location, setLocation] = useState('New York, NY');
   const [tempLocation, setTempLocation] = useState(location);
 
@@ -150,18 +152,37 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
           logout={logout}
           userRole="instructor"
           activePage="instructor-profile"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
+
         <div className="flex-1">
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl">My Profile</h1>
-                <p className="text-gray-600">Manage your professional information</p>
+          <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
+            <div className="flex items-center justify-between gap-4">
+
+              <div className="flex items-center gap-3">
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+
+                <div>
+                  <h1 className="text-2xl">My Profile</h1>
+                  <p className="text-gray-600">
+                    Manage your professional information
+                  </p>
+                </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile" />
+              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile"/>
             </div>
           </header>
+
 
           <main className="p-6">
             <div className="grid lg:grid-cols-3 gap-6 mb-6">
@@ -425,7 +446,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );
