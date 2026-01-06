@@ -55,7 +55,7 @@ router.post(
       );
 
       if (existsOrder.rows.length > 0) {
-        return res.status(400).json({
+        return res.status(500).json({
           error: "video_order already exists for this course"
         });
       }
@@ -289,7 +289,7 @@ router.delete(
     } catch (err) {
       await client.query("ROLLBACK");
       console.error("Delete video error:", err);
-      res.status(500).json({ error: err.message });
+      res.status(404).json({ error: err.message });
     } finally {
       client.release();
     }
