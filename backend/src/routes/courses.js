@@ -370,80 +370,6 @@ router.get(
   }
 );
 
-
-/* ---------------------------------------
-   GET course details
-   - Instructor owner: can see Draft & Published
-   - Others: Published only
---------------------------------------- */
-router.get(
-  "/:id",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const courseId = req.params.id;
-      const userId = req.user?.id;
-
-      // 1️⃣ Get course
-      const courseRes = await db.query(
-      `SELECT
-        c.id,
-        c.title,
-        c.description,
-        c.category,
-        c.level,
-        c.status,
-        c.thumbnail,
-        c.instructor_id,
-        c.created_at,
-        u.full_name AS instructor_name
-      FROM courses c
-      JOIN users u ON u.id = c.instructor_id
-      WHERE c.id = $1`,
-      [courseId]
-    );
-
-
-      if (courseRes.rows.length === 0) {
-        return res.status(404).json({ error: "Course not found" });
-      }
-
-      const course = courseRes.rows[0];
-
-      // 2️⃣ If course is Draft → only owner instructor can view
-      if (course.status === "Draft") {
-        if (!userId || course.instructor_id !== userId) {
-          return res.status(403).json({
-            error: "Course is in draft mode"
-          });
-        }
-      }
-
-      // 3️⃣ Get outcomes
-      const outcomesRes = await db.query(
-        "SELECT description FROM course_outcomes WHERE course_id=$1",
-        [courseId]
-      );
-
-      // 4️⃣ Get requirements
-      const reqRes = await db.query(
-        "SELECT description FROM course_requirements WHERE course_id=$1",
-        [courseId]
-      );
-
-      // Attach them to response
-      course.outcomes = outcomesRes.rows.map(r => r.description);
-      course.requirements = reqRes.rows.map(r => r.description);
-
-      res.json(course);
-
-    } catch (err) {
-      console.error("Get course details error:", err);
-      res.status(500).json({ error: err.message });
-    }
-  }
-);
-
 /* ---------------------------------------
    PUBLIC: Course curriculum preview
 --------------------------------------- */
@@ -706,5 +632,77 @@ router.delete(
   }
 );
 
+/* ---------------------------------------
+   GET course details
+   - Instructor owner: can see Draft & Published
+   - Others: Published only
+--------------------------------------- */
+router.get(
+  "/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const courseId = req.params.id;
+      const userId = req.user?.id;
+
+      // 1️⃣ Get course
+      const courseRes = await db.query(
+      `SELECT
+        c.id,
+        c.title,
+        c.description,
+        c.category,
+        c.level,
+        c.status,
+        c.thumbnail,
+        c.instructor_id,
+        c.created_at,
+        u.full_name AS instructor_name
+      FROM courses c
+      JOIN users u ON u.id = c.instructor_id
+      WHERE c.id = $1`,
+      [courseId]
+    );
+
+
+      if (courseRes.rows.length === 0) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      const course = courseRes.rows[0];
+
+      // 2️⃣ If course is Draft → only owner instructor can view
+      if (course.status === "Draft") {
+        if (!userId || course.instructor_id !== userId) {
+          return res.status(403).json({
+            error: "Course is in draft mode"
+          });
+        }
+      }
+
+      // 3️⃣ Get outcomes
+      const outcomesRes = await db.query(
+        "SELECT description FROM course_outcomes WHERE course_id=$1",
+        [courseId]
+      );
+
+      // 4️⃣ Get requirements
+      const reqRes = await db.query(
+        "SELECT description FROM course_requirements WHERE course_id=$1",
+        [courseId]
+      );
+
+      // Attach them to response
+      course.outcomes = outcomesRes.rows.map(r => r.description);
+      course.requirements = reqRes.rows.map(r => r.description);
+
+      res.json(course);
+
+    } catch (err) {
+      console.error("Get course details error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 export default router;
