@@ -25,7 +25,7 @@ router.put(
 
       await db.query(
         "UPDATE users SET profile_image = $1 WHERE id = $2",
-        [imageUrl, req.user.userId]
+        [imageUrl, req.user.id]
       );
 
       res.json({
@@ -64,7 +64,7 @@ router.get("/", authMiddleware, async (req, res) => {
         ON u.id = ip.user_id
       WHERE u.id = $1
       `,
-      [req.user.userId]
+      [req.user.id]
     );
 
     if (result.rows.length === 0) {
@@ -105,7 +105,7 @@ router.get("/", authMiddleware, async (req, res) => {
  */
 router.get("/my-courses", authMiddleware, async (req, res) => {
   try {
-    const studentId = req.user.userId;
+    const studentId = req.user.id;
 
     const result = await db.query(
       `
