@@ -6,7 +6,11 @@ import { uploadProfileImage } from "../services/cloudinary.js";
 
 const router = express.Router();
 
-// Update profile image
+/**
+ * =========================
+ * Update profile image
+ * =========================
+ */
 router.put(
   "/profile-image",
   authMiddleware,
@@ -20,7 +24,7 @@ router.put(
       const imageUrl = await uploadProfileImage(req.file.buffer);
 
       await db.query(
-        "UPDATE users SET profile_image=$1 WHERE id=$2",
+        "UPDATE users SET profile_image = $1 WHERE id = $2",
         [imageUrl, req.user.id]
       );
 
@@ -29,12 +33,17 @@ router.put(
         profile_image: imageUrl,
       });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("Profile image upload error:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 );
 
-// Get user profile
+/**
+ * =========================
+ * Get user profile
+ * =========================
+ */
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const result = await db.query(
@@ -55,7 +64,7 @@ router.get("/", authMiddleware, async (req, res) => {
         ON u.id = ip.user_id
       WHERE u.id = $1
       `,
-      [req.user.userId]
+      [req.user.id]
     );
 
     if (result.rows.length === 0) {
@@ -64,7 +73,6 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const user = result.rows[0];
 
-    // Construct the response object
     const response = {
       id: user.id,
       full_name: user.full_name,
@@ -75,7 +83,6 @@ router.get("/", authMiddleware, async (req, res) => {
       created_at: user.created_at,
     };
 
-    // If the user is an instructor, include instructor profile details
     if (user.role === "instructor") {
       response.instructor_profile = {
         job_title: user.job_title,
@@ -86,82 +93,67 @@ router.get("/", authMiddleware, async (req, res) => {
 
     res.json(response);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.error("Get profile error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Get enrolled courses with progress
-router.get(
-  "/my-courses",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const studentId = req.user.userId;
+/**
+ * =========================
+ * Get enrolled courses with progress (OPTIMIZED)
+ * =========================
+ */
+router.get("/my-courses", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
 
-      /**
-       * Get enrolled courses basic info
-       */
-      const coursesRes = await db.query(
-        `
-        SELECT
-          c.id,
-          c.title,
-          c.thumbnail,
-          u.full_name AS instructor_name
-        FROM enrollments e
-        JOIN courses c ON c.id = e.course_id
-        JOIN users u ON u.id = c.instructor_id
-        WHERE e.user_id = $1
-        `,
-        [studentId]
-      );
+    const result = await db.query(
+      `
+      SELECT
+        c.id,
+        c.title,
+        c.thumbnail,
+        u.full_name AS instructor_name,
+        COUNT(cv.id) AS total_videos,
+        COUNT(
+          CASE 
+            WHEN svp.is_completed = true THEN 1 
+          END
+        ) AS completed_videos
+      FROM enrollments e
+      JOIN courses c ON c.id = e.course_id
+      JOIN users u ON u.id = c.instructor_id
+      LEFT JOIN course_videos cv ON cv.course_id = c.id
+      LEFT JOIN student_video_progress svp
+        ON svp.video_id = cv.id
+       AND svp.student_id = $1
+      WHERE e.user_id = $1
+      GROUP BY c.id, u.full_name
+      ORDER BY c.created_at DESC
+      `,
+      [studentId]
+    );
 
-      const courses = coursesRes.rows;
+    const courses = result.rows.map((course) => {
+      const total = Number(course.total_videos);
+      const completed = Number(course.completed_videos);
 
-      /**
-       * For each course, compute progress
-       */
-      for (const course of courses) {
-        // total videos in course
-        const totalRes = await db.query(
-          `
-          SELECT COUNT(*) 
-          FROM course_videos
-          WHERE course_id = $1
-          `,
-          [course.id]
-        );
+      return {
+        id: course.id,
+        title: course.title,
+        thumbnail: course.thumbnail,
+        instructor_name: course.instructor_name,
+        enrolled: true,
+        progress_percentage:
+          total === 0 ? 0 : Math.round((completed / total) * 100),
+      };
+    });
 
-        // completed videos by student
-        const completedRes = await db.query(
-          `
-          SELECT COUNT(*) 
-          FROM student_video_progress svp
-          JOIN course_videos cv ON cv.id = svp.video_id
-          WHERE svp.student_id = $1
-            AND svp.is_completed = true
-            AND cv.course_id = $2
-          `,
-          [studentId, course.id]
-        );
-
-        const total = Number(totalRes.rows[0].count);
-        const completed = Number(completedRes.rows[0].count);
-
-        course.enrolled = true;
-        course.progress_percentage =
-          total === 0 ? 0 : Math.round((completed / total) * 100);
-      }
-
-      res.json(courses);
-
-    } catch (err) {
-      console.error("Get enrolled courses error:", err);
-      res.status(500).json({ error: err.message });
-    }
+    res.json(courses);
+  } catch (err) {
+    console.error("Get enrolled courses error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-);
-
+});
 
 export default router;
