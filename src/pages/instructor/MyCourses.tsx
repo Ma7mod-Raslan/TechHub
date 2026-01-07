@@ -36,6 +36,7 @@ import Sidebar from '../../components/Sidebar';
 
 import { NavigateFn } from '../../types/Navigation';
 import { UserRole } from '../../App';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 
 interface InstructorCoursesProps {
   navigate: NavigateFn;
@@ -288,7 +289,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
 
                           <CardContent className="p-4">
                             <Badge className="mb-2" variant="outline">
-                              {course.category}
+                              {COURSE_CATEGORIES[course.category] ?? course.category}
                             </Badge>
 
                             <h3 className="mb-4 line-clamp-1">{course.title}</h3>

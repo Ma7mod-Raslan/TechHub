@@ -49,9 +49,12 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
   const [myCoursesTab, setMyCoursesTab] = React.useState<'in-progress' | 'completed'>('in-progress');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingAll, setLoadingAll] = useState(true);
+  const [loadingMy, setLoadingMy] = useState(true);
   const [courseDurations, setCourseDurations] = useState<Record<number, number>>({});
+  const [allCourses, setAllCourses] = useState<any[]>([]);
+  const [myCourses, setMyCourses] = useState<any[]>([]);
+
 
 
 
@@ -72,64 +75,84 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
 
   useEffect(() => {
-
     const fetchCourses = async () => {
       try {
         const data = await getAllCourses();
-        setCourses(data);
+        console.log("ALL COURSES FROM API:", data);
+
+        const courses = await getAllCourses();
+        setAllCourses(Array.isArray(courses) ? courses : []);
 
       } catch (err) {
         console.error("Error fetching courses", err);
+        setAllCourses([]);
       } finally {
-        setLoading(false);
+        setLoadingAll(false);
       }
     };
 
     fetchCourses();
   }, []);
 
-  useEffect(() => {
-    if (!courses.length) return;
 
+
+
+  useEffect(() => {
+    const fetchMyCourses = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/me/my-courses", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await res.json();
+        setMyCourses(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setMyCourses([]);
+      } finally {
+        setLoadingMy(false);
+      }
+    };
+
+    fetchMyCourses();
+  }, []);
+
+  useEffect(() => {
     const fetchDurations = async () => {
       const durations: Record<number, number> = {};
 
-      await Promise.all(
-        courses.map(async (course) => {
-          try {
-            const res = await fetch(
-              `http://localhost:3000/api/courses/${course.id}/videos`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                },
-              }
-            );
+      for (const course of allCourses) {
+        try {
+          const res = await fetch(
+            `http://localhost:3000/api/courses/${course.id}/videos-preview`
+          );
 
-            if (!res.ok) {
-              durations[course.id] = 0;
-              return;
-            }
+          const videos = await res.json();
 
-            const videos = await res.json();
+          const totalSeconds = Array.isArray(videos)
+            ? videos.reduce((sum, v) => sum + (v.duration ?? 0), 0)
+            : 0;
 
-            const totalSeconds = videos.reduce(
-              (sum: number, v: any) => sum + (Number(v.duration) || 0),
-              0
-            );
-
-            durations[course.id] = totalSeconds;
-          } catch (err) {
-            durations[course.id] = 0;
-          }
-        })
-      );
+          durations[course.id] = totalSeconds;
+        } catch {
+          durations[course.id] = 0;
+        }
+      }
 
       setCourseDurations(durations);
     };
 
-    fetchDurations();
-  }, [courses]);
+    if (allCourses.length > 0) {
+      fetchDurations();
+    }
+  }, [allCourses]);
+
+
+
+
+
 
 
   const formatDuration = (seconds?: number) => {
@@ -152,19 +175,19 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
   };
 
   // Filter courses based on search query
-  const filteredCourses = React.useMemo(() => {
-    if (!searchQuery.trim()) {
-      return courses;
-    }
+  const filteredMyCourses = React.useMemo(() => {
+    if (!Array.isArray(myCourses)) return [];
+
+    if (!searchQuery.trim()) return myCourses;
 
     const query = searchQuery.toLowerCase();
-    return courses.filter((course) => {
-      return (
-        course.title.toLowerCase().includes(query) ||
-        course.instructor_name.toLowerCase().includes(query)
-      );
-    });
-  }, [searchQuery, courses]);
+    return myCourses.filter((course) =>
+      course.title.toLowerCase().includes(query) ||
+      course.instructor_name.toLowerCase().includes(query)
+    );
+  }, [searchQuery, myCourses]);
+
+
 
 
   // Helper function to render course card for "All Courses" view
@@ -193,7 +216,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
           </div>
           <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
             <ShoppingBag className="mr-2 h-4 w-4" />
-            Enroll Now
+            View Course
           </Button>
         </CardContent>
       </Card>
@@ -224,7 +247,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
             <Clock className="h-4 w-4" />
             <span>{formatDuration(courseDurations[course.id])}</span>
           </div>
-          {course.progress === 100 ? (
+          {course.progress_percentage === 100 ? (
             <div className="mb-4 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-100 to-cyan-100 rounded-lg py-2">
               <CheckCircle2 className="h-5 w-5 text-violet-600" />
               <span className="font-semibold text-violet-700">100% Complete</span>
@@ -232,28 +255,28 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
           ) : (
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{course.progress}%</span>
+                <span>{course.progress_percentage}%</span>
               </div>
-              <Progress value={course.progress} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500" />
+              <Progress value={course.progress_percentage} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500" />
             </div>
           )}
           <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
             <Play className="mr-2 h-4 w-4" />
-            {course.progress === 100 ? 'Review' : 'Continue'}
+            {course.progress_percentage === 100 ? 'Review' : 'Continue'}
           </Button>
         </CardContent>
       </Card>
     </motion.div>
   );
 
-  if (loading) {
+  if (loadingAll) {
     return (
       <div className="flex justify-center items-center py-20">
         Loading courses...
       </div>
     );
   }
+
 
 
   return (
@@ -350,16 +373,21 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
             {/* All Courses View */}
             {activeView === 'all' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
+              loadingAll ? (
+                <p className="text-center mt-10">
+                  Loading courses...
+                </p>
+              ) : allCourses.length === 0 ? (
+                <p className="text-center text-gray-500 mt-10">
+                  No courses available
+                </p>
+              ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {filteredCourses.map(renderAllCoursesCard)}
+                  {allCourses.map(renderAllCoursesCard)}
                 </div>
-              </motion.div>
+              )
             )}
+
 
             {/* My Courses View with Internal Tabs */}
             {activeView === 'my' && (
@@ -368,43 +396,57 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.2 }}
               >
-                {/* Internal Tabs for My Courses */}
-                <div className="flex gap-2 mb-6">
-                  <button
-                    onClick={() => setMyCoursesTab('in-progress')}
-                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'in-progress'
-                      ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
-                      : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
-                      }`}
-                  >
-                    In Progress
-                  </button>
-                  <button
-                    onClick={() => setMyCoursesTab('completed')}
-                    className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'completed'
-                      ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
-                      : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
-                      }`}
-                  >
-                    Completed
-                  </button>
-                </div>
+                {filteredMyCourses.length === 0 ? (
+                  <p className="text-center text-gray-500 mt-10">
+                    You are not enrolled in any courses yet
+                  </p>
+                ) : (
+                  <>
+                    {/* Internal Tabs */}
+                    <div className="flex gap-2 mb-6">
+                      <button
+                        onClick={() => setMyCoursesTab('in-progress')}
+                        className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'in-progress'
+                          ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
+                          : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
+                          }`}
+                      >
+                        In Progress
+                      </button>
 
-                {/* In Progress Tab Content */}
-                {myCoursesTab === 'in-progress' && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {filteredCourses.filter((c) => c.progress > 0 && c.progress < 100).map(renderMyCoursesCard)}
-                  </div>
-                )}
+                      <button
+                        onClick={() => setMyCoursesTab('completed')}
+                        className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${myCoursesTab === 'completed'
+                          ? 'bg-violet-100 text-violet-700 border-2 border-violet-300'
+                          : 'bg-white text-gray-600 border-2 border-gray-200 hover:border-violet-200'
+                          }`}
+                      >
+                        Completed
+                      </button>
+                    </div>
 
-                {/* Completed Tab Content */}
-                {myCoursesTab === 'completed' && (
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {filteredCourses.filter((c) => c.progress === 100).map(renderMyCoursesCard)}
-                  </div>
+                    {/* In Progress */}
+                    {myCoursesTab === 'in-progress' && (
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {filteredMyCourses
+                          .filter((c) => c.progress_percentage < 100)
+                          .map(renderMyCoursesCard)}
+                      </div>
+                    )}
+
+                    {/* Completed */}
+                    {myCoursesTab === 'completed' && (
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {filteredMyCourses
+                          .filter((c) => c.progress_percentage === 100)
+                          .map(renderMyCoursesCard)}
+                      </div>
+                    )}
+                  </>
                 )}
               </motion.div>
             )}
+
           </main>
         </div>
       </div>

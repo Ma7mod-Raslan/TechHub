@@ -47,6 +47,7 @@ import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { UserRole } from '../../App';
 
 interface InstructorCourseViewProps {
@@ -263,9 +264,6 @@ export default function InstructorCourseView({
     return category?.toLowerCase() ?? '';
   };
 
-  const getCategoryDisplay = (category: string) => {
-    return category?.charAt(0).toUpperCase() + category.slice(1);
-  };
 
   const handleCancelEdit = () => {
     setEditFormData({
@@ -577,7 +575,9 @@ export default function InstructorCourseView({
 
                   <div className="flex gap-2 flex-wrap">
                     {course.category && (
-                      <Badge variant="outline">{course.category}</Badge>
+                      <Badge variant="outline">
+                        {COURSE_CATEGORIES[course.category] ?? course.category}
+                      </Badge>
                     )}
                     {course.level && (
                       <Badge variant="outline">{course.level}</Badge>

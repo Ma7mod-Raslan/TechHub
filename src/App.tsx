@@ -138,7 +138,7 @@ export default function App() {
 
       // Shared Routes
       case 'course-details':
-        return <CourseDetails navigate={navigate} userRole={userRole} navigationState={navigationState} />;
+        return <CourseDetails navigate={navigate} userRole={userRole} logout={logout} navigationState={navigationState} />;
       case 'all-courses':
         return <AllCourses navigate={navigate} isLoggedIn={userRole !== 'guest'} userRole={userRole} logout={logout} />;
       case 'community':

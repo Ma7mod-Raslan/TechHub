@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map, Bell, User, Menu } from 'lucide-react';
+import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map, Bell, User, Menu, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import Sidebar from '../components/Sidebar';
 import HeaderIcons from '../components/HeaderIcons';
 import VideoQuestions from '../components/course/VideoQuestions';
+import { COURSE_CATEGORIES } from '../constants/courseCategories';
 
 
 interface CourseDetailsProps {
@@ -121,7 +122,6 @@ export default function CourseDetails({
     if (logout) {
       logout();
     }
-    navigate('home');
   };
 
   const formatTotalDuration = (seconds: number) => {
@@ -325,31 +325,119 @@ export default function CourseDetails({
     setVideoPlayerTab('overview');
   };
 
-  const handleAddNote = () => {
-    if (!newNote.trim() || !playerRef.current) return;
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !selectedVideo || !playerRef.current) return;
 
-    const note: Note = {
-      id: Date.now(),
-      timestamp: new Date().toLocaleString(),
-      content: newNote,
-      videoTime: Math.floor(playerRef.current.getCurrentTime())
-    };
+    const currentTime = Math.floor(playerRef.current.getCurrentTime());
 
-    setNotes([...notes, note]);
-    setNewNote('');
-    toast.success('Note added successfully!');
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/videos/${selectedVideo.id}/note`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({
+            content: newNote,
+            video_time: currentTime, // 👈 لو حابة تبعتيها للـ backend
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setNotes([
+        {
+          id: data.note.id,
+          content: data.note.content,
+          timestamp: new Date(data.note.updated_at).toLocaleString(),
+          videoTime: currentTime,
+        },
+      ]);
+
+      setNewNote('');
+      toast.success("Note saved successfully");
+    } catch {
+      toast.error("Failed to save note");
+    }
   };
 
-  const handleDownloadResource = (resource: string) => {
-    toast.success(`Downloading ${resource}...`);
-    // In real app, this would trigger actual download
+
+  const deleteNote = async (noteId: number) => {
+    if (!selectedVideo) return;
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this note?");
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(
+        `http://localhost:3000/api/videos/${selectedVideo.id}/note`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      setNotes((prev) => prev.filter(note => note.id !== noteId));
+      toast.success("Note deleted");
+    } catch {
+      toast.error("Failed to delete note");
+    }
   };
+
+  const seekToTime = (time: number) => {
+    if (!playerRef.current) return;
+    playerRef.current.seekTo(time, true);
+  };
+
+
+
+
+
+
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const fetchVideoNote = async (videoId: number) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/videos/${videoId}/note`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      if (data) {
+        setNotes([
+          {
+            id: data.id,
+            content: data.content,
+            timestamp: new Date(data.updated_at).toLocaleString(),
+            videoTime: 0,
+          },
+        ]);
+      } else {
+        setNotes([]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 
   const currentLectureIndex = selectedVideo ? allLectures.findIndex(l => l.id === selectedVideo.id) : -1;
   const currentSection = selectedVideo ? courseSections.find(section =>
@@ -364,6 +452,8 @@ export default function CourseDetails({
 
   useEffect(() => {
     if (!selectedVideo) return;
+    fetchVideoNote(selectedVideo.id);
+
     if (!(window as any).YT) return;
 
     const YT = (window as any).YT;
@@ -555,7 +645,7 @@ export default function CourseDetails({
                               </Badge>
                               <h3 className="text-white text-2xl mb-1">{selectedVideo.title}</h3>
                               <p className="text-white/80 text-sm">
-                                Lecture {currentLectureIndex + 1} of {totalLectures} • Duration: {selectedVideo.duration}
+                                Lecture {currentLectureIndex + 1} of {totalLectures} • Duration: {formatDuration(selectedVideo.duration)}
                               </p>
                             </div>
                             <div className="text-right">
@@ -713,19 +803,43 @@ export default function CourseDetails({
                             {notes.length > 0 ? (
                               <div className="space-y-3">
                                 {notes.map((note) => (
-                                  <Card key={note.id} className="border-l-4 border-l-violet-600">
+                                  <Card
+                                    key={note.id}
+                                    className="border-l-4 border-l-violet-600"
+                                  >
                                     <CardContent className="p-4">
+                                      {/* Header */}
                                       <div className="flex items-start justify-between mb-2">
-                                        <Badge variant="outline" className="text-xs">
+                                        {/* Timestamp (Clickable) */}
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs cursor-pointer hover:bg-violet-100"
+                                          onClick={() => seekToTime(note.videoTime)}
+                                        >
                                           <Clock className="h-3 w-3 mr-1" />
                                           {formatDuration(note.videoTime)}
                                         </Badge>
-                                        <span className="text-xs text-gray-500">{note.timestamp}</span>
+
+                                        {/* Delete Icon */}
+                                        <Trash2
+                                          className="h-4 w-4 text-red-500 cursor-pointer hover:scale-110 transition"
+                                          onClick={() => deleteNote(note.id)}
+                                        />
                                       </div>
-                                      <p className="text-sm text-gray-700">{note.content}</p>
+
+                                      {/* Content */}
+                                      <p className="text-sm text-gray-700">
+                                        {note.content}
+                                      </p>
+
+                                      {/* Date */}
+                                      <p className="text-xs text-gray-400 mt-2">
+                                        {note.timestamp}
+                                      </p>
                                     </CardContent>
                                   </Card>
                                 ))}
+
                               </div>
                             ) : (
                               <p className="text-gray-500 text-center py-8">No notes yet. Add your first note!</p>
@@ -743,7 +857,16 @@ export default function CourseDetails({
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <Badge className="mb-4">Web Development</Badge>
+                    <div className="flex gap-2 items-center">
+                      <Badge >
+                        {COURSE_CATEGORIES[course.category] ?? course.category}
+                      </Badge>
+
+                      <Badge variant="outline" className="capitalize">
+                        {course.level}
+                      </Badge>
+                    </div>
+
                     <h1 className="text-4xl mb-4">
                       {course?.title}
                     </h1>
@@ -909,7 +1032,7 @@ export default function CourseDetails({
                             />
                             <div>
                               <h2 className="text-2xl mb-2"> {course?.instructor_name} </h2>
-                              <p className="text-gray-600 mb-4">Course Instructor</p>                            
+                              <p className="text-gray-600 mb-4">Course Instructor</p>
                             </div>
                           </div>
                         </CardContent>
@@ -986,11 +1109,7 @@ export default function CourseDetails({
                             </div>
                             <div className="flex items-center gap-2">
                               <Clock className="h-4 w-4" />
-                              <span>42 hours on-demand video</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-4 w-4" />
-                              <span>15 downloadable resources</span>
+                              <span>{totalDuration} on-demand video</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Award className="h-4 w-4" />

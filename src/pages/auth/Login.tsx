@@ -28,6 +28,8 @@ declare global {
 
 const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ?? "";
 
+console.log("GOOGLE CLIENT ID FROM ENV 👉", GOOGLE_CLIENT_ID);
+
 export default function Login({ navigate }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");

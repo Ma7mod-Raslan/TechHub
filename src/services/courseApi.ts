@@ -34,18 +34,15 @@ api.interceptors.request.use(
  * POST /api/courses/create
  */
 export const createCourse = async (formData: FormData) => {
-  const res = await api.post(
-    "/courses/create",
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  const res = await api.post("/courses/create", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
-  return res.data;
+  return res.data.course ?? res.data;
 };
+
 
 
 

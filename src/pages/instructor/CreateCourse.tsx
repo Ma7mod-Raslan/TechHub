@@ -159,11 +159,15 @@ export default function InstructorCreateCourse({
 
 
 
-      const response = await createCourse(data);
+      const course = await createCourse(data);
 
+      if (!course?.id) {
+        toast.error("Course ID not returned from server");
+        return;
+      }
 
+      const courseId = course.id;
 
-      const courseId = response.course.id;
 
       if (requirements.length > 0) {
         await fetch(
@@ -201,7 +205,7 @@ export default function InstructorCreateCourse({
       setIsCreating(false);
 
       navigate("instructor-course-view", "instructor", {
-        courseId: response.course.id,
+        courseId,
       });
 
     } catch (err: any) {
