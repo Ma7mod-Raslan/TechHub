@@ -127,7 +127,7 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
       LEFT JOIN student_video_progress svp
         ON svp.video_id = cv.id
        AND svp.student_id = $1
-      WHERE e.user_id = $1
+      WHERE e.student_id = $1
       GROUP BY c.id, u.full_name
       `,
       [studentId]
@@ -154,5 +154,6 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 export default router;
