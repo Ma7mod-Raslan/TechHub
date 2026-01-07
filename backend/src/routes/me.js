@@ -129,7 +129,6 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
        AND svp.student_id = $1
       WHERE e.user_id = $1
       GROUP BY c.id, u.full_name
-      ORDER BY c.created_at DESC
       `,
       [studentId]
     );
