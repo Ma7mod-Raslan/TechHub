@@ -97,7 +97,7 @@ router.get(
   authMiddleware,
   async (req, res) => {
     try {
-      const studentId = req.user.id;
+      const studentId = req.user.userId;
 
       /**
        * Get enrolled courses basic info
