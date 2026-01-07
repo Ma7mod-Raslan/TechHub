@@ -5,105 +5,154 @@ import { authMiddleware } from "../middleware/auth.js";
 const router = express.Router();
 
 /**
- * GET student's note for a video
+ * GET student's notes for a video
  */
-router.get(
-  "/videos/:videoId/note",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const studentId = req.user.id;
-      const { videoId } = req.params;
+router.get("/videos/:videoId/notes", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { videoId } = req.params;
 
-      const noteRes = await db.query(
-        `
-        SELECT id, content, updated_at
-        FROM video_notes
-        WHERE student_id=$1 AND video_id=$2
-        `,
-        [studentId, videoId]
-      );
+    const result = await db.query(
+      `
+      SELECT
+        id,
+        content,
+        video_timestamp,
+        created_at,
+        updated_at
+      FROM video_notes
+      WHERE student_id = $1
+        AND video_id = $2
+      ORDER BY
+        COALESCE(video_timestamp, 999999),
+        created_at
+      `,
+      [studentId, videoId]
+    );
 
-      if (noteRes.rows.length === 0) {
-        return res.json({ note: null });
-      }
-
-      res.json(noteRes.rows[0]);
-
-    } catch (err) {
-      console.error("Get note error:", err);
-      res.status(500).json({ error: err.message });
-    }
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Get notes error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-);
+});
+
+
 
 /**
- * Add or update note
+ * Create a new note for a video
  */
-router.post(
-  "/videos/:videoId/note",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const studentId = req.user.id;
-      const { videoId } = req.params;
-      const { content } = req.body;
+router.post("/videos/:videoId/notes", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { videoId } = req.params;
+    const { content, video_timestamp } = req.body;
 
-      if (!content) {
-        return res.status(400).json({ error: "content is required" });
-      }
-
-      const result = await db.query(
-        `
-        INSERT INTO video_notes (student_id, video_id, content)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (student_id, video_id)
-        DO UPDATE
-        SET content = EXCLUDED.content,
-            updated_at = NOW()
-        RETURNING *
-        `,
-        [studentId, videoId, content]
-      );
-
-      res.json({
-        message: "Note saved",
-        note: result.rows[0]
-      });
-
-    } catch (err) {
-      console.error("Save note error:", err);
-      res.status(500).json({ error: err.message });
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: "Note content is required" });
     }
+
+    if (video_timestamp != null && video_timestamp < 0) {
+      return res.status(400).json({ error: "Invalid video timestamp" });
+    }
+
+    const result = await db.query(
+      `
+      INSERT INTO video_notes
+        (student_id, video_id, content, video_timestamp)
+      VALUES ($1, $2, $3, $4)
+      RETURNING
+        id,
+        content,
+        video_timestamp,
+        created_at
+      `,
+      [studentId, videoId, content, video_timestamp ?? null]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("Add note error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-);
+});
+
+
+
+/**
+ * Update a note
+  */
+router.put("/notes/:noteId", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { noteId } = req.params;
+    const { content, video_timestamp } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: "Note content is required" });
+    }
+
+    if (video_timestamp != null && video_timestamp < 0) {
+      return res.status(400).json({ error: "Invalid video timestamp" });
+    }
+
+    const result = await db.query(
+      `
+      UPDATE video_notes
+      SET
+        content = $1,
+        video_timestamp = $2,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $3
+        AND student_id = $4
+      RETURNING
+        id,
+        content,
+        video_timestamp,
+        updated_at
+      `,
+      [content, video_timestamp ?? null, noteId, studentId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Update note error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 /**
  * Delete note
  */
-router.delete(
-  "/videos/:videoId/note",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const studentId = req.user.id;
-      const { videoId } = req.params;
+router.delete("/notes/:noteId", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { noteId } = req.params;
 
-      await db.query(
-        `
-        DELETE FROM video_notes
-        WHERE student_id=$1 AND video_id=$2
-        `,
-        [studentId, videoId]
-      );
+    const result = await db.query(
+      `
+      DELETE FROM video_notes
+      WHERE id = $1
+        AND student_id = $2
+      `,
+      [noteId, studentId]
+    );
 
-      res.json({ message: "Note deleted" });
-
-    } catch (err) {
-      console.error("Delete note error:", err);
-      res.status(500).json({ error: err.message });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Note not found" });
     }
+
+    res.json({ message: "Note deleted" });
+  } catch (err) {
+    console.error("Delete note error:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
-);
+});
+
+
 
 export default router;
