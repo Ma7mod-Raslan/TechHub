@@ -87,6 +87,22 @@ export default function InstructorCourseView({
   const [course, setCourse] = useState<any>(null);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  // MCQ states
+  const [showMCQDialog, setShowMCQDialog] = useState(false);
+
+  const [questionText, setQuestionText] = useState('');
+  const [choices, setChoices] = useState([
+    { text: '', is_correct: false },
+    { text: '', is_correct: false },
+  ]);
+
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
+
+  const [mcqError, setMcqError] = useState('');
+
+
+
 
   if (!courseId) {
     return <div className="p-6 text-red-600">Invalid course</div>;
@@ -260,6 +276,9 @@ export default function InstructorCourseView({
       thumbnail: course.thumbnail,
     });
 
+
+
+
     setFormErrors({
       title: '',
       description: '',
@@ -362,6 +381,71 @@ export default function InstructorCourseView({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleAddQuestion = async () => {
+    if (!selectedVideo) return;
+
+    // 🛑 Frontend validation
+    if (!questionText.trim()) {
+      setMcqError('Question text is required');
+      return;
+    }
+
+    const correctCount = choices.filter(c => c.is_correct).length;
+    if (correctCount !== 1) {
+      setMcqError('Please select exactly one correct answer');
+      return;
+    }
+
+    setMcqError('');
+
+    const token = localStorage.getItem('accessToken');
+
+    const res = await fetch(
+      `http://localhost:3000/api/videos/${selectedVideo.id}/questions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          question_text: questionText,
+          choices,
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json();
+      setMcqError(err.error || 'Failed to save question');
+      return;
+    }
+
+    await fetchVideoQuestions(selectedVideo.id);
+
+    setQuestionText('');
+    setChoices([
+      { text: '', is_correct: false },
+      { text: '', is_correct: false },
+    ]);
+  };
+
+  const fetchVideoQuestions = async (videoId: number) => {
+    const token = localStorage.getItem('accessToken');
+    setLoadingQuestions(true);
+
+    const res = await fetch(
+      `http://localhost:3000/api/videos/${videoId}/questions`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const data = await res.json();
+    setQuestions(Array.isArray(data) ? data : []);
+    setLoadingQuestions(false);
   };
 
 
@@ -569,6 +653,23 @@ export default function InstructorCourseView({
                             variant="ghost"
                             onClick={() => {
                               setSelectedVideo(video);
+                              setQuestionText('');
+                              setChoices([
+                                { text: '', is_correct: false },
+                                { text: '', is_correct: false },
+                              ]);
+                              fetchVideoQuestions(video.id);
+                              setShowMCQDialog(true);
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4 text-indigo-600" />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
                               setVideoFormData({
                                 title: video.title,
                                 url: video.video_url,
@@ -590,6 +691,7 @@ export default function InstructorCourseView({
                           >
                             <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>
+
                         </div>
                       </motion.div>
                     ))}
@@ -643,6 +745,120 @@ export default function InstructorCourseView({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showMCQDialog} onOpenChange={setShowMCQDialog}>
+        <DialogContent className="max-h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Add MCQ Question</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto pr-2">
+            <Label>Question</Label>
+            <Textarea
+              placeholder="Enter question text"
+              value={questionText}
+              onChange={e => setQuestionText(e.target.value)}
+            />
+
+            <div className="space-y-3 mt-4">
+              {choices.map((choice, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="correct-choice"
+                    checked={choice.is_correct}
+                    onChange={() =>
+                      setChoices(
+                        choices.map((c, i) => ({
+                          ...c,
+                          is_correct: i === index,
+                        }))
+                      )
+                    }
+                  />
+
+                  <Input
+                    placeholder={`Choice ${index + 1}`}
+                    value={choice.text}
+                    onChange={e =>
+                      setChoices(
+                        choices.map((c, i) =>
+                          i === index ? { ...c, text: e.target.value } : c
+                        )
+                      )
+                    }
+                  />
+
+                  {choice.is_correct && (
+                    <span className="text-xs text-green-600 font-medium">
+                      ✓ Correct Answer
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <Button
+              variant="outline"
+              className="mt-3"
+              onClick={() =>
+                setChoices([...choices, { text: '', is_correct: false }])
+              }
+            >
+              + Add Choice
+            </Button>
+
+            <div className="mt-6">
+              <h4 className="font-semibold mb-2">Existing Questions</h4>
+
+              {loadingQuestions ? (
+                <p className="text-sm text-gray-500">Loading questions...</p>
+              ) : questions.length === 0 ? (
+                <p className="text-sm text-gray-500">No questions added yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {questions.map((q, index) => (
+                    <div
+                      key={q.id}
+                      className="border rounded-lg p-3 bg-gray-50"
+                    >
+                      <p className="font-medium">
+                        {index + 1}. {q.question_text}
+                      </p>
+
+                      <ul className="mt-2 space-y-1">
+                        {q.choices.map((c: any) => (
+                          <li
+                            key={c.id}
+                            className="text-sm text-gray-700"
+                          >
+                            • {c.choice_text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col items-end gap-2 pt-3">
+            {mcqError && (
+              <div className="flex items-center gap-2 text-red-600 text-sm self-start">
+                <AlertCircle className="h-4 w-4" />
+                {mcqError}
+              </div>
+            )}
+
+            <Button onClick={handleAddQuestion}>
+              Save Question
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+
+      </Dialog>
+
 
       <AIAssistant />
     </div>

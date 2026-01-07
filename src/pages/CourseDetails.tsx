@@ -12,6 +12,8 @@ import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import { toast } from 'sonner';
 import Sidebar from '../components/Sidebar';
 import HeaderIcons from '../components/HeaderIcons';
+import VideoQuestions from '../components/course/VideoQuestions';
+
 
 interface CourseDetailsProps {
   navigate: (page: string, role?: UserRole, state?: any) => void;
@@ -27,12 +29,14 @@ interface CourseDetailsProps {
 interface Lecture {
   id: number;
   title: string;
-  duration: string;
-  videoUrl: string;
+  duration: number;
+  videoUrl?: string;
   completed: boolean;
   description?: string;
   resources?: string[];
 }
+
+
 
 interface Section {
   title: string;
@@ -55,22 +59,25 @@ export default function CourseDetails({
 }: CourseDetailsProps) {
 
   // Simulating enrollment status - in real app, this would come from backend/localStorage
-  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Lecture | null>(null);
-  const [completedLectures, setCompletedLectures] = useState<Set<number>>(new Set([1, 2]));
   const [activeTab, setActiveTab] = useState('overview');
   const [videoPlayerTab, setVideoPlayerTab] = useState('overview');
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState('');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<any>(null);
+  const progressIntervalRef = useRef<any>(null);
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const id = navigationState?.courseId;
   const [courseSections, setCourseSections] = useState<Section[]>([]);
+  const [totalDuration, setTotalDuration] = useState<string>('0m');
   const allLectures = courseSections.flatMap(section => section.lectures);
   const totalLectures = allLectures.length;
+  const [courseProgress, setCourseProgress] = useState(0);
+
 
 
 
@@ -101,6 +108,15 @@ export default function CourseDetails({
 
   console.log(course);
 
+  const extractYoutubeId = (url?: string) => {
+    if (!url) return "";
+    const match = url.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/
+    );
+    return match ? match[1] : "";
+  };
+
+
   const handleLogout = () => {
     if (logout) {
       logout();
@@ -108,34 +124,53 @@ export default function CourseDetails({
     navigate('home');
   };
 
-  const fetchCourseVideos = async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/courses/${id}/videos`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+  const formatTotalDuration = (seconds: number) => {
+    if (!seconds || seconds <= 0) return "—";
 
-      if (!res.ok) return;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  };
+
+
+  const fetchCourseVideos = async (enrolled: boolean) => {
+    try {
+      const endpoint = enrolled
+        ? `http://localhost:3000/api/courses/${id}/videos`
+        : `http://localhost:3000/api/courses/${id}/videos-preview`;
+
+      const headers: any = {};
+      if (enrolled) {
+        headers.Authorization = `Bearer ${localStorage.getItem("accessToken")}`;
+      }
+
+      const res = await fetch(endpoint, { headers });
+      if (!res.ok) {
+        setCourseSections([]);
+        return;
+      }
 
       const videos = await res.json();
-      console.log("VIDEOS FROM BACKEND:", videos);
+      const totalSeconds = videos.reduce(
+        (sum: number, video: any) => sum + (Number(video.duration) || 0),
+        0
+      );
+      setTotalDuration(formatTotalDuration(totalSeconds));
 
-
-      // نحول الفيديوهات لـ Section واحد
       const section: Section = {
         title: "Course Content",
-        duration: `${videos.length} lectures`,
+        duration: formatTotalDuration(totalSeconds),
         lectures: videos.map((video: any) => ({
           id: video.id,
           title: video.title,
-          duration: "—",
-          videoUrl: video.video_url,
+          duration: Number(video.duration) || 0,
+          videoUrl: enrolled ? video.video_url : undefined,
           completed: false,
-          description: "",
+          description: video.description ?? "",
           resources: [],
         })),
       };
@@ -147,25 +182,54 @@ export default function CourseDetails({
   };
 
 
-
-
-  // Flatten all lectures for navigation
-  const completedCount = completedLectures.size;
-  const progressPercentage = totalLectures === 0 ? 0 : Math.round((completedCount / totalLectures) * 100);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch(`http://localhost:3000/api/courses/${id}`, {
+  const checkEnrollment = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${id}/videos`,
+        {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        });
+        }
+      );
 
-        const data = await res.json();
-        setCourse(data);
+      return res.ok; // 200 = enrolled
+    } catch {
+      return false;
+    }
+  };
 
-        await fetchCourseVideos();
+  useEffect(() => {
+    if ((window as any).YT) return;
+
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+  }, []);
+
+
+  // Flatten all lectures for navigation
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const courseRes = await fetch(
+          `http://localhost:3000/api/courses/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+
+        const courseData = await courseRes.json();
+        setCourse(courseData);
+
+        const enrolled = await checkEnrollment();
+        setIsEnrolled(enrolled);
+
+        await fetchCourseVideos(enrolled);
+        await fetchCourseProgress();
+
 
       } catch (error) {
         console.error(error);
@@ -179,6 +243,7 @@ export default function CourseDetails({
 
 
 
+
   const handleEnroll = async () => {
     if (userRole === 'guest') {
       toast.error('Please sign up or log in to enroll in this course');
@@ -187,7 +252,8 @@ export default function CourseDetails({
       }, 1000);
     } else if (userRole === 'student') {
       try {
-        await fetch(`/api/courses/${id}/enroll`, {
+
+        await fetch(`http://localhost:3000/api/courses/${id}/enroll`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -195,6 +261,8 @@ export default function CourseDetails({
         });
 
         setIsEnrolled(true);
+        await fetchCourseVideos(true);
+
         toast.success("Successfully enrolled in the course!");
       } catch {
         toast.error("Enrollment failed");
@@ -202,6 +270,28 @@ export default function CourseDetails({
     }
 
   };
+
+  const fetchCourseProgress = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${id}/progress`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setCourseProgress(data.progress_percentage);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
 
   const handleLectureClick = (lecture: Lecture) => {
     if (!isEnrolled) {
@@ -212,12 +302,7 @@ export default function CourseDetails({
     setActiveTab('curriculum');
   };
 
-  const handleMarkAsComplete = () => {
-    if (selectedVideo) {
-      setCompletedLectures(prev => new Set([...prev, selectedVideo.id]));
-      toast.success('Lecture marked as complete!');
-    }
-  };
+
 
   const handleNextLecture = () => {
     if (!selectedVideo) return;
@@ -240,22 +325,14 @@ export default function CourseDetails({
     setVideoPlayerTab('overview');
   };
 
-  const handleSpeedChange = (speed: number) => {
-    setPlaybackSpeed(speed);
-    if (videoRef.current) {
-      videoRef.current.playbackRate = speed;
-    }
-    toast.success(`Playback speed set to ${speed}x`);
-  };
-
   const handleAddNote = () => {
-    if (!newNote.trim() || !videoRef.current) return;
+    if (!newNote.trim() || !playerRef.current) return;
 
     const note: Note = {
       id: Date.now(),
       timestamp: new Date().toLocaleString(),
       content: newNote,
-      videoTime: Math.floor(videoRef.current.currentTime)
+      videoTime: Math.floor(playerRef.current.getCurrentTime())
     };
 
     setNotes([...notes, note]);
@@ -268,7 +345,7 @@ export default function CourseDetails({
     // In real app, this would trigger actual download
   };
 
-  const formatTime = (seconds: number) => {
+  const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -279,9 +356,88 @@ export default function CourseDetails({
     section.lectures.some(lecture => lecture.id === selectedVideo.id)
   ) : null;
 
+
+
   // Show sidebar only for students
   const showSidebar = userRole === 'student';
   const menuItems = getMenuItems();
+
+  useEffect(() => {
+    if (!selectedVideo) return;
+    if (!(window as any).YT) return;
+
+    const YT = (window as any).YT;
+
+    playerRef.current = new YT.Player("youtube-player", {
+      videoId: extractYoutubeId(selectedVideo.videoUrl),
+      events: {
+        onStateChange: (event: any) => {
+          if (event.data === YT.PlayerState.PLAYING) {
+            startTracking();
+          }
+
+          if (
+            event.data === YT.PlayerState.PAUSED ||
+            event.data === YT.PlayerState.ENDED
+          ) {
+            stopTracking();
+            sendProgress();
+          }
+        },
+      },
+    });
+
+    return () => {
+      stopTracking();
+      playerRef.current?.destroy();
+    };
+  }, [selectedVideo]);
+
+
+  const startTracking = () => {
+    stopTracking();
+
+    progressIntervalRef.current = setInterval(() => {
+      sendProgress();
+    }, 5000);
+  };
+
+  const stopTracking = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
+
+  const sendProgress = async () => {
+    if (!playerRef.current) return;
+
+    const currentTime = Math.floor(
+      playerRef.current.getCurrentTime()
+    );
+    if (currentTime <= 0) return;
+    if (!selectedVideo) return;
+
+
+
+    await fetch(
+      `http://localhost:3000/api/videos/${selectedVideo.id}/progress`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify({
+          current_time: currentTime,
+        }),
+      }
+    );
+
+    fetchCourseProgress();
+  };
+
+
 
   if (!id) {
     return (
@@ -404,28 +560,22 @@ export default function CourseDetails({
                             </div>
                             <div className="text-right">
                               <div className="text-white/80 text-sm mb-1">Course Progress</div>
-                              <div className="text-white text-xl">{progressPercentage}%</div>
+                              <div className="text-white text-xl">{courseProgress}%</div>
                             </div>
                           </div>
                         </div>
 
                         {/* Video Player */}
                         <div className="bg-black relative">
-                          <video
-                            ref={videoRef}
-                            key={selectedVideo.id}
-                            className="w-full aspect-video"
-                            controls
-                            autoPlay
-                            src={selectedVideo.videoUrl}
-                            onLoadedMetadata={() => {
-                              if (videoRef.current) {
-                                videoRef.current.playbackRate = playbackSpeed;
-                              }
-                            }}
-                          >
-                            Your browser does not support the video tag.
-                          </video>
+                          <div className="w-full aspect-video">
+                            {selectedVideo?.videoUrl ? (
+                              <div id="youtube-player" className="w-full h-full" />
+                            ) : (
+                              <p className="text-white text-sm">Not Found</p>
+                            )}
+
+                          </div>
+
                         </div>
 
                         {/* Video Content Tabs */}
@@ -436,17 +586,16 @@ export default function CourseDetails({
                                 <BookOpen className="h-4 w-4 mr-2" />
                                 Overview
                               </TabsTrigger>
-                              <TabsTrigger value="resources" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600">
-                                <Download className="h-4 w-4 mr-2" />
-                                Resources
+                              <TabsTrigger
+                                value="questions"
+                                className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600"
+                              >
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Questions
                               </TabsTrigger>
                               <TabsTrigger value="notes" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600">
                                 <FileText className="h-4 w-4 mr-2" />
                                 Notes ({notes.length})
-                              </TabsTrigger>
-                              <TabsTrigger value="settings" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600">
-                                <Settings className="h-4 w-4 mr-2" />
-                                Settings
                               </TabsTrigger>
                             </TabsList>
                           </div>
@@ -454,33 +603,12 @@ export default function CourseDetails({
                           {/* Overview Tab */}
                           <TabsContent value="overview" className="p-6 m-0">
                             <div className="space-y-6">
-                              {/* Quick Actions */}
                               <div className="flex items-center gap-3 flex-wrap">
-                                {completedLectures.has(selectedVideo.id) ? (
-                                  <Badge className="bg-green-500 px-4 py-2">
-                                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                                    Completed
-                                  </Badge>
-                                ) : (
-                                  <Button
-                                    onClick={handleMarkAsComplete}
-                                    className="bg-gradient-to-r from-violet-600 to-cyan-500"
-                                  >
-                                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                                    Mark as Complete
-                                  </Button>
-                                )}
-                                <Button variant="outline">
-                                  <Bookmark className="h-4 w-4 mr-2" />
-                                  Bookmark
-                                </Button>
+                                <Badge className="bg-blue-500 px-4 py-2">
+                                  Watching
+                                </Badge>
                               </div>
 
-                              {/* Lecture Description */}
-                              <div>
-                                <h4 className="text-lg mb-2">About This Lecture</h4>
-                                <p className="text-gray-600">{selectedVideo.description}</p>
-                              </div>
 
                               {/* Navigation */}
                               <div className="grid grid-cols-2 gap-3">
@@ -532,57 +660,28 @@ export default function CourseDetails({
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm">Course Progress</span>
-                                    <span className="text-sm text-violet-600">{progressPercentage}% Complete</span>
+                                    <span className="text-sm text-violet-600">{courseProgress}% Complete</span>
                                   </div>
                                   <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
                                       className="bg-gradient-to-r from-violet-600 to-cyan-500 h-2 rounded-full transition-all duration-300"
-                                      style={{ width: `${progressPercentage}%` }}
+                                      style={{ width: `${courseProgress}%` }}
                                     />
                                   </div>
                                   <p className="text-xs text-gray-600 mt-2">
-                                    {completedCount} of {totalLectures} lectures completed
+                                    Progress is calculated automatically
                                   </p>
+
                                 </CardContent>
                               </Card>
                             </div>
                           </TabsContent>
 
-                          {/* Resources Tab */}
-                          <TabsContent value="resources" className="p-6 m-0">
-                            <h4 className="text-lg mb-4">Downloadable Resources</h4>
-                            {selectedVideo.resources && selectedVideo.resources.length > 0 ? (
-                              <div className="space-y-2">
-                                {selectedVideo.resources.map((resource, index) => (
-                                  <Card
-                                    key={index}
-                                    className="cursor-pointer hover:shadow-md transition-shadow duration-200"
-                                    onClick={() => handleDownloadResource(resource)}
-                                  >
-                                    <CardContent className="p-4">
-                                      <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                          <div className="w-10 h-10 bg-gradient-to-r from-violet-600 to-cyan-500 rounded flex items-center justify-center">
-                                            <FileText className="h-5 w-5 text-white" />
-                                          </div>
-                                          <div>
-                                            <p className="text-sm">{resource}</p>
-                                            <p className="text-xs text-gray-500">PDF Document</p>
-                                          </div>
-                                        </div>
-                                        <Button size="sm" variant="outline">
-                                          <Download className="h-4 w-4 mr-1" />
-                                          Download
-                                        </Button>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-gray-500 text-center py-8">No resources available for this lecture</p>
-                            )}
+                          <TabsContent value="questions">
+                            <VideoQuestions videoId={selectedVideo.id} />
                           </TabsContent>
+
+
 
                           {/* Notes Tab */}
                           <TabsContent value="notes" className="p-6 m-0">
@@ -619,7 +718,7 @@ export default function CourseDetails({
                                       <div className="flex items-start justify-between mb-2">
                                         <Badge variant="outline" className="text-xs">
                                           <Clock className="h-3 w-3 mr-1" />
-                                          {formatTime(note.videoTime)}
+                                          {formatDuration(note.videoTime)}
                                         </Badge>
                                         <span className="text-xs text-gray-500">{note.timestamp}</span>
                                       </div>
@@ -631,52 +730,6 @@ export default function CourseDetails({
                             ) : (
                               <p className="text-gray-500 text-center py-8">No notes yet. Add your first note!</p>
                             )}
-                          </TabsContent>
-
-                          {/* Settings Tab */}
-                          <TabsContent value="settings" className="p-6 m-0">
-                            <h4 className="text-lg mb-4">Video Settings</h4>
-
-                            {/* Playback Speed */}
-                            <Card className="mb-4">
-                              <CardContent className="p-4">
-                                <h5 className="mb-3">Playback Speed</h5>
-                                <div className="grid grid-cols-5 gap-2">
-                                  {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((speed) => (
-                                    <Button
-                                      key={speed}
-                                      variant={playbackSpeed === speed ? "default" : "outline"}
-                                      size="sm"
-                                      onClick={() => handleSpeedChange(speed)}
-                                      className={playbackSpeed === speed ? "bg-gradient-to-r from-violet-600 to-cyan-500" : ""}
-                                    >
-                                      {speed}x
-                                    </Button>
-                                  ))}
-                                </div>
-                              </CardContent>
-                            </Card>
-
-                            {/* Video Quality Info */}
-                            <Card>
-                              <CardContent className="p-4">
-                                <h5 className="mb-3">Video Information</h5>
-                                <div className="space-y-2 text-sm">
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Quality:</span>
-                                    <span>Auto (720p)</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Speed:</span>
-                                    <span>{playbackSpeed}x</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-gray-600">Duration:</span>
-                                    <span>{selectedVideo.duration}</span>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
                           </TabsContent>
                         </Tabs>
                       </div>
@@ -710,7 +763,7 @@ export default function CourseDetails({
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5" />
-                        <span>42 hours</span>
+                        <span>{totalDuration}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Globe className="h-5 w-5" />
@@ -719,8 +772,12 @@ export default function CourseDetails({
                     </div>
 
                     <div className="mb-6">
-                      <p className="text-gray-600">Created by <span className="text-cyan-600">Sarah Johnson</span></p>
-                    </div>
+                      <p className="text-gray-600">
+                        Created by{" "}
+                        <span className="text-cyan-600">
+                          {course?.instructor_name}
+                        </span>
+                      </p>                    </div>
 
                     {/* Progress Bar for Enrolled Students */}
                     {isEnrolled && (
@@ -733,17 +790,16 @@ export default function CourseDetails({
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-sm">Your Progress</span>
-                              <span className="text-sm text-violet-600">{progressPercentage}% Complete</span>
+                              <span className="text-sm text-violet-600">{courseProgress}% Complete</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2.5">
                               <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${progressPercentage}%` }}
+                                animate={{ width: `${courseProgress}%` }}
                                 transition={{ duration: 0.5 }}
                                 className="bg-gradient-to-r from-violet-600 to-cyan-500 h-2.5 rounded-full"
                               />
                             </div>
-                            <p className="text-xs text-gray-600 mt-2">{completedCount} of {totalLectures} lectures completed</p>
                           </CardContent>
                         </Card>
                       </motion.div>
@@ -816,39 +872,25 @@ export default function CourseDetails({
                                     {section.lectures.map((lecture) => (
                                       <div
                                         key={lecture.id}
-                                        className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-200 ${isEnrolled
-                                          ? 'hover:bg-violet-50 cursor-pointer'
-                                          : 'opacity-60'
+                                        className={`flex items-center gap-3 py-3 px-3 rounded-lg transition-all duration-200 ${isEnrolled ? 'hover:bg-violet-50 cursor-pointer' : 'opacity-60'
                                           }`}
                                         onClick={() => handleLectureClick(lecture)}
                                       >
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${completedLectures.has(lecture.id)
-                                          ? 'bg-green-500'
-                                          : isEnrolled
-                                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500'
-                                            : 'bg-gray-300'
-                                          }`}>
-                                          {completedLectures.has(lecture.id) ? (
-                                            <CheckCircle2 className="h-4 w-4 text-white" />
-                                          ) : isEnrolled ? (
-                                            <Play className="h-4 w-4 text-white" />
-                                          ) : (
-                                            <Lock className="h-4 w-4 text-white" />
-                                          )}
+                                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-r from-violet-600 to-cyan-500">
+                                          <Play className="h-4 w-4 text-white" />
                                         </div>
+
                                         <div className="flex-1">
                                           <p className="text-sm">{lecture.title}</p>
-                                          <p className="text-xs text-gray-500">{lecture.duration}</p>
+                                          <p className="text-xs text-gray-500">
+                                            {formatDuration(lecture.duration)}
+                                          </p>
                                         </div>
-                                        {completedLectures.has(lecture.id) && (
-                                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                            Completed
-                                          </Badge>
-                                        )}
                                       </div>
                                     ))}
                                   </div>
                                 </AccordionContent>
+
                               </AccordionItem>
                             ))}
                           </Accordion>
@@ -866,8 +908,8 @@ export default function CourseDetails({
                               className="w-24 h-24 rounded-full object-cover"
                             />
                             <div>
-                              <h2 className="text-2xl mb-2">Sarah Johnson</h2>
-                              <p className="text-gray-600 mb-4">Senior Full Stack Developer at Tech Corp</p>
+                              <h2 className="text-2xl mb-2"> {course?.instructor_name} </h2>
+                              <p className="text-gray-600 mb-4">Course Instructor</p>                            
                             </div>
                           </div>
                         </CardContent>

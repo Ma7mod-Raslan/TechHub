@@ -51,6 +51,8 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [courseDurations, setCourseDurations] = useState<Record<number, number>>({});
+
 
 
   const menuItems = [
@@ -85,6 +87,61 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
     fetchCourses();
   }, []);
+
+  useEffect(() => {
+    if (!courses.length) return;
+
+    const fetchDurations = async () => {
+      const durations: Record<number, number> = {};
+
+      await Promise.all(
+        courses.map(async (course) => {
+          try {
+            const res = await fetch(
+              `http://localhost:3000/api/courses/${course.id}/videos`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              }
+            );
+
+            if (!res.ok) {
+              durations[course.id] = 0;
+              return;
+            }
+
+            const videos = await res.json();
+
+            const totalSeconds = videos.reduce(
+              (sum: number, v: any) => sum + (Number(v.duration) || 0),
+              0
+            );
+
+            durations[course.id] = totalSeconds;
+          } catch (err) {
+            durations[course.id] = 0;
+          }
+        })
+      );
+
+      setCourseDurations(durations);
+    };
+
+    fetchDurations();
+  }, [courses]);
+
+
+  const formatDuration = (seconds?: number) => {
+    if (!seconds || seconds <= 0) return "—";
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  };
+
 
 
 
@@ -131,7 +188,8 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
             <span>{course.rating ?? 4.8}</span>
             <span>•</span>
             <Clock className="h-4 w-4" />
-            <span>{course.duration ?? "—"}</span>
+            <span> {formatDuration(courseDurations[course.id])} </span>
+
           </div>
           <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
             <ShoppingBag className="mr-2 h-4 w-4" />
@@ -164,7 +222,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
             <span>{course.rating ?? 4.8}</span>
             <span>•</span>
             <Clock className="h-4 w-4" />
-            <span>{course.duration ?? "—"}</span>
+            <span>{formatDuration(courseDurations[course.id])}</span>
           </div>
           {course.progress === 100 ? (
             <div className="mb-4 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-100 to-cyan-100 rounded-lg py-2">
