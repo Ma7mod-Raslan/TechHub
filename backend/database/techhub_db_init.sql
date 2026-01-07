@@ -97,6 +97,17 @@ CREATE TABLE assignments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE video_notes (
+  id SERIAL PRIMARY KEY,
+  student_id INTEGER NOT NULL,
+  video_id INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  updated_at TIMESTAMP DEFAULT NOW(),
+  CONSTRAINT fk_note_student FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_note_video FOREIGN KEY (video_id) REFERENCES course_videos(id) ON DELETE CASCADE,
+  CONSTRAINT unique_student_video_note UNIQUE (student_id, video_id)
+);
+
 CREATE TABLE submissions (
   id SERIAL PRIMARY KEY,
   assignment_id INT REFERENCES assignments(id) ON DELETE CASCADE,

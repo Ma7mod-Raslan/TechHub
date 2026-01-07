@@ -15,6 +15,7 @@ import authRoutes from "./routes/auth.js";
 import coursesRoutes from "./routes/courses.js";
 import videosRoutes from "./routes/videos.js";
 import meRoutes from "./routes/me.js";
+import videoNotesRoutes from "./routes/videoNotes.js";
 import videoQuestionsRoutes from "./routes/videoQuestions.js";
 
 // ===== Create app =====
@@ -46,6 +47,9 @@ app.use("/api/courses", videosRoutes);
 
 // Practice questions (video questions)
 app.use("/api", videoQuestionsRoutes);
+
+// Video notes
+app.use("/api", videoNotesRoutes);
 
 // User profile
 app.use("/api/me", meRoutes);
