@@ -17,6 +17,7 @@ import videosRoutes from "./routes/videos.js";
 import meRoutes from "./routes/me.js";
 import videoNotesRoutes from "./routes/videoNotes.js";
 import videoQuestionsRoutes from "./routes/videoQuestions.js";
+import videoProgrssRoutes from "./routes/videoProgress.js";
 
 // ===== Create app =====
 const app = express();
@@ -47,6 +48,9 @@ app.use("/api/courses", videosRoutes);
 
 // Practice questions (video questions)
 app.use("/api", videoQuestionsRoutes);
+
+// Video Progress
+app.use("/api", videoProgressRoutes);
 
 // Video notes
 app.use("/api", videoNotesRoutes);
