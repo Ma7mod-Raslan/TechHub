@@ -108,7 +108,7 @@ router.get(
           c.id,
           c.title,
           c.thumbnail,
-          u.name AS instructor_name
+          u.full_name AS instructor_name
         FROM enrollments e
         JOIN courses c ON c.id = e.course_id
         JOIN users u ON u.id = c.instructor_id
