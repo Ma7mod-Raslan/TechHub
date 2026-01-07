@@ -6,7 +6,7 @@ import { uploadProfileImage } from "../services/cloudinary.js";
 
 const router = express.Router();
 
-
+// Update profile image
 router.put(
   "/profile-image",
   authMiddleware,
@@ -34,7 +34,7 @@ router.put(
   }
 );
 
-
+// Get user profile
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const result = await db.query(
@@ -90,5 +90,78 @@ router.get("/", authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Get enrolled courses with progress
+router.get(
+  "/my-courses",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const studentId = req.user.id;
+
+      /**
+       * Get enrolled courses basic info
+       */
+      const coursesRes = await db.query(
+        `
+        SELECT
+          c.id,
+          c.title,
+          c.thumbnail,
+          u.name AS instructor_name
+        FROM enrollments e
+        JOIN courses c ON c.id = e.course_id
+        JOIN users u ON u.id = c.instructor_id
+        WHERE e.user_id = $1
+        `,
+        [studentId]
+      );
+
+      const courses = coursesRes.rows;
+
+      /**
+       * For each course, compute progress
+       */
+      for (const course of courses) {
+        // total videos in course
+        const totalRes = await db.query(
+          `
+          SELECT COUNT(*) 
+          FROM course_videos
+          WHERE course_id = $1
+          `,
+          [course.id]
+        );
+
+        // completed videos by student
+        const completedRes = await db.query(
+          `
+          SELECT COUNT(*) 
+          FROM student_video_progress svp
+          JOIN course_videos cv ON cv.id = svp.video_id
+          WHERE svp.student_id = $1
+            AND svp.is_completed = true
+            AND cv.course_id = $2
+          `,
+          [studentId, course.id]
+        );
+
+        const total = Number(totalRes.rows[0].count);
+        const completed = Number(completedRes.rows[0].count);
+
+        course.enrolled = true;
+        course.progress_percentage =
+          total === 0 ? 0 : Math.round((completed / total) * 100);
+      }
+
+      res.json(courses);
+
+    } catch (err) {
+      console.error("Get enrolled courses error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
 
 export default router;
