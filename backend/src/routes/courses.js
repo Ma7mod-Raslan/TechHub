@@ -635,7 +635,7 @@ router.delete(
 /* ---------------------------------------
     PUBLIC: Get course details with videos, outcomes, requirements
 --------------------------------------- */
-router.get("/courses/:courseId", async (req, res) => {
+router.get("/all-info/:courseId", async (req, res) => {
   try {
     const { courseId } = req.params;
 
