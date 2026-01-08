@@ -63,7 +63,6 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard', active: true },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-    { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },
@@ -181,10 +180,6 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                     <Plus className="mr-2 h-5 w-5" />
                     Create New Course
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('instructor-analytics')}>
-                    <BarChart3 className="mr-2 h-5 w-5" />
-                    View Analytics
-                  </Button>
                   <Button variant="outline" onClick={() => navigate('community')}>
                     <MessageSquare className="mr-2 h-5 w-5" />
                     View Messages
@@ -193,43 +188,7 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
               </CardContent>
             </Card>
 
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
-              {/* Enrollment Trends */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Enrollment Trends</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={enrollmentData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="students" stroke="#0891b2" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Revenue */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Revenue Growth</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={revenueData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="revenue" fill="#0891b2" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
+            
 
             {/* Recent Courses */}
             <Card>

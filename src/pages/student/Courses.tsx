@@ -187,6 +187,20 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
     );
   }, [searchQuery, myCourses]);
 
+  const filteredAllCourses = React.useMemo(() => {
+    if (!Array.isArray(allCourses)) return [];
+
+    if (!searchQuery.trim()) return allCourses;
+
+    const query = searchQuery.toLowerCase();
+
+    return allCourses.filter((course) =>
+      course.title.toLowerCase().includes(query) ||
+      course.instructor_name.toLowerCase().includes(query)
+    );
+  }, [searchQuery, allCourses]);
+
+
 
 
 
@@ -309,8 +323,8 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 </Button>
 
                 <div className="flex-1">
-                  <h1 className="text-xl">My Courses</h1>
-                  <p className="text-gray-600 text-sm">Track your learning progress</p>
+                  <h1 className="text-xl">Courses</h1>
+                  <p className="text-gray-600 text-sm">Explor All Courses</p>
                 </div>
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
               </div>
@@ -329,8 +343,8 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
             {/* Desktop: Single-row layout with search in the middle */}
             <div className="hidden lg:flex items-center justify-between gap-6">
               <div className="flex-shrink-0">
-                <h1 className="text-2xl">My Courses</h1>
-                <p className="text-gray-600">Track your learning progress</p>
+                <h1 className="text-2xl">Courses</h1>
+                <p className="text-gray-600">Explor All Courses</p>
               </div>
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -383,7 +397,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 </p>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {allCourses.map(renderAllCoursesCard)}
+                  {filteredAllCourses.map(renderAllCoursesCard)}
                 </div>
               )
             )}

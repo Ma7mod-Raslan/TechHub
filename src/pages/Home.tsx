@@ -8,6 +8,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import AIAssistant from '../components/AIAssistant';
+import { COURSE_CATEGORIES } from '../constants/courseCategories';
 
 interface HomeProps {
   navigate: (page: string) => void;
@@ -102,16 +103,30 @@ const stats = [
 export default function Home({ navigate, isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
   const [allTestimonials, setAllTestimonials] = useState(testimonials);
+  const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
+
 
   useEffect(() => {
     // Load user testimonials from localStorage
     const userTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
-    
+
     // Combine user testimonials with default ones
     // Show latest 3 user testimonials first, then default ones
     const combined = [...userTestimonials.slice(-3).reverse(), ...testimonials].slice(0, 3);
     setAllTestimonials(combined);
   }, []);
+
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/courses")
+      .then(res => res.json())
+      .then(data => {
+        const shuffled = [...data.courses].sort(() => 0.5 - Math.random());
+        setFeaturedCourses(shuffled.slice(0, 4));
+      })
+      .catch(err => console.error(err));
+  }, []);
+
 
   const handleRoleSelect = (role: 'student' | 'instructor') => {
     setSelectedRole(role);
@@ -131,7 +146,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
-        
+
         <div className="container mx-auto px-4 py-12 sm:py-16 md:py-20 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
@@ -148,7 +163,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Learn from industry experts, build real projects, and accelerate your career in technology with TechHub's comprehensive courses.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4">
                 {!isLoggedIn ? (
                   <>
@@ -160,15 +175,16 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button 
-                      size="lg" 
-                      variant="outline" 
-                      onClick={() => navigate('course-details')}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => navigate('all-courses')}
                       className="transition-all duration-300 w-full sm:w-auto"
                     >
                       <BookOpen className="mr-2 h-5 w-5" />
                       Browse Courses
                     </Button>
+
                   </>
                 ) : userRole === 'instructor' ? (
                   <>
@@ -217,7 +233,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                   className="rounded-2xl shadow-2xl"
                 />
               </div>
-              
+
             </motion.div>
           </div>
         </div>
@@ -372,23 +388,26 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                 <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('course-details')}>
                   <div className="relative">
                     <ImageWithFallback
-                      src={course.image}
+                      src={course.thumbnail}
                       alt={course.title}
                       className="w-full h-48 object-cover"
                     />
+
                     <Badge className="absolute top-2 right-2 bg-white text-gray-900">
                       {course.level}
                     </Badge>
+
                   </div>
                   <CardContent className="p-4">
-                    <Badge className="mb-2">{course.category}</Badge>
+                    <Badge className="mb-2">
+                      {COURSE_CATEGORIES[course.category] ?? course.category}
+                    </Badge>
                     <h3 className="mb-2 line-clamp-2">{course.title}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{course.instructor}</p>
+                    <p className="text-sm text-gray-600 mb-3"> {course.instructor_name}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">{course.rating}</span>
-                        <span className="text-xs text-gray-500">({course.students.toLocaleString()})</span>
+                        <span className="text-sm">4.8</span>
                       </div>
                     </div>
                   </CardContent>
@@ -447,7 +466,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
           </div>
         </div>
       </section>
-      <AIAssistant/>
+      <AIAssistant />
 
       <Footer navigate={navigate} />
     </div>

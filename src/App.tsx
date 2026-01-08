@@ -12,7 +12,6 @@ import InstructorCourses from './pages/instructor/MyCourses';
 import InstructorCourseView from './pages/instructor/CourseView';
 import InstructorEditCourse from './pages/instructor/EditCourse';
 import InstructorCreateCourse from './pages/instructor/CreateCourse';
-import InstructorAnalytics from './pages/instructor/Analytics';
 import InstructorProfile from './pages/instructor/Profile';
 import InstructorSettings from './pages/instructor/Settings';
 import InstructorNotifications from './pages/instructor/Notifications';
@@ -104,8 +103,6 @@ export default function App() {
         return <InstructorEditCourse navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case 'instructor-create-course':
         return <InstructorCreateCourse navigate={navigate} logout={logout} userRole="instructor" />;
-      case 'instructor-analytics':
-        return <InstructorAnalytics navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-profile':
         return <InstructorProfile navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-settings':

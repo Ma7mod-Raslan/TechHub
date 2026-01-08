@@ -63,7 +63,6 @@ export default function InstructorCreateCourse({
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
-    { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },
@@ -378,6 +377,7 @@ export default function InstructorCreateCourse({
                       />
                       <Button
                         type="button"
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                         onClick={() => {
                           if (!outcomeInput.trim()) return;
                           setOutcomes([...outcomes, outcomeInput]);
@@ -409,6 +409,7 @@ export default function InstructorCreateCourse({
                       />
                       <Button
                         type="button"
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                         onClick={() => {
                           if (!requirementInput.trim()) return;
                           setRequirements([...requirements, requirementInput]);

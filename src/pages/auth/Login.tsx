@@ -37,12 +37,7 @@ export default function Login({ navigate }: LoginProps) {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("user");
-    localStorage.removeItem("pendingVerification");
 
-  }, []);
 
 
   // Choose the password rule to apply for the app
@@ -73,7 +68,19 @@ export default function Login({ navigate }: LoginProps) {
       const { token, user } = res.data;
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(user));
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success("Logged in successfully");
+      const redirect = localStorage.getItem('redirectAfterAuth');
+
+      if (redirect) {
+        const parsed = JSON.parse(redirect);
+        localStorage.removeItem('redirectAfterAuth');
+
+        navigate(parsed.page);
+        return;
+      }
+
+
 
       if (user.role === "admin") navigate("admin-dashboard", "admin");
       else if (user.role === "instructor") navigate("instructor-dashboard", "instructor");
@@ -117,6 +124,7 @@ export default function Login({ navigate }: LoginProps) {
 
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(backendUser));
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success("Signed in with Google");
 
       if (backendUser.role === "admin") navigate("admin-dashboard", "admin");
@@ -189,7 +197,7 @@ export default function Login({ navigate }: LoginProps) {
 
             <div className="relative my-6">
               <Separator />
-              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">Or continue with</span>
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">Or continue as Student with</span>
             </div>
 
             {/* Pass the callback and client id here */}
