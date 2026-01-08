@@ -647,7 +647,7 @@ router.get("/all-info/:courseId", async (req, res) => {
     const courseRes = await db.query(
       `
       SELECT
-        c.course_id,
+        c.id,
         c.title,
         c.description,
         c.thumbnail,
