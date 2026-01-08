@@ -300,20 +300,39 @@ router.delete(
     GET course videos progress for student
 --------------------------------------- */
 router.get(
-  "/courses/:courseId/videos-progress",
+  "/:courseId/videos/progress",
   authMiddleware,
   async (req, res) => {
     try {
       const studentId = req.user.id;
       const { courseId } = req.params;
 
-      const result = await db.query(
+      /**
+       * 1️⃣ Check enrollment
+       */
+      const enrollRes = await db.query(
+        `
+        SELECT 1
+        FROM enrollments
+        WHERE user_id = $1 AND course_id = $2
+        `,
+        [studentId, courseId]
+      );
+
+      if (enrollRes.rows.length === 0) {
+        return res.status(403).json({
+          error: "You are not enrolled in this course"
+        });
+      }
+
+      /**
+       * 2️⃣ Get videos with completion status
+       */
+      const videosRes = await db.query(
         `
         SELECT
-          cv.id AS video_id,
-          cv.title,
-          cv.duration,
-          cv.video_order,
+          cv.id,
+          cv.video_url,
           COALESCE(svp.is_completed, false) AS is_completed
         FROM course_videos cv
         LEFT JOIN student_video_progress svp
@@ -325,17 +344,15 @@ router.get(
         [studentId, courseId]
       );
 
-      res.json({
-        course_id: courseId,
-        total_videos: result.rows.length,
-        videos: result.rows
-      });
+      res.json(videosRes.rows);
+
     } catch (err) {
-      console.error("Get videos progress error:", err);
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Get course videos progress error:", err);
+      res.status(500).json({ error: err.message });
     }
   }
 );
+
 
 
 /* ---------- 
