@@ -185,7 +185,7 @@ export default function CourseDetails({
   const checkEnrollment = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/courses/${id}/videos`,
+        "http://localhost:3000/api/me/my-courses",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -193,11 +193,15 @@ export default function CourseDetails({
         }
       );
 
-      return res.ok; // 200 = enrolled
+      if (!res.ok) return false;
+
+      const courses = await res.json();
+      return courses.some((c: any) => c.id === id);
     } catch {
       return false;
     }
   };
+
 
   useEffect(() => {
     if ((window as any).YT) return;
@@ -332,7 +336,7 @@ export default function CourseDetails({
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/videos/${selectedVideo.id}/note`,
+        `http://localhost:3000/api/videos/${selectedVideo.id}/notes`,
         {
           method: "POST",
           headers: {
@@ -341,39 +345,39 @@ export default function CourseDetails({
           },
           body: JSON.stringify({
             content: newNote,
-            video_time: currentTime, // 👈 لو حابة تبعتيها للـ backend
+            video_timestamp: currentTime,
           }),
         }
       );
 
       const data = await res.json();
 
-      setNotes([
+      setNotes(prev => [
+        ...prev,
         {
-          id: data.note.id,
-          content: data.note.content,
-          timestamp: new Date(data.note.updated_at).toLocaleString(),
-          videoTime: currentTime,
+          id: data.id,
+          content: data.content,
+          timestamp: new Date(data.created_at).toLocaleString(),
+          videoTime: data.video_timestamp ?? 0,
         },
       ]);
 
       setNewNote('');
-      toast.success("Note saved successfully");
+      toast.success("Note added");
     } catch {
-      toast.error("Failed to save note");
+      toast.error("Failed to add note");
     }
   };
 
 
-  const deleteNote = async (noteId: number) => {
-    if (!selectedVideo) return;
 
+  const deleteNote = async (noteId: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this note?");
     if (!confirmDelete) return;
 
     try {
       await fetch(
-        `http://localhost:3000/api/videos/${selectedVideo.id}/note`,
+        `http://localhost:3000/api/notes/${noteId}`,
         {
           method: "DELETE",
           headers: {
@@ -382,7 +386,7 @@ export default function CourseDetails({
         }
       );
 
-      setNotes((prev) => prev.filter(note => note.id !== noteId));
+      setNotes(prev => prev.filter(note => note.id !== noteId));
       toast.success("Note deleted");
     } catch {
       toast.error("Failed to delete note");
@@ -400,16 +404,18 @@ export default function CourseDetails({
 
 
 
+
+
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const fetchVideoNote = async (videoId: number) => {
+  const fetchVideoNotes = async (videoId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/videos/${videoId}/note`,
+        `http://localhost:3000/api/videos/${videoId}/notes`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -421,22 +427,21 @@ export default function CourseDetails({
 
       const data = await res.json();
 
-      if (data) {
-        setNotes([
-          {
-            id: data.id,
-            content: data.content,
-            timestamp: new Date(data.updated_at).toLocaleString(),
-            videoTime: 0,
-          },
-        ]);
-      } else {
-        setNotes([]);
-      }
+      setNotes(
+        data.map((note: any) => ({
+          id: note.id,
+          content: note.content,
+          timestamp: new Date(
+            note.updated_at ?? note.created_at
+          ).toLocaleString(),
+          videoTime: note.video_timestamp ?? 0,
+        }))
+      );
     } catch (err) {
       console.error(err);
     }
   };
+
 
 
   const currentLectureIndex = selectedVideo ? allLectures.findIndex(l => l.id === selectedVideo.id) : -1;
@@ -452,7 +457,7 @@ export default function CourseDetails({
 
   useEffect(() => {
     if (!selectedVideo) return;
-    fetchVideoNote(selectedVideo.id);
+    fetchVideoNotes(selectedVideo.id);
 
     if (!(window as any).YT) return;
 
@@ -500,17 +505,12 @@ export default function CourseDetails({
   };
 
   const sendProgress = async () => {
-    if (!playerRef.current) return;
+    if (!playerRef.current || !selectedVideo) return;
 
-    const currentTime = Math.floor(
-      playerRef.current.getCurrentTime()
-    );
+    const currentTime = Math.floor(playerRef.current.getCurrentTime());
     if (currentTime <= 0) return;
-    if (!selectedVideo) return;
 
-
-
-    await fetch(
+    const res = await fetch(
       `http://localhost:3000/api/videos/${selectedVideo.id}/progress`,
       {
         method: "POST",
@@ -523,6 +523,22 @@ export default function CourseDetails({
         }),
       }
     );
+
+    const data = await res.json();
+    console.log("progress response:", data);
+
+    if (data.completed) {
+      setCourseSections(prev =>
+        prev.map(section => ({
+          ...section,
+          lectures: section.lectures.map(lecture =>
+            lecture.id === selectedVideo.id
+              ? { ...lecture, completed: true }
+              : lecture
+          ),
+        }))
+      );
+    }
 
     fetchCourseProgress();
   };
@@ -737,7 +753,7 @@ export default function CourseDetails({
                                         </div>
                                         <div className="flex-1">
                                           <p className="mb-1">{allLectures[currentLectureIndex + 1].title}</p>
-                                          <p className="text-sm text-gray-500">{allLectures[currentLectureIndex + 1].duration}</p>
+                                          <p className="text-sm text-gray-500">{formatDuration(allLectures[currentLectureIndex + 1].duration)}</p>
                                         </div>
                                       </div>
                                     </CardContent>
@@ -999,9 +1015,17 @@ export default function CourseDetails({
                                           }`}
                                         onClick={() => handleLectureClick(lecture)}
                                       >
-                                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-r from-violet-600 to-cyan-500">
-                                          <Play className="h-4 w-4 text-white" />
+                                        <div
+                                          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                                          ${lecture.completed ? "bg-green-500" : "bg-gradient-to-r from-violet-600 to-cyan-500"}`}
+                                        >
+                                          {lecture.completed ? (
+                                            <CheckCircle2 className="h-4 w-4 text-white" />
+                                          ) : (
+                                            <Play className="h-4 w-4 text-white" />
+                                          )}
                                         </div>
+
 
                                         <div className="flex-1">
                                           <p className="text-sm">{lecture.title}</p>

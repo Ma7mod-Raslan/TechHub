@@ -136,25 +136,16 @@ export default function Verification({ navigate, email, role }: VerificationProp
         throw new Error("Invalid verification response");
       }
 
-      // ✅ خزني
-      localStorage.setItem("accessToken", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
-      // header للـ axios
-      api.defaults.headers.common["Authorization"] =
-        `Bearer ${res.data.token}`;
-
       localStorage.removeItem("pendingVerification");
 
       toast.success("Email verified successfully!");
 
+      toast.success("Email verified successfully! Please login.");
+
       setTimeout(() => {
-        if (res.data.user.role === "instructor") {
-          navigate("instructor-dashboard", "instructor");
-        } else {
-          navigate("student-dashboard", "student");
-        }
+        navigate("login");
       }, 500);
+
 
 
     } catch (err: any) {

@@ -75,7 +75,6 @@ export default function InstructorCourseView({
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
     { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
-    { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },
