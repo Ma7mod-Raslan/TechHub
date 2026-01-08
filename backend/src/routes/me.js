@@ -235,7 +235,9 @@ router.get(
     try {
       const studentId = req.user.id;
 
-      // 1️⃣ Total enrolled courses
+      /**
+       * 1️⃣ Total enrolled courses
+       */
       const enrolledRes = await db.query(
         `
         SELECT COUNT(*) 
@@ -245,7 +247,9 @@ router.get(
         [studentId]
       );
 
-      // 2️⃣ Total time spent (seconds)
+      /**
+       * 2️⃣ Total time spent (seconds)
+       */
       const timeRes = await db.query(
         `
         SELECT COALESCE(SUM(watched_duration), 0) AS total_time
@@ -255,20 +259,15 @@ router.get(
         [studentId]
       );
 
-      // 3️⃣ Total completed courses
+      /**
+       * 3️⃣ Total completed courses (NEW LOGIC)
+       */
       const completedRes = await db.query(
         `
-        SELECT COUNT(*) FROM (
-          SELECT cv.course_id
-          FROM course_videos cv
-          JOIN student_video_progress svp
-            ON svp.video_id = cv.id
-          WHERE svp.student_id = $1
-          GROUP BY cv.course_id
-          HAVING COUNT(*) = SUM(
-            CASE WHEN svp.is_completed = true THEN 1 ELSE 0 END
-          )
-        ) completed_courses
+        SELECT COUNT(*)
+        FROM enrollments
+        WHERE student_id = $1
+          AND completed = true
         `,
         [studentId]
       );
@@ -288,6 +287,7 @@ router.get(
     }
   }
 );
+
 
 
 

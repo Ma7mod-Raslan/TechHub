@@ -24,26 +24,23 @@ router.post(
   authMiddleware,
   async (req, res) => {
     try {
-      // Logged-in student ID (from JWT)
       const studentId = req.user.id;
-
-      // Video being watched
       const videoId = req.params.videoId;
-
-      // Current playback time sent from frontend (in seconds)
       const { current_time } = req.body;
 
-      // Validate request body
       if (current_time === undefined) {
         return res.status(400).json({ error: "current_time is required" });
       }
 
       /**
-       * 1️⃣ Fetch video duration from DB
-       * Backend is the source of truth (not frontend)
+       * 1️⃣ Get video duration + course_id
        */
       const videoRes = await db.query(
-        "SELECT duration FROM course_videos WHERE id=$1",
+        `
+        SELECT id, duration, course_id
+        FROM course_videos
+        WHERE id=$1
+        `,
         [videoId]
       );
 
@@ -51,17 +48,15 @@ router.post(
         return res.status(404).json({ error: "Video not found" });
       }
 
-      const videoDuration = videoRes.rows[0].duration;
-
-      // Prevent storing time greater than video duration
+      const { duration: videoDuration, course_id } = videoRes.rows[0];
       const safeTime = Math.min(current_time, videoDuration);
 
       /**
-       * 2️⃣ Check if progress already exists for this student & video
+       * 2️⃣ Get existing video progress
        */
       const progressRes = await db.query(
         `
-        SELECT watched_duration, is_completed
+        SELECT watched_duration
         FROM student_video_progress
         WHERE student_id=$1 AND video_id=$2
         `,
@@ -71,24 +66,19 @@ router.post(
       let watchedDuration = safeTime;
 
       /**
-       * 3️⃣ Insert or update progress
-       * Rule:
-       *  - We only increase watched_duration
-       *  - We never decrease it (even if student seeks backward)
+       * 3️⃣ Insert / update video progress
        */
       if (progressRes.rows.length === 0) {
-        // First time watching this video
         await db.query(
           `
           INSERT INTO student_video_progress
-          (student_id, video_id, watched_duration)
+            (student_id, video_id, watched_duration)
           VALUES ($1, $2, $3)
           `,
           [studentId, videoId, watchedDuration]
         );
       } else {
         const prev = progressRes.rows[0].watched_duration;
-
         if (safeTime > prev) {
           watchedDuration = safeTime;
           await db.query(
@@ -100,17 +90,16 @@ router.post(
             [watchedDuration, studentId, videoId]
           );
         } else {
-          // Keep previous progress if new value is smaller
           watchedDuration = prev;
         }
       }
 
       /**
-       * 4️⃣ Completion rule
-       * A video is considered completed when:
-       * watched_duration >= 90% of total duration
+       * 4️⃣ Mark video as completed (>= 90%)
        */
-      if (watchedDuration / videoDuration >= 0.9) {
+      const isCompleted = watchedDuration / videoDuration >= 0.9;
+
+      if (isCompleted) {
         await db.query(
           `
           UPDATE student_video_progress
@@ -122,13 +111,67 @@ router.post(
       }
 
       /**
-       * 5️⃣ Response back to frontend
-       * Frontend uses this to update UI (progress bar, completion state)
+       * 5️⃣ Calculate COURSE progress
+       */
+      const totalVideosRes = await db.query(
+        `
+        SELECT COUNT(*) 
+        FROM course_videos
+        WHERE course_id=$1
+        `,
+        [course_id]
+      );
+
+      const completedVideosRes = await db.query(
+        `
+        SELECT COUNT(*) 
+        FROM student_video_progress svp
+        JOIN course_videos cv ON cv.id = svp.video_id
+        WHERE svp.student_id=$1
+          AND svp.is_completed=true
+          AND cv.course_id=$2
+        `,
+        [studentId, course_id]
+      );
+
+      const totalVideos = Number(totalVideosRes.rows[0].count);
+      const completedVideos = Number(completedVideosRes.rows[0].count);
+
+      const courseProgress =
+        totalVideos === 0
+          ? 0
+          : Math.round((completedVideos / totalVideos) * 100);
+
+      const courseCompleted = courseProgress === 100;
+
+      /**
+       * 6️⃣ Update enrollments table
+       */
+      await db.query(
+        `
+        UPDATE enrollments
+        SET
+          progress = $1,
+          completed = $2
+        WHERE student_id = $3
+          AND course_id = $4
+        `,
+        [courseProgress, courseCompleted, studentId, course_id]
+      );
+
+      /**
+       * 7️⃣ Response
        */
       res.json({
-        watched_duration: watchedDuration,
-        duration: videoDuration,
-        completed: watchedDuration / videoDuration >= 0.9
+        video: {
+          watched_duration: watchedDuration,
+          duration: videoDuration,
+          completed: isCompleted
+        },
+        course: {
+          progress: courseProgress,
+          completed: courseCompleted
+        }
       });
 
     } catch (err) {
