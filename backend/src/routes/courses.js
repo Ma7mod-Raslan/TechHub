@@ -633,6 +633,126 @@ router.delete(
 );
 
 /* ---------------------------------------
+    PUBLIC: Get course details with videos, outcomes, requirements
+--------------------------------------- */
+router.get("/courses/:courseId", async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    /**
+     * =========================
+     * Get course main info
+     * =========================
+     */
+    const courseRes = await db.query(
+      `
+      SELECT
+        c.id,
+        c.title,
+        c.description,
+        c.thumbnail,
+        c.category,
+        c.level,
+        u.full_name AS instructor_name
+      FROM courses c
+      JOIN users u ON u.id = c.instructor_id
+      WHERE c.id = $1
+        AND c.status = 'published'
+      `,
+      [courseId]
+    );
+
+    if (courseRes.rows.length === 0) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    const course = courseRes.rows[0];
+
+    /**
+     * =========================
+     * Get course videos
+     * =========================
+     */
+    const videosRes = await db.query(
+      `
+      SELECT
+        id,
+        title,
+        description,
+        duration
+      FROM course_videos
+      WHERE course_id = $1
+      ORDER BY position ASC
+      `,
+      [courseId]
+    );
+
+    /**
+     * =========================
+     * Calculate total duration
+     * =========================
+     */
+    const durationRes = await db.query(
+      `
+      SELECT COALESCE(SUM(duration), 0) AS total_duration
+      FROM course_videos
+      WHERE course_id = $1
+      `,
+      [courseId]
+    );
+
+    /**
+     * =========================
+     * Get outcomes
+     * =========================
+     */
+    const outcomesRes = await db.query(
+      `
+      SELECT outcome
+      FROM course_outcomes
+      WHERE course_id = $1
+      ORDER BY id ASC
+      `,
+      [courseId]
+    );
+
+    /**
+     * =========================
+     * Get requirements
+     * =========================
+     */
+    const requirementsRes = await db.query(
+      `
+      SELECT requirement
+      FROM course_requirements
+      WHERE course_id = $1
+      ORDER BY id ASC
+      `,
+      [courseId]
+    );
+
+    res.json({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      thumbnail: course.thumbnail,
+      category: course.category,
+      level: course.level,
+      instructor_name: course.instructor_name,
+      total_duration: Number(durationRes.rows[0].total_duration),
+      outcomes: outcomesRes.rows.map(o => o.outcome),
+      requirements: requirementsRes.rows.map(r => r.requirement),
+      videos: videosRes.rows
+    });
+
+  } catch (err) {
+    console.error("Get course details error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+/* ---------------------------------------
    GET course details
    - Instructor owner: can see Draft & Published
    - Others: Published only

@@ -296,6 +296,47 @@ router.delete(
   }
 );
 
+/* ---------------------------------------
+    GET course videos progress for student
+--------------------------------------- */
+router.get(
+  "/courses/:courseId/videos-progress",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const studentId = req.user.id;
+      const { courseId } = req.params;
+
+      const result = await db.query(
+        `
+        SELECT
+          cv.id AS video_id,
+          cv.title,
+          cv.duration,
+          cv.video_order,
+          COALESCE(svp.is_completed, false) AS is_completed
+        FROM course_videos cv
+        LEFT JOIN student_video_progress svp
+          ON svp.video_id = cv.id
+         AND svp.student_id = $1
+        WHERE cv.course_id = $2
+        ORDER BY cv.video_order ASC
+        `,
+        [studentId, courseId]
+      );
+
+      res.json({
+        course_id: courseId,
+        total_videos: result.rows.length,
+        videos: result.rows
+      });
+    } catch (err) {
+      console.error("Get videos progress error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
+
 
 /* ---------- 
   GET course videos (only for enrolled students or instructor owner)
