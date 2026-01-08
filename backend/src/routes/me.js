@@ -155,5 +155,72 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
   }
 });
 
+/**
+ * =========================
+ * Get student stats: total enrolled courses, total time spent, total completed courses
+ * =========================
+ */
+router.get(
+  "/stats",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const studentId = req.user.id;
+
+      // 1️⃣ Total enrolled courses
+      const enrolledRes = await db.query(
+        `
+        SELECT COUNT(*) 
+        FROM enrollments
+        WHERE user_id = $1
+        `,
+        [studentId]
+      );
+
+      // 2️⃣ Total time spent (seconds)
+      const timeRes = await db.query(
+        `
+        SELECT COALESCE(SUM(watched_duration), 0) AS total_time
+        FROM student_video_progress
+        WHERE student_id = $1
+        `,
+        [studentId]
+      );
+
+      // 3️⃣ Total completed courses
+      const completedRes = await db.query(
+        `
+        SELECT COUNT(*) FROM (
+          SELECT cv.course_id
+          FROM course_videos cv
+          JOIN student_video_progress svp
+            ON svp.video_id = cv.id
+          WHERE svp.student_id = $1
+          GROUP BY cv.course_id
+          HAVING COUNT(*) = SUM(
+            CASE WHEN svp.is_completed = true THEN 1 ELSE 0 END
+          )
+        ) completed_courses
+        `,
+        [studentId]
+      );
+
+      res.json({
+        total_enrolled_courses: Number(enrolledRes.rows[0].count),
+        total_completed_courses: Number(completedRes.rows[0].count),
+        total_time_spent_seconds: Number(timeRes.rows[0].total_time),
+        total_time_spent_hours: Math.round(
+          Number(timeRes.rows[0].total_time) / 3600
+        )
+      });
+
+    } catch (err) {
+      console.error("Student stats error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
 
 export default router;

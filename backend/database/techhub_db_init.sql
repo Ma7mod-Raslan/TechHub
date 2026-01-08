@@ -14,6 +14,15 @@ CREATE TABLE users (
   google_id VARCHAR(255),
   auth_provider VARCHAR(50) DEFAULT 'local'
 );
+
+CREATE TABLE instructor_profiles (
+  user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  job_title VARCHAR(100),
+  linkedin VARCHAR(255),
+  expertise TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE courses (
   id SERIAL PRIMARY KEY,
   title VARCHAR(150) NOT NULL,
