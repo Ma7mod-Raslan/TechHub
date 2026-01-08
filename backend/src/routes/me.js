@@ -100,6 +100,74 @@ router.get("/", authMiddleware, async (req, res) => {
 
 /**
  * =========================
+ * Update user profile
+ * =========================
+ */
+router.put(
+  "/",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const {
+        full_name,
+        profile_image,
+        bio,
+        job_title,
+        linkedin,
+        expertise
+      } = req.body;
+
+      // 1️⃣ Update users table
+      await db.query(
+        `
+        UPDATE users
+        SET
+          full_name = COALESCE($1, full_name),
+          profile_image = COALESCE($2, profile_image),
+          bio = COALESCE($3, bio)
+        WHERE id = $4
+        `,
+        [full_name, profile_image, bio, userId]
+      );
+
+      // 2️⃣ Check if user is instructor
+      const roleRes = await db.query(
+        "SELECT role FROM users WHERE id=$1",
+        [userId]
+      );
+
+      if (roleRes.rows[0].role === "instructor") {
+        // Upsert instructor profile
+        await db.query(
+          `
+          INSERT INTO instructor_profiles
+            (user_id, job_title, linkedin, expertise)
+          VALUES ($1, $2, $3, $4)
+          ON CONFLICT (user_id)
+          DO UPDATE SET
+            job_title = COALESCE($2, instructor_profiles.job_title),
+            linkedin = COALESCE($3, instructor_profiles.linkedin),
+            expertise = COALESCE($4, instructor_profiles.expertise)
+          `,
+          [userId, job_title, linkedin, expertise]
+        );
+      }
+
+      res.json({
+        message: "Profile updated successfully"
+      });
+
+    } catch (err) {
+      console.error("Update profile error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
+/**
+ * =========================
  * Get enrolled courses with progress (OPTIMIZED)
  * =========================
  */
@@ -172,7 +240,7 @@ router.get(
         `
         SELECT COUNT(*) 
         FROM enrollments
-        WHERE user_id = $1
+        WHERE student_id = $1
         `,
         [studentId]
       );
