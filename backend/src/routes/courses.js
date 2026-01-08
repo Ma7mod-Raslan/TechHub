@@ -657,7 +657,7 @@ router.get("/all-info/:courseId", async (req, res) => {
       FROM courses c
       JOIN users u ON u.id = c.instructor_id
       WHERE c.id = $1
-        AND c.status = 'published'
+        AND c.status = 'Published'
       `,
       [courseId]
     );
@@ -682,7 +682,7 @@ router.get("/all-info/:courseId", async (req, res) => {
         duration
       FROM course_videos
       WHERE course_id = $1
-      ORDER BY position ASC
+      ORDER BY video_order ASC
       `,
       [courseId]
     );
@@ -708,7 +708,7 @@ router.get("/all-info/:courseId", async (req, res) => {
      */
     const outcomesRes = await db.query(
       `
-      SELECT outcome
+      SELECT description
       FROM course_outcomes
       WHERE course_id = $1
       ORDER BY id ASC
@@ -723,7 +723,7 @@ router.get("/all-info/:courseId", async (req, res) => {
      */
     const requirementsRes = await db.query(
       `
-      SELECT requirement
+      SELECT description
       FROM course_requirements
       WHERE course_id = $1
       ORDER BY id ASC
