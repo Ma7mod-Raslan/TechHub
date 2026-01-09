@@ -87,7 +87,7 @@ router.get("/", authMiddleware, async (req, res) => {
       response.instructor_profile = {
         job_title: user.job_title,
         linkedin: user.linkedin,
-        expertise: user.expertise,
+        expertise: user.expertise ?? [],
       };
     }
 
