@@ -740,8 +740,8 @@ router.get("/all-info/:courseId", async (req, res) => {
       level: course.level,
       instructor_name: course.instructor_name,
       total_duration: Number(durationRes.rows[0].total_duration),
-      outcomes: outcomesRes.rows.map(o => o.outcome),
-      requirements: requirementsRes.rows.map(r => r.requirement),
+      outcomes: outcomesRes.rows.map(o => o.description),
+      requirements: requirementsRes.rows.map(r => r.description),
       videos: videosRes.rows
     });
 
