@@ -95,52 +95,110 @@ router.post(
 );
 
 // PUT /api/courses/:courseId/videos/reorder
-router.put('/:courseId/videos/reorder', async (req, res) => {
-  const { videoId, targetVideoId } = req.body;
+router.put(
+  "/:courseId/videos/reorder",
+  authMiddleware,
+  allowRoles("instructor"),
+  async (req, res) => {
+    const { videoId, targetVideoId } = req.body;
+    const { courseId } = req.params;
+    const instructorId = req.user.id;
 
-  const client = await pool.connect();
+    if (!videoId || !targetVideoId) {
+      return res.status(400).json({
+        error: "videoId and targetVideoId are required"
+      });
+    }
 
-  try {
-    await client.query('BEGIN');
+    const client = await db.connect();
 
-    const v1 = await client.query(
-      'SELECT video_order FROM course_videos WHERE id = $1',
-      [videoId]
-    );
+    try {
+      await client.query("BEGIN");
 
-    const v2 = await client.query(
-      'SELECT video_order FROM course_videos WHERE id = $1',
-      [targetVideoId]
-    );
+      // 1️⃣ Check course ownership
+      const courseRes = await client.query(
+        "SELECT instructor_id FROM courses WHERE id=$1",
+        [courseId]
+      );
 
-    const order1 = v1.rows[0].video_order;
-    const order2 = v2.rows[0].video_order;
+      if (courseRes.rows.length === 0) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Course not found" });
+      }
 
-    await client.query(
-      'UPDATE course_videos SET video_order = -1000 WHERE id = $1',
-      [videoId]
-    );
+      if (courseRes.rows[0].instructor_id !== instructorId) {
+        await client.query("ROLLBACK");
+        return res.status(403).json({ error: "Not allowed" });
+      }
 
-    await client.query(
-      'UPDATE course_videos SET video_order = $1 WHERE id = $2',
-      [order1, targetVideoId]
-    );
+      // 2️⃣ Get both videos (ensure same course)
+      const videosRes = await client.query(
+        `
+        SELECT id, video_order
+        FROM course_videos
+        WHERE id IN ($1, $2)
+          AND course_id = $3
+        `,
+        [videoId, targetVideoId, courseId]
+      );
 
-    await client.query(
-      'UPDATE course_videos SET video_order = $1 WHERE id = $2',
-      [order2, videoId]
-    );
+      if (videosRes.rows.length !== 2) {
+        await client.query("ROLLBACK");
+        return res.status(400).json({
+          error: "Both videos must belong to the same course"
+        });
+      }
 
-    await client.query('COMMIT');
-    res.json({ success: true });
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error(err);
-    res.status(500).json({ error: 'Reorder failed' });
-  } finally {
-    client.release();
+      const v1 = videosRes.rows.find(v => v.id == videoId);
+      const v2 = videosRes.rows.find(v => v.id == targetVideoId);
+
+      const order1 = v1.video_order;
+      const order2 = v2.video_order;
+
+      // 3️⃣ Temporary order to avoid unique constraint conflict
+      await client.query(
+        `
+        UPDATE course_videos
+        SET video_order = -1000
+        WHERE id = $1
+        `,
+        [videoId]
+      );
+
+      await client.query(
+        `
+        UPDATE course_videos
+        SET video_order = $1
+        WHERE id = $2
+        `,
+        [order1, targetVideoId]
+      );
+
+      await client.query(
+        `
+        UPDATE course_videos
+        SET video_order = $1
+        WHERE id = $2
+        `,
+        [order2, videoId]
+      );
+
+      await client.query("COMMIT");
+
+      res.json({
+        message: "Videos reordered successfully"
+      });
+
+    } catch (err) {
+      await client.query("ROLLBACK");
+      console.error("Reorder videos error:", err);
+      res.status(500).json({ error: "Reorder failed" });
+    } finally {
+      client.release();
+    }
   }
-});
+);
+
 
 
 /* ---------------------------------------
