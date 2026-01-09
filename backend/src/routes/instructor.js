@@ -20,7 +20,8 @@ router.get(
         `
         SELECT COUNT(*)
         FROM courses
-        WHERE instructor_id = $1
+        WHERE instructor_id = $1 
+        AND status = 'Published'
         `,
         [instructorId]
       );

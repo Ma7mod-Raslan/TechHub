@@ -354,6 +354,53 @@ router.get(
 );
 
 
+// PUT /api/courses/:courseId/videos/reorder
+router.put('/:courseId/videos/reorder', async (req, res) => {
+  const { videoId, targetVideoId } = req.body;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const v1 = await client.query(
+      'SELECT video_order FROM course_videos WHERE id = $1',
+      [videoId]
+    );
+
+    const v2 = await client.query(
+      'SELECT video_order FROM course_videos WHERE id = $1',
+      [targetVideoId]
+    );
+
+    const order1 = v1.rows[0].video_order;
+    const order2 = v2.rows[0].video_order;
+
+    await client.query(
+      'UPDATE course_videos SET video_order = -1 WHERE id = $1',
+      [videoId]
+    );
+
+    await client.query(
+      'UPDATE course_videos SET video_order = $1 WHERE id = $2',
+      [order1, targetVideoId]
+    );
+
+    await client.query(
+      'UPDATE course_videos SET video_order = $1 WHERE id = $2',
+      [order2, videoId]
+    );
+
+    await client.query('COMMIT');
+    res.json({ success: true });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ error: 'Reorder failed' });
+  } finally {
+    client.release();
+  }
+});
 
 /* ---------- 
   GET course videos (only for enrolled students or instructor owner)

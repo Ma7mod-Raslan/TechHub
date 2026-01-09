@@ -139,18 +139,27 @@ router.put(
 
       if (roleRes.rows[0].role === "instructor") {
         // Upsert instructor profile
+        const current = await db.query(
+          "SELECT job_title, linkedin, expertise FROM instructor_profiles WHERE user_id=$1",
+          [userId]
+        );
+        const currentProfile = current.rows[0] || {};
+
         await db.query(
           `
-          INSERT INTO instructor_profiles
-            (user_id, job_title, linkedin, expertise)
+          INSERT INTO instructor_profiles (user_id, job_title, linkedin, expertise)
           VALUES ($1, $2, $3, $4)
-          ON CONFLICT (user_id)
-          DO UPDATE SET
-            job_title = COALESCE($2, instructor_profiles.job_title),
-            linkedin = COALESCE($3, instructor_profiles.linkedin),
-            expertise = COALESCE($4, instructor_profiles.expertise)
+          ON CONFLICT (user_id) DO UPDATE SET
+            job_title = $2,
+            linkedin = $3,
+            expertise = $4
           `,
-          [userId, job_title, linkedin, expertise]
+          [
+            userId,
+            job_title ?? currentProfile.job_title,
+            linkedin ?? currentProfile.linkedin,
+            expertise ?? currentProfile.expertise
+          ]
         );
       }
 

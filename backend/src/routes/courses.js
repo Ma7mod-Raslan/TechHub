@@ -751,6 +751,42 @@ router.get("/all-info/:courseId", async (req, res) => {
   }
 });
 
+// ---------------------------------------
+// PUBLIC: Get courses with enrollments count
+// ---------------------------------------
+router.get(
+  "/enrollments-count",
+  async (req, res) => {
+    try {
+      const result = await db.query(
+        `
+        SELECT
+          c.id AS course_id,
+          c.title,
+          COUNT(e.student_id) AS total_students
+        FROM courses c
+        LEFT JOIN enrollments e
+          ON e.course_id = c.id
+        WHERE c.status = 'Published'
+        GROUP BY c.id
+        ORDER BY total_students DESC
+        `
+      );
+
+      res.json(
+        result.rows.map(row => ({
+          course_id: row.course_id,
+          title: row.title,
+          total_students: Number(row.total_students)
+        }))
+      );
+
+    } catch (err) {
+      console.error("Get enrollments count error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 /* ---------------------------------------
    GET course details
