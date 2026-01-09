@@ -42,7 +42,7 @@ router.get(
         SELECT
           c.id,
           c.title,
-          COUNT(e.user_id) AS total_students
+          COUNT(e.student_id) AS total_students
         FROM courses c
         LEFT JOIN enrollments e ON e.course_id = c.id
         WHERE c.instructor_id = $1
