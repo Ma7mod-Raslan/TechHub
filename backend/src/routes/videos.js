@@ -377,7 +377,7 @@ router.put('/:courseId/videos/reorder', async (req, res) => {
     const order2 = v2.rows[0].video_order;
 
     await client.query(
-      'UPDATE course_videos SET video_order = -1 WHERE id = $1',
+      'UPDATE course_videos SET video_order = -1000 WHERE id = $1',
       [videoId]
     );
 
