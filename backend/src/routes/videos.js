@@ -314,7 +314,7 @@ router.get(
         `
         SELECT 1
         FROM enrollments
-        WHERE user_id = $1 AND course_id = $2
+        WHERE student_id = $1 AND course_id = $2
         `,
         [studentId, courseId]
       );
