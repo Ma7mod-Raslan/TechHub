@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map, Bell, User, Menu, Trash2 } from 'lucide-react';
+import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map as mapIcon, Bell, User, Menu, Trash2, MapIcon } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -24,6 +24,12 @@ interface CourseDetailsProps {
     courseId?: number;
   };
 }
+
+interface VideoProgress {
+  id: number;
+  is_completed: boolean;
+}
+
 
 
 
@@ -96,7 +102,7 @@ export default function CourseDetails({
         { icon: FileText, label: 'Assignments', page: 'student-assignments' },
         { icon: Award, label: 'Certificates', page: 'student-certificates' },
         { icon: Users, label: 'Community', page: 'community' },
-        { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
+        { icon: MapIcon, label: 'Roadmaps', page: 'student-roadmaps' },
         { icon: Code, label: 'Compiler', page: 'student-compiler' },
         { icon: Bell, label: 'Notifications', page: 'student-notifications' },
         { icon: User, label: 'Profile', page: 'student-profile' },
@@ -232,6 +238,13 @@ export default function CourseDetails({
         setIsEnrolled(enrolled);
 
         await fetchCourseVideos(enrolled);
+
+        const videosProgress = await fetchVideosProgress();
+
+        setCourseSections(prev =>
+          applyVideosProgress(prev, videosProgress)
+        );
+
         await fetchCourseProgress();
 
 
@@ -294,6 +307,45 @@ export default function CourseDetails({
       console.error(err);
     }
   };
+
+  const fetchVideosProgress = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/courses/${id}/videos/progress`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (!res.ok) return [];
+
+      return await res.json();
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  };
+
+  const applyVideosProgress = (
+    sections: Section[],
+    progress: VideoProgress[]
+  ) => {
+    const progressMap = new Map(
+      progress.map(p => [p.id, p.is_completed])
+    );
+
+    return sections.map(section => ({
+      ...section,
+      lectures: section.lectures.map(lecture => ({
+        ...lecture,
+        completed: progressMap.get(lecture.id) === true,
+      })),
+    }));
+  };
+
+
 
 
 
@@ -507,6 +559,8 @@ export default function CourseDetails({
   const sendProgress = async () => {
     if (!playerRef.current || !selectedVideo) return;
 
+    if (selectedVideo.completed) return;
+
     const currentTime = Math.floor(playerRef.current.getCurrentTime());
     if (currentTime <= 0) return;
 
@@ -527,7 +581,7 @@ export default function CourseDetails({
     const data = await res.json();
     console.log("progress response:", data);
 
-    if (data.completed) {
+    if (data.video?.completed) {
       setCourseSections(prev =>
         prev.map(section => ({
           ...section,
@@ -539,6 +593,10 @@ export default function CourseDetails({
         }))
       );
     }
+
+    setSelectedVideo(prev =>
+      prev ? { ...prev, completed: true } : prev
+    );
 
     fetchCourseProgress();
   };
@@ -685,8 +743,8 @@ export default function CourseDetails({
                         </div>
 
                         {/* Video Content Tabs */}
-                        <Tabs value={videoPlayerTab} onValueChange={setVideoPlayerTab} className="border-t">
-                          <div className="border-b bg-gray-50">
+                        <Tabs value={videoPlayerTab} onValueChange={setVideoPlayerTab} className="border-t ">
+                          <div className="border-b bg-gray-50 ">
                             <TabsList className="w-full justify-start rounded-none h-auto p-0 bg-transparent">
                               <TabsTrigger value="overview" className="rounded-none data-[state=active]:border-b-2 data-[state=active]:border-violet-600">
                                 <BookOpen className="h-4 w-4 mr-2" />
@@ -708,6 +766,20 @@ export default function CourseDetails({
 
                           {/* Overview Tab */}
                           <TabsContent value="overview" className="p-6 m-0">
+                            {/* Lecture Description */}
+                            {allLectures[currentLectureIndex]?.description && (
+                              <Card className="bg-gray-50 border-gray-200">
+                                <CardContent className="p-4">
+                                  <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                                    Lecture Overview
+                                  </h4>
+                                  <p className="text-sm text-gray-600 leading-relaxed">
+                                    {allLectures[currentLectureIndex].description}
+                                  </p>
+                                </CardContent>
+                              </Card>
+                            )}
+
                             <div className="space-y-6">
                               <div className="flex items-center gap-3 flex-wrap">
                                 <Badge className="bg-blue-500 px-4 py-2">
@@ -783,7 +855,7 @@ export default function CourseDetails({
                             </div>
                           </TabsContent>
 
-                          <TabsContent value="questions">
+                          <TabsContent value="questions" className="p-6 m-0">
                             <VideoQuestions videoId={selectedVideo.id} />
                           </TabsContent>
 
@@ -894,7 +966,7 @@ export default function CourseDetails({
                     <div className="flex flex-wrap gap-6 mb-6">
                       <div className="flex items-center gap-2">
                         <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                        <span>4.9 (12,500 ratings)</span>
+                        {/* <span>4.9 (12,500 ratings)</span> */}
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="h-5 w-5" />

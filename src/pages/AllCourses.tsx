@@ -241,8 +241,12 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                         className={viewMode === 'grid' ? 'flex flex-col' : 'flex flex-col sm:flex-row'}
                         onClick={() => {
                           localStorage.setItem('selectedCourseId', course.id.toString());
-                          navigate('course-details');
+
+                          userRole === 'guest'
+                            ? navigate('course-details-guest')
+                            : navigate('course-details');
                         }}
+
 
                       >
                         {/* Course Image */}
@@ -283,11 +287,14 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                                   'selectedCourseId',
                                   course.id.toString()
                                 );
-                                console.log('Saved course id:', course.id);
 
-
-                                navigate('course-details');
+                                if (userRole === 'guest') {
+                                  navigate('course-details-guest');
+                                } else {
+                                  navigate('course-details');
+                                }
                               }}
+
                             >
                               View Course
                             </Button>

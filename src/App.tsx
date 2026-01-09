@@ -28,6 +28,7 @@ import StudentNotifications from './pages/student/Notifications';
 import StudentContact from './pages/student/Contact';
 
 import CourseDetails from './pages/CourseDetails';
+import CourseDetailsGuest from './pages/CourseDetailsGuest';
 import AllCourses from './pages/AllCourses';
 import Community from './pages/Community';
 import About from './pages/About';
@@ -136,6 +137,9 @@ export default function App() {
       // Shared Routes
       case 'course-details':
         return <CourseDetails navigate={navigate} userRole={userRole} logout={logout} navigationState={navigationState} />;
+      case 'course-details-guest':
+        return <CourseDetailsGuest navigate={navigate} userRole="guest" />
+
       case 'all-courses':
         return <AllCourses navigate={navigate} isLoggedIn={userRole !== 'guest'} userRole={userRole} logout={logout} />;
       case 'community':

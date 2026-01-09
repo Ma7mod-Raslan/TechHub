@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -32,9 +32,10 @@ import Sidebar from '../../components/Sidebar';
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import TestimonialForm from '../../components/TestimonialForm';
+import { UserRole } from '../../App';
 
 interface StudentDashboardProps {
-  navigate: (page: string) => void;
+  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
@@ -63,16 +64,15 @@ const enrolledCourses = [
   },
 ];
 
-const recentActivity = [
-  { action: 'Completed lesson', title: 'Introduction to React Hooks', time: '2 hours ago', icon: CheckCircle2 },
-  { action: 'Submitted assignment', title: 'Build a Todo App', time: '1 day ago', icon: FileText },
-  { action: 'Started course', title: 'Machine Learning Fundamentals', time: '3 days ago', icon: Play },
-];
-
 export default function StudentDashboard({ navigate, logout, userRole }: StudentDashboardProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isTestimonialOpen, setIsTestimonialOpen] = useState(false);
-  
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = user?.full_name || "Instructor";
+  const firstName = userName.split(" ")[0];
+  const [courses, setCourses] = useState<any[]>([]);
+
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard', active: true },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -87,10 +87,64 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
   ];
 
+  const [stats, setStats] = useState({
+    total_enrolled_courses: 0,
+    total_completed_courses: 0,
+    total_time_spent_hours: 0,
+
+  });
+
+  const totalInProgressCourses = stats.total_enrolled_courses - stats.total_completed_courses;
+
+  const inProgressCourses = courses.filter(
+    (c) => c.progress_percentage < 100
+  );
   const handleLogout = () => {
     logout();
     navigate('login');
   };
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/me/stats", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        console.error("Stats error", err);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/me/my-courses", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const data = await res.json();
+        console.log("MY COURSES RESPONSE:", data);
+        setCourses(Array.isArray(data) ? data : []);
+
+      } catch (err) {
+        console.error("Courses error", err);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -120,9 +174,9 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex-1">
-                <h1 className="text-xl md:text-2xl">Welcome back, Alex!</h1>
+                <h1 className="text-xl md:text-2xl">Welcome back, {firstName}!</h1>
                 <p className="text-gray-600 text-sm md:text-base">Continue your learning journey</p>
               </div>
               <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
@@ -140,8 +194,8 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                       <span className="text-gray-600">Enrolled Courses</span>
                       <BookOpen className="h-5 w-5 text-blue-600" />
                     </div>
-                    <div className="text-3xl mb-1">5</div>
-                    <div className="text-sm text-gray-600">3 in progress</div>
+                    <div className="text-3xl mb-1">{stats.total_enrolled_courses}</div>
+                    <div className="text-sm text-gray-600">{totalInProgressCourses} in progress</div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -153,13 +207,13 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                       <span className="text-gray-600">Learning Hours</span>
                       <Clock className="h-5 w-5 text-purple-600" />
                     </div>
-                    <div className="text-3xl mb-1">127</div>
-                    <div className="text-sm text-green-600">+12 this week</div>
+                    <div className="text-3xl mb-1">{stats.total_time_spent_hours}</div>
+                    <div className="text-sm text-green-600">Keep going</div>
                   </CardContent>
                 </Card>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              {/* <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between mb-2">
@@ -170,9 +224,9 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                     <div className="text-sm text-gray-600">1 pending</div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </motion.div> */}
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              {/* <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between mb-2">
@@ -183,10 +237,11 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                     <div className="text-sm text-green-600">Keep it up!</div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </motion.div> */}
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6 mb-6">
+
               {/* Continue Learning */}
               <div className="lg:col-span-2">
                 <Card>
@@ -195,111 +250,119 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {enrolledCourses.map((course) => (
+                      {inProgressCourses.map((course) => (
                         <div
                           key={course.id}
                           className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                          onClick={() => navigate('course-details')}
-                        >
-                          <ImageWithFallback
-                            src={course.image}
-                            alt={course.title}
-                            className="w-full sm:w-24 h-48 sm:h-24 rounded-lg object-cover"
-                          />
-                          <div className="flex-1">
-                            <h3 className="mb-2">{course.title}</h3>
-                            <p className="text-sm text-gray-600 mb-2">Next: {course.nextLesson}</p>
-                            <div className="flex items-center gap-3">
-                              <Progress value={course.progress} className="flex-1 h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500" />
-                              <span className="text-sm">{course.progress}%</span>
-                            </div>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300 w-full sm:w-auto"
-                          >
-                            Continue
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                          onClick={() => navigate("course-details",undefined,{ courseId: course.id })}
 
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentActivity.map((activity, index) => (
-                      <div key={index} className="flex gap-3">
-                        <div className="w-10 h-10 rounded-full bg-cyan-100 flex items-center justify-center flex-shrink-0">
-                          <activity.icon className="h-5 w-5 text-cyan-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-600">{activity.action}</div>
-                          <div className="text-sm mb-1">{activity.title}</div>
-                          <div className="text-xs text-gray-500">{activity.time}</div>
+
+                        >
+                      <ImageWithFallback
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="w-full sm:w-24 h-48 sm:h-24 rounded-lg object-cover"
+                      />
+
+                      <div className="flex-1">
+                        <h3 className="mb-2">{course.title}</h3>
+
+                        <p className="text-sm text-gray-600 mb-2">
+                          Instructor: {course.instructor_name}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <Progress
+                            value={course.progress_percentage}
+                            className="flex-1 h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500"
+                          />
+
+                          <span className="text-sm">
+                            {course.progress_percentage}%
+                          </span>
                         </div>
                       </div>
-                    ))}
+
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 w-full sm:w-auto"
+                      >
+                        Continue
+                      </Button>
+                    </div>
+                      ))}
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Quick Links */}
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('student-roadmaps')}>
+            {/* Side Cards */}
+            <div className="space-y-6">
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate('student-roadmaps')}
+              >
                 <CardContent className="pt-6">
-                  <Map className="h-12 w-12 text-cyan-600 mb-3" />
-                  <h3 className="mb-2">Learning Roadmaps</h3>
-                  <p className="text-sm text-gray-600">Explore AI-recommended learning paths</p>
+                  <Map className="h-10 w-10 text-cyan-600 mb-3" />
+                  <h3 className="mb-1">Learning Roadmaps</h3>
+                  <p className="text-sm text-gray-600">
+                    AI-recommended learning paths
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('student-compiler')}>
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate('student-compiler')}
+              >
                 <CardContent className="pt-6">
-                  <Code className="h-12 w-12 text-purple-600 mb-3" />
-                  <h3 className="mb-2">Code Compiler</h3>
-                  <p className="text-sm text-gray-600">Practice coding in your browser</p>
+                  <Code className="h-10 w-10 text-purple-600 mb-3" />
+                  <h3 className="mb-1">Code Compiler</h3>
+                  <p className="text-sm text-gray-600">
+                    Practice coding in your browser
+                  </p>
                 </CardContent>
               </Card>
 
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200" 
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200"
                 onClick={() => setIsTestimonialOpen(true)}
               >
                 <CardContent className="pt-6">
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex gap-1 mb-2">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                   </div>
-                  <h3 className="mb-2 bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent">Share Your Experience</h3>
-                  <p className="text-sm text-gray-600">Help others by sharing your learning journey</p>
+                  <h3 className="mb-1 text-transparent bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text">
+                    Share Your Experience
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Help others by sharing your journey
+                  </p>
                 </CardContent>
               </Card>
             </div>
-          </main>
         </div>
-      </div>
 
-      <AIAssistant contextType="dashboard" />
-      
-      {/* Testimonial Dialog */}
-      <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
-          <TestimonialForm 
-            onClose={() => setIsTestimonialOpen(false)}
-            studentName="Alex Johnson"
-            studentRole="Software Engineering Student"
-          />
-        </DialogContent>
-      </Dialog>
+      </main>
     </div>
+      </div >
+
+    <AIAssistant />
+
+  {/* Testimonial Dialog */ }
+  <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <TestimonialForm
+        onClose={() => setIsTestimonialOpen(false)}
+        studentName="Alex Johnson"
+        studentRole="Software Engineering Student"
+      />
+    </DialogContent>
+  </Dialog>
+    </div >
   );
 }

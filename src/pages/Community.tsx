@@ -149,7 +149,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     : userRole === 'instructor' 
     ? [
         { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-        { icon: BookOpen, label: 'Courses', page: 'instructor-courses' },
+        { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
         { icon: Users, label: 'Community', page: 'community', active: true },
         { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
         { icon: User, label: 'Profile', page: 'instructor-profile' },

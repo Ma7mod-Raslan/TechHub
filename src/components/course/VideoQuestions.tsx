@@ -100,8 +100,14 @@ export default function VideoQuestions({ videoId }: Props) {
     /* ================= UI States ================= */
     if (loading) return <p>Loading questions...</p>;
     if (error) return <p className="text-red-600">{error}</p>;
-    if (questions.length === 0)
-        return <p>No questions for this video.</p>;
+    if (questions.length === 0) {
+        return (
+                <p className="text-gray-500 text-center">
+                    There are no questions for this video!
+                </p>
+        );
+    }
+
 
     const currentQuestion = questions[currentIndex];
     const totalQuestions = questions.length;

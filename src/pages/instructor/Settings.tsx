@@ -45,7 +45,7 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
+    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },

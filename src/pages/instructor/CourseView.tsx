@@ -62,7 +62,9 @@ interface Video {
   title: string;
   video_url: string;
   video_order: number;
+  description?: string;
 }
+
 
 export default function InstructorCourseView({
   navigate,
@@ -123,8 +125,17 @@ export default function InstructorCourseView({
   const [videoFormData, setVideoFormData] = useState({
     title: '',
     url: '',
+    description: '',
     order: 1,
   });
+
+  const [videoErrors, setVideoErrors] = useState({
+    title: '',
+    url: '',
+    description: '',
+  });
+
+
 
   const fetchCourse = async () => {
     const token = localStorage.getItem('accessToken');
@@ -166,7 +177,12 @@ export default function InstructorCourseView({
           ? data.data
           : [];
 
-    setVideos(normalizedVideos);
+    setVideos(
+      normalizedVideos.sort(
+        (a: Video, b: Video) => a.video_order - b.video_order
+      )
+    );
+
   };
 
 
@@ -180,6 +196,8 @@ export default function InstructorCourseView({
   }, [courseId]);
 
   const handleAddVideo = async () => {
+    if (!validateVideoForm()) return;
+
     const token = localStorage.getItem('accessToken');
 
     await fetch(`http://localhost:3000/api/courses/${courseId}/videos`, {
@@ -191,16 +209,60 @@ export default function InstructorCourseView({
       body: JSON.stringify({
         title: videoFormData.title,
         video_url: videoFormData.url,
+        description: videoFormData.description,
         video_order: videoFormData.order,
       }),
     });
 
     await fetchVideos();
     setShowAddVideoDialog(false);
+    setVideoErrors({ title: '', url: '', description: '' });
   };
+
+  useEffect(() => {
+    if (!mcqError) return;
+
+    const timer = setTimeout(() => {
+      setMcqError('');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [mcqError]);
+
+
+
+  const validateVideoForm = () => {
+    const errors = {
+      title: '',
+      url: '',
+      description: '',
+    };
+
+    let isValid = true;
+
+    if (!videoFormData.title.trim()) {
+      errors.title = 'Title is required';
+      isValid = false;
+    }
+
+    if (!videoFormData.url.trim()) {
+      errors.url = 'URL is required';
+      isValid = false;
+    }
+
+    if (!videoFormData.description.trim()) {
+      errors.description = 'Description is required';
+      isValid = false;
+    }
+
+    setVideoErrors(errors);
+    return isValid;
+  };
+
 
   const handleEditVideo = async () => {
     if (!selectedVideo) return;
+    if (!validateVideoForm()) return;
 
     const token = localStorage.getItem('accessToken');
 
@@ -215,6 +277,7 @@ export default function InstructorCourseView({
         body: JSON.stringify({
           title: videoFormData.title,
           video_url: videoFormData.url,
+          description: videoFormData.description,
           video_order: videoFormData.order,
         }),
       }
@@ -223,7 +286,9 @@ export default function InstructorCourseView({
     await fetchVideos();
     setShowEditVideoDialog(false);
     setSelectedVideo(null);
+    setVideoErrors({ title: '', url: '', description: '' });
   };
+
 
   const handleDeleteVideo = async () => {
     if (!selectedVideo) return;
@@ -380,10 +445,46 @@ export default function InstructorCourseView({
     }
   };
 
+
+  const moveVideo = async (video: Video, direction: 'up' | 'down') => {
+    const token = localStorage.getItem('accessToken');
+
+    const targetOrder =
+      direction === 'up'
+        ? video.video_order - 1
+        : video.video_order + 1;
+
+    // برا الليست
+    if (targetOrder < 1 || targetOrder > videos.length) return;
+
+    const targetVideo = videos.find(
+      v => v.video_order === targetOrder
+    );
+
+    if (!targetVideo) return;
+
+    await fetch(
+      `http://localhost:3000/api/courses/${courseId}/videos/reorder`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          targetVideoId: targetVideo.id,
+        }),
+      }
+    );
+
+    await fetchVideos();
+  };
+
+
   const handleAddQuestion = async () => {
     if (!selectedVideo) return;
 
-    // 🛑 Frontend validation
     if (!questionText.trim()) {
       setMcqError('Question text is required');
       return;
@@ -606,9 +707,11 @@ export default function InstructorCourseView({
                   <Button
                     className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                     onClick={() => {
+                      setSelectedVideo(null);
                       setVideoFormData({
                         title: '',
                         url: '',
+                        description: '',
                         order: videos.length + 1,
                       });
                       setShowAddVideoDialog(true);
@@ -617,6 +720,7 @@ export default function InstructorCourseView({
                     <Plus className="mr-2 h-5 w-5" />
                     Add Video
                   </Button>
+
                 </div>
 
                 {videos.length === 0 ? (
@@ -641,12 +745,31 @@ export default function InstructorCourseView({
                           <div>
                             <h4 className="font-medium">{video.title}</h4>
                             <p className="text-sm text-gray-600">
-                              YouTube Video
+                              {video.description}
                             </p>
+
                           </div>
                         </div>
 
                         <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={video.video_order === 1}
+                            onClick={() => moveVideo(video, 'up')}
+                          >
+                            ⬆️
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={video.video_order === videos.length}
+                            onClick={() => moveVideo(video, 'down')}
+                          >
+                            ⬇️
+                          </Button>
+
                           <Button
                             size="sm"
                             variant="ghost"
@@ -672,8 +795,10 @@ export default function InstructorCourseView({
                               setVideoFormData({
                                 title: video.title,
                                 url: video.video_url,
+                                description: video.description || '',
                                 order: video.video_order,
                               });
+
                               setShowEditVideoDialog(true);
                             }}
                           >
@@ -709,13 +834,55 @@ export default function InstructorCourseView({
           <DialogHeader>
             <DialogTitle>Add Video</DialogTitle>
           </DialogHeader>
-          <Input placeholder="Title" onChange={e => setVideoFormData({ ...videoFormData, title: e.target.value })} />
-          <Input placeholder="URL" onChange={e => setVideoFormData({ ...videoFormData, url: e.target.value })} />
+
+          {/* Title */}
+          <Input
+            placeholder="Title"
+            value={videoFormData.title}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, title: e.target.value });
+              setVideoErrors({ ...videoErrors, title: '' });
+            }}
+          />
+          {videoErrors.title && (
+            <p className="text-sm text-red-600">{videoErrors.title}</p>
+          )}
+
+
+          {/* URL */}
+          <Input
+            placeholder="URL"
+            value={videoFormData.url}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, url: e.target.value });
+              setVideoErrors({ ...videoErrors, url: '' });
+            }}
+
+          />
+          {videoErrors.url && (
+            <p className="text-sm text-red-600">{videoErrors.url}</p>
+          )}
+
+          {/* Description */}
+          <Textarea
+            placeholder="Description"
+            value={videoFormData.description}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, description: e.target.value });
+              setVideoErrors({ ...videoErrors, description: '' });
+            }}
+
+          />
+          {videoErrors.description && (
+            <p className="text-sm text-red-600">{videoErrors.description}</p>
+          )}
+
           <DialogFooter>
-            <Button onClick={handleAddVideo}>Save</Button>
+            <Button onClick={handleAddVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* EDIT VIDEO */}
       <Dialog open={showEditVideoDialog} onOpenChange={setShowEditVideoDialog}>
@@ -723,13 +890,55 @@ export default function InstructorCourseView({
           <DialogHeader>
             <DialogTitle>Edit Video</DialogTitle>
           </DialogHeader>
-          <Input value={videoFormData.title} onChange={e => setVideoFormData({ ...videoFormData, title: e.target.value })} />
-          <Input value={videoFormData.url} onChange={e => setVideoFormData({ ...videoFormData, url: e.target.value })} />
+
+          {/* Title */}
+          <Input
+            placeholder="Title"
+            value={videoFormData.title}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, title: e.target.value });
+              setVideoErrors({ ...videoErrors, title: '' });
+            }}
+          />
+          {videoErrors.title && (
+            <p className="text-sm text-red-600">{videoErrors.title}</p>
+          )}
+
+          {/* URL */}
+          <Input
+            placeholder="URL"
+            value={videoFormData.url}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, url: e.target.value });
+              setVideoErrors({ ...videoErrors, url: '' });
+            }}
+
+
+          />
+          {videoErrors.url && (
+            <p className="text-sm text-red-600">{videoErrors.url}</p>
+          )}
+
+          {/* Description */}
+          <Textarea
+            placeholder="Description"
+            value={videoFormData.description}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, description: e.target.value });
+              setVideoErrors({ ...videoErrors, description: '' });
+            }}
+
+          />
+          {videoErrors.description && (
+            <p className="text-sm text-red-600">{videoErrors.description}</p>
+          )}
+
           <DialogFooter>
-            <Button onClick={handleEditVideo}>Save</Button>
+            <Button onClick={handleEditVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       {/* DELETE VIDEO */}
       <Dialog open={showDeleteVideoDialog} onOpenChange={setShowDeleteVideoDialog}>
@@ -762,6 +971,7 @@ export default function InstructorCourseView({
             <div className="space-y-3 mt-4">
               {choices.map((choice, index) => (
                 <div key={index} className="flex items-center gap-2">
+                  {/* Correct radio */}
                   <input
                     type="radio"
                     name="correct-choice"
@@ -776,6 +986,7 @@ export default function InstructorCourseView({
                     }
                   />
 
+                  {/* Choice text */}
                   <Input
                     placeholder={`Choice ${index + 1}`}
                     value={choice.text}
@@ -788,24 +999,44 @@ export default function InstructorCourseView({
                     }
                   />
 
-                  {choice.is_correct && (
-                    <span className="text-xs text-green-600 font-medium">
-                      ✓ Correct Answer
-                    </span>
-                  )}
+                  {/* Remove choice */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    disabled={choices.length <= 2}
+                    onClick={() => {
+                      if (choices.length <= 2) return;
+
+                      const newChoices = choices.filter((_, i) => i !== index);
+
+                      if (choice.is_correct) {
+                        newChoices.forEach(c => (c.is_correct = false));
+                      }
+
+                      setChoices(newChoices);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
                 </div>
               ))}
+
             </div>
 
             <Button
               variant="outline"
               className="mt-3"
-              onClick={() =>
-                setChoices([...choices, { text: '', is_correct: false }])
-              }
+              disabled={choices.length >= 4}
+              onClick={() => {
+                if (choices.length < 4) {
+                  setChoices([...choices, { text: '', is_correct: false }]);
+                }
+              }}
             >
               + Add Choice
             </Button>
+
 
             <div className="mt-6">
               <h4 className="font-semibold mb-2">Existing Questions</h4>
@@ -850,7 +1081,7 @@ export default function InstructorCourseView({
               </div>
             )}
 
-            <Button onClick={handleAddQuestion}>
+            <Button onClick={handleAddQuestion} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600" >
               Save Question
             </Button>
           </DialogFooter>

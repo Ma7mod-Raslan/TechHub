@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -13,7 +13,6 @@ import {
   Camera,
   Mail,
   Calendar,
-  MapPin,
   Link,
   Award,
   TrendingUp,
@@ -38,42 +37,41 @@ interface InstructorProfileProps {
   navigate: (page: string) => void;
   logout: () => void;
   userRole: 'instructor';
+
+
 }
 
+interface InstructorStats {
+  total_courses: number;
+  total_students: number;
+}
+
+
 export default function InstructorProfile({ navigate, logout, userRole }: InstructorProfileProps) {
-  const [editingAbout, setEditingAbout] = useState(false);
   const [editingExpertise, setEditingExpertise] = useState(false);
-  const [editingLinkedIn, setEditingLinkedIn] = useState(false);
-  const [editingLocation, setEditingLocation] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const [about, setAbout] = useState('Experienced software engineer with 10+ years in full-stack development. Passionate about teaching and helping students achieve their career goals. Specialized in React, Node.js, and cloud technologies. Former senior engineer at top tech companies.');
-  const [tempAbout, setTempAbout] = useState(about);
+  const [expertise, setExpertise] = useState<string[]>([]);
 
-  const [expertise, setExpertise] = useState([
-    'JavaScript',
-    'React',
-    'Node.js',
-    'TypeScript',
-    'Python',
-    'AWS',
-    'Docker',
-    'MongoDB',
-    'PostgreSQL',
-    'System Design',
-  ]);
-  const [tempExpertise, setTempExpertise] = useState([...expertise]);
+  const [tempExpertise, setTempExpertise] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState('');
 
-  const [linkedIn, setLinkedIn] = useState('linkedin.com/in/sarahj');
-  const [tempLinkedIn, setTempLinkedIn] = useState(linkedIn);
 
-  const [location, setLocation] = useState('New York, NY');
-  const [tempLocation, setTempLocation] = useState(location);
+  const [profile, setProfile] = useState<any>(null);
+
+  const [stats, setStats] = useState<InstructorStats | null>(null);
+
+  const [isEditingMain, setIsEditingMain] = useState(false);
+
+  const [tempProfile, setTempProfile] = useState({
+    full_name: "",
+    bio: "",
+    linkedin: "",
+  });
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BarChart3, label: 'Analytics', page: 'instructor-analytics' },
+    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },
@@ -81,28 +79,46 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
 
-  const stats = [
-    { label: 'Total Courses', value: '12', icon: BookOpen, color: 'text-blue-600' },
-    { label: 'Total Students', value: '2,980', icon: Users, color: 'text-purple-600' },
-    { label: 'Total Revenue', value: '$42.5K', icon: DollarSign, color: 'text-green-600' },
-    { label: 'Avg Rating', value: '4.8', icon: Award, color: 'text-yellow-600' },
-  ];
+  const statsCards = stats
+    ? [
+      {
+        label: "Total Courses",
+        value: stats.total_courses,
+        icon: BookOpen,
+        color: "text-blue-600",
+      },
+      {
+        label: "Total Students",
+        value: stats.total_students,
+        icon: Users,
+        color: "text-purple-600",
+      },
+    ]
+    : [];
 
-  const handleSaveAbout = () => {
-    setAbout(tempAbout);
-    setEditingAbout(false);
-  };
 
-  const handleCancelAbout = () => {
-    setTempAbout(about);
-    setEditingAbout(false);
-  };
 
-  const handleSaveExpertise = () => {
-    setExpertise([...tempExpertise]);
+
+  const handleSaveExpertise = async () => {
+    await fetch("http://localhost:3000/api/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        expertise: tempExpertise,
+      }),
+    });
+
+    setExpertise(tempExpertise);
     setEditingExpertise(false);
-    setNewSkill('');
   };
+
+
+
+
+
 
   const handleCancelExpertise = () => {
     setTempExpertise([...expertise]);
@@ -111,35 +127,133 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
   };
 
   const handleAddSkill = () => {
-    if (newSkill.trim()) {
-      setTempExpertise([...tempExpertise, newSkill.trim()]);
-      setNewSkill('');
-    }
+    const skill = newSkill.trim();
+    if (!skill) return;
+    if (tempExpertise.includes(skill)) return;
+
+    setTempExpertise([...tempExpertise, skill]);
+    setNewSkill("");
   };
+
 
   const handleRemoveSkill = (index: number) => {
     setTempExpertise(tempExpertise.filter((_, i) => i !== index));
   };
 
-  const handleSaveLinkedIn = () => {
-    setLinkedIn(tempLinkedIn);
-    setEditingLinkedIn(false);
+
+  const fetchStats = async () => {
+    const res = await fetch(
+      "http://localhost:3000/api/instructor/stats",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+    setStats(data);
   };
 
-  const handleCancelLinkedIn = () => {
-    setTempLinkedIn(linkedIn);
-    setEditingLinkedIn(false);
+
+  const fetchProfile = async () => {
+    const res = await fetch("http://localhost:3000/api/me", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const data = await res.json();
+    setProfile(data);
+
+    setTempProfile({
+      full_name: data.full_name ?? "",
+      bio: data.bio ?? "",
+      linkedin: data.instructor_profile?.linkedin ?? "",
+    });
+
+    const rawExpertise = data.instructor_profile?.expertise;
+
+    const expertiseFromDB = Array.isArray(rawExpertise)
+      ? rawExpertise
+      : [];
+
+    setExpertise(expertiseFromDB);
+    setTempExpertise(expertiseFromDB);
+
   };
 
-  const handleSaveLocation = () => {
-    setLocation(tempLocation);
-    setEditingLocation(false);
+
+  const handleSaveMain = async () => {
+    await fetch("http://localhost:3000/api/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: JSON.stringify({
+        full_name: tempProfile.full_name,
+        bio: tempProfile.bio,
+        linkedin: tempProfile.linkedin,
+      }),
+    });
+
+    setIsEditingMain(false);
+    fetchProfile();
   };
 
-  const handleCancelLocation = () => {
-    setTempLocation(location);
-    setEditingLocation(false);
+  const handleCancelMain = () => {
+    setTempProfile({
+      full_name: profile.full_name ?? "",
+      bio: profile.bio ?? "",
+      linkedin: profile.instructor_profile?.linkedin ?? "",
+    });
+    setIsEditingMain(false);
   };
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+
+    const res = await fetch("http://localhost:3000/api/me/profile-image", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      console.error("Upload failed");
+      return;
+    }
+
+    fetchProfile();
+  };
+
+
+  useEffect(() => {
+    setTempExpertise(expertise);
+  }, [expertise]);
+
+
+  useEffect(() => {
+    fetchProfile();
+    fetchStats();
+  }, []);
+
+  if (!profile) {
+    return (
+      <div className="p-10 text-center text-gray-600">
+        Loading profile...
+      </div>
+    );
+  }
+
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,7 +292,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                   </p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile"/>
+              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile" />
             </div>
           </header>
 
@@ -188,114 +302,141 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
               <Card className="lg:col-span-1">
                 <CardContent className="pt-6">
                   <div className="text-center">
+
+                    {/* ===== Profile Image ===== */}
                     <div className="relative inline-block mb-4">
                       <ImageWithFallback
-                        src="https://images.unsplash.com/photo-1617153817979-283ffdcd52f5?w=200"
+                        src={
+                          profile.profile_image ||
+                          "https://images.unsplash.com/photo-1617153817979-283ffdcd52f5?w=200"
+                        }
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-violet-100"
                       />
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="profileImageInput"
+                        hidden
+                        onChange={handleUploadImage}
+                      />
+
                       <Button
                         size="icon"
+                        onClick={() =>
+                          document.getElementById("profileImageInput")?.click()
+                        }
                         className="absolute bottom-0 right-0 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500"
                       >
                         <Camera className="h-4 w-4" />
                       </Button>
                     </div>
-                    <h2 className="text-2xl mb-1">Sarah Johnson</h2>
-                    <p className="text-gray-600 mb-4">Senior Software Engineer</p>
-                    <Badge className="mb-6 bg-gradient-to-r from-violet-600 to-cyan-500">Expert Instructor</Badge>
 
-                    <div className="space-y-3 text-left">
-                      <div className="flex items-center gap-3 text-gray-600">
-                        <Mail className="h-4 w-4" />
-                        <span className="text-sm">sarah.johnson@email.com</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-gray-600">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-sm">Joined January 2023</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-gray-600">
-                        <MapPin className="h-4 w-4" />
-                        {editingLocation ? (
-                          <div className="flex-1 flex gap-2">
-                            <Input
-                              value={tempLocation}
-                              onChange={(e) => setTempLocation(e.target.value)}
-                              className="text-sm h-8"
-                            />
+                    {/* ===== VIEW MODE ===== */}
+                    {!isEditingMain && (
+                      <>
+                        <h2 className="text-2xl mb-1">{profile.full_name}</h2>
+
+                        <p className="text-gray-600 mb-3">
+                          {profile.bio || "No bio yet"}
+                        </p>
+
+                        <Badge className="mb-4 bg-gradient-to-r from-violet-600 to-cyan-500">
+                          Instructor
+                        </Badge>
+
+                        <div className="text-sm text-gray-600 space-y-1 mb-4">
+                          <div className="flex justify-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            {profile.email}
                           </div>
-                        ) : (
-                          <span className="text-sm">{location}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-gray-600">
-                        <Link className="h-4 w-4" />
-                        {editingLinkedIn ? (
-                          <div className="flex-1 flex gap-2">
-                            <Input
-                              value={tempLinkedIn}
-                              onChange={(e) => setTempLinkedIn(e.target.value)}
-                              className="text-sm h-8"
-                            />
+
+                          <div className="flex justify-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Joined {new Date(profile.created_at).toLocaleDateString()}
                           </div>
-                        ) : (
-                          <span className="text-sm">{linkedIn}</span>
-                        )}
-                      </div>
-                      {(editingLocation || editingLinkedIn) && (
-                        <div className="flex gap-2 mt-2">
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              if (editingLocation) handleSaveLocation();
-                              if (editingLinkedIn) handleSaveLinkedIn();
-                            }}
-                            className="bg-gradient-to-r from-violet-600 to-cyan-500"
-                          >
+
+
+                          {profile.instructor_profile?.linkedin && (
+                            <div className="flex justify-center gap-2">
+                              <Link className="h-4 w-4" />
+                              <a
+                                href={profile.instructor_profile.linkedin}
+                                target="_blank"
+                                className="text-blue-600 hover:underline"
+                              >
+                                LinkedIn
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setIsEditingMain(true)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit Profile
+                        </Button>
+                      </>
+                    )}
+
+                    {/* ===== EDIT MODE ===== */}
+                    {isEditingMain && (
+                      <div className="mt-4 p-4 rounded-lg border bg-gray-50 text-left space-y-3">
+
+                        <h3 className="text-sm font-semibold text-gray-700">
+                          Edit Profile
+                        </h3>
+
+                        <Input
+                          placeholder="Full name"
+                          value={tempProfile.full_name}
+                          onChange={(e) =>
+                            setTempProfile({ ...tempProfile, full_name: e.target.value })
+                          }
+                        />
+
+                        <Textarea
+                          placeholder="Bio"
+                          value={tempProfile.bio}
+                          onChange={(e) =>
+                            setTempProfile({ ...tempProfile, bio: e.target.value })
+                          }
+                        />
+
+                        <Input
+                          placeholder="LinkedIn profile"
+                          value={tempProfile.linkedin}
+                          onChange={(e) =>
+                            setTempProfile({ ...tempProfile, linkedin: e.target.value })
+                          }
+                        />
+
+                        <div className="flex gap-2 justify-end pt-2">
+                          <Button size="sm" className="bg-gradient-to-r from-violet-600 to-cyan-500" onClick={handleSaveMain}>
                             Save
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => {
-                              if (editingLocation) handleCancelLocation();
-                              if (editingLinkedIn) handleCancelLinkedIn();
-                            }}
+                            onClick={handleCancelMain}
                           >
                             Cancel
                           </Button>
                         </div>
-                      )}
-                      {!editingLocation && !editingLinkedIn && (
-                        <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingLocation(true)}
-                            className="flex-1"
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit Location
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingLinkedIn(true)}
-                            className="flex-1"
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit LinkedIn
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
-                    <Button className="w-full mt-6 bg-gradient-to-r from-violet-600 to-cyan-500">
-                      Edit Profile
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
+
+
 
               <div className="lg:col-span-2 space-y-6">
                 <Card>
@@ -304,54 +445,15 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {stats.map((stat, index) => (
+                      {statsCards.map((stat, index) => (
                         <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
                           <stat.icon className={`h-8 w-8 mx-auto mb-2 ${stat.color}`} />
                           <div className="text-2xl mb-1">{stat.value}</div>
                           <div className="text-sm text-gray-600">{stat.label}</div>
                         </div>
                       ))}
-                    </div>
-                  </CardContent>
-                </Card>
 
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>About</CardTitle>
-                      {!editingAbout && (
-                        <Button size="sm" variant="outline" onClick={() => setEditingAbout(true)}>
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                      )}
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {editingAbout ? (
-                      <div className="space-y-3">
-                        <Textarea
-                          value={tempAbout}
-                          onChange={(e) => setTempAbout(e.target.value)}
-                          rows={5}
-                          className="w-full"
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={handleSaveAbout}
-                            className="bg-gradient-to-r from-violet-600 to-cyan-500"
-                          >
-                            Save
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={handleCancelAbout}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-600">{about}</p>
-                    )}
                   </CardContent>
                 </Card>
 
@@ -360,13 +462,22 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                     <div className="flex items-center justify-between">
                       <CardTitle>Expertise</CardTitle>
                       {!editingExpertise && (
-                        <Button size="sm" variant="outline" onClick={() => setEditingExpertise(true)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setTempExpertise(expertise);
+                            setEditingExpertise(true);
+                          }}
+
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
                       )}
                     </div>
                   </CardHeader>
+
                   <CardContent>
                     {editingExpertise ? (
                       <div className="space-y-3">
@@ -383,6 +494,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                             </Badge>
                           ))}
                         </div>
+
                         <div className="flex gap-2">
                           <Input
                             placeholder="Add new skill..."
@@ -394,6 +506,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
+
                         <div className="flex gap-2">
                           <Button
                             size="sm"
@@ -417,6 +530,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                       </div>
                     )}
                   </CardContent>
+
                 </Card>
 
                 <Card>
@@ -425,20 +539,34 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                        <span>Reached 3,000 students milestone</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Award className="h-5 w-5 text-yellow-600" />
-                        <span>Maintained 4.8+ rating for 12 months</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <BookOpen className="h-5 w-5 text-blue-600" />
-                        <span>Published 12 comprehensive courses</span>
-                      </div>
+
+                      {stats && stats.total_students > 0 && (
+                        <div className="flex items-center gap-3">
+                          <TrendingUp className="h-5 w-5 text-green-600" />
+                          <span>
+                            Reached {stats.total_students} students milestone
+                          </span>
+                        </div>
+                      )}
+
+                      {stats && stats.total_courses > 0 && (
+                        <div className="flex items-center gap-3">
+                          <BookOpen className="h-5 w-5 text-blue-600" />
+                          <span>
+                            Published {stats.total_courses} courses
+                          </span>
+                        </div>
+                      )}
+
+                      {stats && stats.total_courses === 0 && stats.total_students === 0 && (
+                        <div className="text-sm text-gray-500">
+                          No achievements yet
+                        </div>
+                      )}
+
                     </div>
                   </CardContent>
+
                 </Card>
               </div>
             </div>

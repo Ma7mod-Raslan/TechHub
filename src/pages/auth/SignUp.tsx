@@ -13,6 +13,7 @@ import {
   Briefcase,
   Layers,
   Linkedin,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -51,23 +52,31 @@ const GOOGLE_CLIENT_ID =
 export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"student" | "instructor">("student");
-  
-  useEffect(() => {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("user");
-  localStorage.removeItem("pendingVerification");
+  const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showMatchMessage, setShowMatchMessage] = useState(false);
 
-}, []);
+
+
+
+  useEffect(() => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("pendingVerification");
+
+  }, []);
 
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     jobTitle: "",
     expertise: "",
     linkedin: "",
   });
+
 
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -138,6 +147,11 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
 
     if (!formData.name || !formData.email || !formData.password) {
       toast.error("Please fill in all fields");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -334,6 +348,71 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
                   </p>
                 )}
               </div>
+
+              {/* Confirm Password */}
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Re-enter your password"
+                    className="pl-10 pr-10"
+                    value={formData.confirmPassword}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      setFormData({ ...formData, confirmPassword: value });
+                      setConfirmPasswordError(null);
+
+                      setShowMatchMessage(false);
+
+                      if (formData.password && formData.password === value) {
+                        setShowMatchMessage(true);
+
+                        setTimeout(() => {
+                          setShowMatchMessage(false);
+                        }, 2000);
+                      }
+                    }}
+                    required
+                  />
+
+                  {/* Eye */}
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Match message */}
+                {showMatchMessage && (
+                  <p className="mt-1 text-sm text-green-600">
+                    Passwords match
+                  </p>
+                )}
+
+                {confirmPasswordError && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {confirmPasswordError}
+                  </p>
+                )}
+              </div>
+
+
+
+
+
 
               {/* Instructor Extra Fields */}
               {role === "instructor" && (

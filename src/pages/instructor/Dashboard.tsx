@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -28,34 +28,10 @@ import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 
 interface InstructorDashboardProps {
-  navigate: (page: string) => void;
+  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'instructor';
 }
-
-const enrollmentData = [
-  { month: 'Jan', students: 120 },
-  { month: 'Feb', students: 150 },
-  { month: 'Mar', students: 180 },
-  { month: 'Apr', students: 220 },
-  { month: 'May', students: 280 },
-  { month: 'Jun', students: 350 },
-];
-
-const revenueData = [
-  { month: 'Jan', revenue: 4500 },
-  { month: 'Feb', revenue: 5200 },
-  { month: 'Mar', revenue: 6100 },
-  { month: 'Apr', revenue: 7300 },
-  { month: 'May', revenue: 8900 },
-  { month: 'Jun', revenue: 10500 },
-];
-
-const recentCourses = [
-  { title: 'Complete Web Development', students: 1250, progress: 85, rating: 4.9 },
-  { title: 'Python for Beginners', students: 980, progress: 92, rating: 4.8 },
-  { title: 'React Masterclass', students: 750, progress: 78, rating: 4.7 },
-];
 
 export default function InstructorDashboard({ navigate, logout, userRole }: InstructorDashboardProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -69,6 +45,47 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
     { icon: Settings, label: 'Settings', page: 'instructor-settings' },
     { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
   ];
+
+  const [stats, setStats] = useState({
+    total_courses: 0,
+    total_students: 0,
+    top_courses: [],
+  });
+
+  const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = user?.full_name || "Instructor";
+  const firstName = userName.split(" ")[0];
+
+
+
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/api/instructor/stats", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch stats");
+        }
+
+        const data = await res.json();
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -101,10 +118,10 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                 </Button>
                 <div>
                   <h1 className="text-2xl">Dashboard</h1>
-                  <p className="text-gray-600">Welcome back, Sarah!</p>
+                  <p className="text-gray-600">Welcome back, {firstName}!</p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole}/>
+              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
             </div>
           </header>
 
@@ -120,8 +137,12 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                       <span className="text-gray-600">Total Courses</span>
                       <BookOpen className="h-5 w-5 text-blue-600" />
                     </div>
-                    <div className="text-3xl mb-1">12</div>
-                    <div className="text-sm text-green-600">+2 this month</div>
+                    <div className="text-3xl mb-1">
+                      {loading ? "..." : stats.total_courses}
+                    </div>
+                    <div className="text-sm text-green-600">Nice work</div>
+
+
                   </CardContent>
                 </Card>
               </motion.div>
@@ -133,37 +154,14 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                       <span className="text-gray-600">Total Students</span>
                       <Users className="h-5 w-5 text-purple-600" />
                     </div>
-                    <div className="text-3xl mb-1">2,980</div>
-                    <div className="text-sm text-green-600">+350 this month</div>
+                    <div className="text-3xl mb-1">
+                      {loading ? "..." : stats.total_students}
+                    </div>
+                    <div className="text-sm text-green-600">Keep going</div>
                   </CardContent>
                 </Card>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-600">Total Revenue</span>
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div className="text-3xl mb-1">$42.5K</div>
-                    <div className="text-sm text-green-600">+15% from last month</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-gray-600">Avg Rating</span>
-                      <Star className="h-5 w-5 text-yellow-500" />
-                    </div>
-                    <div className="text-3xl mb-1">4.8</div>
-                    <div className="text-sm text-gray-600">From 2,450 reviews</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
             </div>
 
             {/* Quick Actions */}
@@ -188,50 +186,59 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
               </CardContent>
             </Card>
 
-            
-
-            {/* Recent Courses */}
+            {/* Top Courses by Students */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Your Courses Performance</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('instructor-courses')}>
+                  <CardTitle>Top Courses by Enrollment</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('instructor-courses')}
+                  >
                     View All
                   </Button>
                 </div>
               </CardHeader>
+
               <CardContent>
                 <div className="space-y-4">
-                  {recentCourses.map((course, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex-1">
-                        <h3 className="mb-1">{course.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {course.students} students
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-yellow-500" />
-                            {course.rating}
-                          </span>
-                        </div>
-                        <div className="mt-2">
-                          <div className="flex items-center justify-between text-sm mb-1">
-                            <span className="text-gray-600">Course Completion</span>
-                            <span>{course.progress}%</span>
-                          </div>
-                          <Progress value={course.progress} className="h-2" />
+                  {stats.top_courses.map((course: any, index: number) => (
+                    <div
+                      key={course.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div>
+                        <h3 className="mb-1 font-medium">
+                          #{index + 1} {course.title}
+                        </h3>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Users className="h-4 w-4" />
+                          <span>{course.total_students} students enrolled</span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="ml-4">
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          navigate(
+                            'instructor-course-view',
+                            'instructor',
+                            { courseId: course.id }
+                          )
+                        }
+                      >
                         <Eye className="h-5 w-5" />
                       </Button>
+
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+
           </main>
         </div>
       </div>
