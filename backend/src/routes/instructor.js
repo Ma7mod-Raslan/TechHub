@@ -28,7 +28,7 @@ router.get(
       // 2️⃣ Total students (unique)
       const studentsRes = await db.query(
         `
-        SELECT COUNT(DISTINCT e.user_id)
+        SELECT COUNT(DISTINCT e.student_id)
         FROM enrollments e
         JOIN courses c ON c.id = e.course_id
         WHERE c.instructor_id = $1
