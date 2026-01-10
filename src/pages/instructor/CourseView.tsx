@@ -20,6 +20,8 @@ import {
   Save,
   X,
   Menu,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 
 import { Button } from '../../components/ui/button';
@@ -753,22 +755,25 @@ export default function InstructorCourseView({
 
                         <div className="flex gap-2">
                           <Button
-                            size="sm"
+                            size="icon"
                             variant="ghost"
                             disabled={video.video_order === 1}
                             onClick={() => moveVideo(video, 'up')}
+                            className="hover:bg-violet-50"
                           >
-                            ⬆️
+                            <ChevronUp className="h-4 w-4 text-gray-600" />
                           </Button>
 
                           <Button
-                            size="sm"
+                            size="icon"
                             variant="ghost"
                             disabled={video.video_order === videos.length}
                             onClick={() => moveVideo(video, 'down')}
+                            className="hover:bg-violet-50"
                           >
-                            ⬇️
+                            <ChevronDown className="h-4 w-4 text-gray-600" />
                           </Button>
+
 
                           <Button
                             size="sm"

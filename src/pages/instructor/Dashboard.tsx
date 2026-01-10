@@ -190,7 +190,7 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Top Courses by Enrollment</CardTitle>
+                  <CardTitle>Top Courses</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"

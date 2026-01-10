@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Card, CardContent } from '../components/ui/card';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import AIAssistant from '../components/AIAssistant';
 
 interface AboutProps {
   navigate: (page: string) => void;
@@ -143,6 +144,7 @@ export default function About({ navigate }: AboutProps) {
           </motion.div>
         </div>
       </section>
+      <AIAssistant/>
 
       <Footer navigate={navigate} />
     </div>

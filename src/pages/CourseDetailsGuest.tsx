@@ -24,6 +24,7 @@ import { UserRole } from '../App';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import { toast } from 'sonner';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import AIAssistant from '../components/AIAssistant';
 
 
 interface CourseDetailsProps {
@@ -441,6 +442,8 @@ export default function CourseDetails({
                     </div>
                 </div>
             </div>
+            <AIAssistant />
+
         </div>
     );
 

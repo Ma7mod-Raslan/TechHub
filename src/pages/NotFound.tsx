@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Home, Search } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Code2 } from 'lucide-react';
+import AIAssistant from '../components/AIAssistant';
 
 interface NotFoundProps {
   navigate: (page: string) => void;
@@ -58,6 +59,9 @@ export default function NotFound({ navigate }: NotFoundProps) {
           <p>Need help? <button onClick={() => navigate('contact')} className="text-cyan-600 hover:text-cyan-700">Contact us</button></p>
         </div>
       </motion.div>
+      <AIAssistant />
+
     </div>
+
   );
 }

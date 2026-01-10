@@ -250,119 +250,129 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {inProgressCourses.map((course) => (
-                        <div
-                          key={course.id}
-                          className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                          onClick={() => navigate("course-details",undefined,{ courseId: course.id })}
+                      {inProgressCourses.length > 0 ? (
+                        inProgressCourses.map((course) => (
+                          <div
+                            key={course.id}
+                            className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() =>
+                              navigate("course-details", undefined, { courseId: course.id })
+                            }
+                          >
+                            <ImageWithFallback
+                              src={course.thumbnail}
+                              alt={course.title}
+                              className="w-full sm:w-24 h-48 sm:h-24 rounded-lg object-cover"
+                            />
 
+                            <div className="flex-1">
+                              <h3 className="mb-2">{course.title}</h3>
 
-                        >
-                      <ImageWithFallback
-                        src={course.thumbnail}
-                        alt={course.title}
-                        className="w-full sm:w-24 h-48 sm:h-24 rounded-lg object-cover"
-                      />
+                              <p className="text-sm text-gray-600 mb-2">
+                                Instructor: {course.instructor_name}
+                              </p>
 
-                      <div className="flex-1">
-                        <h3 className="mb-2">{course.title}</h3>
+                              <div className="flex items-center gap-3">
+                                <Progress
+                                  value={course.progress_percentage}
+                                  className="flex-1 h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500"
+                                />
+                                <span className="text-sm">
+                                  {course.progress_percentage}%
+                                </span>
+                              </div>
+                            </div>
 
-                        <p className="text-sm text-gray-600 mb-2">
-                          Instructor: {course.instructor_name}
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <Progress
-                            value={course.progress_percentage}
-                            className="flex-1 h-2 [&>div]:bg-gradient-to-r [&>div]:from-violet-600 [&>div]:to-cyan-500"
-                          />
-
-                          <span className="text-sm">
-                            {course.progress_percentage}%
-                          </span>
+                            <Button
+                              size="sm"
+                              className="bg-gradient-to-r from-violet-600 to-cyan-500 w-full sm:w-auto"
+                            >
+                              Continue
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-10">
+                          <p className="text-gray-500 text-sm">
+                            No active courses at the moment
+                            Explore our courses to get started 
+                          </p>
                         </div>
-                      </div>
-
-                      <Button
-                        size="sm"
-                        className="bg-gradient-to-r from-violet-600 to-cyan-500 w-full sm:w-auto"
-                      >
-                        Continue
-                      </Button>
+                      )}
                     </div>
+
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Side Cards */}
+              <div className="space-y-6">
+                <Card
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate('student-roadmaps')}
+                >
+                  <CardContent className="pt-6">
+                    <Map className="h-10 w-10 text-cyan-600 mb-3" />
+                    <h3 className="mb-1">Learning Roadmaps</h3>
+                    <p className="text-sm text-gray-600">
+                      AI-recommended learning paths
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card
+                  className="cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => navigate('student-compiler')}
+                >
+                  <CardContent className="pt-6">
+                    <Code className="h-10 w-10 text-purple-600 mb-3" />
+                    <h3 className="mb-1">Code Compiler</h3>
+                    <p className="text-sm text-gray-600">
+                      Practice coding in your browser
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card
+                  className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200"
+                  onClick={() => setIsTestimonialOpen(true)}
+                >
+                  <CardContent className="pt-6">
+                    <div className="flex gap-1 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                        />
                       ))}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                    <h3 className="mb-1 text-transparent bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text">
+                      Share Your Experience
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Help others by sharing your journey
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
-            {/* Side Cards */}
-            <div className="space-y-6">
-              <Card
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate('student-roadmaps')}
-              >
-                <CardContent className="pt-6">
-                  <Map className="h-10 w-10 text-cyan-600 mb-3" />
-                  <h3 className="mb-1">Learning Roadmaps</h3>
-                  <p className="text-sm text-gray-600">
-                    AI-recommended learning paths
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate('student-compiler')}
-              >
-                <CardContent className="pt-6">
-                  <Code className="h-10 w-10 text-purple-600 mb-3" />
-                  <h3 className="mb-1">Code Compiler</h3>
-                  <p className="text-sm text-gray-600">
-                    Practice coding in your browser
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card
-                className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-violet-50 to-cyan-50 border-violet-200"
-                onClick={() => setIsTestimonialOpen(true)}
-              >
-                <CardContent className="pt-6">
-                  <div className="flex gap-1 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
-                      />
-                    ))}
-                  </div>
-                  <h3 className="mb-1 text-transparent bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text">
-                    Share Your Experience
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Help others by sharing your journey
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+          </main>
         </div>
-
-      </main>
-    </div>
       </div >
 
-    <AIAssistant />
+      <AIAssistant />
 
-  {/* Testimonial Dialog */ }
-  <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
-    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
-      <TestimonialForm
-        onClose={() => setIsTestimonialOpen(false)}
-        studentName="Alex Johnson"
-        studentRole="Software Engineering Student"
-      />
-    </DialogContent>
-  </Dialog>
+      {/* Testimonial Dialog */}
+      <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+          <TestimonialForm
+            onClose={() => setIsTestimonialOpen(false)}
+            studentName="Alex Johnson"
+            studentRole="Software Engineering Student"
+          />
+        </DialogContent>
+      </Dialog>
     </div >
   );
 }

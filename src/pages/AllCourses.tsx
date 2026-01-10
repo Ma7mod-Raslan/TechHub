@@ -9,6 +9,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import AIAssistant from '../components/AIAssistant';
 
 interface AllCoursesProps {
   navigate: (page: string) => void;
@@ -326,6 +327,7 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
           </div>
         </div>
       </div>
+      <AIAssistant/>
 
       <Footer navigate={navigate} />
     </div>
