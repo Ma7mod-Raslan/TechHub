@@ -559,8 +559,6 @@ export default function CourseDetails({
   const sendProgress = async () => {
     if (!playerRef.current || !selectedVideo) return;
 
-    if (selectedVideo.completed) return;
-
     const currentTime = Math.floor(playerRef.current.getCurrentTime());
     if (currentTime <= 0) return;
 
@@ -592,14 +590,15 @@ export default function CourseDetails({
           ),
         }))
       );
-    }
 
-    setSelectedVideo(prev =>
-      prev ? { ...prev, completed: true } : prev
-    );
+      setSelectedVideo(prev =>
+        prev ? { ...prev, completed: true } : prev
+      );
+    }
 
     fetchCourseProgress();
   };
+
 
 
 
