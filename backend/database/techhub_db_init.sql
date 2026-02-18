@@ -132,19 +132,7 @@ CREATE TABLE certificates (
   certificate_link VARCHAR(255),
   issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE communities (
-  id SERIAL PRIMARY KEY,
-  course_id INT REFERENCES courses(id),
-  name VARCHAR(100),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE messages (
-  id SERIAL PRIMARY KEY,
-  community_id INT REFERENCES communities(id),
-  sender_id INT REFERENCES users(id),
-  message TEXT NOT NULL,
-  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id),
@@ -152,4 +140,83 @@ CREATE TABLE notifications (
   message TEXT,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE communities (
+  id SERIAL PRIMARY KEY,
+  course_id INT UNIQUE REFERENCES courses(id) ON DELETE CASCADE,
+  members_count INT DEFAULT 0,
+  posts_count INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE community_members (
+  id SERIAL PRIMARY KEY,
+  community_id INT REFERENCES communities(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  role VARCHAR(20) DEFAULT 'member',
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (community_id, user_id)
+);
+
+CREATE TABLE community_posts (
+  id SERIAL PRIMARY KEY,
+  community_id INT REFERENCES communities(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  likes_count INT DEFAULT 0,
+  replies_count INT DEFAULT 0,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_posts_community ON community_posts(community_id);
+
+CREATE TABLE community_replies (
+  id SERIAL PRIMARY KEY,
+  post_id INT REFERENCES community_posts(id) ON DELETE CASCADE,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  likes_count INT DEFAULT 0,
+  is_deleted BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_replies_post ON community_replies(post_id);
+
+CREATE TABLE community_likes (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  post_id INT REFERENCES community_posts(id) ON DELETE CASCADE,
+  reply_id INT REFERENCES community_replies(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CHECK (
+    (post_id IS NOT NULL AND reply_id IS NULL)
+    OR
+    (post_id IS NULL AND reply_id IS NOT NULL)
+  )
+);
+
+CREATE UNIQUE INDEX unique_post_like
+ON community_likes(user_id, post_id)
+WHERE post_id IS NOT NULL;
+
+CREATE UNIQUE INDEX unique_reply_like
+ON community_likes(user_id, reply_id)
+WHERE reply_id IS NOT NULL;
+
+CREATE TABLE community_reports (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE CASCADE,
+  post_id INT REFERENCES community_posts(id) ON DELETE CASCADE,
+  reply_id INT REFERENCES community_replies(id) ON DELETE CASCADE,
+  reason TEXT NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CHECK (
+    (post_id IS NOT NULL AND reply_id IS NULL)
+    OR
+    (post_id IS NULL AND reply_id IS NOT NULL)
+  )
 );
