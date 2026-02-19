@@ -1,7 +1,7 @@
-const pool = require("../db");
+import pool from "../db.js";
 
 const checkCommunityMember = async (req, res, next) => {
-  const userId = req.user.id; 
+  const userId = req.user.id;
   const communityId = req.params.id;
 
   try {
@@ -25,4 +25,4 @@ const checkCommunityMember = async (req, res, next) => {
   }
 };
 
-module.exports = checkCommunityMember;
+export default checkCommunityMember;

@@ -1,4 +1,4 @@
-const pool = require("../db");
+import pool from "../db.js";
 
 const getUserCommunities = async (userId) => {
   const result = await pool.query(
@@ -72,7 +72,7 @@ const createPost = async (communityId, userId, content) => {
   }
 };
 
-module.exports = {
+export default {
   getUserCommunities,
   getCommunityPosts,
   createPost

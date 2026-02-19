@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
+import communityService from "../services/community.service.js";
+import { authMiddleware } from "../middleware/auth.js";
+import checkCommunityMember from "../middleware/communityMember.middleware.js";
+
 const router = express.Router();
-const communityService = require("../services/community.service");
-const authMiddleware = require("../middleware/auth"); 
-const checkCommunityMember = require("../middleware/communityMember.middleware");
 
 // GET my communities
 router.get("/", authMiddleware, async (req, res) => {
@@ -15,7 +16,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// GET posts in community
+// GET posts
 router.get("/:id/posts", authMiddleware, checkCommunityMember, async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   const offset = (page - 1) * limit;
@@ -48,4 +49,4 @@ router.post("/:id/posts", authMiddleware, checkCommunityMember, async (req, res)
   }
 });
 
-module.exports = router;
+export default router;
