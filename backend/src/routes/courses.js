@@ -492,36 +492,105 @@ router.put(
   authMiddleware,
   allowRoles("instructor"),
   async (req, res) => {
+    const client = await db.connect();
+
     try {
       const courseId = req.params.id;
+      const instructorId = req.user.id;
 
-      // instructor owns this course?
-      const c = await db.query(
-        "SELECT instructor_id FROM courses WHERE id=$1",
+      await client.query("BEGIN");
+
+      // 1️⃣ check course exists and instructor owns it
+      const c = await client.query(
+        "SELECT instructor_id, status FROM courses WHERE id=$1",
         [courseId]
       );
 
-      if (c.rows.length === 0)
+      if (c.rows.length === 0) {
+        await client.query("ROLLBACK");
         return res.status(404).json({ error: "Course not found" });
+      }
 
-      if (c.rows[0].instructor_id !== req.user.id)
+      if (c.rows[0].instructor_id !== instructorId) {
+        await client.query("ROLLBACK");
         return res.status(403).json({ error: "Not allowed" });
+      }
 
-      const result = await db.query(
+      // 2️⃣ update status to Published
+      const result = await client.query(
         "UPDATE courses SET status='Published' WHERE id=$1 RETURNING *",
         [courseId]
       );
 
+      // 3️⃣ get or create community
+      let community = await client.query(
+        "SELECT id FROM communities WHERE course_id=$1",
+        [courseId]
+      );
+
+      let communityId;
+
+      if (community.rows.length === 0) {
+        const newCommunity = await client.query(
+          `
+          INSERT INTO communities (course_id, members_count, posts_count)
+          VALUES ($1, 0, 0)
+          RETURNING id
+          `,
+          [courseId]
+        );
+
+        communityId = newCommunity.rows[0].id;
+      } else {
+        communityId = community.rows[0].id;
+      }
+
+      // 4️⃣ add instructor as admin in community
+      const memberExists = await client.query(
+        `
+        SELECT id FROM community_members
+        WHERE community_id=$1 AND user_id=$2
+        `,
+        [communityId, instructorId]
+      );
+
+      if (memberExists.rows.length === 0) {
+        await client.query(
+          `
+          INSERT INTO community_members (community_id, user_id, role)
+          VALUES ($1, $2, 'admin')
+          `,
+          [communityId, instructorId]
+        );
+
+        // update members_count
+        await client.query(
+          `
+          UPDATE communities
+          SET members_count = members_count + 1
+          WHERE id=$1
+          `,
+          [communityId]
+        );
+      }
+
+      await client.query("COMMIT");
+
       res.json({
-        message: "Course published",
+        message: "Course published and instructor assigned to community",
         course: result.rows[0],
       });
 
     } catch (err) {
+      await client.query("ROLLBACK");
+      console.error("Publish error:", err);
       res.status(500).json({ error: err.message });
+    } finally {
+      client.release();
     }
   }
 );
+
 
 /* ---------------------------------------
    INSTRUCTOR: Update course
