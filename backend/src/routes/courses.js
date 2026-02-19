@@ -56,41 +56,106 @@ router.post(
   authMiddleware,
   allowRoles("student"),
   async (req, res) => {
+    const client = await db.connect();
+
     try {
       const courseId = req.params.id;
       const studentId = req.user.id;
 
-      // ensure course exists and is Published (students shouldn't enroll in Draft)
-      const c = await db.query("SELECT id, status FROM courses WHERE id=$1", [courseId]);
-      if (c.rows.length === 0)
+      await client.query("BEGIN");
+
+      // 1️⃣ ensure course exists and is Published
+      const c = await client.query(
+        "SELECT id, status FROM courses WHERE id=$1",
+        [courseId]
+      );
+
+      if (c.rows.length === 0) {
+        await client.query("ROLLBACK");
         return res.status(404).json({ error: "Course not found" });
+      }
 
       if (c.rows[0].status !== "Published") {
+        await client.query("ROLLBACK");
         return res.status(400).json({ error: "Cannot enroll in a draft course" });
       }
 
-      // prevent duplicate enrollment
-      const exists = await db.query(
+      // 2️⃣ prevent duplicate enrollment
+      const exists = await client.query(
         "SELECT id FROM enrollments WHERE student_id=$1 AND course_id=$2",
         [studentId, courseId]
       );
+
       if (exists.rows.length > 0) {
+        await client.query("ROLLBACK");
         return res.status(200).json({ message: "Already enrolled" });
       }
 
-      const result = await db.query(
+      // 3️⃣ insert enrollment
+      const result = await client.query(
         `INSERT INTO enrollments (student_id, course_id, progress, completed)
-         VALUES ($1, $2, 0, false) RETURNING *`,
+         VALUES ($1, $2, 0, false)
+         RETURNING *`,
         [studentId, courseId]
       );
 
-      res.status(201).json({ message: "Enrolled successfully", enrollment: result.rows[0] });
+      // 4️⃣ get or create community for this course
+      let community = await client.query(
+        "SELECT id FROM communities WHERE course_id=$1",
+        [courseId]
+      );
+
+      let communityId;
+
+      if (community.rows.length === 0) {
+        const newCommunity = await client.query(
+          `INSERT INTO communities (course_id, members_count, posts_count)
+           VALUES ($1, 0, 0)
+           RETURNING id`,
+          [courseId]
+        );
+        communityId = newCommunity.rows[0].id;
+      } else {
+        communityId = community.rows[0].id;
+      }
+
+      // 5️⃣ insert into community_members
+      await client.query(
+        `
+        INSERT INTO community_members (community_id, user_id)
+        VALUES ($1, $2)
+        ON CONFLICT (community_id, user_id) DO NOTHING
+        `,
+        [communityId, studentId]
+      );
+
+      // 6️⃣ update members_count
+      await client.query(
+        `
+        UPDATE communities
+        SET members_count = members_count + 1
+        WHERE id = $1
+        `,
+        [communityId]
+      );
+
+      await client.query("COMMIT");
+
+      res.status(201).json({
+        message: "Enrolled successfully",
+        enrollment: result.rows[0]
+      });
+
     } catch (err) {
+      await client.query("ROLLBACK");
       console.error("Enroll error:", err);
       res.status(500).json({ error: err.message });
+    } finally {
+      client.release();
     }
   }
 );
+
 
 /* ---------------------------------------
    INSTRUCTOR: Create course (with thumbnail)
