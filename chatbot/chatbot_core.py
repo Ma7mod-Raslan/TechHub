@@ -12,7 +12,7 @@ FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss.index")
 EMBED_MODEL = "multi-qa-mpnet-base-dot-v1"
 RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
-TOP_K = 10
+TOP_K = 5
 SIM_THRESHOLD = 0.35
 RERANK_THRESHOLD = 0.5
 SUGGEST_K = 3
@@ -69,14 +69,12 @@ if not os.path.exists(META_PATH):
 
 ITEMS = json.load(open(META_PATH, encoding="utf-8"))
 
-CHUNKS = []
+DOCUMENTS = []
 for item in ITEMS:
-    for chunk in item["chunks"]:
-        CHUNKS.append({
-            "id": item["id"],
-            "chunk": chunk.lower().strip(),
-            "full_answer": item["full_answer"]
-        })
+    DOCUMENTS.append({
+        "id": item["id"],
+        "text": item["full_answer"],
+    })
 
 index = faiss.read_index(FAISS_INDEX_PATH)
 embed_model = SentenceTransformer(EMBED_MODEL)
@@ -96,7 +94,7 @@ def chatbot_response(user_text, debug=False):
 
     candidates = []
     for sc, idx in zip(scores[0], idxs[0]):
-        entry = CHUNKS[idx]
+        entry = ITEMS[idx]
         candidates.append({
             "id": entry["id"],
             "chunk": entry["chunk"],
@@ -135,7 +133,7 @@ def chatbot_response(user_text, debug=False):
                 "suggestions": candidates[:SUGGEST_K]
             }
 
-    pairs = [(q, c["chunk"]) for c in candidates]
+    pairs = [(q, c["full_answer"]) for c in candidates]
     rerank_scores = reranker.predict(pairs).tolist()
 
     for c, s in zip(candidates, rerank_scores):
