@@ -84,6 +84,26 @@ router.post("/posts/:postId/replies", authMiddleware, async (req, res) => {
   }
 });
 
+// POST like
+router.post(
+  "/posts/:postId/like",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const result = await communityService.togglePostLike(
+        req.params.postId,
+        req.user.id
+      );
+
+      res.json(result);
+    } catch (err) {
+      console.error(err);
+      res.status(403).json({ message: err.message });
+    }
+  }
+);
+
+
 
 
 export default router;

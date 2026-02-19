@@ -23,15 +23,20 @@ const getCommunityPosts = async (communityId, limit, offset) => {
   const result = await pool.query(
     `
     SELECT p.*,
-           u.full_name,
-           u.profile_image
-    FROM community_posts p
-    JOIN users u ON u.id = p.user_id
-    WHERE p.community_id = $1 AND p.is_deleted = false
-    ORDER BY p.created_at DESC
-    LIMIT $2 OFFSET $3
+        u.full_name,
+        u.profile_image,
+        EXISTS (
+          SELECT 1 FROM community_likes cl
+          WHERE cl.post_id = p.id AND cl.user_id = $4
+          ) AS is_liked_by_me
+      FROM community_posts p
+      JOIN users u ON u.id = p.user_id
+      WHERE p.community_id = $1 AND p.is_deleted = false
+      ORDER BY p.created_at DESC
+      LIMIT $2 OFFSET $3
+
     `,
-    [communityId, limit, offset]
+    [communityId, limit, offset, userId]
   );
 
   return result.rows;
@@ -160,11 +165,108 @@ const getPostReplies = async (postId, limit, offset) => {
   return result.rows;
 };
 
+const togglePostLike = async (postId, userId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    
+    const postResult = await client.query(
+      `
+      SELECT community_id
+      FROM community_posts
+      WHERE id = $1 AND is_deleted = false
+      `,
+      [postId]
+    );
+
+    if (postResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+      throw new Error("Post not found");
+    }
+
+    const communityId = postResult.rows[0].community_id;
+
+    const memberCheck = await client.query(
+      `
+      SELECT 1 FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [communityId, userId]
+    );
+
+    if (memberCheck.rows.length === 0) {
+      await client.query("ROLLBACK");
+      throw new Error("Not a community member");
+    }
+
+    const likeCheck = await client.query(
+      `
+      SELECT id FROM community_likes
+      WHERE post_id=$1 AND user_id=$2
+      `,
+      [postId, userId]
+    );
+
+    if (likeCheck.rows.length > 0) {
+      // Unlike
+      await client.query(
+        `
+        DELETE FROM community_likes
+        WHERE post_id=$1 AND user_id=$2
+        `,
+        [postId, userId]
+      );
+
+      await client.query(
+        `
+        UPDATE community_posts
+        SET likes_count = likes_count - 1
+        WHERE id=$1
+        `,
+        [postId]
+      );
+
+      await client.query("COMMIT");
+      return { liked: false };
+    } else {
+      // Like
+      await client.query(
+        `
+        INSERT INTO community_likes (user_id, post_id)
+        VALUES ($1, $2)
+        `,
+        [userId, postId]
+      );
+
+      await client.query(
+        `
+        UPDATE community_posts
+        SET likes_count = likes_count + 1
+        WHERE id=$1
+        `,
+        [postId]
+      );
+
+      await client.query("COMMIT");
+      return { liked: true };
+    }
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 
 export default {
   getUserCommunities,
   getCommunityPosts,
   createPost,
   createReply,
-  getPostReplies
+  getPostReplies,
+  togglePostLike
 };
