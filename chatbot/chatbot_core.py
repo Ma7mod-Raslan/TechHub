@@ -69,13 +69,6 @@ if not os.path.exists(META_PATH):
 
 ITEMS = json.load(open(META_PATH, encoding="utf-8"))
 
-DOCUMENTS = []
-for item in ITEMS:
-    DOCUMENTS.append({
-        "id": item["id"],
-        "text": item["full_answer"],
-    })
-
 index = faiss.read_index(FAISS_INDEX_PATH)
 embed_model = SentenceTransformer(EMBED_MODEL)
 
@@ -97,7 +90,6 @@ def chatbot_response(user_text, debug=False):
         entry = ITEMS[idx]
         candidates.append({
             "id": entry["id"],
-            "chunk": entry["chunk"],
             "full_answer": entry["full_answer"],
             "score": float(sc)
         })
