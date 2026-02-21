@@ -24,6 +24,7 @@ router.get("/:id/posts", authMiddleware, checkCommunityMember, async (req, res) 
   try {
     const posts = await communityService.getCommunityPosts(
       req.params.id,
+      req.user.id,
       limit,
       offset
     );

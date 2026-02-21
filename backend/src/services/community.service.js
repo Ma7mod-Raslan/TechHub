@@ -20,7 +20,7 @@ const getUserCommunities = async (userId) => {
   return result.rows;
 };
 
-const getCommunityPosts = async (communityId, limit, offset) => {
+const getCommunityPosts = async (communityId,userId, limit, offset) => {
   const result = await pool.query(
     `
     SELECT p.*,
