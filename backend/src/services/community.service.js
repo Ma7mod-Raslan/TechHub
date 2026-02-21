@@ -69,7 +69,24 @@ const createPost = async (communityId, userId, content) => {
 
     await client.query("COMMIT");
 
-    return postResult.rows[0];
+    const newPostId = postResult.rows[0].id;
+
+    const fullPost = await client.query(
+      `
+      SELECT p.*,
+            u.full_name,
+            u.profile_image,
+            false AS is_liked_by_me
+      FROM community_posts p
+      JOIN users u ON u.id = p.user_id
+      WHERE p.id = $1
+      `,
+      [newPostId]
+    );
+
+await client.query("COMMIT");
+
+return fullPost.rows[0];
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
