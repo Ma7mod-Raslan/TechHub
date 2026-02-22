@@ -136,10 +136,15 @@ const createReply = async (postId, userId, content) => {
     // 3️⃣ إدخال الرد
     const replyResult = await client.query(
       `
-      INSERT INTO community_replies (post_id, user_id, content)
-      VALUES ($1, $2, $3)
-      RETURNING *
-      `,
+      WITH inserted_reply AS (
+        INSERT INTO community_replies (post_id, user_id, content)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      )
+      SELECT r.*, u.full_name, u.profile_image
+      FROM inserted_reply r
+      JOIN users u ON u.id = r.user_id;
+      `
       [postId, userId, content]
     );
 
