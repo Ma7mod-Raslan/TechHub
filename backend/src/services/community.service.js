@@ -186,7 +186,7 @@ const getPostReplies = async (postId, limit, offset) => {
     ORDER BY r.created_at ASC
     LIMIT $2 OFFSET $3
     `,
-    [postId, limit, offset]
+    [postId, limit, offset, userId]
   );
 
   return result.rows;
