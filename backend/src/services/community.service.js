@@ -170,27 +170,28 @@ const createReply = async (postId, userId, content) => {
   }
 };
 
-const getPostReplies = async (postId, limit, offset) => {
+const getPostReplies = async (postId, limit, offset, userId) => {
   const result = await pool.query(
     `
-        SELECT r.*,
-          u.full_name,
-          u.profile_image,
-          EXISTS (
-            SELECT 1 FROM community_likes cl
-            WHERE cl.reply_id = r.id AND cl.user_id = $4
-          ) AS is_liked_by_me
+    SELECT r.*,
+           u.full_name,
+           u.profile_image,
+           EXISTS (
+             SELECT 1 FROM community_likes cl
+             WHERE cl.reply_id = r.id AND cl.user_id = $4
+           ) AS is_liked_by_me
     FROM community_replies r
     JOIN users u ON u.id = r.user_id
     WHERE r.post_id = $1 AND r.is_deleted=false
     ORDER BY r.created_at ASC
     LIMIT $2 OFFSET $3
     `,
-    [postId, limit, offset, userId]
+    [postId, limit, offset, userId] 
   );
 
   return result.rows;
 };
+
 
 const togglePostLike = async (postId, userId) => {
   const client = await pool.connect();
