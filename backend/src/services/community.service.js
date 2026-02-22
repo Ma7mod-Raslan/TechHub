@@ -30,7 +30,7 @@ const getCommunityPosts = async (communityId, userId, limit, offset) => {
 
         -- 🔥 نحسب عدد الردود الصح
         (
-          SELECT COUNT(*)
+          SELECT COUNT(*)::int
           FROM community_replies r
           WHERE r.post_id = p.id
           AND r.is_deleted = false
