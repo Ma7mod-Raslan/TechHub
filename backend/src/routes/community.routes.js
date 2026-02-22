@@ -50,6 +50,35 @@ router.post("/:id/posts", authMiddleware, checkCommunityMember, async (req, res)
   }
 });
 
+
+// Update post
+router.put("/posts/:postId", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.editPost(
+      req.params.postId,
+      req.user.id,
+      req.body.content
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(403).json({ message: err.message });
+  }
+});
+
+// Delete Post
+router.delete("/posts/:postId", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.deletePost(
+      req.params.postId,
+      req.user.id
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(403).json({ message: err.message });
+  }
+});
+
+
 // GET replies
 router.get("/posts/:postId/replies", authMiddleware, async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
@@ -84,6 +113,34 @@ router.post("/posts/:postId/replies", authMiddleware, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
+
+// Update reply
+router.put("/replies/:replyId", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.editReply(
+      req.params.replyId,
+      req.user.id,
+      req.body.content
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(403).json({ message: err.message });
+  }
+});
+
+// Delete reply
+router.delete("/replies/:replyId", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.deleteReply(
+      req.params.replyId,
+      req.user.id
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(403).json({ message: err.message });
+  }
+});
+
 
 // POST like
 router.post(

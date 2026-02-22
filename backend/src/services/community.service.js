@@ -279,6 +279,222 @@ const togglePostLike = async (postId, userId) => {
   }
 };
 
+const editPost = async (postId, userId, content) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const post = await client.query(
+      `
+      SELECT user_id, community_id
+      FROM community_posts
+      WHERE id=$1 AND is_deleted=false
+      `,
+      [postId]
+    );
+
+    if (post.rows.length === 0) {
+      throw new Error("Post not found");
+    }
+
+    const { user_id, community_id } = post.rows[0];
+
+    // فقط صاحب البوست يقدر يعدل
+    if (user_id !== userId) {
+      throw new Error("Not allowed to edit this post");
+    }
+
+    const updated = await client.query(
+      `
+      UPDATE community_posts
+      SET content=$1, updated_at=NOW()
+      WHERE id=$2
+      RETURNING *
+      `,
+      [content, postId]
+    );
+
+    await client.query("COMMIT");
+    return updated.rows[0];
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const deletePost = async (postId, userId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const post = await client.query(
+      `
+      SELECT user_id, community_id
+      FROM community_posts
+      WHERE id=$1 AND is_deleted=false
+      `,
+      [postId]
+    );
+
+    if (post.rows.length === 0) {
+      throw new Error("Post not found");
+    }
+
+    const { user_id, community_id } = post.rows[0];
+
+    // هل user admin؟
+    const roleCheck = await client.query(
+      `
+      SELECT role FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [community_id, userId]
+    );
+
+    if (roleCheck.rows.length === 0) {
+      throw new Error("Not a community member");
+    }
+
+    const role = roleCheck.rows[0].role;
+
+    // مسموح لو owner أو admin
+    if (user_id !== userId && role !== "admin") {
+      throw new Error("Not allowed to delete this post");
+    }
+
+    await client.query(
+      `
+      UPDATE community_posts
+      SET is_deleted=true
+      WHERE id=$1
+      `,
+      [postId]
+    );
+
+    await client.query("COMMIT");
+
+    return { message: "Post deleted" };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const editReply = async (replyId, userId, content) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const reply = await client.query(
+      `
+      SELECT user_id
+      FROM community_replies
+      WHERE id=$1 AND is_deleted=false
+      `,
+      [replyId]
+    );
+
+    if (reply.rows.length === 0) {
+      throw new Error("Reply not found");
+    }
+
+    if (reply.rows[0].user_id !== userId) {
+      throw new Error("Not allowed to edit this reply");
+    }
+
+    const updated = await client.query(
+      `
+      UPDATE community_replies
+      SET content=$1
+      WHERE id=$2
+      RETURNING *
+      `,
+      [content, replyId]
+    );
+
+    await client.query("COMMIT");
+    return updated.rows[0];
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const deleteReply = async (replyId, userId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const reply = await client.query(
+      `
+      SELECT r.user_id, p.community_id
+      FROM community_replies r
+      JOIN community_posts p ON p.id = r.post_id
+      WHERE r.id=$1 AND r.is_deleted=false
+      `,
+      [replyId]
+    );
+
+    if (reply.rows.length === 0) {
+      throw new Error("Reply not found");
+    }
+
+    const { user_id, community_id } = reply.rows[0];
+
+    const roleCheck = await client.query(
+      `
+      SELECT role FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [community_id, userId]
+    );
+
+    if (roleCheck.rows.length === 0) {
+      throw new Error("Not a community member");
+    }
+
+    const role = roleCheck.rows[0].role;
+
+    if (user_id !== userId && role !== "admin") {
+      throw new Error("Not allowed to delete this reply");
+    }
+
+    await client.query(
+      `
+      UPDATE community_replies
+      SET is_deleted=true
+      WHERE id=$1
+      `,
+      [replyId]
+    );
+
+    await client.query("COMMIT");
+
+    return { message: "Reply deleted" };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+
+
 
 export default {
   getUserCommunities,
@@ -286,5 +502,9 @@ export default {
   createPost,
   createReply,
   getPostReplies,
-  togglePostLike
+  togglePostLike,
+  editPost,
+  deletePost,
+  editReply,
+  deleteReply
 };
