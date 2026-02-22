@@ -81,23 +81,19 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 
 // GET replies
 router.get("/posts/:postId/replies", authMiddleware, async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const offset = (page - 1) * limit;
+  const { postId } = req.params;
+  const { limit = 10, offset = 0 } = req.query;
+  const userId = req.user.id;
 
-  try {
-    const replies = await communityService.getPostReplies(
-      req.params.postId,
-      limit,
-      offset
-    );
+  const replies = await communityService.getPostReplies(
+    postId,
+    limit,
+    offset,
+    userId
+  );
 
-    res.json(replies);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
+  res.json(replies);
 });
-
 // POST reply
 router.post("/posts/:postId/replies", authMiddleware, async (req, res) => {
   try {
