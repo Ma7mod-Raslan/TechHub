@@ -160,6 +160,26 @@ router.post(
   }
 );
 
+// Reply like
+router.post(
+  "/replies/:replyId/like",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const result = await communityService.toggleReplyLike(
+        req.params.replyId,
+        req.user.id
+      );
+
+      res.json(result);
+    } catch (err) {
+      console.error(err);
+      res.status(403).json({ message: err.message });
+    }
+  }
+);
+
+
 // Report post
 router.post("/posts/:postId/report", authMiddleware, async (req, res) => {
   try {

@@ -173,12 +173,16 @@ const createReply = async (postId, userId, content) => {
 const getPostReplies = async (postId, limit, offset) => {
   const result = await pool.query(
     `
-    SELECT r.*,
-           u.full_name,
-           u.profile_image
+        SELECT r.*,
+          u.full_name,
+          u.profile_image,
+          EXISTS (
+            SELECT 1 FROM community_likes cl
+            WHERE cl.reply_id = r.id AND cl.user_id = $4
+          ) AS is_liked_by_me
     FROM community_replies r
     JOIN users u ON u.id = r.user_id
-    WHERE r.post_id = $1 AND r.is_deleted = false
+    WHERE r.post_id = $1 AND r.is_deleted=false
     ORDER BY r.created_at ASC
     LIMIT $2 OFFSET $3
     `,
@@ -283,6 +287,104 @@ const togglePostLike = async (postId, userId) => {
     client.release();
   }
 };
+
+const toggleReplyLike = async (replyId, userId) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1️⃣ هات community_id من reply
+    const replyResult = await client.query(
+      `
+      SELECT r.post_id, p.community_id
+      FROM community_replies r
+      JOIN community_posts p ON p.id = r.post_id
+      WHERE r.id=$1 AND r.is_deleted=false
+      `,
+      [replyId]
+    );
+
+    if (replyResult.rows.length === 0) {
+      throw new Error("Reply not found");
+    }
+
+    const communityId = replyResult.rows[0].community_id;
+
+    // 2️⃣ تأكد إن user عضو
+    const memberCheck = await client.query(
+      `
+      SELECT 1 FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [communityId, userId]
+    );
+
+    if (memberCheck.rows.length === 0) {
+      throw new Error("Not a community member");
+    }
+
+    // 3️⃣ هل already liked؟
+    const likeCheck = await client.query(
+      `
+      SELECT id FROM community_likes
+      WHERE reply_id=$1 AND user_id=$2
+      `,
+      [replyId, userId]
+    );
+
+    if (likeCheck.rows.length > 0) {
+      // Unlike
+      await client.query(
+        `
+        DELETE FROM community_likes
+        WHERE reply_id=$1 AND user_id=$2
+        `,
+        [replyId, userId]
+      );
+
+      await client.query(
+        `
+        UPDATE community_replies
+        SET likes_count = likes_count - 1
+        WHERE id=$1
+        `,
+        [replyId]
+      );
+
+      await client.query("COMMIT");
+      return { liked: false };
+    } else {
+      // Like
+      await client.query(
+        `
+        INSERT INTO community_likes (user_id, reply_id)
+        VALUES ($1, $2)
+        `,
+        [userId, replyId]
+      );
+
+      await client.query(
+        `
+        UPDATE community_replies
+        SET likes_count = likes_count + 1
+        WHERE id=$1
+        `,
+        [replyId]
+      );
+
+      await client.query("COMMIT");
+      return { liked: true };
+    }
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 
 const editPost = async (postId, userId, content) => {
   const client = await pool.connect();
@@ -676,6 +778,7 @@ export default {
   createReply,
   getPostReplies,
   togglePostLike,
+  toggleReplyLike,
   editPost,
   deletePost,
   editReply,
