@@ -493,7 +493,175 @@ const deleteReply = async (replyId, userId) => {
   }
 };
 
+const reportPost = async (postId, userId, reason) => {
+  const client = await pool.connect();
 
+  try {
+    await client.query("BEGIN");
+
+    // 1️⃣ تأكد إن البوست موجود
+    const post = await client.query(
+      `
+      SELECT user_id, community_id
+      FROM community_posts
+      WHERE id=$1 AND is_deleted=false
+      `,
+      [postId]
+    );
+
+    if (post.rows.length === 0) {
+      throw new Error("Post not found");
+    }
+
+    const { user_id: ownerId, community_id } = post.rows[0];
+
+    if (ownerId === userId) {
+      throw new Error("You cannot report your own post");
+    }
+
+    // 2️⃣ تأكد إن user عضو
+    const memberCheck = await client.query(
+      `
+      SELECT 1 FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [community_id, userId]
+    );
+
+    if (memberCheck.rows.length === 0) {
+      throw new Error("Not a community member");
+    }
+
+    // 3️⃣ منع duplicate report
+    const exists = await client.query(
+      `
+      SELECT id FROM community_reports
+      WHERE post_id=$1 AND user_id=$2
+      `,
+      [postId, userId]
+    );
+
+    if (exists.rows.length > 0) {
+      throw new Error("Already reported");
+    }
+
+    await client.query(
+      `
+      INSERT INTO community_reports (user_id, post_id, reason)
+      VALUES ($1, $2, $3)
+      `,
+      [userId, postId, reason]
+    );
+
+    await client.query("COMMIT");
+    return { message: "Post reported successfully" };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const reportReply = async (replyId, userId, reason) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const reply = await client.query(
+      `
+      SELECT r.user_id, p.community_id
+      FROM community_replies r
+      JOIN community_posts p ON p.id = r.post_id
+      WHERE r.id=$1 AND r.is_deleted=false
+      `,
+      [replyId]
+    );
+
+    if (reply.rows.length === 0) {
+      throw new Error("Reply not found");
+    }
+
+    const { user_id: ownerId, community_id } = reply.rows[0];
+
+    if (ownerId === userId) {
+      throw new Error("You cannot report your own reply");
+    }
+
+    const memberCheck = await client.query(
+      `
+      SELECT 1 FROM community_members
+      WHERE community_id=$1 AND user_id=$2
+      `,
+      [community_id, userId]
+    );
+
+    if (memberCheck.rows.length === 0) {
+      throw new Error("Not a community member");
+    }
+
+    const exists = await client.query(
+      `
+      SELECT id FROM community_reports
+      WHERE reply_id=$1 AND user_id=$2
+      `,
+      [replyId, userId]
+    );
+
+    if (exists.rows.length > 0) {
+      throw new Error("Already reported");
+    }
+
+    await client.query(
+      `
+      INSERT INTO community_reports (user_id, reply_id, reason)
+      VALUES ($1, $2, $3)
+      `,
+      [userId, replyId, reason]
+    );
+
+    await client.query("COMMIT");
+    return { message: "Reply reported successfully" };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
+const getCommunityReports = async (communityId, userId) => {
+  const roleCheck = await pool.query(
+    `
+    SELECT role FROM community_members
+    WHERE community_id=$1 AND user_id=$2
+    `,
+    [communityId, userId]
+  );
+
+  if (roleCheck.rows.length === 0 || roleCheck.rows[0].role !== "admin") {
+    throw new Error("Not authorized");
+  }
+
+  const result = await pool.query(
+    `
+    SELECT r.*, u.full_name
+    FROM community_reports r
+    JOIN users u ON u.id = r.user_id
+    LEFT JOIN community_posts p ON p.id = r.post_id
+    LEFT JOIN community_replies rep ON rep.id = r.reply_id
+    WHERE p.community_id=$1 OR rep.post_id IN
+      (SELECT id FROM community_posts WHERE community_id=$1)
+    ORDER BY r.created_at DESC
+    `,
+    [communityId]
+  );
+
+  return result.rows;
+};
 
 
 export default {
@@ -506,5 +674,8 @@ export default {
   editPost,
   deletePost,
   editReply,
-  deleteReply
+  deleteReply,
+  reportPost,
+  reportReply,
+  getCommunityReports
 };

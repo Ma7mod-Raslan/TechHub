@@ -141,7 +141,6 @@ router.delete("/replies/:replyId", authMiddleware, async (req, res) => {
   }
 });
 
-
 // POST like
 router.post(
   "/posts/:postId/like",
@@ -160,6 +159,53 @@ router.post(
     }
   }
 );
+
+// Report post
+router.post("/posts/:postId/report", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.reportPost(
+      req.params.postId,
+      req.user.id,
+      req.body.reason
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Report reply
+router.post("/replies/:replyId/report", authMiddleware, async (req, res) => {
+  try {
+    const result = await communityService.reportReply(
+      req.params.replyId,
+      req.user.id,
+      req.body.reason
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Admin: View Reports
+router.get(
+  "/:communityId/reports",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const reports = await communityService.getCommunityReports(
+        req.params.communityId,
+        req.user.id
+      );
+      res.json(reports);
+    } catch (err) {
+      res.status(403).json({ message: err.message });
+    }
+  }
+);
+
+
 
 
 
