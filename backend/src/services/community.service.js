@@ -20,22 +20,35 @@ const getUserCommunities = async (userId) => {
   return result.rows;
 };
 
-const getCommunityPosts = async (communityId,userId, limit, offset) => {
+const getCommunityPosts = async (communityId, userId, limit, offset) => {
   const result = await pool.query(
     `
-    SELECT p.*,
+    SELECT 
+        p.*,
         u.full_name,
         u.profile_image,
-        EXISTS (
-          SELECT 1 FROM community_likes cl
-          WHERE cl.post_id = p.id AND cl.user_id = $4
-          ) AS is_liked_by_me
-      FROM community_posts p
-      JOIN users u ON u.id = p.user_id
-      WHERE p.community_id = $1 AND p.is_deleted = false
-      ORDER BY p.created_at DESC
-      LIMIT $2 OFFSET $3
 
+        -- 🔥 نحسب عدد الردود الصح
+        (
+          SELECT COUNT(*)
+          FROM community_replies r
+          WHERE r.post_id = p.id
+          AND r.is_deleted = false
+        ) AS replies_count,
+
+        EXISTS (
+          SELECT 1 
+          FROM community_likes cl
+          WHERE cl.post_id = p.id 
+          AND cl.user_id = $4
+        ) AS is_liked_by_me
+
+    FROM community_posts p
+    JOIN users u ON u.id = p.user_id
+    WHERE p.community_id = $1 
+    AND p.is_deleted = false
+    ORDER BY p.created_at DESC
+    LIMIT $2 OFFSET $3
     `,
     [communityId, limit, offset, userId]
   );
