@@ -144,7 +144,7 @@ const createReply = async (postId, userId, content) => {
       SELECT r.*, u.full_name, u.profile_image
       FROM inserted_reply r
       JOIN users u ON u.id = r.user_id;
-      `
+      `,
       [postId, userId, content]
     );
 
