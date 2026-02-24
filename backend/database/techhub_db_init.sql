@@ -103,9 +103,48 @@ CREATE TABLE assignments (
   title VARCHAR(150) NOT NULL,
   description TEXT,
   deadline DATE,
+  passing_percentage INT DEFAULT 70,
+  max_attempts INT,
+  is_active BOOLEAN,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE assignment_questions (
+  id SERIAL PRIMARY KEY,
+  assignment_id INT REFERENCES assignments(id) ON DELETE CASCADE,
+  question_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE assignment_options (
+  id SERIAL PRIMARY KEY,
+  question_id INT REFERENCES assignment_questions(id) ON DELETE CASCADE,
+  option_text TEXT NOT NULL,
+  is_correct BOOLEAN DEFAULT false
+);
+
+CREATE TABLE student_assignment_attempts (
+  id SERIAL PRIMARY KEY,
+  assignment_id INT REFERENCES assignments(id) ON DELETE CASCADE,
+  student_id INT REFERENCES users(id) ON DELETE CASCADE,
+  score INT NOT NULL,
+  percentage DECIMAL(5,2) NOT NULL,
+  is_passed BOOLEAN NOT NULL,
+  attempt_number INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE student_attempt_answers (
+  id SERIAL PRIMARY KEY,
+  attempt_id INT REFERENCES student_assignment_attempts(id) ON DELETE CASCADE,
+  question_id INT REFERENCES assignment_questions(id),
+  selected_option_id INT REFERENCES assignment_options(id),
+  is_correct BOOLEAN
+);
+
+CREATE INDEX idx_assignment_course ON assignments(course_id);
+CREATE INDEX idx_questions_assignment ON assignment_questions(assignment_id);
+CREATE INDEX idx_attempts_student ON student_assignment_attempts(student_id);
 
 CREATE TABLE video_notes (
   id SERIAL PRIMARY KEY,
