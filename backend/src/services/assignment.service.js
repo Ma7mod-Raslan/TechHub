@@ -296,6 +296,43 @@ const addQuestion = async (assignmentId, question_text, instructor_id) => {
   }
 };
 
+const deleteQuestion = async (questionId, instructor_id) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Check ownership
+    const checkRes = await client.query(
+      `SELECT q.id
+       FROM assignment_questions q
+       JOIN assignments a ON q.assignment_id = a.id
+       JOIN courses c ON a.course_id = c.id
+       WHERE q.id = $1 AND c.instructor_id = $2`,
+      [questionId, instructor_id]
+    );
+
+    if (checkRes.rows.length === 0) {
+      throw new Error("Not authorized to delete this question");
+    }
+
+    await client.query(
+      `DELETE FROM assignment_questions
+       WHERE id = $1`,
+      [questionId]
+    );
+
+    await client.query("COMMIT");
+
+    return { questionId };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const addOptions = async (questionId, options, instructor_id) => {
   const client = await pool.connect();
 
@@ -348,11 +385,118 @@ const addOptions = async (questionId, options, instructor_id) => {
   }
 };
 
+const getAssignmentDetailsForInstructor = async (
+  assignmentId,
+  instructor_id
+) => {
+  const client = await pool.connect();
+
+  try {
+    // Check ownership
+    const assignmentRes = await client.query(
+      `SELECT a.*
+       FROM assignments a
+       JOIN courses c ON a.course_id = c.id
+       WHERE a.id = $1 AND c.instructor_id = $2`,
+      [assignmentId, instructor_id]
+    );
+
+    if (assignmentRes.rows.length === 0) {
+      throw new Error("Assignment not found or not authorized");
+    }
+
+    const assignment = assignmentRes.rows[0];
+
+    // Get questions + options
+    const questionsRes = await client.query(
+      `SELECT 
+         q.id as question_id,
+         q.question_text,
+         o.id as option_id,
+         o.option_text,
+         o.is_correct
+       FROM assignment_questions q
+       LEFT JOIN assignment_options o
+       ON q.id = o.question_id
+       WHERE q.assignment_id = $1
+       ORDER BY q.id`,
+      [assignmentId]
+    );
+
+    // Arrange data properly
+    const questionsMap = new Map();
+
+    questionsRes.rows.forEach((row) => {
+      if (!questionsMap.has(row.question_id)) {
+        questionsMap.set(row.question_id, {
+          id: row.question_id,
+          question_text: row.question_text,
+          options: [],
+        });
+      }
+
+      if (row.option_id) {
+        questionsMap.get(row.question_id).options.push({
+          id: row.option_id,
+          option_text: row.option_text,
+          is_correct: row.is_correct,
+        });
+      }
+    });
+
+    return {
+      ...assignment,
+      questions: Array.from(questionsMap.values()),
+    };
+  } finally {
+    client.release();
+  }
+};
+
+const deleteAssignment = async (assignmentId, instructor_id) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Check ownership
+    const checkRes = await client.query(
+      `SELECT a.id
+       FROM assignments a
+       JOIN courses c ON a.course_id = c.id
+       WHERE a.id = $1 AND c.instructor_id = $2`,
+      [assignmentId, instructor_id]
+    );
+
+    if (checkRes.rows.length === 0) {
+      throw new Error("Not authorized to delete this assignment");
+    }
+
+    await client.query(
+      `DELETE FROM assignments
+       WHERE id = $1`,
+      [assignmentId]
+    );
+
+    await client.query("COMMIT");
+
+    return { assignmentId };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 export default {
   getAssignmentForCourse,
   submitAssignment,
   getStudentAttempts,
   createAssignment,
   addQuestion,
+  deleteQuestion,
+  getAssignmentDetailsForInstructor,
+  deleteAssignment,
   addOptions
 };

@@ -236,4 +236,89 @@ router.post(
   }
 );
 
+/**
+ * Delete Question
+ */
+router.delete(
+  "/question/:questionId",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.user.role !== "instructor") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { questionId } = req.params;
+
+      const result = await assignmentService.deleteQuestion(
+        questionId,
+        req.user.id
+      );
+
+      res.json({
+        message: "Question deleted successfully",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * Get Assignment to Edit
+ */
+router.get(
+  "/:assignmentId",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.user.role !== "instructor") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { assignmentId } = req.params;
+
+      const assignment =
+        await assignmentService.getAssignmentDetailsForInstructor(
+          assignmentId,
+          req.user.id
+        );
+
+      res.json(assignment);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * Delete Assignment
+ */
+router.delete(
+  "/:assignmentId",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.user.role !== "instructor") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { assignmentId } = req.params;
+
+      const result = await assignmentService.deleteAssignment(
+        assignmentId,
+        req.user.id
+      );
+
+      res.json({
+        message: "Assignment deleted successfully",
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default router;
