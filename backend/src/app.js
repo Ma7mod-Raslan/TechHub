@@ -20,6 +20,7 @@ import videoQuestionsRoutes from "./routes/videoQuestions.js";
 import videoProgressRoutes from "./routes/videoProgress.js";
 import instructorRoutes from "./routes/instructor.js";
 import communityRoutes  from "./routes/community.routes.js";
+import assignmentRoutes from "./routes/assignment.routes.js"
 
 // ===== Create app =====
 const app = express();
@@ -54,6 +55,8 @@ app.use("/api", videoQuestionsRoutes);
 // Community 
 app.use("/api/communities", communityRoutes);
 
+// Assignment
+app.use("/api/assignments", assignmentRoutes);
 // Video Progress
 app.use("/api", videoProgressRoutes);
 
