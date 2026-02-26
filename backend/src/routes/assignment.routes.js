@@ -237,6 +237,41 @@ router.post(
 );
 
 /**
+ * Edit Question
+ */
+router.put(
+  "/question/:questionId",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.user.role !== "instructor") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { questionId } = req.params;
+      const { question_text, options } = req.body;
+
+      const result = await assignmentService.updateQuestion(
+        questionId,
+        {
+          question_text,
+          options
+        },
+        req.user.id
+      );
+
+      res.json({
+        message: "Question updated successfully",
+        data: result
+      });
+
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
  * Delete Question
  */
 router.delete(

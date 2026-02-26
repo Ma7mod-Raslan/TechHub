@@ -333,6 +333,75 @@ const deleteQuestion = async (questionId, instructor_id) => {
   }
 };
 
+const updateQuestion = async (questionId, data, instructor_id) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 🔐 Check ownership
+    const checkRes = await client.query(
+      `SELECT q.id
+       FROM assignment_questions q
+       JOIN assignments a ON q.assignment_id = a.id
+       JOIN courses c ON a.course_id = c.id
+       WHERE q.id = $1 AND c.instructor_id = $2`,
+      [questionId, instructor_id]
+    );
+
+    if (checkRes.rows.length === 0) {
+      throw new Error("Not authorized to edit this question");
+    }
+
+    // ✏️ Update question text
+    if (data.question_text) {
+      await client.query(
+        `UPDATE assignment_questions
+         SET question_text = $1
+         WHERE id = $2`,
+        [data.question_text, questionId]
+      );
+    }
+
+    // ✏️ Update options (لو بعت options)
+    if (data.options && Array.isArray(data.options)) {
+
+      // لازم يكون فيه إجابة صحيحة واحدة بس
+      const correctCount = data.options.filter(o => o.is_correct).length;
+      if (correctCount !== 1) {
+        throw new Error("There must be exactly one correct option");
+      }
+
+      // نحذف الاختيارات القديمة
+      await client.query(
+        `DELETE FROM assignment_options
+         WHERE question_id = $1`,
+        [questionId]
+      );
+
+      // نضيف الاختيارات الجديدة
+      for (let option of data.options) {
+        await client.query(
+          `INSERT INTO assignment_options
+           (question_id, option_text, is_correct)
+           VALUES ($1,$2,$3)`,
+          [questionId, option.option_text, option.is_correct]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+
+    return { questionId };
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const addOptions = async (questionId, options, instructor_id) => {
   const client = await pool.connect();
 
@@ -498,5 +567,6 @@ export default {
   deleteQuestion,
   getAssignmentDetailsForInstructor,
   deleteAssignment,
+  updateQuestion,
   addOptions
 };
