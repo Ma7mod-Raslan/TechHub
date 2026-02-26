@@ -402,9 +402,12 @@ router.get(
           c.created_at,
           COUNT(DISTINCT v.id) AS videos_count,
           COUNT(DISTINCT e.id) AS enrollments_count,
+          COUNT(DISTINCT q.id) AS questions_count
         FROM courses c
         LEFT JOIN course_videos v ON v.course_id = c.id
         LEFT JOIN enrollments e ON e.course_id = c.id
+        LEFT JOIN assignments a ON a.course_id = c.id
+        LEFT JOIN assignment_questions q ON q.assignment_id = a.id
         WHERE c.instructor_id = $1
       `;
 
