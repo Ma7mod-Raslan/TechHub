@@ -172,6 +172,14 @@ CREATE TABLE certificates (
   issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE transcript_segments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  video_id INT REFERENCES course_videos(id) ON DELETE CASCADE,
+  start_time FLOAT NOT NULL,
+  duration FLOAT NOT NULL,
+  content TEXT NOT NULL
+);
+
 CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
   user_id INT REFERENCES users(id),
