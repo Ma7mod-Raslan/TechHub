@@ -378,5 +378,49 @@
   {
     "topic": "evolving content updates new content latest technology",
     "answer": "TechHub is committed to continuous content updates, ensuring learners remain fully informed and up-to-date with the rapidly evolving trends in software engineering and technology sectors."
+  },
+  {
+    "topic": "operating system | cs & it  intermediate",
+    "answer": "Course Title: Operating System | CS & IT \nLevel: Intermediate\n\nDetails:\nA concise and structured course covering the core concepts of Operating Systems for CS & IT students.\r\nIt focuses on fundamentals, problem-solving, and key topics required for academic exams and GATE preparation."
+  },
+  {
+    "topic": "sql dml – complete guide to data manipulation language intermediate",
+    "answer": "Course Title: SQL DML – Complete Guide to Data Manipulation Language\nLevel: Intermediate\n\nDetails:\nThis course provides a comprehensive introduction to SQL Data Manipulation Language (DML).\r\nIt focuses on how to retrieve, insert, update, and manage data in relational databases using SQL.\r\nThe course also covers joins, table management, indexing, and transaction concepts with clear examples."
+  },
+  {
+    "topic": "html for beginners beginner",
+    "answer": "Course Title: HTML for Beginners\nLevel: Beginner\n\nDetails:\nThis course introduces beginners to the essentials of HTML and how webpages are built. Students will learn how to use code editors, create HTML elements, work with attributes, and structure content using headings, text, links, images, lists, and tables. By the end, learners will be able to build simple, well-organized webpages and understand the foundational concepts needed to advance to CSS and modern web development."
+  },
+  {
+    "topic": "operating system – crash course for cs & it (gate level) intermediate",
+    "answer": "Course Title: Operating System – Crash Course for CS & IT (GATE Level)\nLevel: Intermediate\n\nDetails:\nA concise and structured course covering the core concepts of Operating Systems for CS & IT students.\r\nIt focuses on fundamentals, problem-solving, and key topics required for academic exams and GATE preparation."
+  },
+  {
+    "topic": "sql for beginners beginner",
+    "answer": "Course Title: SQL for Beginners\nLevel: Beginner\n\nDetails:\nThis course introduces beginners to SQL (Structured Query Language), the standard language used to interact with relational databases.\r\nLearners will understand how to store, retrieve, update, and manage data using SQL queries. The course covers essential concepts such as tables, relationships, filtering data, and basic aggregation functions, preparing students to work confidently with real-world databases."
+  },
+  {
+    "topic": "introduction to css intermediate",
+    "answer": "Course Title: Introduction to CSS\nLevel: Intermediate\n\nDetails:\nPart of a series of video tutorials to learn CSS !"
+  },
+  {
+    "topic": "introduction to cs and programming using python beginner",
+    "answer": "Course Title: Introduction to CS and Programming using Python\nLevel: Beginner\n\nDetails:\nAn introduction to what computation is, python basics, mathematical operations, and python variables and types. We explore python objects and python programs."
+  },
+  {
+    "topic": "introduction to cs and programming using python intermediate",
+    "answer": "Course Title: Introduction to CS and Programming Using Python\nLevel: Intermediate\n\nDetails:\nAn introduction to what computation is, python basics, mathematical operations, and python variables and types. We explore python objects and python programs."
+  },
+  {
+    "topic": "number systems beginner",
+    "answer": "Course Title: Number Systems\nLevel: Beginner\n\nDetails:\nA short and easy course that explains number systems used in computer science and how to convert between them."
+  },
+  {
+    "topic": "c++ full course beginner",
+    "answer": "Course Title: C++ Full Course\nLevel: Beginner\n\nDetails:\nA beginner-friendly introduction to C++ that explains how the language works and how to set up the development environment."
+  },
+  {
+    "topic": "javascript for beginners beginner",
+    "answer": "Course Title: JavaScript for Beginners\nLevel: Beginner\n\nDetails:\nThis course introduces beginners to JavaScript, the programming language that brings web pages to life.\r\nStudents will learn how to write basic JavaScript code, work with variables and functions, handle user interactions, and manipulate the DOM to create dynamic and interactive web experiences."
   }
 ]

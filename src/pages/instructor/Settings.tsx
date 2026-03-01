@@ -18,6 +18,7 @@ import {
   CreditCard,
   LogOut,
   Menu,
+  Settings,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -44,14 +45,15 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
   const [email, setEmail] = useState('sarah.johnson@email.com');
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-    { icon: User, label: 'Profile', page: 'instructor-profile' },
-    { icon: SettingsIcon, label: 'Settings', page: 'instructor-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-  ];
+  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
+  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
+  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
+  { icon: Users, label: 'Community', page: 'community' },
+  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
+  { icon: User, label: 'Profile', page: 'instructor-profile' },
+  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
+  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+];
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -10,6 +10,9 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 import InstructorDashboard from './pages/instructor/Dashboard';
 import InstructorCourses from './pages/instructor/MyCourses';
 import InstructorCourseView from './pages/instructor/CourseView';
+import InstructorAssignments from './pages/instructor/Assignments';
+import InstructorManageAssignment from "./pages/instructor/ManageAssignment";
+import InstructorCreateAssignment from "./pages/instructor/CreateAssignment";
 import InstructorEditCourse from './pages/instructor/EditCourse';
 import InstructorCreateCourse from './pages/instructor/CreateCourse';
 import InstructorProfile from './pages/instructor/Profile';
@@ -104,6 +107,12 @@ export default function App() {
         return <InstructorEditCourse navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case 'instructor-create-course':
         return <InstructorCreateCourse navigate={navigate} logout={logout} userRole="instructor" />;
+      case 'instructor-assignments':
+        return <InstructorAssignments navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
+      case "instructor-manage-assignment":
+        return <InstructorManageAssignment navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState}/>;
+      case "instructor-create-assignment":
+        return <InstructorCreateAssignment navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case 'instructor-profile':
         return <InstructorProfile navigate={navigate} logout={logout} userRole="instructor" />;
       case 'instructor-settings':

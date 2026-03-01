@@ -2,6 +2,8 @@ import os
 import json
 import psycopg2
 import subprocess
+from dotenv import load_dotenv
+load_dotenv()
 
 # ---------------- CONFIGURATION ----------------
 QA_PATH = "qa_data.json"

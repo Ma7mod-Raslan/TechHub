@@ -315,7 +315,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                     <Map className="h-10 w-10 text-cyan-600 mb-3" />
                     <h3 className="mb-1">Learning Roadmaps</h3>
                     <p className="text-sm text-gray-600">
-                      AI-recommended learning paths
+                      Recommended learning paths
                     </p>
                   </CardContent>
                 </Card>

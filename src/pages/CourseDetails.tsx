@@ -523,13 +523,15 @@ export default function CourseDetails({
             startTracking();
           }
 
-          if (
-            event.data === YT.PlayerState.PAUSED ||
-            event.data === YT.PlayerState.ENDED
-          ) {
+          if (event.data === YT.PlayerState.PAUSED) {
             stopTracking();
             sendProgress();
           }
+
+          if (event.data === YT.PlayerState.ENDED) {
+            stopTracking();
+          }
+
         },
       },
     });
@@ -558,6 +560,7 @@ export default function CourseDetails({
 
   const sendProgress = async () => {
     if (!playerRef.current || !selectedVideo) return;
+    if (selectedVideo.completed) return;
 
     const currentTime = Math.floor(playerRef.current.getCurrentTime());
     if (currentTime <= 0) return;
@@ -589,10 +592,6 @@ export default function CourseDetails({
               : lecture
           ),
         }))
-      );
-
-      setSelectedVideo(prev =>
-        prev ? { ...prev, completed: true } : prev
       );
     }
 

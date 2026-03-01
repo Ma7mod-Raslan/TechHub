@@ -8,6 +8,7 @@ import { Textarea } from '../../components/ui/textarea';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import api from '../../api';
 
 interface StudentCompilerProps {
   navigate: (page: string) => void;
@@ -58,12 +59,36 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
   ];
 
-  const handleRun = () => {
+  const handleRun = async () => {
+    if (!code.trim()) {
+      setOutput("⚠️ Please write some code first.");
+      return;
+    }
+
     setIsRunning(true);
-    setTimeout(() => {
-      setOutput(`Executing ${language} code...\n\nHello, TechHub!\n\nProgram finished with exit code 0`);
+    setOutput("Running...\n");
+
+    try {
+      const res = await api.post("/compiler/run", {
+        language,
+        code,
+      });
+
+      if (res.data.error) {
+        setOutput(`❌ Error:\n\n${res.data.error}`);
+      } else {
+        setOutput(res.data.output || "Program finished with no output.");
+      }
+
+    } catch (err: any) {
+      setOutput(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Something went wrong while running the code."
+      );
+    } finally {
       setIsRunning(false);
-    }, 1000);
+    }
   };
 
   const handleReset = () => {
@@ -81,6 +106,32 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
   const handleLogout = () => {
     logout();
     navigate('login');
+  };
+
+  const handleSave = () => {
+    if (!code.trim()) {
+      alert("Nothing to save!");
+      return;
+    }
+
+    const extension =
+      language === "python"
+        ? "py"
+        : language === "javascript"
+          ? "js"
+          : "cpp";
+
+    const fileName = `main.${extension}`;
+
+    const blob = new Blob([code], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -110,19 +161,25 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-                
+
                 <div className="flex-1 min-w-0">
                   <h1 className="text-xl md:text-2xl truncate">Code Compiler</h1>
                   <p className="text-gray-600 text-sm md:text-base truncate">Practice coding in your browser</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 flex-shrink-0">
                 <Button variant="outline" size="sm" onClick={handleReset} className="hidden md:flex">
                   <RotateCcw className="mr-2 h-4 w-4" />Reset
                 </Button>
-                <Button variant="outline" size="sm" className="hidden md:flex">
-                  <Save className="mr-2 h-4 w-4" />Save
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden md:flex"
+                  onClick={handleSave}
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  Save
                 </Button>
                 <Button size="sm" className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 shadow-lg hover:shadow-xl transition-all duration-300" onClick={handleRun} disabled={isRunning}>
                   <Play className="mr-2 h-4 w-4" />
@@ -186,7 +243,7 @@ export default function StudentCompiler({ navigate, logout, userRole }: StudentC
           </main>
         </div>
       </div>
-      <AIAssistant contextType="compiler" />
+      <AIAssistant />
     </div>
   );
 }

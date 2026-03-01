@@ -37,14 +37,15 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard', active: true },
-    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-    { icon: User, label: 'Profile', page: 'instructor-profile' },
-    { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-  ];
+  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
+  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
+  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
+  { icon: Users, label: 'Community', page: 'community' },
+  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
+  { icon: User, label: 'Profile', page: 'instructor-profile' },
+  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
+  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+];
 
   const [stats, setStats] = useState({
     total_courses: 0,

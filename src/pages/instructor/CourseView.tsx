@@ -78,7 +78,8 @@ export default function InstructorCourseView({
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses', active: true },
+    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
+    { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
     { icon: Users, label: 'Community', page: 'community' },
     { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
     { icon: User, label: 'Profile', page: 'instructor-profile' },
@@ -570,6 +571,7 @@ export default function InstructorCourseView({
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -605,6 +607,20 @@ export default function InstructorCourseView({
 
                 {!isEditMode ? (
                   <>
+
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        navigate(
+                          'instructor-manage-assignment',
+                          'instructor',
+                          { courseId }
+                        )
+                      }
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Manage Assignments
+                    </Button>
                     <Button
                       variant="outline"
                       onClick={() =>
@@ -911,7 +927,7 @@ export default function InstructorCourseView({
 
           {/* URL */}
           <Input
-            placeholder="URL"
+            placeholder="Youtube Video URL"
             value={videoFormData.url}
             onChange={e => {
               setVideoFormData({ ...videoFormData, url: e.target.value });

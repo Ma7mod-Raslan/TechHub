@@ -165,7 +165,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
           </main>
         </div>
       </div>
-      <AIAssistant contextType="assignments" />
+      <AIAssistant />
     </div>
   );
 }
