@@ -18,9 +18,7 @@ interface StudentAssignmentsProps {
 
 const assignments = [
   { id: 1, title: 'Build a Todo App', course: 'React Masterclass', dueDate: 'Nov 15, 2025', status: 'pending', points: 100 },
-  { id: 2, title: 'Data Analysis Project', course: 'Python for Data Science', dueDate: 'Nov 12, 2025', status: 'submitted', points: 150 },
-  { id: 3, title: 'Create REST API', course: 'Web Development', dueDate: 'Nov 20, 2025', status: 'pending', points: 120 },
-  { id: 4, title: 'ML Model Training', course: 'Machine Learning', dueDate: 'Nov 10, 2025', status: 'graded', points: 200, grade: 95 },
+  { id: 2, title: 'ML Model Training', course: 'Machine Learning', dueDate: 'Nov 10, 2025', status: 'graded', points: 200, grade: 95 },
 ];
 
 export default function StudentAssignments({ navigate, logout, userRole }: StudentAssignmentsProps) {
