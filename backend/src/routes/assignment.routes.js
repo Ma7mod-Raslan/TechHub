@@ -9,11 +9,10 @@ const router = express.Router();
 ========================================================= */
 
 /**
- * GET assignment for a course
- * Returns assignment + unlock status + attempts info
+ * GET all assignments for all enrolled courses (Student Dashboard)
  */
 router.get(
-  "/course/:courseId",
+  "/student/all",
   authMiddleware,
   async (req, res, next) => {
     try {
@@ -21,22 +20,15 @@ router.get(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { courseId } = req.params;
       const studentId = req.user.id;
 
-      const assignment =
-        await assignmentService.getAssignmentForCourse(
-          courseId,
+      const data =
+        await assignmentService.getAllAssignmentsForStudentDashboard(
           studentId
         );
 
-      if (!assignment) {
-        return res.status(404).json({
-          message: "No assignment found for this course",
-        });
-      }
+      res.json(data);
 
-      res.json(assignment);
     } catch (error) {
       next(error);
     }

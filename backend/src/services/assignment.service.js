@@ -1,56 +1,52 @@
 import pool from "../db.js";
 
-const getAssignmentForCourse = async (courseId, studentId) => {
-  const assignmentRes = await pool.query(
-    `SELECT * FROM assignments 
-     WHERE course_id = $1 AND is_active = true`,
-    [courseId]
-  );
+async function getAllAssignmentsForStudentDashboard(studentId) {
 
-  if (assignmentRes.rows.length === 0) {
-    return null;
-  }
+  const result = await pool.query(`
+    SELECT
+      a.id AS assignment_id,
+      a.title AS assignment_title,
+      a.max_attempts,
+      c.id AS course_id,
+      c.title AS course_title,
 
-  const assignment = assignmentRes.rows[0];
+      COUNT(DISTINCT q.id) AS questions_count,
+      COUNT(DISTINCT at.id) AS attempts_used
 
-  // Attempts num
-  const attemptsRes = await pool.query(
-    `SELECT COUNT(*) FROM student_assignment_attempts
-     WHERE assignment_id = $1 AND student_id = $2`,
-    [assignment.id, studentId]
-  );
+    FROM enrollments e
 
-  const attemptsUsed = parseInt(attemptsRes.rows[0].count);
+    JOIN courses c
+      ON c.id = e.course_id
 
-  // check progress
-  const progressRes = await pool.query(
-    `SELECT progress_percentage 
-     FROM student_courses 
-     WHERE course_id = $1 AND student_id = $2`,
-    [courseId, studentId]
-  );
+    JOIN assignments a
+      ON a.course_id = c.id
 
-  const progress = progressRes.rows[0]?.progress_percentage || 0;
+    LEFT JOIN assignment_questions q
+      ON q.assignment_id = a.id
 
-  const isUnlocked = progress === 100;
+    LEFT JOIN student_assignment_attempts at
+      ON at.assignment_id = a.id
+      AND at.student_id = $1
 
-  let canAttempt = true;
+    WHERE e.student_id = $1
 
-  if (assignment.max_attempts !== null) {
-    canAttempt = attemptsUsed < assignment.max_attempts;
-  }
+    GROUP BY a.id, c.id
 
-  if (!isUnlocked) {
-    canAttempt = false;
-  }
+    ORDER BY c.title ASC, a.created_at ASC
+  `, [studentId]);
 
-  return {
-    ...assignment,
-    is_unlocked: isUnlocked,
-    attempts_used: attemptsUsed,
-    can_attempt: canAttempt,
-  };
-};
+  return result.rows.map(row => ({
+    assignment_id: row.assignment_id,
+    assignment_title: row.assignment_title,
+    course_id: row.course_id,
+    course_title: row.course_title,
+    max_attempts: row.max_attempts,
+    attempts_used: parseInt(row.attempts_used),
+    questions_count: parseInt(row.questions_count),
+    is_unlocked:
+      parseInt(row.attempts_used) < row.max_attempts
+  }));
+}
 
 const submitAssignment = async (assignmentId, studentId, answers) => {
   const client = await pool.connect();
@@ -559,7 +555,7 @@ const deleteAssignment = async (assignmentId, instructor_id) => {
 };
 
 export default {
-  getAssignmentForCourse,
+  getAllAssignmentsForStudentDashboard,
   submitAssignment,
   getStudentAttempts,
   createAssignment,
