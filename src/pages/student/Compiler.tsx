@@ -92,24 +92,30 @@ export default function StudentCompiler({
     setOutput("Running...\n");
 
     try {
-      const res = await api.post("/compiler/run", { language, code });
+      const res = await fetch("http://localhost:3000/api/compiler/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          language,
+          code,
+        }),
+      });
 
-      if (res.data.error) {
-        setOutput(`❌ Error:\n\n${res.data.error}`);
+      const data = await res.json();
+
+      if (data.error) {
+        setOutput(`❌ Error:\n\n${data.error}`);
       } else {
-        setOutput(res.data.output || "Program finished with no output.");
+        setOutput(data.output || "Program finished with no output.");
       }
     } catch (err: any) {
-      setOutput(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while running the code."
-      );
+      setOutput("Network Error");
     } finally {
       setIsRunning(false);
     }
   };
-
   const handleReset = () => {
     setCode(initialCode[language]);
     setOutput("");
@@ -221,8 +227,8 @@ export default function StudentCompiler({
                             {language === "javascript"
                               ? "js"
                               : language === "python"
-                              ? "py"
-                              : "cpp"}
+                                ? "py"
+                                : "cpp"}
                           </span>
                         </div>
 
