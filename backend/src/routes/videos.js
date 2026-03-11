@@ -3,6 +3,7 @@ import db from "../db.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { allowRoles } from "../middleware/roles.js";
 import { checkEnrollment } from "../middleware/enrollment.js";
+import notificationService from "../services/notification.service.js";
 import {
   extractVideoId,
   getYoutubeVideoDuration
@@ -34,9 +35,11 @@ router.post(
 
       // 2️⃣ Check course ownership
       const owner = await db.query(
-        "SELECT instructor_id FROM courses WHERE id=$1",
+        "SELECT instructor_id, title FROM courses WHERE id=$1",
         [courseId]
       );
+
+      const courseTitle = owner.rows[0].title;
 
       if (owner.rows.length === 0)
         return res.status(404).json({ error: "Course not found" });
@@ -79,6 +82,28 @@ router.post(
         `,
         [courseId, title, description, video_url, video_order, duration]
       );
+
+      // 🔔 notify enrolled students
+    const students = await db.query(
+      `
+      SELECT student_id
+      FROM enrollments
+      WHERE course_id = $1
+      `,
+      [courseId]
+    );
+
+    const studentIds = students.rows.map(
+      s => s.student_id
+    );
+
+    await notificationService.createBulkNotifications(
+      studentIds,
+      "New Lecture Available",
+      `A new lecture was added to "${courseTitle}"`,
+      "course_video",
+      result.rows[0].id
+    );
 
       res.status(201).json({
         message: "Video added successfully",

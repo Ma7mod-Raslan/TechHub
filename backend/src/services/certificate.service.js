@@ -1,6 +1,7 @@
 import pool from "../db.js";
 import puppeteer from "puppeteer";
 import fs from "fs";
+import notificationService from "./notification.service.js";
 import path from "path";
 
 const generateCertificate = async (studentId, courseId) => {
@@ -132,6 +133,15 @@ const generateCertificate = async (studentId, courseId) => {
       VALUES($1,$2,$3,$4,$5)
       RETURNING *`,
       [studentId, courseId, instructor_id, fileUrl, certificateCode]
+    );
+
+    // 🔔 notify student that certificate is ready
+    await notificationService.createNotification(
+    studentId,
+    "Certificate Ready 🎉",
+    `Your certificate for "${course_title}" is now available`,
+    "certificate",
+    courseId
     );
 
     return insert.rows[0];

@@ -1,5 +1,6 @@
 import pool from "../db.js";
 import certificateService from "./certificate.service.js";
+import notificationService from "./notification.service.js";
 
 async function getAllAssignmentsForStudentDashboard(studentId) {
 
@@ -302,10 +303,11 @@ const createAssignment = async ({
 
     // Check course exists & belongs to instructor
     const courseRes = await client.query(
-      `SELECT id FROM courses
+      `SELECT id, title FROM courses
        WHERE id = $1 AND instructor_id = $2`,
       [course_id, instructor_id]
     );
+    const courseTitle = courseRes.rows[0].title;
 
     if (courseRes.rows.length === 0) {
       throw new Error("Course not found or not authorized");
@@ -326,6 +328,25 @@ const createAssignment = async ({
     );
 
     await client.query("COMMIT");
+    // 🔔 send notifications to enrolled students
+    const students = await pool.query(
+      `SELECT student_id
+      FROM enrollments
+      WHERE course_id = $1`,
+      [course_id]
+    );
+
+    const studentIds = students.rows.map(
+      s => s.student_id
+    );
+
+    await notificationService.createBulkNotifications(
+      studentIds,
+      "New Assignment Available",
+      `A new assignment was added to "${courseTitle}"`,
+      "assignment",
+      insertRes.rows[0].id
+    );
 
     return insertRes.rows[0];
   } catch (error) {

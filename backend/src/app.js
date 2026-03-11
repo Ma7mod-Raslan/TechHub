@@ -23,6 +23,8 @@ import certificateRoutes from "./routes/certificate.routes.js";
 import communityRoutes  from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import compilerRoutes from "./routes/compiler.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
+
 
 // ===== Create app =====
 const app = express();
@@ -56,6 +58,9 @@ app.use("/api", videoQuestionsRoutes);
 
 // Community 
 app.use("/api/communities", communityRoutes);
+
+// Notificaations Route
+app.use("/api/notifications", notificationRoutes);
 
 // Assignment
 app.use("/api/assignments", assignmentRoutes);

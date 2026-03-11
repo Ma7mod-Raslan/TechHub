@@ -187,6 +187,8 @@ CREATE TABLE notifications (
   user_id INT REFERENCES users(id),
   title VARCHAR(150),
   message TEXT,
+  type VARCHAR(50),
+  reference_id INT,
   is_read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
