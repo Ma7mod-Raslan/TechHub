@@ -1,4 +1,5 @@
 import pool from "../db.js";
+import certificateService from "./certificate.service.js";
 
 async function getAllAssignmentsForStudentDashboard(studentId) {
 
@@ -250,6 +251,14 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     await client.query("COMMIT");
+      let certificate = null;
+
+      if (isPassed) {
+        certificate = await certificateService.generateCertificate(
+          studentId,
+          assignment.course_id
+        );
+      }
 
     return {
       score,
@@ -257,7 +266,7 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       percentage,
       is_passed: isPassed,
       attempt_number: attemptNumber,
-      certificate: isPassed ? "Coming Feature" : null,
+      certificate,
     };
   } catch (error) {
     await client.query("ROLLBACK");

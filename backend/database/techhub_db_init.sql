@@ -167,6 +167,8 @@ CREATE TABLE submissions (
 CREATE TABLE certificates (
   id SERIAL PRIMARY KEY,
   student_id INT REFERENCES users(id),
+  instructor_id INT REFERENCES users(id).
+  certificate_code VARCHAR(50) UNIQUE,
   course_id INT REFERENCES courses(id),
   certificate_link VARCHAR(255),
   issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

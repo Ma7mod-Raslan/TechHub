@@ -19,6 +19,7 @@ import videoNotesRoutes from "./routes/videoNotes.js";
 import videoQuestionsRoutes from "./routes/videoQuestions.js";
 import videoProgressRoutes from "./routes/videoProgress.js";
 import instructorRoutes from "./routes/instructor.js";
+import certificateRoutes from "./routes/certificate.routes.js";
 import communityRoutes  from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import compilerRoutes from "./routes/compiler.routes.js";
@@ -63,6 +64,9 @@ app.use("/api", videoProgressRoutes);
 
 // Compiler Route
 app.use("/api/compiler", compilerRoutes);
+
+// Certificate
+app.use("/api/certificates", certificateRoutes);
 
 // Instructor routes
 app.use("/api/instructor", instructorRoutes);
