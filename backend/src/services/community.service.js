@@ -1,4 +1,5 @@
 import pool from "../db.js";
+import notificationService from "./notification.service.js";
 
 const getUserCommunities = async (userId) => {
   const result = await pool.query(
@@ -117,12 +118,13 @@ const createReply = async (postId, userId, content) => {
     // 1️⃣ تأكد إن البوست موجود وهات community_id
     const postResult = await client.query(
       `
-      SELECT id, community_id
+      SELECT id, community_id, user_id
       FROM community_posts
       WHERE id = $1 AND is_deleted = false
       `,
       [postId]
     );
+    const postOwnerId = postResult.rows[0].user_id;
 
     if (postResult.rows.length === 0) {
       await client.query("ROLLBACK");
@@ -173,7 +175,18 @@ const createReply = async (postId, userId, content) => {
 
     await client.query("COMMIT");
 
-    return replyResult.rows[0];
+      // 🔔 notification
+      if (postOwnerId !== userId) {
+        await notificationService.createNotification(
+          postOwnerId,
+          "New Reply",
+          `${replyResult.rows[0].full_name} replied to your post`,
+          "community_reply",
+          postId
+        );
+      }
+
+      return replyResult.rows[0];
 
   } catch (err) {
     await client.query("ROLLBACK");

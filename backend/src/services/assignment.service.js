@@ -1,4 +1,6 @@
 import pool from "../db.js";
+import certificateService from "./certificate.service.js";
+import notificationService from "./notification.service.js";
 
 async function getAllAssignmentsForStudentDashboard(studentId) {
 
@@ -47,6 +49,79 @@ async function getAllAssignmentsForStudentDashboard(studentId) {
       parseInt(row.attempts_used) < row.max_attempts
   }));
 }
+
+const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
+  const client = await pool.connect();
+
+  try {
+    // Check enrollment
+    const checkRes = await client.query(
+      `SELECT a.id
+       FROM assignments a
+       JOIN courses c ON a.course_id = c.id
+       JOIN enrollments e ON e.course_id = c.id
+       WHERE a.id = $1 AND e.student_id = $2`,
+      [assignmentId, studentId]
+    );
+
+    if (checkRes.rows.length === 0) {
+      throw new Error("Not authorized");
+    }
+
+    // Get assignment basic info
+    const assignmentRes = await client.query(
+      `SELECT id, title, description
+       FROM assignments
+       WHERE id = $1`,
+      [assignmentId]
+    );
+
+    const assignment = assignmentRes.rows[0];
+
+    // Get questions + options (⚠️ بدون is_correct)
+    const questionsRes = await client.query(
+      `SELECT 
+         q.id as question_id,
+         q.question_text,
+         o.id as option_id,
+         o.option_text
+       FROM assignment_questions q
+       LEFT JOIN assignment_options o
+       ON q.id = o.question_id
+       WHERE q.assignment_id = $1
+       ORDER BY q.id`,
+      [assignmentId]
+    );
+
+    const questionsMap = new Map();
+
+    questionsRes.rows.forEach(row => {
+      if (!questionsMap.has(row.question_id)) {
+        questionsMap.set(row.question_id, {
+          id: row.question_id,
+          question_text: row.question_text,
+          options: []
+        });
+      }
+
+      if (row.option_id) {
+        questionsMap.get(row.question_id).options.push({
+          id: row.option_id,
+          option_text: row.option_text
+        });
+      }
+    });
+
+    return {
+      ...assignment,
+      questions: Array.from(questionsMap.values())
+    };
+
+  } finally {
+    client.release();
+  }
+};
+
 
 const submitAssignment = async (assignmentId, studentId, answers) => {
   const client = await pool.connect();
@@ -177,6 +252,14 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     await client.query("COMMIT");
+      let certificate = null;
+
+      if (isPassed) {
+        certificate = await certificateService.generateCertificate(
+          studentId,
+          assignment.course_id
+        );
+      }
 
     return {
       score,
@@ -184,7 +267,7 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       percentage,
       is_passed: isPassed,
       attempt_number: attemptNumber,
-      certificate: isPassed ? "Coming Feature" : null,
+      certificate,
     };
   } catch (error) {
     await client.query("ROLLBACK");
@@ -220,10 +303,11 @@ const createAssignment = async ({
 
     // Check course exists & belongs to instructor
     const courseRes = await client.query(
-      `SELECT id FROM courses
+      `SELECT id, title FROM courses
        WHERE id = $1 AND instructor_id = $2`,
       [course_id, instructor_id]
     );
+    const courseTitle = courseRes.rows[0].title;
 
     if (courseRes.rows.length === 0) {
       throw new Error("Course not found or not authorized");
@@ -244,6 +328,25 @@ const createAssignment = async ({
     );
 
     await client.query("COMMIT");
+    // 🔔 send notifications to enrolled students
+    const students = await pool.query(
+      `SELECT student_id
+      FROM enrollments
+      WHERE course_id = $1`,
+      [course_id]
+    );
+
+    const studentIds = students.rows.map(
+      s => s.student_id
+    );
+
+    await notificationService.createBulkNotifications(
+      studentIds,
+      "New Assignment Available",
+      `A new assignment was added to "${courseTitle}"`,
+      "assignment",
+      insertRes.rows[0].id
+    );
 
     return insertRes.rows[0];
   } catch (error) {
@@ -556,6 +659,7 @@ const deleteAssignment = async (assignmentId, instructor_id) => {
 
 export default {
   getAllAssignmentsForStudentDashboard,
+  getAssignmentDetailsForStudent,
   submitAssignment,
   getStudentAttempts,
   createAssignment,

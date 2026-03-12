@@ -36,6 +36,36 @@ router.get(
 );
 
 /**
+ * GET Assugnment Details
+ */
+
+router.get(
+  "/student/:assignmentId",
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.user.role !== "student") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { assignmentId } = req.params;
+
+      const assignment =
+        await assignmentService.getAssignmentDetailsForStudent(
+          assignmentId,
+          req.user.id
+        );
+
+      res.json(assignment);
+
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+/**
  * POST submit assignment
  */
 router.post(

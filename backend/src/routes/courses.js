@@ -5,6 +5,7 @@ import { allowRoles } from "../middleware/roles.js";
 import { checkEnrollment } from "../middleware/enrollment.js";
 import { upload } from "../middleware/upload.js";
 import { uploadProfileImage } from "../services/cloudinary.js";
+import notificationService from "../services/notification.service.js";
 import {
   extractVideoId,
   getYoutubeVideoDuration
@@ -66,7 +67,7 @@ router.post(
 
       // 1️⃣ ensure course exists and is Published
       const c = await client.query(
-        "SELECT id, status FROM courses WHERE id=$1",
+        "SELECT id, status, title FROM courses WHERE id=$1",
         [courseId]
       );
 
@@ -140,6 +141,15 @@ router.post(
       );
 
       await client.query("COMMIT");
+
+      // 🔔 notification
+      await notificationService.createNotification(
+        studentId,
+        "Course Enrollment",
+        `You successfully enrolled in "${c.rows[0].title}"`,
+        "course_enroll",
+        courseId
+      );
 
       res.status(201).json({
         message: "Enrolled successfully",
