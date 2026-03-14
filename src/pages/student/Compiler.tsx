@@ -23,7 +23,6 @@ import { Textarea } from "../../components/ui/textarea";
 import AIAssistant from "../../components/AIAssistant";
 import HeaderIcons from "../../components/HeaderIcons";
 import Sidebar from "../../components/Sidebar";
-import api from "../../api";
 
 type Language = "python" | "javascript" | "cpp";
 
@@ -92,24 +91,34 @@ export default function StudentCompiler({
     setOutput("Running...\n");
 
     try {
-      const res = await api.post("/compiler/run", { language, code });
 
-      if (res.data.error) {
-        setOutput(`❌ Error:\n\n${res.data.error}`);
+      const token = localStorage.getItem("accessToken");
+
+      const res = await fetch("http://localhost:3000/api/compiler/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          language,
+          code,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setOutput(`❌ Error:\n\n${data.error}`);
       } else {
-        setOutput(res.data.output || "Program finished with no output.");
+        setOutput(data.output || "Program finished with no output.");
       }
     } catch (err: any) {
-      setOutput(
-        err?.response?.data?.message ||
-          err?.message ||
-          "Something went wrong while running the code."
-      );
+      setOutput("Network Error");
     } finally {
       setIsRunning(false);
     }
   };
-
   const handleReset = () => {
     setCode(initialCode[language]);
     setOutput("");
@@ -221,8 +230,8 @@ export default function StudentCompiler({
                             {language === "javascript"
                               ? "js"
                               : language === "python"
-                              ? "py"
-                              : "cpp"}
+                                ? "py"
+                                : "cpp"}
                           </span>
                         </div>
 

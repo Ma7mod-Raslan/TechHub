@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Download, Share2, Trophy, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -13,14 +13,18 @@ interface StudentCertificatesProps {
   userRole: 'student';
 }
 
-const certificates = [
-  { id: 1, title: 'React Masterclass', instructor: 'Maria Garcia', date: 'October 2025', grade: 95 },
-  { id: 2, title: 'Python Fundamentals', instructor: 'Dr. Alex Chen', date: 'September 2025', grade: 92 },
-];
+interface Certificate {
+  id: number;
+  course_title: string;
+  certificate_link: string;
+  issued_at: string;
+  certificate_code: string;
+}
 
 export default function StudentCertificates({ navigate, logout, userRole }: StudentCertificatesProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -34,6 +38,34 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
     { icon: Settings, label: 'Settings', page: 'student-settings' },
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
   ];
+
+  useEffect(() => {
+
+    const fetchCertificates = async () => {
+      try {
+
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch("http://localhost:3000/api/certificates/my", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+
+        console.log(data);
+
+        setCertificates(data);
+
+      } catch (error) {
+        console.error("Failed to fetch certificates", error);
+      }
+    };
+
+    fetchCertificates();
+
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -66,12 +98,18 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex-1">
                 <h1 className="text-xl md:text-2xl">My Certificates</h1>
                 <p className="text-gray-600 text-sm md:text-base">Your achievements and completed courses</p>
               </div>
+              <HeaderIcons
+              navigate={navigate}
+              logout={logout}
+              userRole={userRole}
+            />
             </div>
+            
           </header>
 
           <main className="p-4 md:p-6">
@@ -81,7 +119,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                   <Trophy className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl mb-2">No Certificates Yet</h3>
                   <p className="text-gray-600 mb-4">Complete courses to earn certificates</p>
-                  <Button 
+                  <Button
                     onClick={() => navigate('student-courses')}
                     className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                   >
@@ -97,18 +135,35 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                       <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-cyan-500 p-8 text-white text-center">
                         <Trophy className="h-16 w-16 mx-auto mb-4" />
                         <h2 className="text-2xl mb-2">Certificate of Completion</h2>
-                        <div className="text-xl mb-2">{cert.title}</div>
+                        <div className="text-xl mb-2">{cert.course_title}</div>
                         <p className="text-sm opacity-90">Awarded to Alex Johnson</p>
-                        <p className="text-sm opacity-90">{cert.date}</p>
-                        <p className="text-sm opacity-90 mt-2">Grade: {cert.grade}%</p>
+                        <p className="text-sm opacity-90">{new Date(cert.issued_at).toLocaleDateString()}</p>
                       </div>
                       <CardContent className="p-4">
                         <div className="flex gap-2">
-                          <Button variant="outline" className="flex-1 hover:bg-gray-100 transition-all duration-300">
-                            <Download className="mr-2 h-4 w-4" />Download
-                          </Button>
-                          <Button variant="outline" className="flex-1 hover:bg-gray-100 transition-all duration-300">
-                            <Share2 className="mr-2 h-4 w-4" />Share
+
+                          <a
+                            href={`http://localhost:3000${cert.certificate_link}`}
+                            download
+                            className="flex-1"
+                          >
+                            <Button variant="outline" className="flex-1 hover:bg-gray-100 transition-all duration-300">
+                              <Download className="mr-2 h-4 w-4" />Download
+                            </Button>
+                          </a>
+
+                          <Button
+                            variant="outline"
+                            className="flex-1 hover:bg-gray-100 transition-all duration-300"
+                            onClick={() => {
+                              navigator.clipboard.writeText(
+                                `http://localhost:3000${cert.certificate_link}`
+                              );
+                              alert("Certificate link copied!");
+                            }}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share
                           </Button>
                         </div>
                       </CardContent>

@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -34,57 +34,13 @@ interface StudentNotificationsProps {
   userRole: 'student';
 }
 
-const notifications = [
-  {
-    id: 1,
-    type: 'success',
-    icon: CheckCircle2,
-    title: 'Assignment Graded',
-    message: 'Your "Build a Todo App" assignment has been graded. You scored 95/100!',
-    time: '2 hours ago',
-    read: false,
-  },
-  {
-    id: 2,
-    type: 'info',
-    icon: MessageCircle,
-    title: 'New Reply',
-    message: 'Sarah Johnson replied to your question in "Web Development" community.',
-    time: '4 hours ago',
-    read: false,
-  },
-  {
-    id: 3,
-    type: 'achievement',
-    icon: Trophy,
-    title: 'Achievement Unlocked!',
-    message: 'You earned the "Fast Learner" badge for completing 5 courses in a month!',
-    time: '1 day ago',
-    read: false,
-  },
-  {
-    id: 4,
-    type: 'info',
-    icon: BookOpen,
-    title: 'New Course Available',
-    message: 'Check out "Advanced React Patterns" - recommended based on your learning path.',
-    time: '2 days ago',
-    read: true,
-  },
-  {
-    id: 5,
-    type: 'info',
-    icon: TrendingUp,
-    title: 'Learning Streak',
-    message: 'Amazing! You\'re on a 15-day learning streak. Keep it up!',
-    time: '3 days ago',
-    read: true,
-  },
-];
-
 export default function StudentNotifications({ navigate, logout, userRole }: StudentNotificationsProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+
+
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -98,6 +54,92 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
     { icon: Settings, label: 'Settings', page: 'student-settings' },
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
   ];
+
+  useEffect(() => {
+
+    const fetchNotifications = async () => {
+
+      try {
+
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch(
+          "http://localhost:3000/api/notifications",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        const data = await res.json();
+
+        setNotifications(data);
+
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+
+    };
+
+    fetchNotifications();
+
+  }, []);
+
+  const markAsRead = async (id: any) => {
+
+    try {
+
+      const token = localStorage.getItem("accessToken");
+
+      await fetch(
+        `http://localhost:3000/api/notifications/${id}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, is_read: true } : n
+        )
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
+
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "success":
+        return CheckCircle2;
+      case "achievement":
+        return Trophy;
+      case "message":
+        return MessageCircle;
+      case "course":
+        return BookOpen;
+      default:
+        return AlertCircle;
+    }
+  };
+
+  const markAllAsRead = async () => {
+
+    const unread = notifications.filter(n => !n.is_read);
+
+    for (const n of unread) {
+      await markAsRead(n.id);
+    }
+
+  };
+
+
 
   const handleLogout = () => {
     logout();
@@ -131,15 +173,20 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
-                
+
                 <div className="flex-1 min-w-0">
                   <h1 className="text-xl md:text-2xl truncate">Notifications</h1>
                   <p className="text-gray-600 text-sm md:text-base truncate">Stay updated with your learning activity</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="hidden md:flex">Mark All as Read</Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden md:flex"
+                  onClick={markAllAsRead}
+                >Mark All as Read</Button>
                 <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="notifications" />
               </div>
             </div>
@@ -155,29 +202,39 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
                   whileHover={{ scale: 1.01 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className={`cursor-pointer transition-all duration-300 ${!notification.read ? 'border-l-4 border-l-violet-600 bg-violet-50/30' : ''}`}>
+                  <Card onClick={() => markAsRead(notification.id)} className={`cursor-pointer transition-all duration-300 ${!notification.is_read ? 'border-l-4 border-l-violet-600 bg-violet-50/30' : ''}`}>
                     <CardContent className="p-4">
                       <div className="flex gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          notification.type === 'success' ? 'bg-green-100' :
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${notification.type === 'success' ? 'bg-green-100' :
                           notification.type === 'achievement' ? 'bg-yellow-100' :
-                          'bg-blue-100'
-                        }`}>
-                          <notification.icon className={`h-6 w-6 ${
-                            notification.type === 'success' ? 'text-green-600' :
-                            notification.type === 'achievement' ? 'text-yellow-600' :
-                            'text-blue-600'
-                          }`} />
+                            'bg-blue-100'
+                          }`}>
+
+
+                          {(() => {
+                            const Icon = getIcon(notification.type);
+
+                            return (
+                              <Icon
+                                className={`h-6 w-6 ${notification.type === 'success'
+                                  ? 'text-green-600'
+                                  : notification.type === 'achievement'
+                                    ? 'text-yellow-600'
+                                    : 'text-blue-600'
+                                  }`}
+                              />
+                            );
+                          })()}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-1">
                             <h3>{notification.title}</h3>
-                            {!notification.read && (
+                            {!notification.is_read && (
                               <Badge className="bg-gradient-to-r from-violet-600 to-cyan-500">New</Badge>
                             )}
                           </div>
                           <p className="text-gray-600 mb-2">{notification.message}</p>
-                          <span className="text-sm text-gray-500">{notification.time}</span>
+                          <span className="text-sm text-gray-500">{new Date(notification.created_at).toLocaleString()}</span>
                         </div>
                       </div>
                     </CardContent>

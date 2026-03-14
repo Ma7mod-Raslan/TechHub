@@ -1,5 +1,5 @@
 import { Bell, User, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -16,14 +16,44 @@ interface HeaderIconsProps {
 
 export default function HeaderIcons({ navigate, logout, userRole, currentPage }: HeaderIconsProps) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+
+    const fetchUnread = async () => {
+      try {
+
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch(
+          "http://localhost:3000/api/notifications/unread-count",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        const data = await res.json();
+
+        setUnreadCount(data.unread);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUnread();
+
+  }, []);
+
   // Smart visibility: hide notifications icon when on notifications page
   const showNotifications = currentPage !== 'notifications';
-  
+
   // Smart visibility: hide Profile/Settings options when on respective pages
   const showProfileOption = currentPage !== 'profile';
   const showSettingsOption = currentPage !== 'settings';
-  
+
   return (
     <div className="flex items-center gap-2">
       {/* Notifications Bell - hidden when on notifications page */}
@@ -40,7 +70,7 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
         >
           <Bell className="h-5 w-5" />
           <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 border-2 border-white">
-            3
+            {unreadCount}
           </Badge>
         </Button>
       )}
@@ -67,7 +97,7 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
                 className="fixed inset-0 z-10"
                 onClick={() => setShowProfileMenu(false)}
               />
-              
+
               {/* Dropdown */}
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -91,7 +121,7 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
                     Profile
                   </button>
                 )}
-                
+
                 {/* Settings option - hidden when on settings page, shown for students and instructors */}
                 {showSettingsOption && (userRole === 'student' || userRole === 'instructor') && (
                   <button
@@ -109,7 +139,7 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
                     Settings
                   </button>
                 )}
-                
+
                 <div className="border-t border-gray-200 my-1"></div>
                 <button
                   onClick={() => {

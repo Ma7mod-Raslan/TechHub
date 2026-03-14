@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Calendar, CheckCircle2, Clock, Upload, ArrowRight, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -11,19 +11,19 @@ import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 
 interface StudentAssignmentsProps {
-  navigate: (page: string) => void;
+  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-const assignments = [
-  { id: 1, title: 'Build a Todo App', course: 'React Masterclass', dueDate: 'Nov 15, 2025', status: 'pending', points: 100 },
-  { id: 2, title: 'ML Model Training', course: 'Machine Learning', dueDate: 'Nov 10, 2025', status: 'graded', points: 200, grade: 95 },
-];
+
 
 export default function StudentAssignments({ navigate, logout, userRole }: StudentAssignmentsProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -43,6 +43,45 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
     navigate('login');
   };
 
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch(
+          "http://localhost:3000/api/assignments/student/all",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        console.log("Assignments response:", data);
+        const mappedAssignments = data.map((item: any) => ({
+          id: item.assignment_id,
+          title: item.assignment_title,
+          course: item.course_title,
+          points: item.questions_count || 0,
+          dueDate: "No due date",
+          status:
+            item.attempts_used === 0
+              ? "pending"
+              : "graded"
+        }));
+
+        setAssignments(mappedAssignments);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAssignments();
+  }, []);
+
   // Helper function to render assignment card
   const renderAssignmentCard = (assignment: typeof assignments[0]) => (
     <motion.div key={assignment.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -51,22 +90,22 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h3>{assignment.title}</h3>
-                <Badge 
+                <h3>{assignment.course}</h3>
+                <Badge
                   variant={assignment.status === 'graded' ? 'default' : assignment.status === 'submitted' ? 'secondary' : 'outline'}
                   className={
-                    assignment.status === 'graded' 
+                    assignment.status === 'graded'
                       ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
                       : assignment.status === 'submitted'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                      : 'border-violet-600 text-violet-600'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                        : 'border-violet-600 text-violet-600'
                   }
                 >
                   {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />{assignment.course}</span>
+                <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />Full Course Assignment</span>
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Due: {assignment.dueDate}</span>
                 <span className="flex items-center gap-1"><Award className="h-4 w-4" />{assignment.points} points</span>
               </div>
@@ -79,8 +118,16 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
             </div>
             <div className="flex gap-2">
               {assignment.status === 'pending' && (
-                <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
-                  <Upload className="mr-2 h-4 w-4" />Submit
+                <Button
+                  onClick={() =>
+                    navigate("assignment-details", undefined, {
+                      assignmentId: assignment.id
+                    })
+                  }
+                  className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Take Assignment
                 </Button>
               )}
               {assignment.status === 'submitted' && (
@@ -89,7 +136,14 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
                 </Button>
               )}
               {assignment.status === 'graded' && (
-                <Button variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+                <Button
+                  variant="outline"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                  onClick={() =>
+                    navigate("assignment-feedback", undefined, {
+                      assignmentId: assignment.id
+                    })
+                  }>
                   View Feedback
                 </Button>
               )}
@@ -126,7 +180,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex-1">
                 <h1 className="text-xl md:text-2xl">Assignments</h1>
                 <p className="text-gray-600 text-sm md:text-base">Track your assignments and submissions</p>
@@ -139,8 +193,6 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
             <Tabs defaultValue="all">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="pending">Pending</TabsTrigger>
-                <TabsTrigger value="submitted">Submitted</TabsTrigger>
                 <TabsTrigger value="graded">Graded</TabsTrigger>
               </TabsList>
 
