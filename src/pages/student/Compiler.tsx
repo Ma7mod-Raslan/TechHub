@@ -23,7 +23,6 @@ import { Textarea } from "../../components/ui/textarea";
 import AIAssistant from "../../components/AIAssistant";
 import HeaderIcons from "../../components/HeaderIcons";
 import Sidebar from "../../components/Sidebar";
-import api from "../../api";
 
 type Language = "python" | "javascript" | "cpp";
 
@@ -92,10 +91,14 @@ export default function StudentCompiler({
     setOutput("Running...\n");
 
     try {
+
+      const token = localStorage.getItem("accessToken");
+
       const res = await fetch("http://localhost:3000/api/compiler/run", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           language,

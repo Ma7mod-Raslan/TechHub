@@ -22,6 +22,7 @@ import InstructorContact from './pages/instructor/Contact';
 import StudentDashboard from './pages/student/Dashboard';
 import StudentCourses from './pages/student/Courses';
 import StudentAssignments from './pages/student/Assignments';
+import StudentAssignmentDetails from "./pages/student/AssignmentDetails";
 import StudentCertificates from './pages/student/Certificates';
 import StudentCompiler from './pages/student/Compiler';
 import StudentRoadmaps from './pages/student/Roadmaps';
@@ -38,6 +39,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/sonner';
+import StudentAssignmentFeedback from './pages/student/AssignmentFeedback';
 
 export type UserRole = 'guest' | 'student' | 'instructor' | 'admin';
 
@@ -110,7 +112,7 @@ export default function App() {
       case 'instructor-assignments':
         return <InstructorAssignments navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case "instructor-manage-assignment":
-        return <InstructorManageAssignment navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState}/>;
+        return <InstructorManageAssignment navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case "instructor-create-assignment":
         return <InstructorCreateAssignment navigate={navigate} logout={logout} userRole="instructor" navigationState={navigationState} />;
       case 'instructor-profile':
@@ -128,6 +130,10 @@ export default function App() {
         return <StudentCourses navigate={navigate} logout={logout} userRole="student" />;
       case 'student-assignments':
         return <StudentAssignments navigate={navigate} logout={logout} userRole="student" />;
+      case 'assignment-details':
+        return <StudentAssignmentDetails navigate={navigate} logout={logout} userRole="student" navigationState={navigationState} />;
+      case "assignment-feedback":
+        return <StudentAssignmentFeedback navigate={navigate} logout={logout} userRole="student" navigationState={navigationState}/>;
       case 'student-certificates':
         return <StudentCertificates navigate={navigate} logout={logout} userRole="student" />;
       case 'student-compiler':
