@@ -132,6 +132,36 @@ router.get(
   }
 );
 
+router.get(
+  "/:assignmentId/attempts/:attemptId",
+  authMiddleware,
+  async (req, res, next) => {
+
+    try {
+
+      if (req.user.role !== "student") {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { assignmentId, attemptId } = req.params;
+
+      const result =
+        await assignmentService.getAttemptDetails(
+          assignmentId,
+          attemptId,
+          req.user.id
+        );
+
+      res.json(result);
+
+    } catch (error) {
+      next(error);
+    }
+
+  }
+);
+
+
 /* =========================================================
    👨‍🏫 INSTRUCTOR ROUTES
    (Basic structure – expand later)
