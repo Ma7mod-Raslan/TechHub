@@ -70,7 +70,7 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
 
     // Get assignment basic info
     const assignmentRes = await client.query(
-      `SELECT id, title, description
+      `SELECT id, title, description, passing_percentage, max_attempts
        FROM assignments
        WHERE id = $1`,
       [assignmentId]
