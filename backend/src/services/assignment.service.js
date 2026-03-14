@@ -657,6 +657,100 @@ const deleteAssignment = async (assignmentId, instructor_id) => {
   }
 };
 
+const getAttemptDetails = async (
+  assignmentId,
+  attemptId,
+  studentId
+) => {
+
+  const client = await pool.connect();
+
+  try {
+
+    // Get attempt info
+    const attemptRes = await client.query(
+      `SELECT score, percentage, is_passed, attempt_number
+       FROM student_assignment_attempts
+       WHERE id = $1
+       AND assignment_id = $2
+       AND student_id = $3`,
+      [attemptId, assignmentId, studentId]
+    );
+
+    if (attemptRes.rows.length === 0) {
+      throw new Error("Attempt not found");
+    }
+
+    const attempt = attemptRes.rows[0];
+
+    // Get questions + options + student answer
+    const questionsRes = await client.query(
+      `SELECT
+        q.id AS question_id,
+        q.question_text,
+        o.id AS option_id,
+        o.option_text,
+        o.is_correct,
+        sa.selected_option_id
+
+       FROM assignment_questions q
+
+       LEFT JOIN assignment_options o
+       ON o.question_id = q.id
+
+       LEFT JOIN student_attempt_answers sa
+       ON sa.question_id = q.id
+       AND sa.attempt_id = $1
+
+       WHERE q.assignment_id = $2
+
+       ORDER BY q.id`,
+      [attemptId, assignmentId]
+    );
+
+    const questionsMap = new Map();
+
+    questionsRes.rows.forEach(row => {
+
+      if (!questionsMap.has(row.question_id)) {
+
+        questionsMap.set(row.question_id, {
+
+          question_id: row.question_id,
+          question_text: row.question_text,
+          selected_option_id: row.selected_option_id,
+          options: []
+
+        });
+
+      }
+
+      questionsMap.get(row.question_id).options.push({
+
+        id: row.option_id,
+        option_text: row.option_text,
+        is_correct: row.is_correct
+
+      });
+
+    });
+
+    return {
+
+      ...attempt,
+
+      questions: Array.from(questionsMap.values())
+
+    };
+
+  } finally {
+
+    client.release();
+
+  }
+
+};
+
 export default {
   getAllAssignmentsForStudentDashboard,
   getAssignmentDetailsForStudent,
@@ -668,5 +762,6 @@ export default {
   getAssignmentDetailsForInstructor,
   deleteAssignment,
   updateQuestion,
-  addOptions
+  addOptions,
+  getAttemptDetails
 };
