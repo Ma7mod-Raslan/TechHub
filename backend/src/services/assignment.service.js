@@ -78,7 +78,7 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
 
     const assignment = assignmentRes.rows[0];
 
-    // Get questions + options (⚠️ بدون is_correct)
+    // Get questions + options
     const questionsRes = await client.query(
       `SELECT 
          q.id as question_id,
@@ -149,8 +149,8 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
 
     // 2️⃣ Check enrollment + progress
     const progressRes = await client.query(
-      `SELECT progress_percentage
-       FROM student_courses
+      `SELECT progress
+       FROM enrollments
        WHERE course_id = $1 AND student_id = $2`,
       [assignment.course_id, studentId]
     );
