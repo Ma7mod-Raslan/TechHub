@@ -122,22 +122,23 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
   }
 };
 
-
 const submitAssignment = async (assignmentId, studentId, answers) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // 1️⃣ Get assignment + course_id
+    /* ===============================
+       1️⃣ Get assignment
+    =============================== */
     const assignmentRes = await client.query(
-      `SELECT id, course_id, passing_percentage, max_attempts, is_active
+      `SELECT course_id, passing_percentage, max_attempts, is_active
        FROM assignments
        WHERE id = $1`,
       [assignmentId]
     );
 
-    if (assignmentRes.rows.length === 0) {
+    if (!assignmentRes.rows.length) {
       throw new Error("Assignment not found");
     }
 
@@ -147,32 +148,35 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       throw new Error("Assignment is not active");
     }
 
-    // 2️⃣ Check enrollment + progress
+    /* ===============================
+       2️⃣ Check enrollment + progress
+    =============================== */
     const progressRes = await client.query(
       `SELECT progress
        FROM enrollments
-       WHERE course_id = $1 AND student_id = $2`,
+       WHERE course_id=$1 AND student_id=$2`,
       [assignment.course_id, studentId]
     );
 
-    if (progressRes.rows.length === 0) {
+    if (!progressRes.rows.length) {
       throw new Error("Student not enrolled in this course");
     }
 
-    const progress = progressRes.rows[0].progress_percentage;
-
-    if (progress < 100) {
+    if (progressRes.rows[0].progress < 100) {
       throw new Error("Complete the course first");
     }
 
-    // 3️⃣ Check attempts count
+    /* ===============================
+       3️⃣ Check attempts
+    =============================== */
     const attemptsRes = await client.query(
-      `SELECT COUNT(*) FROM student_assignment_attempts
-       WHERE assignment_id = $1 AND student_id = $2`,
+      `SELECT COUNT(*)::int as count
+       FROM student_assignment_attempts
+       WHERE assignment_id=$1 AND student_id=$2`,
       [assignmentId, studentId]
     );
 
-    const attemptNumber = parseInt(attemptsRes.rows[0].count) + 1;
+    const attemptNumber = attemptsRes.rows[0].count + 1;
 
     if (
       assignment.max_attempts !== null &&
@@ -181,85 +185,100 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       throw new Error("Max attempts reached");
     }
 
-    // 4️⃣ Get correct answers
+    /* ===============================
+       4️⃣ Get correct answers
+    =============================== */
     const questionsRes = await client.query(
       `SELECT q.id as question_id, o.id as correct_option_id
        FROM assignment_questions q
-       JOIN assignment_options o 
+       JOIN assignment_options o
        ON q.id = o.question_id
-       WHERE q.assignment_id = $1 AND o.is_correct = true`,
+       WHERE q.assignment_id=$1 AND o.is_correct=true`,
       [assignmentId]
     );
 
-    const correctAnswers = questionsRes.rows;
-
-    if (correctAnswers.length === 0) {
+    if (!questionsRes.rows.length) {
       throw new Error("Assignment has no questions");
     }
 
-    // 🔥 PERFORMANCE IMPROVEMENT
-    // نحول correct answers لـ Map بدل find كل مرة
-    const correctMap = new Map();
-    correctAnswers.forEach((row) => {
-      correctMap.set(row.question_id, row.correct_option_id);
-    });
+    const correctMap = new Map(
+      questionsRes.rows.map(r => [r.question_id, r.correct_option_id])
+    );
 
+    /* ===============================
+       5️⃣ Calculate score
+    =============================== */
     let score = 0;
 
-    for (let answer of answers) {
+    for (const answer of answers) {
       const correctOption = correctMap.get(answer.question_id);
 
-      if (correctOption && answer.selected_option_id === correctOption) {
+      if (correctOption === answer.selected_option_id) {
         score++;
       }
     }
 
-    const totalQuestions = correctAnswers.length;
+    const totalQuestions = correctMap.size;
     const percentage = (score / totalQuestions) * 100;
     const isPassed = percentage >= assignment.passing_percentage;
 
-    // 5️⃣ Insert attempt
+    /* ===============================
+       6️⃣ Insert attempt
+    =============================== */
     const attemptInsert = await client.query(
       `INSERT INTO student_assignment_attempts
        (assignment_id, student_id, score, percentage, is_passed, attempt_number)
        VALUES ($1,$2,$3,$4,$5,$6)
        RETURNING id`,
-      [
-        assignmentId,
-        studentId,
-        score,
-        percentage,
-        isPassed,
-        attemptNumber,
-      ]
+      [assignmentId, studentId, score, percentage, isPassed, attemptNumber]
     );
 
     const attemptId = attemptInsert.rows[0].id;
 
-    // 6️⃣ Insert student answers
-    for (let answer of answers) {
+    /* ===============================
+       7️⃣ Bulk insert answers
+    =============================== */
+    const values = [];
+    const params = [];
+
+    answers.forEach((answer, index) => {
+      const base = index * 4;
       const correctOption = correctMap.get(answer.question_id);
 
-      const isCorrect =
-        correctOption && answer.selected_option_id === correctOption;
-
-      await client.query(
-        `INSERT INTO student_attempt_answers
-         (attempt_id, question_id, selected_option_id, is_correct)
-         VALUES ($1,$2,$3,$4)`,
-        [attemptId, answer.question_id, answer.selected_option_id, isCorrect]
+      params.push(
+        attemptId,
+        answer.question_id,
+        answer.selected_option_id,
+        correctOption === answer.selected_option_id
       );
-    }
+
+      values.push(
+        `($${base+1},$${base+2},$${base+3},$${base+4})`
+      );
+    });
+
+    await client.query(
+      `
+      INSERT INTO student_attempt_answers
+      (attempt_id, question_id, selected_option_id, is_correct)
+      VALUES ${values.join(",")}
+      `,
+      params
+    );
 
     await client.query("COMMIT");
-      let certificate = null;
 
-      if (isPassed) {
-            await certificateService.generateCertificate(
-              studentId,
-              assignment.course_id
-        );
-      }
+    /* ===============================
+       8️⃣ Generate certificate
+    =============================== */
+    let certificate = null;
+
+    if (isPassed) {
+      certificate = await certificateService.generateCertificate(
+        studentId,
+        assignment.course_id
+      );
+    }
 
     return {
       score,
@@ -267,8 +286,9 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       percentage,
       is_passed: isPassed,
       attempt_number: attemptNumber,
-      certificate,
+      certificate
     };
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
