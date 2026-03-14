@@ -255,9 +255,9 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
       let certificate = null;
 
       if (isPassed) {
-        certificate = await certificateService.generateCertificate(
-          studentId,
-          assignment.course_id
+            await certificateService.generateCertificate(
+              studentId,
+              assignment.course_id
         );
       }
 
