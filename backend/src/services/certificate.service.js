@@ -1,14 +1,17 @@
 import pool from "../db.js";
 import puppeteer from "puppeteer";
 import fs from "fs";
-import notificationService from "./notification.service.js";
 import path from "path";
+import notificationService from "./notification.service.js";
 
 const generateCertificate = async (studentId, courseId) => {
   const client = await pool.connect();
 
   try {
-    // 1️⃣ Check if certificate already exists
+
+    /* ===============================
+       1️⃣ Check if certificate exists
+    =============================== */
     const existing = await client.query(
       `SELECT id FROM certificates
        WHERE student_id=$1 AND course_id=$2`,
@@ -19,7 +22,9 @@ const generateCertificate = async (studentId, courseId) => {
       return existing.rows[0];
     }
 
-    // 2️⃣ Get student + course + instructor data
+    /* ===============================
+       2️⃣ Get certificate data
+    =============================== */
     const dataRes = await client.query(
       `SELECT
         u.full_name as student_name,
@@ -41,14 +46,18 @@ const generateCertificate = async (studentId, courseId) => {
 
     const { student_name, course_title, instructor_name, instructor_id } = data;
 
-    // 3️⃣ Generate certificate code
+    /* ===============================
+       3️⃣ Generate certificate code
+    =============================== */
     const year = new Date().getFullYear();
     const random = Math.floor(100000 + Math.random() * 900000);
     const certificateCode = `TH-${year}-${random}`;
 
     const issueDate = new Date().toLocaleDateString();
 
-    // 4️⃣ Generate HTML template
+    /* ===============================
+       4️⃣ Certificate HTML
+    =============================== */
     const html = `
       <html>
       <head>
@@ -58,20 +67,14 @@ const generateCertificate = async (studentId, courseId) => {
             text-align:center;
             padding-top:120px;
           }
-          h1{
-            font-size:48px;
-          }
-          h2{
-            margin-top:40px;
-          }
+          h1{ font-size:48px; }
+          h2{ margin-top:40px; }
           .name{
             font-size:40px;
             margin:30px 0;
             font-weight:bold;
           }
-          .course{
-            font-size:28px;
-          }
+          .course{ font-size:28px; }
           .footer{
             margin-top:80px;
             font-size:18px;
@@ -103,17 +106,32 @@ const generateCertificate = async (studentId, courseId) => {
       </html>
     `;
 
-    // 5️⃣ Generate PDF
+    /* ===============================
+       5️⃣ Ensure certificate folder
+    =============================== */
+    const certificatesDir = path.join(
+      process.cwd(),
+      "src",
+      "uploads",
+      "certificates"
+    );
+
+    if (!fs.existsSync(certificatesDir)) {
+      fs.mkdirSync(certificatesDir, { recursive: true });
+    }
+
+    /* ===============================
+       6️⃣ Generate PDF
+    =============================== */
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     await page.setContent(html);
 
     const fileName = `${certificateCode}.pdf`;
+
     const filePath = path.join(
-      process.cwd(),
-      "uploads",
-      "certificates",
+      certificatesDir,
       fileName
     );
 
@@ -126,7 +144,9 @@ const generateCertificate = async (studentId, courseId) => {
 
     const fileUrl = `/uploads/certificates/${fileName}`;
 
-    // 6️⃣ Save certificate in DB
+    /* ===============================
+       7️⃣ Save certificate
+    =============================== */
     const insert = await client.query(
       `INSERT INTO certificates
       (student_id,course_id,instructor_id,certificate_link,certificate_code)
@@ -135,13 +155,15 @@ const generateCertificate = async (studentId, courseId) => {
       [studentId, courseId, instructor_id, fileUrl, certificateCode]
     );
 
-    // 🔔 notify student that certificate is ready
+    /* ===============================
+       8️⃣ Send notification
+    =============================== */
     await notificationService.createNotification(
-    studentId,
-    "Certificate Ready 🎉",
-    `Your certificate for "${course_title}" is now available`,
-    "certificate",
-    courseId
+      studentId,
+      "Certificate Ready 🎉",
+      `Your certificate for "${course_title}" is now available`,
+      "certificate",
+      courseId
     );
 
     return insert.rows[0];

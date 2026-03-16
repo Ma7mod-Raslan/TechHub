@@ -72,6 +72,7 @@ app.use("/api/compiler", compilerRoutes);
 
 // Certificate
 app.use("/api/certificates", certificateRoutes);
+app.use("/uploads", express.static("src/uploads"));
 
 // Instructor routes
 app.use("/api/instructor", instructorRoutes);
