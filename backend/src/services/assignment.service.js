@@ -122,11 +122,15 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
   }
 };
 
-const submitAssignment = async (assignmentId, studentId, answers) => {
+export const submitAssignment = async (assignmentId, studentId, answers) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    if (!answers || answers.length === 0) {
+      throw new Error("No answers submitted");
+    }
 
     /* ===============================
        1️⃣ Get assignment
@@ -149,7 +153,7 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     /* ===============================
-       2️⃣ Check enrollment + progress
+       2️⃣ Check enrollment
     =============================== */
     const progressRes = await client.query(
       `SELECT progress
@@ -167,16 +171,19 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     /* ===============================
-       3️⃣ Check attempts
+       3️⃣ Get last attempt
     =============================== */
     const attemptsRes = await client.query(
-      `SELECT COUNT(*)::int as count
+      `SELECT attempt_number
        FROM student_assignment_attempts
-       WHERE assignment_id=$1 AND student_id=$2`,
+       WHERE assignment_id=$1 AND student_id=$2
+       ORDER BY attempt_number DESC
+       LIMIT 1`,
       [assignmentId, studentId]
     );
 
-    const attemptNumber = attemptsRes.rows[0].count + 1;
+    const lastAttempt = attemptsRes.rows[0]?.attempt_number || 0;
+    const attemptNumber = lastAttempt + 1;
 
     if (
       assignment.max_attempts !== null &&
@@ -211,6 +218,11 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     let score = 0;
 
     for (const answer of answers) {
+
+      if (!correctMap.has(answer.question_id)) {
+        throw new Error("Invalid question submitted");
+      }
+
       const correctOption = correctMap.get(answer.question_id);
 
       if (correctOption === answer.selected_option_id) {
@@ -242,6 +254,7 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     const params = [];
 
     answers.forEach((answer, index) => {
+
       const base = index * 4;
       const correctOption = correctMap.get(answer.question_id);
 
@@ -252,17 +265,13 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
         correctOption === answer.selected_option_id
       );
 
-      values.push(
-        `($${base+1},$${base+2},$${base+3},$${base+4})`
-      );
+      values.push(`($${base+1},$${base+2},$${base+3},$${base+4})`);
     });
 
     await client.query(
-      `
-      INSERT INTO student_attempt_answers
-      (attempt_id, question_id, selected_option_id, is_correct)
-      VALUES ${values.join(",")}
-      `,
+      `INSERT INTO student_attempt_answers
+       (attempt_id, question_id, selected_option_id, is_correct)
+       VALUES ${values.join(",")}`,
       params
     );
 
@@ -290,8 +299,10 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
     };
 
   } catch (error) {
+
     await client.query("ROLLBACK");
     throw error;
+
   } finally {
     client.release();
   }
