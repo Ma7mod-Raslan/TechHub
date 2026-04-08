@@ -59,6 +59,7 @@ CREATE TABLE course_videos (
   video_url VARCHAR(300) NOT NULL,
   description TEXT,
   duration INT,
+  transcript_status VARCHAR(20) DEFAULT 'pending';
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
