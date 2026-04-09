@@ -1,4 +1,5 @@
 import { useState } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -171,7 +172,7 @@ export default function InstructorCreateCourse({
 
       if (requirements.length > 0) {
         await fetch(
-          `http://localhost:3000/api/courses/${courseId}/requirements`,
+          `${API_URL}/api/courses/${courseId}/requirements`,
           {
             method: "PUT",
             headers: {
@@ -187,7 +188,7 @@ export default function InstructorCreateCourse({
 
       if (outcomes.length > 0) {
         await fetch(
-          `http://localhost:3000/api/courses/${courseId}/outcomes`,
+          `${API_URL}/api/courses/${courseId}/outcomes`,
           {
             method: "PUT",
             headers: {

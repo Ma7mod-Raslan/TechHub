@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Download, Share2, Trophy, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -46,7 +47,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
 
         const token = localStorage.getItem("accessToken");
 
-        const res = await fetch("http://localhost:3000/api/certificates/my", {
+        const res = await fetch("${API_URL}/api/certificates/my", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -143,7 +144,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                         <div className="flex gap-2">
 
                           <a
-                            href={`http://localhost:3000${cert.certificate_link}`}
+                            href={`${API_URL}${cert.certificate_link}`}
                             download
                             className="flex-1"
                           >
@@ -157,7 +158,7 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                             className="flex-1 hover:bg-gray-100 transition-all duration-300"
                             onClick={() => {
                               navigator.clipboard.writeText(
-                                `http://localhost:3000${cert.certificate_link}`
+                                `${API_URL}${cert.certificate_link}`
                               );
                               alert("Certificate link copied!");
                             }}

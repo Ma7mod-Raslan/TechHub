@@ -40,7 +40,7 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/courses');
+        const res = await fetch('${API_URL}/api/courses');
         const data = await res.json();
         setCourses(data.courses);
       } catch (err) {

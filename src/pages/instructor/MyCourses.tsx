@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -74,7 +75,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
       try {
         const token = localStorage.getItem('accessToken');
 
-        const res = await fetch('http://localhost:3000/api/courses/instructor', {
+        const res = await fetch('${API_URL}/api/courses/instructor', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -120,7 +121,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:3000/api/courses/${courseId}`,
+        `${API_URL}/api/courses/${courseId}`,
         {
           method: 'DELETE',
           headers: {

@@ -5,7 +5,7 @@ import axios from "axios";
  * Uses JWT (Bearer token) from localStorage
  */
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "${API_URL}/api",
   headers: {
     "Content-Type": "application/json",
   },

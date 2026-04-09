@@ -26,7 +26,7 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
         const token = localStorage.getItem("accessToken");
 
         const res = await fetch(
-          "http://localhost:3000/api/notifications/unread-count",
+          "${API_URL}/api/notifications/unread-count",
           {
             headers: {
               Authorization: `Bearer ${token}`

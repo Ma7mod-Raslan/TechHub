@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -51,6 +52,7 @@ import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { UserRole } from '../../App';
+
 
 interface InstructorCourseViewProps {
   navigate: (page: string, role?: UserRole, state?: any) => void;
@@ -143,7 +145,7 @@ export default function InstructorCourseView({
   const fetchCourse = async () => {
     const token = localStorage.getItem('accessToken');
 
-    const res = await fetch(`http://localhost:3000/api/courses/${courseId}`, {
+    const res = await fetch(`${API_URL}/api/courses/${courseId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -162,7 +164,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     const res = await fetch(
-      `http://localhost:3000/api/courses/${courseId}/videos`,
+      `${API_URL}/api/courses/${courseId}/videos`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -203,7 +205,7 @@ export default function InstructorCourseView({
 
     const token = localStorage.getItem('accessToken');
 
-    await fetch(`http://localhost:3000/api/courses/${courseId}/videos`, {
+    await fetch(`http://localhost:5000/api/courses/${courseId}/videos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -227,7 +229,7 @@ export default function InstructorCourseView({
 
     const timer = setTimeout(() => {
       setMcqError('');
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [mcqError]);
@@ -270,7 +272,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     await fetch(
-      `http://localhost:3000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      `${API_URL}/api/courses/${courseId}/videos/${selectedVideo.id}`,
       {
         method: 'PUT',
         headers: {
@@ -299,7 +301,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     await fetch(
-      `http://localhost:3000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      `${API_URL}/api/courses/${courseId}/videos/${selectedVideo.id}`,
       {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
@@ -382,7 +384,7 @@ export default function InstructorCourseView({
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:3000/api/courses/${course.id}/publish`,
+        `${API_URL}/api/courses/${course.id}/publish`,
         {
           method: 'PUT',
           headers: {
@@ -414,7 +416,7 @@ export default function InstructorCourseView({
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:3000/api/courses/${courseId}`,
+        `${API_URL}/api/courses/${courseId}`,
         {
           method: 'PUT',
           headers: {
@@ -467,7 +469,7 @@ export default function InstructorCourseView({
     if (!targetVideo) return;
 
     await fetch(
-      `http://localhost:3000/api/courses/${courseId}/videos/reorder`,
+      `${API_URL}/api/courses/${courseId}/videos/reorder`,
       {
         method: 'PUT',
         headers: {
@@ -504,7 +506,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     const res = await fetch(
-      `http://localhost:3000/api/videos/${selectedVideo.id}/questions`,
+      `${API_URL}/api/videos/${selectedVideo.id}/questions`,
       {
         method: 'POST',
         headers: {
@@ -538,7 +540,7 @@ export default function InstructorCourseView({
     setLoadingQuestions(true);
 
     const res = await fetch(
-      `http://localhost:3000/api/videos/${videoId}/questions`,
+      `${API_URL}/api/videos/${videoId}/questions`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

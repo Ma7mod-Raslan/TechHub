@@ -94,7 +94,7 @@ export default function StudentCompiler({
 
       const token = localStorage.getItem("accessToken");
 
-      const res = await fetch("http://localhost:3000/api/compiler/run", {
+      const res = await fetch("${API_URL}/api/compiler/run", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

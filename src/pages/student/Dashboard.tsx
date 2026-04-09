@@ -107,7 +107,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/me/stats", {
+        const res = await fetch("${API_URL}/api/me/stats", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -126,7 +126,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/me/my-courses", {
+        const res = await fetch("${API_URL}/api/me/my-courses", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import {
   LayoutDashboard,
   BookOpen,
@@ -64,7 +65,7 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
         const token = localStorage.getItem("accessToken");
 
         const res = await fetch(
-          "http://localhost:3000/api/notifications",
+          "${API_URL}/api/notifications",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -93,7 +94,7 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
       const token = localStorage.getItem("accessToken");
 
       await fetch(
-        `http://localhost:3000/api/notifications/${id}/read`,
+        `${API_URL}/api/notifications/${id}/read`,
         {
           method: "PATCH",
           headers: {
