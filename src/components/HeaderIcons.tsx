@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-
+const API_URL = import.meta.env.VITE_API_URL;
 import { UserRole } from '../App';
 import { NavigateFn } from '../types/Navigation';
 

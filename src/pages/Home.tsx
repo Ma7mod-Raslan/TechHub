@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { motion } from 'motion/react';
 import { Code, Database, Brain, Shield, Smartphone, Globe, Users, Award, Star, ChevronRight, BookOpen, TrendingUp } from 'lucide-react';
 import Navbar from '../components/Navbar';

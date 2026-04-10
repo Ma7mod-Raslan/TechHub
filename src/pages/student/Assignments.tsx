@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+const API_URL = import.meta.env.VITE_API_URL;
 import { useEffect, useState } from 'react';
 import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, Calendar, CheckCircle2, Clock, Upload, ArrowRight, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
