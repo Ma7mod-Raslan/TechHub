@@ -81,7 +81,7 @@ export const getStudents = async () => {
   return result.rows;
 };
 
-// Toggle Suspend
+// Toggle Suspend user
 export const toggleUserStatus = async (userId) => {
 
     const userResult = await db.query(
@@ -112,4 +112,417 @@ export const toggleUserStatus = async (userId) => {
   );
 
   return updateResult.rows[0];
+};
+
+// Get Courses Data
+export const getAllCourses = async () => {
+  const result = await db.query(`
+  SELECT 
+    c.id,
+    c.title AS course_name,
+    c.category,
+    u.full_name AS instructor_name,
+    COUNT(e.id) AS enrolled_students,
+    CASE 
+      WHEN c.is_active = true THEN 'active'
+      ELSE 'inactive'
+    END AS status
+  FROM courses c
+  LEFT JOIN users u 
+    ON c.instructor_id = u.id
+  LEFT JOIN enrollments e 
+    ON c.id = e.course_id
+  GROUP BY c.id, u.full_name
+  ORDER BY c.created_at DESC;
+  `);
+
+  return result.rows;
+};
+
+// Toggle Suspend course
+export const toggleCourseStatus = async (courseId) => {
+  // Check if course exists
+  const courseResult = await db.query(
+    `SELECT id, is_active FROM courses WHERE id = $1`,
+    [courseId]
+  );
+
+  if (courseResult.rows.length === 0) {
+    throw new Error("Course not found");
+  }
+
+  const course = courseResult.rows[0];
+
+  // Toggle status
+  const newStatus = !course.is_active;
+
+  const updated = await db.query(
+    `UPDATE courses
+     SET is_active = $1
+     WHERE id = $2
+     RETURNING id, title, is_active`,
+    [newStatus, courseId]
+  );
+
+  return updated.rows[0];
+};
+
+// Delete course 
+export const deleteCourse = async (courseId) => {
+  const result = await db.query(
+    `DELETE FROM courses
+     WHERE id = $1
+     RETURNING id, title`,
+    [courseId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Course not found");
+  }
+
+  return result.rows[0];
+};
+
+// Get full info for the course 
+export const getCourseFullDetails = async (courseId) => {
+  
+  const courseRes = await db.query(
+    `
+    SELECT
+      c.id,
+      c.title,
+      c.description,
+      c.thumbnail,
+      c.category,
+      c.level,
+      c.is_active,
+      u.full_name AS instructor_name
+    FROM courses c
+    JOIN users u ON u.id = c.instructor_id
+    WHERE c.id = $1
+    `,
+    [courseId]
+  );
+
+  if (courseRes.rows.length === 0) {
+    throw new Error("Course not found");
+  }
+
+  const course = courseRes.rows[0];
+
+  const [
+    videosRes,
+    durationRes,
+    outcomesRes,
+    requirementsRes
+  ] = await Promise.all([
+    db.query(
+      `
+      SELECT id, title, description, duration
+      FROM course_videos
+      WHERE course_id = $1
+      ORDER BY video_order ASC
+      `,
+      [courseId]
+    ),
+    db.query(
+      `
+      SELECT COALESCE(SUM(duration), 0) AS total_duration
+      FROM course_videos
+      WHERE course_id = $1
+      `,
+      [courseId]
+    ),
+    db.query(
+      `
+      SELECT description
+      FROM course_outcomes
+      WHERE course_id = $1
+      ORDER BY id ASC
+      `,
+      [courseId]
+    ),
+    db.query(
+      `
+      SELECT description
+      FROM course_requirements
+      WHERE course_id = $1
+      ORDER BY id ASC
+      `,
+      [courseId]
+    )
+  ]);
+
+  return {
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    thumbnail: course.thumbnail,
+    category: course.category,
+    level: course.level,
+    instructor_name: course.instructor_name,
+
+    // status
+    status: course.is_active ? "active" : "inactive",
+
+    total_duration: Number(durationRes.rows[0].total_duration),
+    outcomes: outcomesRes.rows.map(o => o.description),
+    requirements: requirementsRes.rows.map(r => r.description),
+    videos: videosRes.rows
+  };
+};
+
+// Get Communities
+export const getCommunities = async () => {
+  const result = await db.query(`
+    SELECT
+      com.id,
+      c.title AS course_name,
+      c.category,
+      u.full_name AS instructor_name,
+      com.members_count,
+      com.posts_count
+    FROM communities com
+    JOIN courses c ON com.course_id = c.id
+    JOIN users u ON c.instructor_id = u.id
+    ORDER BY com.created_at DESC
+  `);
+
+  return result.rows;
+};
+
+// Get Specific Community
+export const getCommunityDetails = async (communityId) => {
+
+  const communityRes = await db.query(
+    `
+    SELECT
+      com.id,
+      com.members_count,
+      com.posts_count,
+      c.is_active
+    FROM communities com
+    JOIN courses c ON com.course_id = c.id
+    WHERE com.id = $1
+    `,
+    [communityId]
+  );
+
+  if (communityRes.rows.length === 0) {
+    throw new Error("Community not found");
+  }
+
+  const community = communityRes.rows[0];
+
+  const postsRes = await db.query(
+    `
+    SELECT
+      p.id,
+      p.content,
+      p.created_at,
+      p.likes_count,
+      p.replies_count,
+      u.full_name AS sender_name
+    FROM community_posts p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.community_id = $1
+      AND p.is_deleted = false
+    ORDER BY p.created_at DESC
+    LIMIT 10
+    `,
+    [communityId]
+  );
+
+  return {
+    community_id: community.id,
+
+    // Main info
+    members: community.members_count,
+    total_posts: community.posts_count,
+    status: community.is_active ? "active" : "inactive",
+
+    // Posts
+    recent_posts: postsRes.rows.map(post => ({
+      id: post.id,
+      sender_name: post.sender_name,
+      content: post.content,
+      time: post.created_at,
+      total_likes: post.likes_count,
+      total_replies: post.replies_count
+    }))
+  };
+};
+
+// Toggle hide/unhide for post
+export const togglePostHide = async (postId, adminId) => {
+  // Check post exists
+  const postRes = await db.query(
+    `SELECT id, is_hidden, is_deleted FROM community_posts WHERE id = $1`,
+    [postId]
+  );
+
+  if (postRes.rows.length === 0) {
+    throw new Error("Post not found");
+  }
+
+  const post = postRes.rows[0];
+
+  if (post.is_deleted) {
+    throw new Error("Cannot modify deleted post");
+  }
+
+  // Toggle
+  const newStatus = !post.is_hidden;
+
+  const updated = await db.query(
+    `UPDATE community_posts
+     SET is_hidden = $1
+     WHERE id = $2
+     RETURNING id, content, is_hidden`,
+    [newStatus, postId]
+  );
+
+  return updated.rows[0];
+};
+
+// Delete post (soft delete)
+export const deletePost = async (postId) => {
+  const result = await db.query(
+    `UPDATE community_posts
+     SET is_deleted = true
+     WHERE id = $1
+     RETURNING id, content`,
+    [postId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Post not found");
+  }
+
+  return result.rows[0];
+};
+
+// Get Reports
+export const getReports = async () => {
+  const result = await db.query(`
+    SELECT
+      r.id,
+
+      u.full_name AS reporter_name,
+      u.email,
+
+      CASE
+        WHEN r.post_id IS NOT NULL THEN 'Reported Post'
+        ELSE 'Reported Reply'
+      END AS type,
+
+      r.category,
+
+      CASE
+        WHEN r.post_id IS NOT NULL THEN LEFT(p.content, 100)
+        ELSE LEFT(rep.content, 100)
+      END AS message_excerpt,
+
+      r.created_at,
+
+      r.status
+
+    FROM community_reports r
+
+    JOIN users u ON r.user_id = u.id
+
+    LEFT JOIN community_posts p 
+      ON r.post_id = p.id
+
+    LEFT JOIN community_replies rep 
+      ON r.reply_id = rep.id
+
+    ORDER BY r.created_at DESC
+  `);
+
+  return result.rows;
+};
+
+// Toggle Action for report
+export const toggleReportStatus = async (reportId, adminId) => {
+  // Check report exists
+  const reportRes = await db.query(
+    `SELECT id, status FROM community_reports WHERE id = $1`,
+    [reportId]
+  );
+
+  if (reportRes.rows.length === 0) {
+    throw new Error("Report not found");
+  }
+
+  const report = reportRes.rows[0];
+
+  // Toggle
+  const newStatus = report.status === "pending" ? "resolved" : "pending";
+
+  const updated = await db.query(
+    `
+    UPDATE community_reports
+    SET status = $1,
+        resolved_by = $2,
+        resolved_at = NOW()
+    WHERE id = $3
+    RETURNING id, status
+    `,
+    [newStatus, adminId, reportId]
+  );
+
+  return updated.rows[0];
+};
+
+// View Action for report
+export const getReportDetails = async (reportId) => {
+  const result = await db.query(
+    `
+    SELECT
+      r.id,
+      r.category,
+      r.status,
+      r.created_at,
+
+      -- 👤 Reporter
+      u.full_name AS reporter_name,
+      u.email,
+
+      -- 🧠 Type
+      CASE
+        WHEN r.post_id IS NOT NULL THEN 'Reported Post'
+        ELSE 'Reported Reply'
+      END AS type,
+
+      -- 📄 Full content
+      CASE
+        WHEN r.post_id IS NOT NULL THEN p.content
+        ELSE rep.content
+      END AS content,
+
+      -- 📎 IDs
+      r.post_id,
+      r.reply_id
+
+    FROM community_reports r
+
+    JOIN users u ON r.user_id = u.id
+
+    LEFT JOIN community_posts p 
+      ON r.post_id = p.id
+
+    LEFT JOIN community_replies rep 
+      ON r.reply_id = rep.id
+
+    WHERE r.id = $1
+    `,
+    [reportId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Report not found");
+  }
+
+  return result.rows[0];
 };

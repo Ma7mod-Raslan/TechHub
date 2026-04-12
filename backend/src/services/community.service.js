@@ -627,13 +627,13 @@ const deleteReply = async (replyId, userId) => {
   }
 };
 
-const reportPost = async (postId, userId, reason) => {
+const reportPost = async (postId, userId, category, reason = null) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // 1️⃣ تأكد إن البوست موجود
+    // Check post exists
     const post = await client.query(
       `
       SELECT user_id, community_id
@@ -653,7 +653,7 @@ const reportPost = async (postId, userId, reason) => {
       throw new Error("You cannot report your own post");
     }
 
-    // 2️⃣ تأكد إن user عضو
+    // Check membership
     const memberCheck = await client.query(
       `
       SELECT 1 FROM community_members
@@ -666,7 +666,7 @@ const reportPost = async (postId, userId, reason) => {
       throw new Error("Not a community member");
     }
 
-    // 3️⃣ منع duplicate report
+    // Prevent duplicate
     const exists = await client.query(
       `
       SELECT id FROM community_reports
@@ -679,15 +679,17 @@ const reportPost = async (postId, userId, reason) => {
       throw new Error("Already reported");
     }
 
+    // Insert report
     await client.query(
       `
-      INSERT INTO community_reports (user_id, post_id, reason)
-      VALUES ($1, $2, $3)
+      INSERT INTO community_reports (user_id, post_id, category, reason)
+      VALUES ($1, $2, $3, $4)
       `,
-      [userId, postId, reason]
+      [userId, postId, category, reason]
     );
 
     await client.query("COMMIT");
+
     return { message: "Post reported successfully" };
 
   } catch (err) {
@@ -698,12 +700,13 @@ const reportPost = async (postId, userId, reason) => {
   }
 };
 
-const reportReply = async (replyId, userId, reason) => {
+const reportReply = async (replyId, userId, category, reason = null) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
+    // Check reply exists
     const reply = await client.query(
       `
       SELECT r.user_id, p.community_id
@@ -724,6 +727,7 @@ const reportReply = async (replyId, userId, reason) => {
       throw new Error("You cannot report your own reply");
     }
 
+    // Check membership
     const memberCheck = await client.query(
       `
       SELECT 1 FROM community_members
@@ -736,6 +740,7 @@ const reportReply = async (replyId, userId, reason) => {
       throw new Error("Not a community member");
     }
 
+    // Prevent duplicate
     const exists = await client.query(
       `
       SELECT id FROM community_reports
@@ -748,15 +753,17 @@ const reportReply = async (replyId, userId, reason) => {
       throw new Error("Already reported");
     }
 
+    // Insert report
     await client.query(
       `
-      INSERT INTO community_reports (user_id, reply_id, reason)
-      VALUES ($1, $2, $3)
+      INSERT INTO community_reports (user_id, reply_id, category, reason)
+      VALUES ($1, $2, $3, $4)
       `,
-      [userId, replyId, reason]
+      [userId, replyId, category, reason]
     );
 
     await client.query("COMMIT");
+
     return { message: "Reply reported successfully" };
 
   } catch (err) {

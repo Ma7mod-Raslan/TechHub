@@ -220,6 +220,7 @@ CREATE TABLE community_posts (
   content TEXT NOT NULL,
   likes_count INT DEFAULT 0,
   replies_count INT DEFAULT 0,
+  is_hidden BOOLEAN DEFAULT false,
   is_deleted BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -266,6 +267,7 @@ CREATE TABLE community_reports (
   post_id INT REFERENCES community_posts(id) ON DELETE CASCADE,
   reply_id INT REFERENCES community_replies(id) ON DELETE CASCADE,
   reason TEXT NOT NULL,
+  category VARCHAR(50),
   status VARCHAR(20) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CHECK (
