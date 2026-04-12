@@ -8,6 +8,7 @@ CREATE TABLE users (
   profile_image VARCHAR(255),
   bio TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true,
   is_verified BOOLEAN DEFAULT false,
   verification_code VARCHAR(10),
   verification_expires_at TIMESTAMP,
@@ -34,6 +35,7 @@ CREATE TABLE courses (
   ),
   status VARCHAR(20) CHECK (status IN ('Published', 'Draft')) DEFAULT 'Draft',
   thumbnail VARCHAR(300),
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
