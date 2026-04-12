@@ -1,0 +1,532 @@
+[
+  {
+    "video_id_db": 14,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Introduction",
+    "video_url": "https://www.youtube.com/watch?v=9gHPpwq6IaY&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=1",
+    "youtube_id": "9gHPpwq6IaY",
+    "description": "This video is a short introduction to HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 21.0,
+        "duration": 21.0,
+        "chapter_title": "What are HTML Headings?",
+        "text": "Web pages are filled with a sea of words. If all the words look the same, \nyour readers could get lost or worse: bored. in order to spice up the page and keep \nreaders engaged you should use HTML headings. HTML headings make titles and subtitles \nstand out in the sea of words on a web page."
+      },
+      {
+        "timestamp": "00:21",
+        "start_seconds": 21.0,
+        "end_seconds": 35.0,
+        "duration": 14.0,
+        "chapter_title": "A HTML Page With and Without Headings",
+        "text": "Here's what a page looks like without headings.\nHere's what it looks like with headings. You can see now why headings are a must. They appear bigger and with more \nspace than normal paragraphs."
+      },
+      {
+        "timestamp": "00:35",
+        "start_seconds": 35.0,
+        "end_seconds": 53.0,
+        "duration": 18.0,
+        "chapter_title": "Different Headings in HTML",
+        "text": "There are six different heading levels. The levels range from h1 to h6\nand each heading level has a rank. h1 is the largest and most important heading. h2 is the second and on and on to h6 \nwhich is the least important heading."
+      },
+      {
+        "timestamp": "00:53",
+        "start_seconds": 53.0,
+        "end_seconds": 69.0,
+        "duration": 16.0,
+        "chapter_title": "HTML Heading Size",
+        "text": "Each HTML heading has a default size. You can change the size with the style \nattribute, using the CSS font size property. And to change the color of the heading \nyou can use the CSS color property."
+      },
+      {
+        "timestamp": "01:09",
+        "start_seconds": 69.0,
+        "end_seconds": 99,
+        "duration": 30.0,
+        "chapter_title": "Why are Headings Important?",
+        "text": "Headings are important for many reasons. People often skim a page by its headings. This way they can go right to \nthe information they need. Search engines use the headings to index \nthe structure and content of your web pages. See the search result shows \nthe heading from the page. If you want to engage your readers and get indexed \nproperly be sure to use headings correctly."
+      }
+    ],
+    "full_transcript": "Web pages are filled with a sea of words. If all the words look the same, \nyour readers could get lost or worse: bored. in order to spice up the page and keep \nreaders engaged you should use HTML headings. HTML headings make titles and subtitles \nstand out in the sea of words on a web page. Here's what a page looks like without headings.\nHere's what it looks like with headings. You can see now why headings are a must. They appear bigger and with more \nspace than normal paragraphs. There are six different heading levels. The levels range from h1 to h6\nand each heading level has a rank. h1 is the largest and most important heading. h2 is the second and on and on to h6 \nwhich is the least important heading. Each HTML heading has a default size. You can change the size with the style \nattribute, using the CSS font size property. And to change the color of the heading \nyou can use the CSS color property. Headings are important for many reasons. People often skim a page by its headings. This way they can go right to \nthe information they need. Search engines use the headings to index \nthe structure and content of your web pages. See the search result shows \nthe heading from the page. If you want to engage your readers and get indexed \nproperly be sure to use headings correctly."
+  },
+  {
+    "video_id_db": 15,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Editors",
+    "video_url": "https://www.youtube.com/watch?v=bBP0ckEln4Y&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=2",
+    "youtube_id": "bBP0ckEln4Y",
+    "description": "This video is an overview of HTML Editors, and how to edit HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 18.0,
+        "duration": 18.0,
+        "chapter_title": "Introduction to HTML Editors",
+        "text": "When you're creating and modifying web pages you can use any professional HTML editor But when you're learning HTML you  should start with a simple text editor like Notepad on PCs or Text edit on Macs it's better to start simple before jumping into the deep end."
+      },
+      {
+        "timestamp": "00:18",
+        "start_seconds": 18.0,
+        "end_seconds": 29.0,
+        "duration": 11.0,
+        "chapter_title": "Step 1: Open Editor",
+        "text": "Here are 4 steps to create your first web page: Step 1 open Notepad or Text edit In this video we will use notepad. Now it's time for step 2."
+      },
+      {
+        "timestamp": "00:29",
+        "start_seconds": 29.0,
+        "end_seconds": 40.0,
+        "duration": 11.0,
+        "chapter_title": "Step 2: Write Code",
+        "text": "Write some HTML. stretch your fingers and then either write or copy some HTML into notepad. Then comes step 3."
+      },
+      {
+        "timestamp": "00:40",
+        "start_seconds": 40.0,
+        "end_seconds": 70.0,
+        "duration": 30.0,
+        "chapter_title": "Step 3: Save as a Web Page",
+        "text": "Save your work as an HTML page. Look at you moving along so fast. To save it select file and then Save As. Name the file \"index.html\" and set the encoding to utf-8 which \nis the preferred encoding for all HTML files HTML files can have .html or just .htm as file extension. And finally we reach Step 4."
+      },
+      {
+        "timestamp": "01:10",
+        "start_seconds": 70.0,
+        "end_seconds": 87,
+        "duration": 17.0,
+        "chapter_title": "Step 4: View Web Page",
+        "text": "View the HTML page in a Browser. Open the saved HTML file in your favorite browser. The result should  look like this. And just like that you've created \nyour first HTML page. You should feel very proud."
+      }
+    ],
+    "full_transcript": "When you're creating and modifying web pages you can use any professional HTML editor But when you're learning HTML you  should start with a simple text editor like Notepad on PCs or Text edit on Macs it's better to start simple before jumping into the deep end. Here are 4 steps to create your first web page: Step 1 open Notepad or Text edit In this video we will use notepad. Now it's time for step 2. Write some HTML. stretch your fingers and then either write or copy some HTML into notepad. Then comes step 3. Save your work as an HTML page. Look at you moving along so fast. To save it select file and then Save As. Name the file \"index.html\" and set the encoding to utf-8 which \nis the preferred encoding for all HTML files HTML files can have .html or just .htm as file extension. And finally we reach Step 4. View the HTML page in a Browser. Open the saved HTML file in your favorite browser. The result should  look like this. And just like that you've created \nyour first HTML page. You should feel very proud."
+  },
+  {
+    "video_id_db": 16,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Elements",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=3",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video explains what HTML Elements are.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 17,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Attributes",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=4",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video explains what HTML attributes are, and how they work.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 18,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Headings",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=5",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video is an explanation of Headings in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 19,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Paragraphs",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=6",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video is an explanation of Paragraphs in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 20,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Styles",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=7",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video is a short introduction to styles in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 21,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Formating",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=8",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video shows how to format text in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 22,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Comments",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=9",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video is a short introduction to comments, and how they work in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  },
+  {
+    "video_id_db": 23,
+    "course_name": "HTML for Beginners",
+    "video_title": "HTML - Colors",
+    "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=10",
+    "youtube_id": "vIoO52MdZFE",
+    "description": "This video is a short introduction to Colors in HTML.",
+    "segmentation_method": "📑 YouTube Chapters",
+    "chapters_count": 5,
+    "segments": [
+      {
+        "timestamp": "00:00",
+        "start_seconds": 0.0,
+        "end_seconds": 38.0,
+        "duration": 38.0,
+        "chapter_title": "What are HTML Elements?",
+        "text": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element."
+      },
+      {
+        "timestamp": "00:38",
+        "start_seconds": 38.0,
+        "end_seconds": 91.0,
+        "duration": 53.0,
+        "chapter_title": "HTML is Nested Elements",
+        "text": "All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag,"
+      },
+      {
+        "timestamp": "01:31",
+        "start_seconds": 91.0,
+        "end_seconds": 101.0,
+        "duration": 10.0,
+        "chapter_title": "Remember to End HTML Elements",
+        "text": "it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not"
+      },
+      {
+        "timestamp": "01:41",
+        "start_seconds": 101.0,
+        "end_seconds": 117.0,
+        "duration": 16.0,
+        "chapter_title": "Empty HTML Elements",
+        "text": "have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase"
+      },
+      {
+        "timestamp": "01:57",
+        "start_seconds": 117.0,
+        "end_seconds": 136,
+        "duration": 19.0,
+        "chapter_title": "HTML Tags are Not Case Sensitive",
+        "text": "and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+      }
+    ],
+    "full_transcript": "Now that we know how to create HTML Pages,\nlet's see some coding in action. An HTML element usually consists \nof a start tag and an end tag, with the content inserted in between.\nThe HTML element is everything from the start tag\nto the end tag. For example the HTML p \nelement defines a paragraph. So if you want a paragraph on \nyour page write the  start tag add content inside\nand close it with the  end tag. This is now a HTML p element, \nalso known as a paragraph element. All HTML documents consist \nof nested HTML elements. Nested elements are elements within elements.\nFor instance these two elements are nested within the body element, which in turn \nis nested within the HTML element. Let's  take a closer look at the different elements: First the HTML element defines the HTML document, it comes with a start tag and an end tag.\nInside the HTML element we have the body element which defines the document body.\nIt comes with a star tag and an end tag. The body element contains two other HTML elements:\nThe first one defines a heading, with the text \"My First Heading\".\nThe second one defines a paragraph with the text \"My first paragraph\".\nRemember to always include the end tag, it might work without it but \nthere's always a chance it will produce unexpected results or errors.\nHowever, some HTML elements do not have content they're called empty \nelements and do not have end tags. An example of this is the br element \nwhich is an element with no content. It just defines a line break.\nHTML tags are not case sensitive, both lowercase and uppercase works and means the same thing.\nHowever it is recommended to use lowercase tags. And with that said, we've covered the \nbasics of HTML elements and how to use them"
+  }
+]
