@@ -21,7 +21,10 @@ import {
     updateAdminProfile,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    getPostReplies,
+    deleteReply,
+    toggleReplyHide
 } from "../services/admin.service.js";
 
 const router = express.Router();
@@ -392,4 +395,56 @@ router.delete(
   }
 );
 
+// Get Replies for post
+router.get(
+  "/posts/:postId/replies",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const replies = await getPostReplies(req.params.postId);
+      res.json(replies);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// Delete Reply
+router.delete(
+  "/replies/:id",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const reply = await deleteReply(req.params.id);
+
+      res.json({
+        message: "Reply deleted successfully",
+        reply
+      });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
+
+// Toggle Hide for Reply
+router.patch(
+  "/replies/:id/toggle-hide",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const reply = await toggleReplyHide(req.params.id);
+
+      res.json({
+        message: `Reply ${reply.is_hidden ? "hidden" : "visible"} successfully`,
+        reply
+      });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
 export default router;

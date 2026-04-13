@@ -385,6 +385,67 @@ export const togglePostHide = async (postId, adminId) => {
   return updated.rows[0];
 };
 
+// Get Replies for post
+export const getPostReplies = async (postId) => {
+  const result = await db.query(
+    `
+    SELECT
+      r.id,
+      r.content,
+      r.created_at,
+      r.likes_count,
+      r.is_deleted,
+      u.full_name AS sender_name,
+
+      -- status
+      CASE
+        WHEN r.is_deleted = true THEN 'deleted'
+        ELSE 'visible'
+      END AS status
+
+    FROM community_replies r
+    JOIN users u ON r.user_id = u.id
+    WHERE r.post_id = $1
+    ORDER BY r.created_at ASC
+    `,
+    [postId]
+  );
+
+  return result.rows;
+};
+
+// Delete Reply
+export const deleteReply = async (replyId) => {
+  // 1️⃣ check if reply exists
+  const replyRes = await db.query(
+    `SELECT id, is_deleted FROM community_replies WHERE id = $1`,
+    [replyId]
+  );
+
+  if (replyRes.rows.length === 0) {
+    throw new Error("Reply not found");
+  }
+
+  const reply = replyRes.rows[0];
+
+  if (reply.is_deleted) {
+    throw new Error("Reply already deleted");
+  }
+
+  // 2️⃣ soft delete
+  const result = await db.query(
+    `
+    UPDATE community_replies
+    SET is_deleted = true
+    WHERE id = $1
+    RETURNING id, content
+    `,
+    [replyId]
+  );
+
+  return result.rows[0];
+};
+
 // Delete post (soft delete)
 export const deletePost = async (postId) => {
   const result = await db.query(
@@ -621,4 +682,42 @@ export const deleteNotification = async (notificationId, userId) => {
   }
 
   return { message: "Notification deleted successfully" };
+};
+
+// Toggle Hide for Reply
+export const toggleReplyHide = async (replyId) => {
+  // 1️⃣ check reply exists
+  const replyRes = await db.query(
+    `
+    SELECT id, is_hidden, is_deleted
+    FROM community_replies
+    WHERE id = $1
+    `,
+    [replyId]
+  );
+
+  if (replyRes.rows.length === 0) {
+    throw new Error("Reply not found");
+  }
+
+  const reply = replyRes.rows[0];
+
+  if (reply.is_deleted) {
+    throw new Error("Cannot modify deleted reply");
+  }
+
+  // 2️⃣ toggle hide
+  const newStatus = !reply.is_hidden;
+
+  const result = await db.query(
+    `
+    UPDATE community_replies
+    SET is_hidden = $1
+    WHERE id = $2
+    RETURNING id, content, is_hidden
+    `,
+    [newStatus, replyId]
+  );
+
+  return result.rows[0];
 };
