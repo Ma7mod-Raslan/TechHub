@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-const API_URL = import.meta.env.VITE_API_URL;
 import { motion, AnimatePresence } from 'motion/react';
 import {
     Play,
@@ -104,7 +103,7 @@ export default function CourseDetails({
 
     const fetchCourseVideos = async () => {
         const res = await fetch(
-            `${API_URL}/api/courses/${id}/videos-preview`
+            `http://localhost:5000/api/courses/${id}/videos-preview`
         );
 
         if (!res.ok) {
@@ -144,7 +143,7 @@ export default function CourseDetails({
         const load = async () => {
             try {
                 const res = await fetch(
-                    `${API_URL}/api/courses/all-info/${id}`
+                    `http://localhost:5000/api/courses/all-info/${id}`
                 );
 
                 if (!res.ok) throw new Error("Failed to load course");

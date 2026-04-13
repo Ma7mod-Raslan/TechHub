@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-const API_URL = import.meta.env.VITE_API_URL;
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map as mapIcon, Bell, User, Menu, Trash2, MapIcon } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -147,8 +146,8 @@ export default function CourseDetails({
   const fetchCourseVideos = async (enrolled: boolean) => {
     try {
       const endpoint = enrolled
-        ? `${API_URL}/api/courses/${id}/videos`
-        : `${API_URL}/api/courses/${id}/videos-preview`;
+        ? `http://localhost:5000/api/courses/${id}/videos`
+        : `http://localhost:5000/api/courses/${id}/videos-preview`;
 
       const headers: any = {};
       if (enrolled) {
@@ -192,7 +191,7 @@ export default function CourseDetails({
   const checkEnrollment = async () => {
     try {
       const res = await fetch(
-        "${API_URL}/api/me/my-courses",
+        "http://localhost:5000/api/me/my-courses",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -224,7 +223,7 @@ export default function CourseDetails({
     const load = async () => {
       try {
         const courseRes = await fetch(
-          `${API_URL}/api/courses/${id}`,
+          `http://localhost:5000/api/courses/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -271,7 +270,7 @@ export default function CourseDetails({
     } else if (userRole === 'student') {
       try {
 
-        await fetch(`${API_URL}/api/courses/${id}/enroll`, {
+        await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -292,7 +291,7 @@ export default function CourseDetails({
   const fetchCourseProgress = async () => {
     try {
       const res = await fetch(
-        `${API_URL}/api/courses/${id}/progress`,
+        `http://localhost:5000/api/courses/${id}/progress`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -312,7 +311,7 @@ export default function CourseDetails({
   const fetchVideosProgress = async () => {
     try {
       const res = await fetch(
-        `${API_URL}/api/courses/${id}/videos/progress`,
+        `http://localhost:5000/api/courses/${id}/videos/progress`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -389,7 +388,7 @@ export default function CourseDetails({
 
     try {
       const res = await fetch(
-        `${API_URL}/api/videos/${selectedVideo.id}/notes`,
+        `http://localhost:5000/api/videos/${selectedVideo.id}/notes`,
         {
           method: "POST",
           headers: {
@@ -430,7 +429,7 @@ export default function CourseDetails({
 
     try {
       await fetch(
-        `${API_URL}/api/notes/${noteId}`,
+        `http://localhost:5000/api/notes/${noteId}`,
         {
           method: "DELETE",
           headers: {
@@ -468,7 +467,7 @@ export default function CourseDetails({
   const fetchVideoNotes = async (videoId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/videos/${videoId}/notes`,
+        `http://localhost:5000/api/videos/${videoId}/notes`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -567,7 +566,7 @@ export default function CourseDetails({
     if (currentTime <= 0) return;
 
     const res = await fetch(
-      `${API_URL}/api/videos/${selectedVideo.id}/progress`,
+      `http://localhost:5000/api/videos/${selectedVideo.id}/progress`,
       {
         method: "POST",
         headers: {

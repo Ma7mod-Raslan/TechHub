@@ -119,7 +119,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
 
 
   useEffect(() => {
-    fetch("${API_URL}/api/courses")
+    fetch("http://localhost:5000/api/courses")
       .then(res => res.json())
       .then(data => {
         const shuffled = [...data.courses].sort(() => 0.5 - Math.random());

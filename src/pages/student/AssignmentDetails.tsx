@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
 import { ArrowLeft, Award, Bell, BookOpen, Code, FileText, LayoutDashboard, Menu, MessageSquare, Settings, User, Users, Map } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -60,7 +59,7 @@ export default function StudentAssignmentDetails({
                 const token = localStorage.getItem("accessToken");
 
                 const res = await fetch(
-                    `${API_URL}/api/assignments/student/${assignmentId}`,
+                    `http://localhost:5000/api/assignments/student/${assignmentId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -116,7 +115,7 @@ export default function StudentAssignmentDetails({
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `${API_URL}/api/assignments/${assignmentId}/submit`,
+                `http://localhost:5000/api/assignments/${assignmentId}/submit`,
                 {
                     method: "POST",
                     headers: {

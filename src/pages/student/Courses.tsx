@@ -1,5 +1,4 @@
 import { motion } from 'motion/react';
-const API_URL = import.meta.env.VITE_API_URL;
 import React, { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
@@ -101,7 +100,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
   useEffect(() => {
     const fetchMyCourses = async () => {
       try {
-        const res = await fetch("${API_URL}/api/me/my-courses", {
+        const res = await fetch("http://localhost:5000/api/me/my-courses", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -127,7 +126,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
       for (const course of allCourses) {
         try {
           const res = await fetch(
-            `${API_URL}/api/courses/${course.id}/videos-preview`
+            `http://localhost:5000/api/courses/${course.id}/videos-preview`
           );
 
           const videos = await res.json();

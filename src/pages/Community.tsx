@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-const API_URL = import.meta.env.VITE_API_URL;
 import React from 'react';
 import { motion } from 'motion/react';
 import { MessageSquare, ThumbsUp, MessageCircle, Search, Plus, TrendingUp, Users, Code2, Sparkles, LayoutDashboard, BookOpen, FileText, Award, Map, Code, Bell, User, Settings, LogOut, BarChart3, Shield, EyeOff, Trash2, Menu } from 'lucide-react';
@@ -64,7 +63,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await fetch("${API_URL}/api/communities", {
+        const res = await fetch("http://localhost:5000/api/communities", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }
@@ -100,7 +99,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         setPostsLoading(true);
 
         const res = await fetch(
-          `${API_URL}/api/communities/${selectedCommunity}/posts`,
+          `http://localhost:5000/api/communities/${selectedCommunity}/posts`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -130,7 +129,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         setRepliesLoading(true);
 
         const res = await fetch(
-          `${API_URL}/api/communities/posts/${selectedThread}/replies`,
+          `http://localhost:5000/api/communities/posts/${selectedThread}/replies`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -166,7 +165,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleDeletePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/posts/${postId}`,
+        `http://localhost:5000/api/communities/posts/${postId}`,
         {
           method: "DELETE",
           headers: {
@@ -190,7 +189,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleUpdatePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/posts/${postId}`,
+        `http://localhost:5000/api/communities/posts/${postId}`,
         {
           method: "PUT",
           headers: {
@@ -239,8 +238,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     try {
       const url =
         reportType === "post"
-          ? `${API_URL}/api/communities/posts/${reportPostId}/report`
-          : `${API_URL}/api/communities/replies/${reportPostId}/report`;
+          ? `http://localhost:5000/api/communities/posts/${reportPostId}/report`
+          : `http://localhost:5000/api/communities/replies/${reportPostId}/report`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -284,7 +283,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
       setCreatingPost(true);
 
       const res = await fetch(
-        `${API_URL}/api/communities/${selectedCommunity}/posts`,
+        `http://localhost:5000/api/communities/${selectedCommunity}/posts`,
         {
           method: "POST",
           headers: {
@@ -315,7 +314,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleToggleLike = async (postId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/posts/${postId}/like`,
+        `http://localhost:5000/api/communities/posts/${postId}/like`,
         {
           method: "POST",
           headers: {
@@ -349,7 +348,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleToggleReplyLike = async (replyId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/replies/${replyId}/like`,
+        `http://localhost:5000/api/communities/replies/${replyId}/like`,
         {
           method: "POST",
           headers: {
@@ -385,7 +384,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/posts/${selectedThread}/replies`,
+        `http://localhost:5000/api/communities/posts/${selectedThread}/replies`,
         {
           method: "POST",
           headers: {
@@ -422,7 +421,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleUpdateReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/replies/${replyId}`,
+        `http://localhost:5000/api/communities/replies/${replyId}`,
         {
           method: "PUT",
           headers: {
@@ -460,7 +459,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleDeleteReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `${API_URL}/api/communities/replies/${replyId}`,
+        `http://localhost:5000/api/communities/replies/${replyId}`,
         {
           method: "DELETE",
           headers: {

@@ -50,7 +50,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
         const token = localStorage.getItem("accessToken");
 
         const res = await fetch(
-          "${API_URL}/api/assignments/student/all",
+          "http://localhost:5000/api/assignments/student/all",
           {
             headers: {
               Authorization: `Bearer ${token}`,

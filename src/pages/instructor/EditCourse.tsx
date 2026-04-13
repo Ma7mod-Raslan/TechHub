@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-const API_URL = import.meta.env.VITE_API_URL;
 import {
   ArrowLeft,
   Upload,
@@ -127,7 +126,7 @@ export default function InstructorEditCourse({
         const token = localStorage.getItem('accessToken');
 
         const res = await fetch(
-          `${API_URL}/api/courses/${courseId}`,
+          `http://localhost:5000/api/courses/${courseId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -172,7 +171,7 @@ export default function InstructorEditCourse({
     try {
       const token = localStorage.getItem('accessToken');
 
-      await fetch(`${API_URL}/api/courses/${courseId}`, {
+      await fetch(`http://localhost:5000/api/courses/${courseId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -187,7 +186,7 @@ export default function InstructorEditCourse({
       });
 
       await fetch(
-        `${API_URL}/api/courses/${courseId}/requirements`,
+        `http://localhost:5000/api/courses/${courseId}/requirements`,
         {
           method: "PUT",
           headers: {
@@ -201,7 +200,7 @@ export default function InstructorEditCourse({
       );
 
       await fetch(
-        `${API_URL}/api/courses/${courseId}/outcomes`,
+        `http://localhost:5000/api/courses/${courseId}/outcomes`,
         {
           method: "PUT",
           headers: {
@@ -221,7 +220,7 @@ export default function InstructorEditCourse({
         fd.append('file', formData.thumbnailFile);
 
         await fetch(
-          `${API_URL}/api/courses/${courseId}/thumbnail`,
+          `http://localhost:5000/api/courses/${courseId}/thumbnail`,
           {
             method: 'PUT',
             headers: {

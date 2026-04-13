@@ -1,5 +1,4 @@
 import { useState } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
 import { LayoutDashboard, BookOpen, BarChart3, Users, Bell, User, Settings, MessageSquare, Menu, Plus } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import HeaderIcons from "../../components/HeaderIcons";
@@ -85,7 +84,7 @@ export default function InstructorCreateAssignment({
             }
 
             // 1️⃣ create assignment
-            const assignmentRes = await fetch("${API_URL}/api/assignments", {
+            const assignmentRes = await fetch("http://localhost:5000/api/assignments", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -109,7 +108,7 @@ export default function InstructorCreateAssignment({
             // 2️⃣ add questions
             for (const question of questions) {
                 const questionRes = await fetch(
-                    `${API_URL}/api/assignments/${assignment.id}/question`,
+                    `http://localhost:5000/api/assignments/${assignment.id}/question`,
                     {
                         method: "POST",
                         headers: {
@@ -126,7 +125,7 @@ export default function InstructorCreateAssignment({
 
                 // 3️⃣ add options
                 await fetch(
-                    `${API_URL}/api/assignments/question/${createdQuestion.id}/options`,
+                    `http://localhost:5000/api/assignments/question/${createdQuestion.id}/options`,
                     {
                         method: "POST",
                         headers: {

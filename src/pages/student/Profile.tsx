@@ -69,7 +69,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
   useEffect(() => {
 
-    fetch('${API_URL}/api/me', {
+    fetch('http://localhost:5000/api/me', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
@@ -85,7 +85,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
   useEffect(() => {
 
-    fetch('${API_URL}/api/me/stats', {
+    fetch('http://localhost:5000/api/me/stats', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
@@ -98,7 +98,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
   useEffect(() => {
 
-    fetch('${API_URL}/api/me/my-courses', {
+    fetch('http://localhost:5000/api/me/my-courses', {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
@@ -117,7 +117,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
     formData.append('file', file);
 
     try {
-      const res = await fetch('${API_URL}/api/me/profile-image', {
+      const res = await fetch('http://localhost:5000/api/me/profile-image', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -139,7 +139,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
   const handleSaveBio = async () => {
     try {
-      const res = await fetch('${API_URL}/api/me', {
+      const res = await fetch('http://localhost:5000/api/me', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

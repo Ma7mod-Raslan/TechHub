@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
 import {
     LayoutDashboard,
     BookOpen,
@@ -67,7 +66,7 @@ export default function InstructorManageAssignment({
 
         try {
             const res = await fetch(
-                `${API_URL}/api/assignments/${assignmentId}`,
+                `http://localhost:5000/api/assignments/${assignmentId}`,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -116,7 +115,7 @@ export default function InstructorManageAssignment({
             if (editingQuestion) {
                 // UPDATE
                 await fetch(
-                    `${API_URL}/api/assignments/question/${editingQuestion.id}`,
+                    `http://localhost:5000/api/assignments/question/${editingQuestion.id}`,
                     {
                         method: "PUT",
                         headers: {
@@ -134,7 +133,7 @@ export default function InstructorManageAssignment({
             } else {
                 // CREATE
                 const res = await fetch(
-                    `${API_URL}/api/assignments/${assignment.id}/question`,
+                    `http://localhost:5000/api/assignments/${assignment.id}/question`,
                     {
                         method: "POST",
                         headers: {
@@ -150,7 +149,7 @@ export default function InstructorManageAssignment({
                 const newQuestion = await res.json();
 
                 await fetch(
-                    `${API_URL}/api/assignments/question/${newQuestion.id}/options`,
+                    `http://localhost:5000/api/assignments/question/${newQuestion.id}/options`,
                     {
                         method: "POST",
                         headers: {
@@ -185,7 +184,7 @@ export default function InstructorManageAssignment({
 
     const handleDeleteQuestion = async (questionId: number) => {
         await fetch(
-            `${API_URL}/api/assignments/question/${questionId}`,
+            `http://localhost:5000/api/assignments/question/${questionId}`,
             {
                 method: "DELETE",
                 headers: {
@@ -200,7 +199,7 @@ export default function InstructorManageAssignment({
 
     const handleUpdateSettings = async () => {
         await fetch(
-            `${API_URL}/api/assignments/${assignment.id}`,
+            `http://localhost:5000/api/assignments/${assignment.id}`,
             {
                 method: "PUT",
                 headers: {

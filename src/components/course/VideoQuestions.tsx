@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
+
 type Choice = {
     id: number;
     choice_text: string;
@@ -42,7 +42,7 @@ export default function VideoQuestions({ videoId }: Props) {
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `${API_URL}/api/videos/${videoId}/questions`,
+                `http://localhost:5000/api/videos/${videoId}/questions`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ export default function VideoQuestions({ videoId }: Props) {
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `${API_URL}/api/questions/${questionId}/answer`,
+                `http://localhost:5000/api/questions/${questionId}/answer`,
                 {
                     method: "POST",
                     headers: {

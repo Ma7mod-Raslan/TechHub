@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-const API_URL = import.meta.env.VITE_API_URL;
 import {
     ArrowLeft,
     LayoutDashboard,
@@ -63,7 +62,7 @@ export default function StudentAssignmentFeedback({
             const token = localStorage.getItem("accessToken");
             try {
                 const attemptsRes = await fetch(
-                    `${API_URL}/api/assignments/${assignmentId}/attempts`,
+                    `http://localhost:5000/api/assignments/${assignmentId}/attempts`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -74,7 +73,7 @@ export default function StudentAssignmentFeedback({
                 if (!attempts.length) return;
                 const latestAttempt = attempts[0];
                 const detailsRes = await fetch(
-                    `${API_URL}/api/assignments/${assignmentId}/attempts/${latestAttempt.id}`,
+                    `http://localhost:5000/api/assignments/${assignmentId}/attempts/${latestAttempt.id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
