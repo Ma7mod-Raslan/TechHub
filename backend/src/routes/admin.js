@@ -16,7 +16,12 @@ import {
     deletePost,
     getReports,
     toggleReportStatus,
-    getReportDetails
+    getReportDetails,
+    getAdminProfile,
+    updateAdminProfile,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification
 } from "../services/admin.service.js";
 
 const router = express.Router();
@@ -293,4 +298,98 @@ router.get(
     }
   }
 );
+
+// GET Admin Info
+router.get(
+  "/profile",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const profile = await getAdminProfile(req.user.id);
+      res.json(profile);
+    } catch (err) {
+      res.status(404).json({ error: err.message });
+    }
+  }
+);
+
+// Update Admin Info
+router.patch(
+  "/profile",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const updated = await updateAdminProfile(req.user.id, req.body);
+
+      res.json({
+        message: "Profile updated successfully",
+        profile: updated
+      });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
+
+// Get Notifications
+router.get(
+  "/admin/notifications",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    const result = await db.query(
+      `
+      SELECT id, title, message, type, is_read, created_at
+      FROM notifications
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      `,
+      [req.user.id]
+    );
+
+    res.json(result.rows);
+  }
+);
+
+// Read Notification
+router.patch(
+  "/notifications/:id/read",
+  authMiddleware,
+  async (req, res) => {
+    const result = await markAsRead(req.params.id, req.user.id);
+    res.json(result);
+  }
+);
+
+// Read All Notifications
+router.patch(
+  "/notifications/read-all",
+  authMiddleware,
+  async (req, res) => {
+    const result = await markAllAsRead(req.user.id);
+    res.json(result);
+  }
+);
+
+
+// Delete Specific Notification
+router.delete(
+  "/notifications/:id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const result = await deleteNotification(
+        req.params.id,
+        req.user.id
+      );
+
+      res.json(result);
+    } catch (err) {
+      res.status(404).json({ error: err.message });
+    }
+  }
+);
+
 export default router;

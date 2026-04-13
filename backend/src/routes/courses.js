@@ -6,6 +6,7 @@ import { checkEnrollment } from "../middleware/enrollment.js";
 import { upload } from "../middleware/upload.js";
 import { uploadProfileImage } from "../services/cloudinary.js";
 import notificationService from "../services/notification.service.js";
+import { createAdminNotification } from "../services/notification.service.js";
 import {
   extractVideoId,
   getYoutubeVideoDuration
@@ -586,6 +587,13 @@ router.put(
           [communityId]
         );
       }
+
+      await createAdminNotification({
+      title: "New Course Created",
+      message: `New course "${course.title}" added`,
+      type: "course_created",
+      reference_id: course.id
+    });
 
       await client.query("COMMIT");
 

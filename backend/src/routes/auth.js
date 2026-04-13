@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../db.js";
 import { sendVerificationEmail } from "../services/mail.js";
+import { createAdminNotification } from "../services/notification.service.js";
 import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
@@ -249,6 +250,14 @@ router.post("/verify-email", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+
+    // Send Notification for admin
+    await createAdminNotification({
+      title: "New User Registered",
+      message: `${user.full_name} joined as ${user.role}`,
+      type: "user_signup",
+      reference_id: user.id
+    });
 
     res.json({
       user: {

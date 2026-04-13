@@ -526,3 +526,99 @@ export const getReportDetails = async (reportId) => {
 
   return result.rows[0];
 };
+
+
+// Get profile info 
+export const getAdminProfile = async (adminId) => {
+  const result = await db.query(
+    `
+    SELECT 
+      id,
+      full_name,
+      email,
+      role,
+      profile_image,
+      bio
+    FROM users
+    WHERE id = $1 AND role = 'admin'
+    `,
+    [adminId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return result.rows[0];
+};
+
+// Update Admin Info
+export const updateAdminProfile = async (adminId, data) => {
+  const { full_name, email, profile_image, bio } = data;
+
+  const result = await db.query(
+    `
+    UPDATE users
+    SET 
+      full_name = COALESCE($1, full_name),
+      email = COALESCE($2, email),
+      profile_image = COALESCE($3, profile_image),
+      bio = COALESCE($4, bio)
+    WHERE id = $5 AND role = 'admin'
+    RETURNING id, full_name, email, role, profile_image, bio
+    `,
+    [full_name, email, profile_image, bio, adminId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Admin not found");
+  }
+
+  return result.rows[0];
+};
+
+// Mark As Read
+export const markAsRead = async (notificationId, userId) => {
+  await db.query(
+    `
+    UPDATE notifications
+    SET is_read = true
+    WHERE id = $1 AND user_id = $2
+    `,
+    [notificationId, userId]
+  );
+
+  return { message: "Marked as read" };
+};
+
+// MarkAll As Read
+export const markAllAsRead = async (userId) => {
+  await db.query(
+    `
+    UPDATE notifications
+    SET is_read = true
+    WHERE user_id = $1
+    `,
+    [userId]
+  );
+
+  return { message: "All notifications marked as read" };
+};
+
+// Delete Notification
+export const deleteNotification = async (notificationId, userId) => {
+  const result = await db.query(
+    `
+    DELETE FROM notifications
+    WHERE id = $1 AND user_id = $2
+    RETURNING id
+    `,
+    [notificationId, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Notification not found or not authorized");
+  }
+
+  return { message: "Notification deleted successfully" };
+};
