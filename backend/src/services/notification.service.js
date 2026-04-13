@@ -117,6 +117,43 @@ const markAsRead = async (notificationId,userId) => {
   return result.rows[0];
 };
 
+// Admin Notifications
+export const createAdminNotification = async ({
+  title,
+  message,
+  type,
+  reference_id = null
+}) => {
+  const admins = await db.query(
+    `SELECT id FROM users WHERE role = 'admin'`
+  );
+
+  if (admins.rows.length === 0) return;
+
+  const values = admins.rows
+    .map((_, i) => `($${i * 5 + 1}, $${i * 5 + 2}, $${i * 5 + 3}, $${i * 5 + 4}, $${i * 5 + 5})`)
+    .join(",");
+
+  const params = [];
+
+  admins.rows.forEach(admin => {
+    params.push(
+      admin.id,
+      title,
+      message,
+      type,
+      reference_id
+    );
+  });
+
+  await db.query(
+    `
+    INSERT INTO notifications (user_id, title, message, type, reference_id)
+    VALUES ${values}
+    `,
+    params
+  );
+};
 
 export default {
   createNotification,

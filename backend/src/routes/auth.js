@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import db from "../db.js";
 import { sendVerificationEmail } from "../services/mail.js";
+import { createAdminNotification } from "../services/notification.service.js";
 import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
@@ -250,6 +251,14 @@ router.post("/verify-email", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // Send Notification for admin
+    await createAdminNotification({
+      title: "New User Registered",
+      message: `${user.full_name} joined as ${user.role}`,
+      type: "user_signup",
+      reference_id: user.id
+    });
+
     res.json({
       user: {
         id: user.id,
@@ -324,7 +333,8 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ error: "email and password required" });
 
     const result = await db.query(
-      `SELECT * FROM users WHERE email=$1`,
+      `SELECT id, full_name, email, password, role, is_verified, auth_provider, is_active
+       FROM users WHERE email=$1`,
       [email]
     );
 
@@ -332,6 +342,12 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
 
     const user = result.rows[0];
+
+    if (!user.is_active) {
+      return res.status(403).json({
+        error: "Your account has been suspended.",
+      });
+    }
 
     if (user.auth_provider === "google") {
       return res.status(400).json({
@@ -350,7 +366,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { id: user.id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
@@ -360,7 +376,8 @@ router.post("/login", async (req, res) => {
         id: user.id,
         full_name: user.full_name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        is_verified: user.is_verified
       },
       token
     });

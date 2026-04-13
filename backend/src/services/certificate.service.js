@@ -3,6 +3,7 @@ import puppeteer from "puppeteer";
 import fs from "fs";
 import path from "path";
 import notificationService from "./notification.service.js";
+import { createAdminNotification } from "../services/notification.service.js";
 
 const generateCertificate = async (studentId, courseId) => {
   const client = await pool.connect();
@@ -165,6 +166,13 @@ const generateCertificate = async (studentId, courseId) => {
       "certificate",
       courseId
     );
+
+    await createAdminNotification({
+      title: "New Certificate Issued",
+      message: `Certificate generated for course ID ${courseId}`,
+      type: "certificate",
+      reference_id: courseId
+    });
 
     return insert.rows[0];
 
