@@ -197,10 +197,12 @@ export const getCourseFullDetails = async (courseId) => {
       c.level,
       c.is_active,
       u.full_name AS instructor_name,
-      COUNT(e.id) AS enrolled_studens
+      COUNT(e.id) AS enrolled_students
     FROM courses c
     JOIN users u ON u.id = c.instructor_id
+    LEFT JOIN erollments e ON e.course_id = c.id
     WHERE c.id = $1
+    GROUP BY c.id, u.full_name;
     `,
     [courseId]
   );
