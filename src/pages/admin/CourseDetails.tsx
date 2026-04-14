@@ -1,0 +1,675 @@
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'motion/react';
+import {
+  LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings,
+  ArrowLeft, Play, Clock, Award, CheckCircle2, Download, Edit, Trash2, Ban, CheckCircle,
+  PlayCircle, Pause, Volume2, Maximize, ChevronDown, ChevronRight
+} from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import HeaderIcons from '../../components/HeaderIcons';
+import AIAssistant from '../../components/AIAssistant';
+import Sidebar from '../../components/Sidebar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../components/ui/alert-dialog';
+import { toast } from 'sonner';
+import { COURSE_CATEGORIES } from "../../constants/courseCategories";
+
+interface CourseDetailsProps {
+  navigate: (page: string, role?: any, state?: any) => void;
+  logout: () => void;
+  navigationState?: any;
+  userRole: string;
+}
+
+interface Lecture {
+  id: number;
+  title: string;
+  duration: string;
+  videoUrl: string;
+  description?: string;
+  quizQuestions?: QuizQuestion[];
+}
+
+interface QuizQuestion {
+  id: number;
+  question: string;
+  options: {
+    label: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
+}
+
+interface Section {
+  title: string;
+  lectures: Lecture[];
+  duration: string;
+}
+
+interface Review {
+  id: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: string;
+  avatar: string;
+}
+
+
+
+
+export default function AdminCourseDetails({ navigate, logout, navigationState }: CourseDetailsProps) {
+  const [selectedVideo, setSelectedVideo] = useState<Lecture | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [suspendConfirm, setSuspendConfirm] = useState(false);
+  const [courseStatus, setCourseStatus] = useState<'Active' | 'Suspended'>('Active');
+  const [deleteQuestionConfirm, setDeleteQuestionConfirm] = useState<{
+    show: boolean;
+    questionId: number | null;
+    lectureId: number | null;
+  }>({ show: false, questionId: null, lectureId: null });
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const courseId = navigationState?.courseId || navigationState?.id;
+  console.log("courseId:", courseId);
+  const [courseData, setCourseData] = useState<any>(null);
+  const [courseSections, setCourseSections] = useState<Section[]>([]);
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
+    { icon: Users, label: 'Users', page: 'admin-users' },
+    { icon: BookOpen, label: 'Courses', page: 'admin-courses', active: true },
+    { icon: MessageSquare, label: 'Communities', page: 'admin-communities' },
+    { icon: FileText, label: 'Reports', page: 'admin-reports' },
+    { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
+    { icon: User, label: 'Profile', page: 'admin-profile' },
+    { icon: Settings, label: 'Settings', page: 'admin-settings' },
+  ];
+
+
+  const handleVideoSelect = (lecture: Lecture) => {
+    setSelectedVideo(lecture);
+    setIsPlaying(false);
+  };
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleDeleteCourse = () => {
+    toast.success('Course deleted successfully');
+    setDeleteConfirm(false);
+    navigate('admin-courses');
+  };
+
+  const handleSuspendActivate = () => {
+    const newStatus = courseStatus === 'Active' ? 'Suspended' : 'Active';
+    setCourseStatus(newStatus);
+    toast.success(`Course ${newStatus === 'Suspended' ? 'suspended' : 'activated'} successfully`);
+    setSuspendConfirm(false);
+  };
+
+  const handleDeleteQuestion = () => {
+    if (deleteQuestionConfirm.questionId && deleteQuestionConfirm.lectureId) {
+      // In real app, this would call an API to delete the question
+      toast.success('Question deleted successfully');
+    }
+    setDeleteQuestionConfirm({ show: false, questionId: null, lectureId: null });
+  };
+
+  const confirmDeleteQuestion = (questionId: number, lectureId: number) => {
+    setDeleteQuestionConfirm({ show: true, questionId, lectureId });
+  };
+
+  const totalLectures = courseSections.reduce(
+    (acc: number, section: Section) => acc + section.lectures.length,
+    0
+  );
+  const totalDuration = courseSections.reduce(
+    (acc: number, section: Section) => {
+      const hours = section.duration.split('h')[0];
+      const minutes = section.duration.split('h')[1]?.split('m')[0] || '0';
+      return acc + parseInt(hours) * 60 + parseInt(minutes);
+    },
+    0
+  );
+
+
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+
+      try {
+        console.log("courseId:", courseId); // 👈 مهم
+        const res = await fetch(
+          `http://localhost:5000/admin/courses/${courseId}`,
+          {
+
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            }
+          }
+        );
+        console.log("status:", res.status); // 👈 مهم
+
+        if (!res.ok) {
+          console.error("Failed API:", res.status);
+          return;
+        }
+
+        const data = await res.json();
+        console.log("DATA:", data); // 👈 مهم
+
+
+        const mappedCourse = {
+          id: data.id,
+          courseName: data.course_name || data.name,
+          instructor: data.instructor_name,
+          category: COURSE_CATEGORIES[data.category] || data.category,
+          enrolledStudents: data.enrolled_students || 0,
+          description: data.description,
+          thumbnail: data.thumbnail,
+          rating: data.rating || 0,
+          language: data.language,
+          level: data.level,
+          lastUpdated: data.updated_at
+        };
+
+        setCourseData(mappedCourse);
+
+        const totalMinutes = Math.floor(data.total_duration / 60);
+
+        // sections
+        const sections = [
+          {
+            title: "Course Content",
+            duration: `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`,
+            lectures: data.videos.map((v: any) => ({
+              id: v.id,
+              title: v.title,
+              duration: `${v.duration} min`,
+              videoUrl: v.video_url,
+              description: v.description,
+              quizQuestions: v.quizQuestions || []
+            }))
+          }
+        ];
+
+        setCourseSections(sections);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (courseId) fetchCourseDetails();
+  }, [courseId]);
+
+
+  if (!courseData) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        {/* Sidebar */}
+        <Sidebar
+          menuItems={menuItems}
+          navigate={navigate}
+          logout={logout}
+          userRole="admin"
+          activePage="admin-courses"
+        />
+
+        {/* Main Content */}
+        <div className="flex-1">
+          <header className="bg-white border-b px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('admin-courses')}
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Courses
+                </Button>
+                <div>
+                  <h1 className="text-2xl">Course Details</h1>
+                  <p className="text-gray-600">View and manage course content</p>
+                </div>
+              </div>
+              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-courses" />
+            </div>
+          </header>
+
+          <main className="p-6">
+            {/* Course Header */}
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Course Image */}
+                  <div className="lg:w-1/3">
+                    <img
+                      src={courseData.thumbnail}
+                      alt={courseData.courseName}
+                      className="w-full h-48 lg:h-full object-cover rounded-lg"
+                    />
+                  </div>
+
+                  {/* Course Info */}
+                  <div className="lg:w-2/3">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h2 className="text-3xl mb-2">{courseData.courseName}</h2>
+                        <p className="text-gray-600 mb-3">{courseData.description}</p>
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <Badge className="bg-violet-100 text-violet-700">{courseData.category}</Badge>
+                          <Badge className={courseStatus === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                            {courseStatus}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <div className="flex items-center gap-2">
+                        <User className="h-5 w-5 text-violet-600" />
+                        <div>
+                          <p className="text-xs text-gray-600">Instructor</p>
+                          <p className="text-sm">{courseData.instructor}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-cyan-600" />
+                        <div>
+                          <p className="text-xs text-gray-600">Students</p>
+                          <p className="text-sm">{courseData.enrolledStudents.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-violet-600" />
+                        <div>
+                          <p className="text-xs text-gray-600">Duration</p>
+                          <p className="text-sm">{Math.floor(totalDuration / 60)}h {totalDuration % 60}m</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                      </div>
+                    </div>
+
+                    {/* Admin Actions */}
+                    <div className="flex flex-wrap gap-3">
+                      {courseStatus === 'Active' ? (
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-red-600 hover:bg-red-50 border-red-200"
+                          onClick={() => setSuspendConfirm(true)}
+                        >
+                          <Ban className="h-4 w-4" />
+                          Suspend Course
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-green-600 hover:bg-green-50 border-green-200"
+                          onClick={() => setSuspendConfirm(true)}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Activate Course
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        className="gap-2 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Edit Course
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="gap-2 text-red-600 hover:bg-red-50 border-red-200"
+                        onClick={() => setDeleteConfirm(true)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete Course
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Main Content Area */}
+              <div className="lg:col-span-2">
+                <Tabs defaultValue="content" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="content">Course Content</TabsTrigger>
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="content" className="space-y-4">
+                    {/* Video Player */}
+                    {selectedVideo && (
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h3 className="text-xl mb-4">{selectedVideo.title}</h3>
+                          <div className="relative bg-black rounded-lg overflow-hidden mb-4">
+                            <video
+                              ref={videoRef}
+                              src={selectedVideo.videoUrl}
+                              className="w-full aspect-video"
+                              onPlay={() => setIsPlaying(true)}
+                              onPause={() => setIsPlaying(false)}
+                            />
+                            <button
+                              onClick={handlePlayPause}
+                              className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
+                            >
+                              {isPlaying ? (
+                                <Pause className="h-16 w-16 text-white" />
+                              ) : (
+                                <Play className="h-16 w-16 text-white" />
+                              )}
+                            </button>
+                          </div>
+                          {selectedVideo.description && (
+                            <p className="text-gray-600 mb-4">{selectedVideo.description}</p>
+                          )}
+
+                          {/* Quiz Questions Section */}
+                          {selectedVideo.quizQuestions && selectedVideo.quizQuestions.length > 0 && (
+                            <div className="mt-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg">Quiz Questions</h4>
+                                <Badge className="bg-blue-100 text-blue-700">
+                                  {selectedVideo.quizQuestions.length} Question{selectedVideo.quizQuestions.length !== 1 ? 's' : ''}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-gray-600 mb-4 italic">
+                                Admin can view and moderate questions (read-only, delete only)
+                              </p>
+                              <div className="space-y-4">
+                                {selectedVideo.quizQuestions.map((question, qIndex) => (
+                                  <Card key={question.id} className="border border-gray-200">
+                                    <CardContent className="p-4">
+                                      <div className="flex items-start justify-between mb-3">
+                                        <div className="flex-1">
+                                          <div className="flex items-start gap-2">
+                                            <Badge className="bg-violet-100 text-violet-700 mt-1">Q{qIndex + 1}</Badge>
+                                            <p className="flex-1">{question.question}</p>
+                                          </div>
+                                        </div>
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="text-red-600 hover:bg-red-50 hover:text-red-700 ml-2"
+                                          onClick={() => confirmDeleteQuestion(question.id, selectedVideo.id)}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                      <div className="space-y-2 mt-3">
+                                        {question.options.map((option) => (
+                                          <div
+                                            key={option.label}
+                                            className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${option.isCorrect
+                                              ? 'bg-green-50 border-green-200'
+                                              : 'bg-gray-50 border-gray-200'
+                                              }`}
+                                          >
+                                            <span className={`text-sm shrink-0 ${option.isCorrect ? 'text-green-700' : 'text-gray-600'
+                                              }`}>
+                                              {option.label}.
+                                            </span>
+                                            <span className={`text-sm ${option.isCorrect ? 'text-green-700' : 'text-gray-700'
+                                              }`}>
+                                              {option.text}
+                                            </span>
+                                            {option.isCorrect && (
+                                              <CheckCircle2 className="h-4 w-4 text-green-600 ml-auto flex-shrink-0" />
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Course Sections */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Course Curriculum</CardTitle>
+                        <p className="text-sm text-gray-600">
+                          {courseSections.length} sections • {totalLectures} lectures • {Math.floor(totalDuration / 60)}h {totalDuration % 60}m total length
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <Accordion type="single" collapsible className="space-y-2">
+                          {courseSections.map((section: Section, sectionIndex: number) => (
+                            <AccordionItem key={sectionIndex} value={`section-${sectionIndex}`} className="border rounded-lg px-4">
+                              <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center justify-between w-full pr-4">
+                                  <span>{section.title}</span>
+                                  <span className="text-sm text-gray-600">{section.lectures.length} lectures • {section.duration}</span>
+                                </div>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="space-y-2 pt-2">
+                                  {section.lectures.map((lecture: Lecture) => (
+                                    <motion.div
+                                      key={lecture.id}
+                                      whileHover={{ scale: 1.01 }}
+                                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${selectedVideo?.id === lecture.id
+                                        ? 'bg-gradient-to-r from-violet-50 to-cyan-50 border border-violet-200'
+                                        : 'hover:bg-gray-50'
+                                        }`}
+                                      onClick={() => handleVideoSelect(lecture)}
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <PlayCircle className={`h-5 w-5 ${selectedVideo?.id === lecture.id ? 'text-violet-600' : 'text-gray-400'}`} />
+                                        <span className="text-sm">{lecture.title}</span>
+                                      </div>
+                                      <span className="text-sm text-gray-600">{lecture.duration}</span>
+                                    </motion.div>
+                                  ))}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          ))}
+                        </Accordion>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="overview">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Course Overview</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div>
+                          <h3 className="text-lg mb-2">Description</h3>
+                          <p className="text-gray-600">{courseData.description}</p>
+                        </div>
+                        <div>
+                          <h3 className="text-lg mb-3">What You'll Learn</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600">Build responsive websites using HTML, CSS, and JavaScript</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600">Master modern frameworks like React and Node.js</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600">Understand database design and implementation</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-600">Deploy full-stack applications to production</span>
+                            </li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h3 className="text-lg mb-3">Requirements</h3>
+                          <ul className="space-y-2 text-gray-600">
+                            <li>• Basic computer skills and internet access</li>
+                            <li>• No prior programming experience required</li>
+                            <li>• Willingness to learn and practice regularly</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              </div>
+
+              {/* Sidebar Info */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Course Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Language</p>
+                      <p>{courseData.language}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Level</p>
+                      <p>{courseData.level}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Last Updated</p>
+                      <p>{courseData.lastUpdated}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Total Duration</p>
+                      <p>{Math.floor(totalDuration / 60)}h {totalDuration % 60}m</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Enrollment Stats</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-600">Total Enrolled</span>
+                        <span className="text-sm">{courseData.enrolledStudents.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-600">Completion Rate</span>
+                        <span className="text-sm">68%</span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-600">Average Rating</span>
+                        <span className="text-sm">{courseData.rating} / 5.0</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <AIAssistant />
+
+      {/* Suspend/Activate Confirmation */}
+      <AlertDialog open={suspendConfirm} onOpenChange={setSuspendConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {courseStatus === 'Active' ? 'Suspend Course' : 'Activate Course'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to {courseStatus === 'Active' ? 'suspend' : 'activate'} this course?
+              {courseStatus === 'Active' && ' Students will no longer be able to access it.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSuspendActivate}>
+              {courseStatus === 'Active' ? 'Suspend' : 'Activate'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteConfirm} onOpenChange={setDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Course</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete this course? This action cannot be undone.
+              All student progress and enrollment data will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCourse} className="bg-red-600 hover:bg-red-700">
+              Delete Course
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Question Confirmation */}
+      <AlertDialog
+        open={deleteQuestionConfirm.show}
+        onOpenChange={() => setDeleteQuestionConfirm({ show: false, questionId: null, lectureId: null })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Question</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this quiz question? This action cannot be undone.
+              Students will no longer see this question in the lesson quiz.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteQuestion} className="bg-red-600 hover:bg-red-700">
+              Delete Question
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}

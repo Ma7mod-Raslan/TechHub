@@ -30,6 +30,15 @@ import StudentProfile from './pages/student/Profile';
 import StudentSettings from './pages/student/Settings';
 import StudentNotifications from './pages/student/Notifications';
 import StudentContact from './pages/student/Contact';
+import AdminDashboard from './pages/admin/Dashboard';
+import AdminUsers from './pages/admin/Users';
+import AdminCourses from './pages/admin/Courses';
+import AdminCourseDetails from './pages/admin/CourseDetails';
+import AdminReports from './pages/admin/Reports';
+import AdminCommunities from './pages/admin/Communities';
+import AdminProfile from './pages/admin/Profile';
+import AdminSettings from './pages/admin/Settings';
+import AdminNotifications from './pages/admin/Notifications';
 
 import CourseDetails from './pages/CourseDetails';
 import CourseDetailsGuest from './pages/CourseDetailsGuest';
@@ -133,7 +142,7 @@ export default function App() {
       case 'assignment-details':
         return <StudentAssignmentDetails navigate={navigate} logout={logout} userRole="student" navigationState={navigationState} />;
       case "assignment-feedback":
-        return <StudentAssignmentFeedback navigate={navigate} logout={logout} userRole="student" navigationState={navigationState}/>;
+        return <StudentAssignmentFeedback navigate={navigate} logout={logout} userRole="student" navigationState={navigationState} />;
       case 'student-certificates':
         return <StudentCertificates navigate={navigate} logout={logout} userRole="student" />;
       case 'student-compiler':
@@ -148,6 +157,26 @@ export default function App() {
         return <StudentNotifications navigate={navigate} logout={logout} userRole="student" />;
       case 'student-contact':
         return <StudentContact navigate={navigate} logout={logout} userRole="student" />;
+
+      // Admin Routes
+      case 'admin-dashboard':
+        return <AdminDashboard navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-users':
+        return <AdminUsers navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-courses':
+        return <AdminCourses navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-course-details':
+        return <AdminCourseDetails navigate={navigate} logout={logout} userRole="admin" navigationState={navigationState} />;
+      case 'admin-reports':
+        return <AdminReports navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-communities':
+        return <AdminCommunities navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-profile':
+        return <AdminProfile navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-settings':
+        return <AdminSettings navigate={navigate} logout={logout} userRole="admin" />;
+      case 'admin-notifications':
+        return <AdminNotifications navigate={navigate} logout={logout} userRole="admin" />;
 
       // Shared Routes
       case 'course-details':
