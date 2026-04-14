@@ -219,7 +219,7 @@ export const getCourseFullDetails = async (courseId) => {
   ] = await Promise.all([
     db.query(
       `
-      SELECT id, title, description, duration
+      SELECT id, title, description, duration, video_url
       FROM course_videos
       WHERE course_id = $1
       ORDER BY video_order ASC
