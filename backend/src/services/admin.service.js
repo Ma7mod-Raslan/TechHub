@@ -1,4 +1,6 @@
 import db from "../db.js";
+import { transporter } from "./mail.js";
+
 
 // Dashboard Stats
 export const getDashboardStats = async () => {
@@ -723,4 +725,95 @@ export const toggleReplyHide = async (replyId) => {
   );
 
   return result.rows[0];
+};
+
+// Get All Messages
+export const getAllContactMessages = async () => {
+  const result = await db.query(`
+    SELECT
+      id,
+      full_name AS name,
+      email,
+      category AS subject,
+      LEFT(message, 100) AS message_preview,
+      created_at AS date,
+      status
+    FROM contact_messages
+    ORDER BY created_at DESC
+  `);
+
+  return result.rows;
+};
+
+// Get Specific message
+export const getContactMessageDetails = async (id) => {
+  const result = await db.query(
+    `
+    SELECT
+      id,
+      full_name AS name,
+      email,
+      category AS subject,
+      message,
+      created_at AS date,
+      status
+    FROM contact_messages
+    WHERE id = $1
+    `,
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Message not found");
+  }
+
+  return result.rows[0];
+};
+
+
+// Replay to message
+export const replyToContactMessage = async (id, replyText) => {
+  // 1️⃣ get message
+  const result = await db.query(
+    `SELECT full_name, email, category FROM contact_messages WHERE id=$1`,
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Message not found");
+  }
+
+  const { full_name, email, category } = result.rows[0];
+
+  // 2️⃣ send email
+  const subject = `Reply to your ${category} - TechHub`;
+
+  const html = `
+    <h2>Hello ${full_name},</h2>
+    <p>Thank you for contacting TechHub.</p>
+    <p>${replyText}</p>
+    <br/>
+    <p>Best regards,<br/>TechHub Support Team</p>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL,
+    to: email,
+    subject,
+    html
+  });
+
+  // 3️⃣ update status
+  await db.query(
+    `
+    UPDATE contact_messages
+    SET status = 'replied',
+        reply_message = $1,
+        replied_at = NOW()
+    WHERE id = $2
+    `,
+    [replyText, id]
+  );
+
+  return { message: "Reply sent successfully" };
 };

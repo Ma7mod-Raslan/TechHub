@@ -276,3 +276,14 @@ CREATE TABLE community_reports (
     (post_id IS NULL AND reply_id IS NOT NULL)
   )
 );
+
+CREATE TABLE contact_messages (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id) ON DELETE SET NULL,
+  full_name VARCHAR(100),
+  email VARCHAR(100),
+  category VARCHAR(50),
+  message TEXT NOT NULL,
+  status VARCHAR(20) DEFAULT 'unread',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -24,7 +24,10 @@ import {
     deleteNotification,
     getPostReplies,
     deleteReply,
-    toggleReplyHide
+    toggleReplyHide,
+    getAllContactMessages,
+    getContactMessageDetails,
+    replyToContactMessage
 } from "../services/admin.service.js";
 
 const router = express.Router();
@@ -447,4 +450,25 @@ router.patch(
     }
   }
 );
+
+// GET all
+router.get("/contact-messages", authMiddleware, allowRoles("admin"), async (req, res) => {
+  const data = await getAllContactMessages();
+  res.json(data);
+});
+
+// GET details
+router.get("/contact-messages/:id", authMiddleware, allowRoles("admin"), async (req, res) => {
+  const data = await getContactMessageDetails(req.params.id);
+  res.json(data);
+});
+
+// POST reply
+router.post("/contact-messages/:id/reply", authMiddleware, allowRoles("admin"), async (req, res) => {
+  const { reply } = req.body;
+
+  const result = await replyToContactMessage(req.params.id, reply);
+  res.json(result);
+});
+
 export default router;
