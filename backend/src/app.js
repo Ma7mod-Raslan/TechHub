@@ -23,6 +23,7 @@ import certificateRoutes from "./routes/certificate.routes.js";
 import communityRoutes  from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import adminRoutes  from "./routes/admin.js";
+import contactRoutes from "./routes/contact.js";
 import compilerRoutes from "./routes/compiler.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 
@@ -86,6 +87,9 @@ app.use("/api/me", meRoutes);
 
 // Admin Route
 app.use("/admin", adminRoutes);
+
+// Contact Us
+app.use("/contact", contactRoutes);
 
 // ===== Start server =====
 app.listen(5000, () => {
