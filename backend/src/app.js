@@ -89,7 +89,7 @@ app.use("/api/me", meRoutes);
 app.use("/admin", adminRoutes);
 
 // Contact Us
-app.use("/contact", contactRoutes);
+app.use("/", contactRoutes);
 
 // ===== Start server =====
 app.listen(5000, () => {
