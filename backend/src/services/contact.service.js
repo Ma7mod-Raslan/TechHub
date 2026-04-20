@@ -1,5 +1,5 @@
 import db from "../db.js";
-import { createAdminNotification } from "./notifications.service.js";
+import { createAdminNotification } from "./notification.service.js";
 
 const allowedCategories = [
   "General Inquiry",

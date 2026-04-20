@@ -1,4 +1,8 @@
+import express from "express";
 import { sendContactMessage } from "../services/contact.service.js";
+import { authMiddleware } from "../middleware/auth.js"; // ✅ fix
+
+const router = express.Router();
 
 router.post(
   "/contact",
@@ -16,3 +20,5 @@ router.post(
     }
   }
 );
+
+export default router;
