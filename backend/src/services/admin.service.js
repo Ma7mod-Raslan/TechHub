@@ -596,6 +596,19 @@ export const getReportDetails = async (reportId) => {
   return result.rows[0];
 };
 
+// Delete Report
+export const deleteReport = async (reportId) => {
+  const result = await db.query(
+    `DELETE FROM community_reports WHERE id = $1 RETURNING id`,
+    [reportId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Report not found");
+  }
+
+  return result.rows[0];
+};
 
 // Get profile info 
 export const getAdminProfile = async (adminId) => {

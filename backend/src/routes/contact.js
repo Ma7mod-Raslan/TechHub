@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.post(
   "/contact",
-  authMiddleware, // optional 
   async (req, res) => {
     try {
       const result = await sendContactMessage(

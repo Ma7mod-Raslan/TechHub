@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
         u.full_name AS instructor_name
       FROM courses c
       JOIN users u ON u.id = c.instructor_id
-      WHERE c.status = 'Published'
+      WHERE c.status = 'Published' and c.is_active = true
       ORDER BY c.created_at DESC
       `
     );

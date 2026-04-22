@@ -27,7 +27,8 @@ import {
     toggleReplyHide,
     getAllContactMessages,
     getContactMessageDetails,
-    replyToContactMessage
+    replyToContactMessage,
+    deleteReport
 } from "../services/admin.service.js";
 
 const router = express.Router();
@@ -301,6 +302,25 @@ router.get(
       }
 
       res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+// Delete Report
+router.delete(
+  "/reports/:id",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const deleted = await deleteReport(req.params.id);
+
+      res.json({
+        message: "Report deleted successfully",
+        report: deleted
+      });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
     }
   }
 );
