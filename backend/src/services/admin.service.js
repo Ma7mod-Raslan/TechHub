@@ -823,9 +823,8 @@ export const replyToContactMessage = async (id, replyText) => {
   await db.query(
     `
     UPDATE contact_messages
-    SET status = 'replied',
+    SET status = 'Replied',
         reply_message = $1,
-        created_at = NOW()
     WHERE id = $2
     `,
     [replyText, id]
