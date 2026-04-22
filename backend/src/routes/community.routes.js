@@ -182,6 +182,7 @@ router.post("/posts/:postId/report", authMiddleware, async (req, res) => {
     const result = await communityService.reportPost(
       req.params.postId,
       req.user.id,
+      req.body.category,
       req.body.reason
     );
     res.json(result);
