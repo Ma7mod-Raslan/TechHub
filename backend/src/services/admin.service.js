@@ -126,7 +126,7 @@ export const getAllCourses = async () => {
     u.full_name AS instructor_name,
     COUNT(e.id) AS enrolled_students,
     CASE 
-      WHEN c.is_active = true THEN 'active'
+      WHEN c.is_active = true AND c.status = 'Published' THEN 'active'
       ELSE 'inactive'
     END AS status
   FROM courses c
@@ -202,7 +202,7 @@ export const getCourseFullDetails = async (courseId) => {
       COUNT(e.id) AS enrolled_students
     FROM courses c
     JOIN users u ON u.id = c.instructor_id
-    LEFT JOIN erollments e ON e.course_id = c.id
+    LEFT JOIN enrollments e ON e.course_id = c.id
     WHERE c.id = $1
     GROUP BY c.id, u.full_name;
     `,
@@ -327,6 +327,7 @@ export const getCommunityDetails = async (communityId) => {
       p.created_at,
       p.likes_count,
       p.replies_count,
+      p.is_hidden,
       u.full_name AS sender_name
     FROM community_posts p
     JOIN users u ON p.user_id = u.id
@@ -353,7 +354,8 @@ export const getCommunityDetails = async (communityId) => {
       content: post.content,
       time: post.created_at,
       total_likes: post.likes_count,
-      total_replies: post.replies_count
+      total_replies: post.replies_count,
+      is_hidden: post.is_hidden
     }))
   };
 };
@@ -405,6 +407,7 @@ export const getPostReplies = async (postId) => {
       -- status
       CASE
         WHEN r.is_deleted = true THEN 'deleted'
+        WHEN r.is_hidden = true THEN 'hidden'
         ELSE 'visible'
       END AS status
 
@@ -809,7 +812,7 @@ export const replyToContactMessage = async (id, replyText) => {
     UPDATE contact_messages
     SET status = 'replied',
         reply_message = $1,
-        replied_at = NOW()
+        created_at = NOW()
     WHERE id = $2
     `,
     [replyText, id]
