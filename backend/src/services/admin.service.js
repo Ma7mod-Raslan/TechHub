@@ -832,3 +832,21 @@ export const replyToContactMessage = async (id, replyText) => {
 
   return { message: "Reply sent successfully" };
 };
+
+// Delete Specific message
+export const deleteContactMessageById = async (id) => {
+  const result = await db.query(
+    `
+    DELETE FROM contact_messages
+    WHERE id = $1
+    RETURNING id
+    `,
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new Error("Message not found");
+  }
+
+  return { message: "Contact message deleted successfully" };
+};

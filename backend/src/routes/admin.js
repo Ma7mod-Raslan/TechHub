@@ -28,7 +28,8 @@ import {
     getAllContactMessages,
     getContactMessageDetails,
     replyToContactMessage,
-    deleteReport
+    deleteReport,
+    deleteContactMessageById
 } from "../services/admin.service.js";
 
 const router = express.Router();
@@ -491,4 +492,20 @@ router.post("/contact-messages/:id/reply", authMiddleware, allowRoles("admin"), 
   res.json(result);
 });
 
+
+// Delete contact message 
+router.delete(
+  "/contact-messages/:id",
+  authMiddleware,
+  allowRoles("admin"),
+  async (req, res) => {
+    try {
+      const result = await deleteContactMessageById(req.params.id);
+
+      res.json(result);
+    } catch (err) {
+      res.status(404).json({ error: err.message });
+    }
+  }
+);
 export default router;
