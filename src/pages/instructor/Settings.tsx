@@ -29,14 +29,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorSettingsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'instructor';
 }
 
-export default function InstructorSettings({ navigate, logout, userRole }: InstructorSettingsProps) {
+export default function InstructorSettings({logout, userRole }: InstructorSettingsProps) {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [studentMessages, setStudentMessages] = useState(true);
@@ -45,15 +46,15 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
   const [email, setEmail] = useState('sarah.johnson@email.com');
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -61,7 +62,6 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-settings"
@@ -92,7 +92,7 @@ export default function InstructorSettings({ navigate, logout, userRole }: Instr
                 </div>
               </div>
 
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="settings"/>
+              <HeaderIcons logout={logout} userRole={userRole} currentPage="settings" />
             </div>
           </header>
 

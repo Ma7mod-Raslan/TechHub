@@ -7,46 +7,39 @@ import { Card, CardContent } from "../../components/ui/card";
 import { toast } from "sonner";
 import api from "../../api";
 import AIAssistant from "../../components/AIAssistant";
+import { useNavigate } from "react-router-dom";
 
 
-interface VerificationProps {
-  navigate: (page: string, role?: "student" | "instructor") => void;
-  email?: string;
-  role?: "student" | "instructor";
-}
 
-export default function Verification({ navigate, email, role }: VerificationProps) {
+export default function Verification() {
+  const navigate = useNavigate();
   const [code, setCode] = useState<string[]>(["", "", "", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendTimer, setResendTimer] = useState<number>(60);
-  const [userEmail, setUserEmail] = useState<string | undefined>(email);
-  const [userRole, setUserRole] = useState<"student" | "instructor" | undefined>(role);
+  const [userEmail, setUserEmail] = useState<string | undefined>();
+  const [userRole, setUserRole] = useState<"student" | "instructor" | undefined>();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   // Load pending verification from localStorage if exists
   useEffect(() => {
     const pending = localStorage.getItem("pendingVerification");
+
     if (pending) {
       try {
         const parsed = JSON.parse(pending);
-        if (!userEmail) setUserEmail(parsed.email ?? undefined);
-        if (!userRole) setUserRole(parsed.role ?? undefined);
+        setUserEmail(parsed.email);
+        setUserRole(parsed.role);
       } catch {
-        // ignore parse errors
+        console.error("Invalid pendingVerification data");
       }
     } else {
-      // if no pending and no email prop, redirect back to signup
-      if (!email) {
-        toast.error("No verification session. Please sign up again.");
-        navigate("signup");
-      }
+      toast.error("No verification session. Please sign up again.");
+      navigate("/signup");
     }
 
-    // focus first input after mount
     setTimeout(() => {
       inputRefs.current[0]?.focus();
     }, 50);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // resend timer countdown
@@ -138,12 +131,10 @@ export default function Verification({ navigate, email, role }: VerificationProp
 
       localStorage.removeItem("pendingVerification");
 
-      toast.success("Email verified successfully!");
-
       toast.success("Email verified successfully! Please login.");
 
       setTimeout(() => {
-        navigate("login");
+        navigate("/login");
       }, 500);
 
 
@@ -189,7 +180,7 @@ export default function Verification({ navigate, email, role }: VerificationProp
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-2 cursor-pointer mb-4"
-            onClick={() => navigate("home")}
+            onClick={() => navigate("/")}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl">
               <Code2 className="h-8 w-8 text-white" />
@@ -265,7 +256,7 @@ export default function Verification({ navigate, email, role }: VerificationProp
             </div>
 
             <div className="text-center mt-4">
-              <button onClick={() => navigate("signup")} className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">
+              <button onClick={() => navigate("/signup")} className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">
                 <ArrowLeft className="h-3 w-3" />
                 Back to Sign Up
               </button>

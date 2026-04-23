@@ -34,14 +34,15 @@ import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 import { motion } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentProfileProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-export default function StudentProfile({ navigate, logout, userRole }: StudentProfileProps) {
+export default function StudentProfile({logout, userRole }: StudentProfileProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
@@ -54,18 +55,18 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile', active: true },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
-  ];
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard'  },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses'  },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler'   },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile', active: true },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
+      ];
 
   useEffect(() => {
 
@@ -172,7 +173,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
 
   const handleLogout = () => {
     logout();
-    navigate('login');
+    navigate('/login');
   };
 
   return (
@@ -181,7 +182,6 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-profile"
@@ -206,7 +206,7 @@ export default function StudentProfile({ navigate, logout, userRole }: StudentPr
                 <h1 className="text-xl md:text-2xl">My Profile</h1>
                 <p className="text-gray-600 text-sm md:text-base">Manage your personal information</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile" />
+              <HeaderIcons logout={logout} userRole={userRole} currentPage="profile" />
             </div>
           </header>
 

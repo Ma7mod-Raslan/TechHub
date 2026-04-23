@@ -11,12 +11,11 @@ import { Card, CardContent } from '../components/ui/card';
 import { toast } from 'sonner';
 import AIAssistant from '../components/AIAssistant';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface ContactProps {
-  navigate: (page: string) => void;
-}
 
-export default function Contact({ navigate }: ContactProps) {
+export default function Contact() {
+  const navigate = useNavigate();  
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [category, setCategory] = useState("");
@@ -59,7 +58,7 @@ export default function Contact({ navigate }: ContactProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar navigate={navigate} />
+      <Navbar />
 
       <section className="bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 py-20">
         <div className="container mx-auto px-4">
@@ -211,7 +210,7 @@ export default function Contact({ navigate }: ContactProps) {
       </section>
       <AIAssistant />
 
-      <Footer navigate={navigate} />
+      <Footer />
     </div>
   );
 }

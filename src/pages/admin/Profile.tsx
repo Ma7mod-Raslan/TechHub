@@ -29,14 +29,15 @@ import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminProfileProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
 
-export default function AdminProfile({ navigate, logout }: AdminProfileProps) {
+export default function AdminProfile({ logout }: AdminProfileProps) {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: 'Admin',
@@ -89,7 +90,6 @@ export default function AdminProfile({ navigate, logout }: AdminProfileProps) {
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-profile"
@@ -103,7 +103,7 @@ export default function AdminProfile({ navigate, logout }: AdminProfileProps) {
                 <h1 className="text-2xl">Admin Profile</h1>
                 <p className="text-gray-600">Manage your admin profile information</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-profile" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-profile" />
             </div>
           </header>
 

@@ -30,14 +30,15 @@ import { toast } from 'sonner';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentContactProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-export default function StudentContact({ navigate, logout, userRole }: StudentContactProps) {
+export default function StudentContact({ logout, userRole }: StudentContactProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -46,17 +47,17 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
   const [loading, setLoading] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact', active: true },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler'   },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' , active: true },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,7 +109,6 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-contact"
@@ -135,7 +135,7 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
                 <h1 className="text-xl md:text-2xl">Contact Us</h1>
                 <p className="text-gray-600 text-sm md:text-base">Get in touch with our support team</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 

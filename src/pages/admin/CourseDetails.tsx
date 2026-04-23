@@ -25,6 +25,7 @@ import {
 } from '../../components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { COURSE_CATEGORIES } from "../../constants/courseCategories";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 const extractYoutubeId = (url: string) => {
@@ -36,9 +37,7 @@ const extractYoutubeId = (url: string) => {
 };
 
 interface CourseDetailsProps {
-  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
-  navigationState?: any;
   userRole: string;
 }
 
@@ -79,7 +78,8 @@ interface Review {
 
 
 
-export default function AdminCourseDetails({ navigate, logout, navigationState }: CourseDetailsProps) {
+export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
+  const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState<Lecture | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -91,8 +91,11 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
     lectureId: number | null;
   }>({ show: false, questionId: null, lectureId: null });
   const videoRef = useRef<HTMLVideoElement>(null);
-  const courseId = navigationState?.courseId || navigationState?.id;
-  console.log("courseId:", courseId);
+  const location = useLocation();
+
+  const courseId =
+    location.state?.courseId ||
+    localStorage.getItem("selectedCourseId"); console.log("courseId:", courseId);
   const [courseData, setCourseData] = useState<any>(null);
   const [courseSections, setCourseSections] = useState<Section[]>([]);
 
@@ -127,7 +130,7 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
   const handleDeleteCourse = () => {
     toast.success('Course deleted successfully');
     setDeleteConfirm(false);
-    navigate('admin-courses');
+    navigate('/admin/courses');
   };
 
   const handleSuspendActivate = () => {
@@ -253,7 +256,6 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-courses"
@@ -267,7 +269,7 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('admin-courses')}
+                  onClick={() => navigate('/admin/courses')}
                   className="gap-2"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -278,7 +280,7 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
                   <p className="text-gray-600">View and manage course content</p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-courses" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-courses" />
             </div>
           </header>
 

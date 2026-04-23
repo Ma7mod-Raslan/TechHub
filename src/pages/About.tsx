@@ -5,15 +5,14 @@ import Footer from '../components/Footer';
 import { Card, CardContent } from '../components/ui/card';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import AIAssistant from '../components/AIAssistant';
+import { useNavigate } from 'react-router-dom';
 
-interface AboutProps {
-  navigate: (page: string) => void;
-}
 
-export default function About({ navigate }: AboutProps) {
+export default function About() {
+  const navigate = useNavigate();  
   return (
     <div className="min-h-screen bg-white">
-      <Navbar navigate={navigate} />
+      <Navbar  />
 
       <section className="bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 py-20">
         <div className="container mx-auto px-4">
@@ -146,7 +145,7 @@ export default function About({ navigate }: AboutProps) {
       </section>
       <AIAssistant/>
 
-      <Footer navigate={navigate} />
+      <Footer  />
     </div>
   );
 }

@@ -27,14 +27,15 @@ import { Button } from '../../components/ui/button';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentNotificationsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-export default function StudentNotifications({ navigate, logout, userRole }: StudentNotificationsProps) {
+export default function StudentNotifications({ logout, userRole }: StudentNotificationsProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
 
@@ -42,18 +43,18 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
 
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications', active: true },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
-  ];
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard'  },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses'  },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler'   },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications', active: true },
+        { icon: User, label: 'Profile', page: '/student/profile' },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
+      ];
 
   useEffect(() => {
 
@@ -143,7 +144,7 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('login');
   };
 
   return (
@@ -152,7 +153,6 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-notifications"
@@ -187,7 +187,7 @@ export default function StudentNotifications({ navigate, logout, userRole }: Stu
                   className="hidden md:flex"
                   onClick={markAllAsRead}
                 >Mark All as Read</Button>
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="notifications" />
+                <HeaderIcons logout={logout} userRole={userRole} currentPage="notifications" />
               </div>
             </div>
           </header>

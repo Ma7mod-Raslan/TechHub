@@ -51,12 +51,11 @@ import AIAssistant from '../../components/AIAssistant';
 import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { UserRole } from '../../App';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface InstructorCourseViewProps {
-  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
   userRole: 'instructor';
-  navigationState?: any;
 }
 
 interface Video {
@@ -69,26 +68,27 @@ interface Video {
 
 
 export default function InstructorCourseView({
-  navigate,
   logout,
   userRole,
-  navigationState,
 }: InstructorCourseViewProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-    { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-    { icon: User, label: 'Profile', page: 'instructor-profile' },
-    { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
   ];
 
-  const courseId = navigationState?.courseId ?? null;
-
+  const location = useLocation() as {
+    state?: { courseId?: number };
+  };
+  const courseId = location.state?.courseId ?? null;
   const [course, setCourse] = useState<any>(null);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -558,7 +558,6 @@ export default function InstructorCourseView({
       <div className="flex">
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
@@ -583,7 +582,7 @@ export default function InstructorCourseView({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('instructor-courses')}
+                  onClick={() => navigate('/instructor/courses')}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -603,7 +602,7 @@ export default function InstructorCourseView({
 
               {/* Right side actions */}
               <div className="flex items-center gap-3">
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
 
                 {!isEditMode ? (
                   <>
@@ -611,11 +610,9 @@ export default function InstructorCourseView({
                     <Button
                       variant="outline"
                       onClick={() =>
-                        navigate(
-                          'instructor-manage-assignment',
-                          'instructor',
-                          { courseId }
-                        )
+                        navigate('/instructor/manage-assignment', {
+                          state: { courseId }
+                        })
                       }
                     >
                       <BarChart3 className="mr-2 h-4 w-4" />
@@ -624,356 +621,354 @@ export default function InstructorCourseView({
                     <Button
                       variant="outline"
                       onClick={() =>
-                        navigate(
-                          'instructor-edit-course',
-                          'instructor',
-                          { courseId }
-                        )
-                      }
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit Details
-                    </Button>
-
-                    {course.status === 'Draft' && (
-                      <Button
-                        onClick={handlePublishCourse}
-                        className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
-                      >
-                        Publish Course
-                      </Button>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={handleCancelEdit}
-                      disabled={isSaving}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
-                    </Button>
-
-                    <Button
-                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                      onClick={handleSaveCourse}
-                      disabled={isSaving}
-                    >
-                      <Save className="mr-2 h-5 w-5" />
-                      {isSaving ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </header>
-
-
-
-          {/* Course Info Section */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                {/* Course Image */}
-                <div>
-                  <ImageWithFallback
-                    src={course.thumbnail || 'https://via.placeholder.com/400x250'}
-                    alt={course.title}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                </div>
-
-                {/* Course Details */}
-                <div className="md:col-span-2 space-y-4">
-                  <h2 className="text-2xl font-semibold">
-                    {course.title}
-                  </h2>
-
-                  <div className="flex gap-2 flex-wrap">
-                    {course.category && (
-                      <Badge variant="outline">
-                        {COURSE_CATEGORIES[course.category] ?? course.category}
-                      </Badge>
-                    )}
-                    {course.level && (
-                      <Badge variant="outline">{course.level}</Badge>
-                    )}
-                    {course.status && (
-                      <Badge className="bg-yellow-600 text-white">
-                        {course.status}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <p className="text-gray-600">
-                    {course.description || 'No description provided for this course.'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-
-          <main className="p-6">
-            {/* Videos Section */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl">Course Videos</h3>
-                  <Button
-                    className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                    onClick={() => {
-                      setSelectedVideo(null);
-                      setVideoFormData({
-                        title: '',
-                        url: '',
-                        description: '',
-                        order: videos.length + 1,
-                      });
-                      setShowAddVideoDialog(true);
-                    }}
-                  >
-                    <Plus className="mr-2 h-5 w-5" />
-                    Add Video
+                        navigate('/instructor/edit-course', {
+                          state: { courseId }
+                        })
+                  }
+                >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Details
                   </Button>
 
-                </div>
-
-                {videos.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <Play className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                    <p>No videos added yet. Start by adding your first video.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {videos.map((video, index) => (
-                      <motion.div
-                        key={video.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 text-violet-600">
-                            {video.video_order}
-                          </div>
-                          <div>
-                            <h4 className="font-medium">{video.title}</h4>
-                            <p className="text-sm text-gray-600">
-                              {video.description}
-                            </p>
-
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            disabled={video.video_order === 1}
-                            onClick={() => moveVideo(video, 'up')}
-                            className="hover:bg-violet-50"
-                          >
-                            <ChevronUp className="h-4 w-4 text-gray-600" />
-                          </Button>
-
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            disabled={video.video_order === videos.length}
-                            onClick={() => moveVideo(video, 'down')}
-                            className="hover:bg-violet-50"
-                          >
-                            <ChevronDown className="h-4 w-4 text-gray-600" />
-                          </Button>
-
-
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setSelectedVideo(video);
-                              setQuestionText('');
-                              setChoices([
-                                { text: '', is_correct: false },
-                                { text: '', is_correct: false },
-                              ]);
-                              fetchVideoQuestions(video.id);
-                              setShowMCQDialog(true);
-                            }}
-                          >
-                            <MessageSquare className="h-4 w-4 text-indigo-600" />
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setSelectedVideo(video);
-                              setVideoFormData({
-                                title: video.title,
-                                url: video.video_url,
-                                description: video.description || '',
-                                order: video.video_order,
-                              });
-
-                              setShowEditVideoDialog(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => {
-                              setSelectedVideo(video);
-                              setShowDeleteVideoDialog(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                {course.status === 'Draft' && (
+                  <Button
+                    onClick={handlePublishCourse}
+                    className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
+                  >
+                    Publish Course
+                  </Button>
                 )}
-              </CardContent>
-            </Card>
+              </>
+              ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={isSaving}
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
 
-          </main>
+                <Button
+                  className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                  onClick={handleSaveCourse}
+                  disabled={isSaving}
+                >
+                  <Save className="mr-2 h-5 w-5" />
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </>
+                )}
+            </div>
         </div>
-      </div>
-
-      {/* ADD VIDEO */}
-      <Dialog open={showAddVideoDialog} onOpenChange={setShowAddVideoDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Video</DialogTitle>
-          </DialogHeader>
-
-          {/* Title */}
-          <Input
-            placeholder="Title"
-            value={videoFormData.title}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, title: e.target.value });
-              setVideoErrors({ ...videoErrors, title: '' });
-            }}
-          />
-          {videoErrors.title && (
-            <p className="text-sm text-red-600">{videoErrors.title}</p>
-          )}
+      </header>
 
 
-          {/* URL */}
-          <Input
-            placeholder="URL"
-            value={videoFormData.url}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, url: e.target.value });
-              setVideoErrors({ ...videoErrors, url: '' });
-            }}
 
-          />
-          {videoErrors.url && (
-            <p className="text-sm text-red-600">{videoErrors.url}</p>
-          )}
+      {/* Course Info Section */}
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          {/* Description */}
-          <Textarea
-            placeholder="Description"
-            value={videoFormData.description}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, description: e.target.value });
-              setVideoErrors({ ...videoErrors, description: '' });
-            }}
+            {/* Course Image */}
+            <div>
+              <ImageWithFallback
+                src={course.thumbnail || 'https://via.placeholder.com/400x250'}
+                alt={course.title}
+                className="w-full h-48 object-cover rounded-lg"
+              />
+            </div>
 
-          />
-          {videoErrors.description && (
-            <p className="text-sm text-red-600">{videoErrors.description}</p>
-          )}
+            {/* Course Details */}
+            <div className="md:col-span-2 space-y-4">
+              <h2 className="text-2xl font-semibold">
+                {course.title}
+              </h2>
 
-          <DialogFooter>
-            <Button onClick={handleAddVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <div className="flex gap-2 flex-wrap">
+                {course.category && (
+                  <Badge variant="outline">
+                    {COURSE_CATEGORIES[course.category] ?? course.category}
+                  </Badge>
+                )}
+                {course.level && (
+                  <Badge variant="outline">{course.level}</Badge>
+                )}
+                {course.status && (
+                  <Badge className="bg-yellow-600 text-white">
+                    {course.status}
+                  </Badge>
+                )}
+              </div>
 
-
-      {/* EDIT VIDEO */}
-      <Dialog open={showEditVideoDialog} onOpenChange={setShowEditVideoDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Video</DialogTitle>
-          </DialogHeader>
-
-          {/* Title */}
-          <Input
-            placeholder="Title"
-            value={videoFormData.title}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, title: e.target.value });
-              setVideoErrors({ ...videoErrors, title: '' });
-            }}
-          />
-          {videoErrors.title && (
-            <p className="text-sm text-red-600">{videoErrors.title}</p>
-          )}
-
-          {/* URL */}
-          <Input
-            placeholder="Youtube Video URL"
-            value={videoFormData.url}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, url: e.target.value });
-              setVideoErrors({ ...videoErrors, url: '' });
-            }}
+              <p className="text-gray-600">
+                {course.description || 'No description provided for this course.'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
 
-          />
-          {videoErrors.url && (
-            <p className="text-sm text-red-600">{videoErrors.url}</p>
-          )}
+      <main className="p-6">
+        {/* Videos Section */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl">Course Videos</h3>
+              <Button
+                className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                onClick={() => {
+                  setSelectedVideo(null);
+                  setVideoFormData({
+                    title: '',
+                    url: '',
+                    description: '',
+                    order: videos.length + 1,
+                  });
+                  setShowAddVideoDialog(true);
+                }}
+              >
+                <Plus className="mr-2 h-5 w-5" />
+                Add Video
+              </Button>
 
-          {/* Description */}
-          <Textarea
-            placeholder="Description"
-            value={videoFormData.description}
-            onChange={e => {
-              setVideoFormData({ ...videoFormData, description: e.target.value });
-              setVideoErrors({ ...videoErrors, description: '' });
-            }}
+            </div>
 
-          />
-          {videoErrors.description && (
-            <p className="text-sm text-red-600">{videoErrors.description}</p>
-          )}
+            {videos.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <Play className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>No videos added yet. Start by adding your first video.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {videos.map((video, index) => (
+                  <motion.div
+                    key={video.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 text-violet-600">
+                        {video.video_order}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{video.title}</h4>
+                        <p className="text-sm text-gray-600">
+                          {video.description}
+                        </p>
 
-          <DialogFooter>
-            <Button onClick={handleEditVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        disabled={video.video_order === 1}
+                        onClick={() => moveVideo(video, 'up')}
+                        className="hover:bg-violet-50"
+                      >
+                        <ChevronUp className="h-4 w-4 text-gray-600" />
+                      </Button>
+
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        disabled={video.video_order === videos.length}
+                        onClick={() => moveVideo(video, 'down')}
+                        className="hover:bg-violet-50"
+                      >
+                        <ChevronDown className="h-4 w-4 text-gray-600" />
+                      </Button>
 
 
-      {/* DELETE VIDEO */}
-      <Dialog open={showDeleteVideoDialog} onOpenChange={setShowDeleteVideoDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Video?</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="destructive" onClick={handleDeleteVideo}>
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedVideo(video);
+                          setQuestionText('');
+                          setChoices([
+                            { text: '', is_correct: false },
+                            { text: '', is_correct: false },
+                          ]);
+                          fetchVideoQuestions(video.id);
+                          setShowMCQDialog(true);
+                        }}
+                      >
+                        <MessageSquare className="h-4 w-4 text-indigo-600" />
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedVideo(video);
+                          setVideoFormData({
+                            title: video.title,
+                            url: video.video_url,
+                            description: video.description || '',
+                            order: video.video_order,
+                          });
+
+                          setShowEditVideoDialog(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedVideo(video);
+                          setShowDeleteVideoDialog(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
+
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+      </main>
+    </div>
+      </div >
+
+    {/* ADD VIDEO */ }
+    < Dialog open = { showAddVideoDialog } onOpenChange = { setShowAddVideoDialog } >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Video</DialogTitle>
+        </DialogHeader>
+
+        {/* Title */}
+        <Input
+          placeholder="Title"
+          value={videoFormData.title}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, title: e.target.value });
+            setVideoErrors({ ...videoErrors, title: '' });
+          }}
+        />
+        {videoErrors.title && (
+          <p className="text-sm text-red-600">{videoErrors.title}</p>
+        )}
+
+
+        {/* URL */}
+        <Input
+          placeholder="URL"
+          value={videoFormData.url}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, url: e.target.value });
+            setVideoErrors({ ...videoErrors, url: '' });
+          }}
+
+        />
+        {videoErrors.url && (
+          <p className="text-sm text-red-600">{videoErrors.url}</p>
+        )}
+
+        {/* Description */}
+        <Textarea
+          placeholder="Description"
+          value={videoFormData.description}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, description: e.target.value });
+            setVideoErrors({ ...videoErrors, description: '' });
+          }}
+
+        />
+        {videoErrors.description && (
+          <p className="text-sm text-red-600">{videoErrors.description}</p>
+        )}
+
+        <DialogFooter>
+          <Button onClick={handleAddVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog >
+
+
+    {/* EDIT VIDEO */ }
+    < Dialog open = { showEditVideoDialog } onOpenChange = { setShowEditVideoDialog } >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Video</DialogTitle>
+        </DialogHeader>
+
+        {/* Title */}
+        <Input
+          placeholder="Title"
+          value={videoFormData.title}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, title: e.target.value });
+            setVideoErrors({ ...videoErrors, title: '' });
+          }}
+        />
+        {videoErrors.title && (
+          <p className="text-sm text-red-600">{videoErrors.title}</p>
+        )}
+
+        {/* URL */}
+        <Input
+          placeholder="Youtube Video URL"
+          value={videoFormData.url}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, url: e.target.value });
+            setVideoErrors({ ...videoErrors, url: '' });
+          }}
+
+
+        />
+        {videoErrors.url && (
+          <p className="text-sm text-red-600">{videoErrors.url}</p>
+        )}
+
+        {/* Description */}
+        <Textarea
+          placeholder="Description"
+          value={videoFormData.description}
+          onChange={e => {
+            setVideoFormData({ ...videoFormData, description: e.target.value });
+            setVideoErrors({ ...videoErrors, description: '' });
+          }}
+
+        />
+        {videoErrors.description && (
+          <p className="text-sm text-red-600">{videoErrors.description}</p>
+        )}
+
+        <DialogFooter>
+          <Button onClick={handleEditVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog >
+
+
+    {/* DELETE VIDEO */ }
+    < Dialog open = { showDeleteVideoDialog } onOpenChange = { setShowDeleteVideoDialog } >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Video?</DialogTitle>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="destructive" onClick={handleDeleteVideo}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog >
 
       <Dialog open={showMCQDialog} onOpenChange={setShowMCQDialog}>
         <DialogContent className="max-h-[90vh] flex flex-col">
@@ -1112,6 +1107,6 @@ export default function InstructorCourseView({
 
 
       <AIAssistant />
-    </div>
+    </div >
   );
 }

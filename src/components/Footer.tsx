@@ -1,14 +1,12 @@
 import { Code2, Mail, Phone, MapPin, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { Button } from './ui/button';
-import { NavigateFn } from '../types/Navigation';
+import { useNavigate } from 'react-router-dom';
 
 
 
-interface FooterProps {
-  navigate: NavigateFn;
-}
 
-export default function Footer({ navigate }: FooterProps) {
+export default function Footer() {
+  const navigate = useNavigate();  
   return (
     <footer className="bg-gray-900 text-gray-300">
       <div className="container mx-auto px-4 py-12">
@@ -47,22 +45,22 @@ export default function Footer({ navigate }: FooterProps) {
             <h3 className="text-white mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <button onClick={() => navigate('about')} className="hover:text-cyan-400 transition-colors">
+                <button onClick={() => navigate('/about')} className="hover:text-cyan-400 transition-colors">
                   About Us
                 </button>
               </li>
               <li>
-                <button onClick={() => navigate('about')} className="hover:text-cyan-400 transition-colors">
+                <button onClick={() => navigate('/about')} className="hover:text-cyan-400 transition-colors">
                   Our Mission
                 </button>
               </li>
               <li>
-                <button onClick={() => navigate('home')} className="hover:text-cyan-400 transition-colors">
+                <button onClick={() => navigate('/')} className="hover:text-cyan-400 transition-colors">
                   Courses
                 </button>
               </li>
               <li>
-                <button onClick={() => navigate('community')} className="hover:text-cyan-400 transition-colors">
+                <button onClick={() => navigate('/community')} className="hover:text-cyan-400 transition-colors">
                   Community
                 </button>
               </li>
@@ -74,7 +72,7 @@ export default function Footer({ navigate }: FooterProps) {
             <h3 className="text-white mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <button onClick={() => navigate('contact')} className="hover:text-cyan-400 transition-colors">
+                <button onClick={() => navigate('/contact')} className="hover:text-cyan-400 transition-colors">
                   Contact Us
                 </button>
               </li>

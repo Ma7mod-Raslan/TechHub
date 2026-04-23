@@ -3,12 +3,10 @@ import { Home, Search } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Code2 } from 'lucide-react';
 import AIAssistant from '../components/AIAssistant';
+import { useNavigate } from 'react-router-dom';
 
-interface NotFoundProps {
-  navigate: (page: string) => void;
-}
-
-export default function NotFound({ navigate }: NotFoundProps) {
+export default function NotFound() {
+  const navigate = useNavigate(); 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
       <motion.div
@@ -43,20 +41,20 @@ export default function NotFound({ navigate }: NotFoundProps) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             size="lg"
-            onClick={() => navigate('home')}
+            onClick={() => navigate('/')}
             className="bg-gradient-to-r from-cyan-500 to-blue-600"
           >
             <Home className="mr-2 h-5 w-5" />
             Back to Home
           </Button>
-          <Button size="lg" variant="outline" onClick={() => navigate('home')}>
+          <Button size="lg" variant="outline" onClick={() => navigate('/')}>
             <Search className="mr-2 h-5 w-5" />
             Browse Courses
           </Button>
         </div>
 
         <div className="mt-12 text-gray-500">
-          <p>Need help? <button onClick={() => navigate('contact')} className="text-cyan-600 hover:text-cyan-700">Contact us</button></p>
+          <p>Need help? <button onClick={() => navigate('/contact')} className="text-cyan-600 hover:text-cyan-700">Contact us</button></p>
         </div>
       </motion.div>
       <AIAssistant />

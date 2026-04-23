@@ -22,9 +22,9 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import { COURSE_CATEGORIES } from "../../constants/courseCategories";
+import { useNavigate } from 'react-router-dom';
 
 interface CoursesProps {
-  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: string;
 }
@@ -48,7 +48,8 @@ interface CourseData {
 
 
 
-export default function AdminCourses({ navigate, logout }: CoursesProps) {
+export default function AdminCourses({logout }: CoursesProps) {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [coursesData, setCoursesData] = useState<CourseData[]>([]);
@@ -161,7 +162,6 @@ export default function AdminCourses({ navigate, logout }: CoursesProps) {
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-courses"
@@ -175,7 +175,7 @@ export default function AdminCourses({ navigate, logout }: CoursesProps) {
                 <h1 className="text-2xl">Course Management</h1>
                 <p className="text-gray-600">View and manage all courses on the platform</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-courses" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-courses" />
             </div>
           </header>
 
@@ -239,7 +239,7 @@ export default function AdminCourses({ navigate, logout }: CoursesProps) {
                                 size="sm"
                                 className="text-violet-600 hover:bg-violet-50 border-violet-200"
                                 onClick={() =>
-                                  navigate('admin-course-details', 'admin', { courseId: course.id })
+                                  navigate('/admin/course-details', { state: {courseId: course.id }})
                                 }
                               >
                                 <Eye className="h-4 w-4 mr-2" />

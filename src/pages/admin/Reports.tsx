@@ -31,9 +31,9 @@ import {
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface ReportsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
@@ -61,7 +61,8 @@ interface ContactMessage {
 }
 
 
-export default function AdminReports({ navigate, logout }: ReportsProps) {
+export default function AdminReports({logout }: ReportsProps) {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [reports, setReports] = useState<ReportData[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
@@ -353,7 +354,6 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-reports"
@@ -367,7 +367,7 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                 <h1 className="text-2xl">Reports & Messages</h1>
                 <p className="text-gray-600">Review contact messages and reported content</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-reports" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-reports" />
             </div>
           </header>
 

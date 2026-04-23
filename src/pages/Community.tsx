@@ -14,17 +14,18 @@ import { toast } from 'sonner';
 import Sidebar from '../components/Sidebar';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { useNavigate } from "react-router-dom";
 
 interface CommunityProps {
-  navigate: (page: string) => void;
   logout: () => void;
-  userRole: 'student' | 'instructor' | 'admin';
+  userRole: UserRole;
   initialCommunityId?: number;
 }
 
 
 
-export default function Community({ navigate, logout, userRole, initialCommunityId }: CommunityProps) {
+export default function Community({ logout, userRole, initialCommunityId }: CommunityProps) {
+  const navigate = useNavigate();
   const [communities, setCommunities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<any[]>([]);
@@ -68,7 +69,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }
+          
         });
+        console.log("TOKEN 👉", localStorage.getItem("accessToken"));
 
         const data = await res.json();
         console.log("Backend communities:", data);
@@ -530,7 +533,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const handleBackToCommunities = () => {
     if (userRole === 'admin') {
       // Return to admin community management page
-      navigate('admin-communities');
+      navigate('/admin/communities');
     } else {
       // Return to community list view
       setSelectedCommunity(null);
@@ -567,38 +570,38 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
   const menuItems = userRole === 'admin'
     ? [
-      { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-      { icon: Users, label: 'Users', page: 'admin-users' },
-      { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-      { icon: MessageSquare, label: 'Communities', page: 'admin-communities', active: selectedCommunity !== null || selectedThread !== null },
-      { icon: FileText, label: 'Reports', page: 'admin-reports' },
-      { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-      { icon: User, label: 'Profile', page: 'admin-profile' },
-      { icon: Settings, label: 'Settings', page: 'admin-settings' },
+      { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+      { icon: Users, label: 'Users', page: '/admin/users' },
+      { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
+      { icon: MessageSquare, label: 'Communities', page: '/admin/communities', active: selectedCommunity !== null || selectedThread !== null },
+      { icon: FileText, label: 'Reports', page: '/admin/reports' },
+      { icon: Bell, label: 'Notifications', page: '/admin/notifications' },
+      { icon: User, label: 'Profile', page: '/admin/profile' },
+      { icon: Settings, label: 'Settings', page: '/admin/settings' },
     ]
     : userRole === 'instructor'
       ? [
-        { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-        { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-        { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
-        { icon: Users, label: 'Community', page: 'community' },
-        { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-        { icon: User, label: 'Profile', page: 'instructor-profile' },
-        { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-        { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+        { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+        { icon: User, label: 'Profile', page: '/instructor/profile' },
+        { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
       ]
       : [
-        { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-        { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-        { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-        { icon: Award, label: 'Certificates', page: 'student-certificates' },
-        { icon: Users, label: 'Community', page: 'community', active: true },
-        { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-        { icon: Code, label: 'Compiler', page: 'student-compiler' },
-        { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-        { icon: User, label: 'Profile', page: 'student-profile' },
-        { icon: Settings, label: 'Settings', page: 'student-settings' },
-        { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community', active: true },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler' },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile' },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
       ];
 
   // Thread View - Show when a post's replies are clicked
@@ -624,10 +627,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           {/* Sidebar - Always visible */}
           <Sidebar
             userRole={userRole}
-            navigate={navigate}
             logout={logout}
             menuItems={menuItems}
-            activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+            activePage={selectedCommunity !== null || selectedThread !== null ? '/admin/communities' : '/community'}
             isMobileOpen={isMobileOpen}
             setIsMobileOpen={setIsMobileOpen}
           />
@@ -654,7 +656,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                       Moderation Mode: ON
                     </Badge>
                   )}
-                  <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              
+                  <HeaderIcons logout={logout} userRole={userRole} />
                 </div>
               </div>
             </header>
@@ -980,10 +983,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           {/* Sidebar - Always visible */}
           <Sidebar
             userRole={userRole}
-            navigate={navigate}
             logout={logout}
             menuItems={menuItems}
-            activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+            activePage={selectedCommunity !== null || selectedThread !== null ? '/admin/communities' : '/community'}
             isMobileOpen={isMobileOpen}
             setIsMobileOpen={setIsMobileOpen}
           />
@@ -1010,7 +1012,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                       Moderation Mode: ON
                     </Badge>
                   )}
-                  <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                  <HeaderIcons  logout={logout} userRole={userRole} />
                   {userRole === 'instructor' && (
                     <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
                       <Plus className="mr-2 h-5 w-5" />
@@ -1367,10 +1369,9 @@ export default function Community({ navigate, logout, userRole, initialCommunity
         {/* Sidebar - Always visible */}
         <Sidebar
           userRole={userRole}
-          navigate={navigate}
           logout={logout}
           menuItems={menuItems}
-          activePage={selectedCommunity !== null || selectedThread !== null ? 'admin-communities' : 'community'}
+          activePage={selectedCommunity !== null || selectedThread !== null ? '/admin/communities' : '/community'}
           isMobileOpen={isMobileOpen}
           setIsMobileOpen={setIsMobileOpen}
         />
@@ -1395,7 +1396,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                   <h1 className="text-xl">Communities</h1>
                   <p className="text-gray-600 text-sm">Connect with learners in your courses</p>
                 </div>
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -1426,7 +1427,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                 />
               </div>
               <div className="flex-shrink-0">
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
               </div>
             </div>
           </header>

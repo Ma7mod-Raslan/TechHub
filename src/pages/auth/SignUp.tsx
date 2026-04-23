@@ -25,19 +25,12 @@ import api from "../../api";
 import { toast } from "sonner";
 import AIAssistant from "../../components/AIAssistant";
 import GoogleGSIButton from "../../GoogleGSIButton";
+import { useNavigate } from "react-router-dom";
 import {
   validatePassword,
   STRONG_PASSWORD_REGEX,
 } from "../../utils/passwordValidation";
 
-interface SignUpProps {
-  navigate: (page: string, role?: "student" | "instructor") => void;
-  setVerificationData?: (data: {
-    email: string;
-    role: "student" | "instructor";
-    name?: string;
-  }) => void;
-}
 
 declare global {
   interface Window {
@@ -49,7 +42,9 @@ declare global {
 const GOOGLE_CLIENT_ID =
   (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ?? "";
 
-export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
+
+export default function SignUp() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"student" | "instructor">("student");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
@@ -109,8 +104,8 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
         toast.success("Signed in with Google");
 
         if (data.user.role === "instructor")
-          navigate("instructor-dashboard", "instructor");
-        else navigate("student-dashboard", "student");
+          navigate("/instructor/dashboard");
+        else navigate("/student/dashboard");
         return;
       }
 
@@ -127,10 +122,8 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
           "pendingVerification",
           JSON.stringify({ email: pendingEmail, role, name: formData.name })
         );
-        if (setVerificationData)
-          setVerificationData({ email: pendingEmail, role });
 
-        navigate("verification", role);
+        navigate("/verification");
       }
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Google Sign up failed");
@@ -195,10 +188,8 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
         res.data?.message || "Account created! Please verify your email."
       );
 
-      if (setVerificationData)
-        setVerificationData({ email: formData.email, role });
 
-      navigate("verification", role);
+      navigate("/verification");
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Signup failed");
     } finally {
@@ -218,7 +209,7 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-2 cursor-pointer mb-4"
-            onClick={() => navigate("home")}
+            onClick={() => navigate("/")}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl">
               <Code2 className="h-8 w-8 text-white" />
@@ -511,7 +502,7 @@ export default function SignUp({ navigate, setVerificationData }: SignUpProps) {
             <p className="text-center text-sm text-gray-600 mt-6">
               Already have an account?{" "}
               <button
-                onClick={() => navigate("login")}
+                onClick={() => navigate("/login")}
                 className="text-cyan-600 hover:text-cyan-700"
               >
                 Sign in

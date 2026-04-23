@@ -37,37 +37,34 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 
 import { NavigateFn } from '../../types/Navigation';
 import { UserRole } from '../../App';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 
 interface InstructorEditCourseProps {
-  navigate: NavigateFn;
   logout: () => void;
   userRole: UserRole;
-  navigationState?: {
-    courseId?: number;
-  };
+
 }
 
 export default function InstructorEditCourse({
-  navigate,
   logout,
   userRole,
-  navigationState,
 }: InstructorEditCourseProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
 
 
@@ -75,8 +72,10 @@ export default function InstructorEditCourse({
   /* =======================
      COURSE ID
   ======================= */
-  const courseId = navigationState?.courseId ?? null;
-
+  const location = useLocation() as {
+    state?: { courseId?: number };
+  };
+  const courseId = location.state?.courseId ?? null;
   /* =======================
      STATE (ALL HOOKS FIRST)
   ======================= */
@@ -231,7 +230,7 @@ export default function InstructorEditCourse({
         );
       }
 
-      navigate('instructor-course-view', undefined, { courseId });
+      navigate('/instructor/course-view', { state: { courseId } });
     } catch (error) {
       console.error(error);
       alert('Failed to save course');
@@ -261,7 +260,6 @@ export default function InstructorEditCourse({
       <div className="flex">
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
@@ -290,7 +288,7 @@ export default function InstructorEditCourse({
                   variant="ghost"
                   size="sm"
                   onClick={() =>
-                    navigate('instructor-course-view', undefined, { courseId })
+                    navigate('/instructor/course-view', { state: { courseId } })
                   }
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -305,7 +303,6 @@ export default function InstructorEditCourse({
               </div>
 
               <HeaderIcons
-                navigate={navigate}
                 logout={logout}
                 userRole={userRole}
               />
@@ -526,7 +523,7 @@ export default function InstructorEditCourse({
                     type="button"
                     variant="outline"
                     onClick={() =>
-                      navigate('instructor-course-view', undefined, { courseId })
+                      navigate('/instructor/course-view', { state: { courseId } })
                     }
                   >
                     Cancel

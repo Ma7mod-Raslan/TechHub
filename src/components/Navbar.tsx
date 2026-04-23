@@ -11,19 +11,19 @@ import {
 } from './ui/dropdown-menu';
 import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'motion/react';
-import { NavigateFn } from '../types/Navigation';
 import { UserRole } from '../App';
+import { useNavigate } from 'react-router-dom';
 
 interface NavbarProps {
-  navigate: NavigateFn;      
   isLoggedIn?: boolean;
-  userRole?: UserRole;       
+  userRole?: UserRole;
   transparent?: boolean;
   logout?: () => void;
 }
 
 
-export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest', transparent = false, logout }: NavbarProps) {
+export default function Navbar({ isLoggedIn = false, userRole = 'guest', transparent = false, logout }: NavbarProps) {
+  const navigate = useNavigate();  
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -31,14 +31,14 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
     if (logout) {
       logout();
     }
-    navigate('login');
+    navigate('/login');
   };
 
   const menuLinks = [
-    { label: 'Home', page: 'home', icon: Home },
-    { label: 'Courses', page: 'all-courses', icon: BookOpen },
-    { label: 'About', page: 'about', icon: Info },
-    { label: 'Contact', page: 'contact', icon: Mail },
+    { label: 'Home', page: '/', icon: Home },
+    { label: 'Courses', page: '/courses', icon: BookOpen },
+    { label: 'About', page: '/about', icon: Info },
+    { label: 'Contact', page: '/contact', icon: Mail },
   ];
 
   return (
@@ -57,10 +57,10 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
             whileHover={{ scale: 1.05 }}
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => {
-              if (userRole === 'admin') navigate('admin-dashboard');
-              else if (userRole === 'instructor') navigate('home');
-              else if (userRole === 'student') navigate('home');
-              else navigate('home');
+              if (userRole === 'admin') navigate('/admin/dashboard');
+              else if (userRole === 'instructor') navigate('/');
+              else if (userRole === 'student') navigate('/');
+              else navigate('/');
             }}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-2 rounded-xl">
@@ -93,13 +93,13 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
               <>
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate('login')}
+                  onClick={() => navigate('/login')}
                   className="transition-all duration-300 hidden sm:flex"
                 >
                   Login
                 </Button>
                 <Button 
-                  onClick={() => navigate('signup')} 
+                  onClick={() => navigate('/signup')} 
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                   size="sm"
                 >
@@ -114,9 +114,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                   size="icon" 
                   className="relative hidden sm:flex"
                   onClick={() => {
-                    if (userRole === 'instructor') navigate('instructor-notifications');
-                    else if (userRole === 'student') navigate('student-notifications');
-                    else if (userRole === 'admin') navigate('admin-notifications');
+                    if (userRole === 'instructor') navigate('/instructor/notifications');
+                    else if (userRole === 'student') navigate('/student/notifications');
+                    else if (userRole === 'admin') navigate('/admin/notifications');
                   }}
                 >
                   <Bell className="h-5 w-5" />
@@ -149,9 +149,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                     >
                       <DropdownMenuItem 
                         onClick={() => {
-                          if (userRole === 'instructor') navigate('instructor-profile');
-                          else if (userRole === 'student') navigate('student-profile');
-                          else if (userRole === 'admin') navigate('admin-profile');
+                          if (userRole === 'instructor') navigate('/instructor/profile');
+                          else if (userRole === 'student') navigate('/student/profile');
+                          else if (userRole === 'admin') navigate('/admin/profile');
                         }}
                         className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors duration-200"
                       >
@@ -160,9 +160,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => {
-                          if (userRole === 'instructor') navigate('instructor-settings');
-                          else if (userRole === 'student') navigate('student-settings');
-                          else if (userRole === 'admin') navigate('admin-settings');
+                          if (userRole === 'instructor') navigate('/instructor/settings');
+                          else if (userRole === 'student') navigate('/student/settings');
+                          else if (userRole === 'admin') navigate('/admin/settings');
                         }}
                         className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors duration-200"
                       >
@@ -240,9 +240,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                   {/* Mobile notifications */}
                   <button
                     onClick={() => {
-                      if (userRole === 'instructor') navigate('instructor-notifications');
-                      else if (userRole === 'student') navigate('student-notifications');
-                      else if (userRole === 'admin') navigate('admin-notifications');
+                      if (userRole === 'instructor') navigate('/instructor/notifications');
+                      else if (userRole === 'student') navigate('/student/notifications');
+                      else if (userRole === 'admin') navigate('/admin/notifications');
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors"
@@ -255,9 +255,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                   {/* Mobile profile */}
                   <button
                     onClick={() => {
-                      if (userRole === 'instructor') navigate('instructor-profile');
-                      else if (userRole === 'student') navigate('student-profile');
-                      else if (userRole === 'admin') navigate('admin-profile');
+                      if (userRole === 'instructor') navigate('/instructor/profile');
+                      else if (userRole === 'student') navigate('/student/profile');
+                      else if (userRole === 'admin') navigate('/admin/profile');
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors"
@@ -269,9 +269,9 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                   {/* Mobile settings */}
                   <button
                     onClick={() => {
-                      if (userRole === 'instructor') navigate('instructor-settings');
-                      else if (userRole === 'student') navigate('student-settings');
-                      else if (userRole === 'admin') navigate('admin-settings');
+                      if (userRole === 'instructor') navigate('/instructor/settings');
+                      else if (userRole === 'student') navigate('/student/settings');
+                      else if (userRole === 'admin') navigate('/admin/settings');
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors"
@@ -301,7 +301,7 @@ export default function Navbar({ navigate, isLoggedIn = false, userRole = 'guest
                   <div className="border-t my-2" />
                   <button
                     onClick={() => {
-                      navigate('login');
+                      navigate('/login');
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors"

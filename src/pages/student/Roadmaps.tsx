@@ -7,9 +7,9 @@ import { Badge } from '../../components/ui/badge';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentRoadmapsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
@@ -63,26 +63,27 @@ const roadmaps = [
   },
 ];
 
-export default function StudentRoadmaps({ navigate, logout, userRole }: StudentRoadmapsProps) {
+export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps', active: true },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
-  ];
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard'  },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses'  },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps', active: true  },
+        { icon: Code, label: 'Compiler', page: '/student/compiler'   },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile'},
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
+      ];
 
   const handleLogout = () => {
     logout();
-    navigate('login');
+    navigate('/login');
   };
 
   return (
@@ -91,7 +92,6 @@ export default function StudentRoadmaps({ navigate, logout, userRole }: StudentR
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-roadmaps"
@@ -116,7 +116,7 @@ export default function StudentRoadmaps({ navigate, logout, userRole }: StudentR
                 <h1 className="text-xl md:text-2xl">Learning Roadmaps</h1>
                 <p className="text-gray-600 text-sm md:text-base">AI-powered personalized learning paths</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 

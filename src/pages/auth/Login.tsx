@@ -12,12 +12,9 @@ import api from "../../api";
 import { toast } from "sonner";
 import AIAssistant from "../../components/AIAssistant";
 import GoogleGSIButton from "../../GoogleGSIButton";
-
+import { useNavigate } from "react-router-dom";
 import { validatePassword, STRONG_PASSWORD_REGEX } from "../../utils/passwordValidation";
 
-interface LoginProps {
-  navigate: (page: string, role?: "student" | "instructor" | "admin") => void;
-}
 
 declare global {
   interface Window {
@@ -30,7 +27,9 @@ const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ?? "";
 
 console.log("GOOGLE CLIENT ID FROM ENV 👉", GOOGLE_CLIENT_ID);
 
-export default function Login({ navigate }: LoginProps) {
+
+export default function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -76,15 +75,15 @@ export default function Login({ navigate }: LoginProps) {
         const parsed = JSON.parse(redirect);
         localStorage.removeItem('redirectAfterAuth');
 
-        navigate(parsed.page);
+        navigate('/' + parsed.page);
         return;
       }
 
 
 
-      if (user.role === "admin") navigate("admin-dashboard", "admin");
-      else if (user.role === "instructor") navigate("instructor-dashboard", "instructor");
-      else navigate("student-dashboard", "student");
+      if (user.role === "admin") window.location.href = "/admin/dashboard";
+      else if (user.role === "instructor") window.location.href = "/instructor/dashboard";
+      else window.location.href = "/student/dashboard";
       return;
     } catch (err: any) {
       const msg = err?.response?.data?.error;
@@ -92,7 +91,7 @@ export default function Login({ navigate }: LoginProps) {
         const backendRole = err?.response?.data?.role || "student";
         localStorage.setItem("pendingVerification", JSON.stringify({ email, role: backendRole }));
         toast.error("Please verify your email before logging in.");
-        navigate("verification", backendRole);
+        navigate("/verification");
         setLoading(false);
         return;
       }
@@ -127,9 +126,9 @@ export default function Login({ navigate }: LoginProps) {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success("Signed in with Google");
 
-      if (backendUser.role === "admin") navigate("admin-dashboard", "admin");
-      else if (backendUser.role === "instructor") navigate("instructor-dashboard", "instructor");
-      else navigate("student-dashboard", "student");
+      if (backendUser.role === "admin") window.location.href = "/admin/dashboard";
+      else if (backendUser.role === "instructor") window.location.href = "/instructor/dashboard";
+      else window.location.href = "/student/dashboard";
     } catch (err: any) {
       console.error("Google login error:", err);
       toast.error(err?.response?.data?.error || err?.message || "Google Sign in failed");
@@ -142,7 +141,7 @@ export default function Login({ navigate }: LoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50 flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md">
         <div className="text-center mb-8">
-          <motion.div whileHover={{ scale: 1.05 }} className="inline-flex items-center gap-2 cursor-pointer mb-4" onClick={() => navigate("home")}>
+          <motion.div whileHover={{ scale: 1.05 }} className="inline-flex items-center gap-2 cursor-pointer mb-4" onClick={() => navigate("/")}>
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl"><Code2 className="h-8 w-8 text-white" /></div>
             <span className="text-2xl bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent">TechHub</span>
           </motion.div>
@@ -187,7 +186,7 @@ export default function Login({ navigate }: LoginProps) {
                   <Checkbox id="remember" />
                   <Label htmlFor="remember" className="text-sm cursor-pointer">Remember me</Label>
                 </div>
-                <button type="button" onClick={() => navigate("forgot-password")} className="text-sm text-cyan-600 hover:text-cyan-700">Forgot password?</button>
+                <button type="button" onClick={() => navigate("/forgot-password")} className="text-sm text-cyan-600 hover:text-cyan-700">Forgot password?</button>
               </div>
 
               <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-violet-600 to-cyan-500">
@@ -205,7 +204,7 @@ export default function Login({ navigate }: LoginProps) {
 
             <p className="text-center text-sm text-gray-600 mt-6">
               Don't have an account?{" "}
-              <button onClick={() => navigate("signup")} className="text-cyan-600 hover:text-cyan-700">Sign up</button>
+              <button onClick={() => navigate("/signup")} className="text-cyan-600 hover:text-cyan-700">Sign up</button>
             </p>
           </CardContent>
         </Card>

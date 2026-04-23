@@ -28,14 +28,15 @@ import { toast } from 'sonner';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorContactProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'instructor';
 }
 
-export default function InstructorContact({ navigate, logout, userRole }: InstructorContactProps) {
+export default function InstructorContact({ logout, userRole }: InstructorContactProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,14 +46,14 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
 
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-    { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-    { icon: User, label: 'Profile', page: 'instructor-profile' },
-    { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,7 +105,6 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-contact"
@@ -133,7 +133,7 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
                   <p className="text-gray-600">Get in touch with our support team</p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 

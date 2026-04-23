@@ -11,12 +11,11 @@ import { toast } from 'sonner';
 import AIAssistant from "../../components/AIAssistant";
 
 import { validatePassword, STRONG_PASSWORD_REGEX } from '../../utils/passwordValidation';
+import { useNavigate } from 'react-router-dom';
 
-interface ResetPasswordPageProps {
-  navigate: (page: string) => void;
-}
 
-export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) {
+export default function ResetPasswordPage() {
+  const navigate = useNavigate();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -33,14 +32,16 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
   useEffect(() => {
     const savedEmail = localStorage.getItem('resetEmail');
     const savedCode = localStorage.getItem('resetCode');
-    setUserEmail(savedEmail);
-    setResetCode(savedCode);
-    // If either missing, redirect back
+
     if (!savedEmail || !savedCode) {
       toast.error('Missing verification data. Start reset process again.');
-      setTimeout(() => navigate('forgot-password'), 800);
+      navigate('/forgot-password');
+      return;
     }
-  }, [navigate]);
+
+    setUserEmail(savedEmail);
+    setResetCode(savedCode);
+  }, []);
 
   // Validate new password on change and set inline error
   function handleNewPasswordChange(value: string) {
@@ -72,7 +73,7 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
 
     if (!userEmail || !resetCode) {
       toast.error('Missing email or code — start process again');
-      navigate('forgot-password');
+      navigate('/forgot-password');
       return;
     }
 
@@ -91,7 +92,7 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
       localStorage.removeItem('resetEmail');
 
       setTimeout(() => {
-        navigate('login');
+        navigate('/login');
       }, 1500);
     } catch (err: any) {
       console.error('Reset password error', err);
@@ -110,7 +111,7 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <motion.div whileHover={{ scale: 1.05 }} className="inline-flex items-center gap-2 cursor-pointer mb-4" onClick={() => navigate('home')}>
+          <motion.div whileHover={{ scale: 1.05 }} className="inline-flex items-center gap-2 cursor-pointer mb-4" onClick={() => navigate('/')}>
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl"><Code2 className="h-8 w-8 text-white" /></div>
             <span className="text-2xl bg-gradient-to-r from-violet-600 to-cyan-500 bg-clip-text text-transparent">TechHub</span>
           </motion.div>
@@ -179,7 +180,7 @@ export default function ResetPasswordPage({ navigate }: ResetPasswordPageProps) 
           </CardContent>
         </Card>
       </motion.div>
-      <AIAssistant/>
+      <AIAssistant />
     </div>
   );
 }

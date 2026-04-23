@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Button } from './ui/button';
 import { UserRole } from '../App';
-import { NavigateFn } from '../types/Navigation';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -18,8 +18,7 @@ interface MenuItem {
 
 
 interface SidebarProps {
-  menuItems: MenuItem[];
-  navigate: NavigateFn;    
+  menuItems: MenuItem[]; 
   logout: () => void;
   userRole: UserRole;
   activePage?: string;
@@ -28,8 +27,9 @@ interface SidebarProps {
 }
 
 
-export default function Sidebar({ menuItems, navigate, logout, userRole, activePage, isMobileOpen, setIsMobileOpen }: SidebarProps) {
+export default function Sidebar({ menuItems, logout, userRole, activePage, isMobileOpen, setIsMobileOpen }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
 
   // Persist sidebar state in localStorage
   useEffect(() => {
@@ -48,13 +48,13 @@ export default function Sidebar({ menuItems, navigate, logout, userRole, activeP
   const getDashboardPage = () => {
     switch (userRole) {
       case 'admin':
-        return 'admin-dashboard';
+        return '/admin/dashboard';
       case 'instructor':
-        return 'home';
+        return '/';
       case 'student':
-        return 'home';
+        return '/';
       default:
-        return 'home';
+        return '/';
     }
   };
 

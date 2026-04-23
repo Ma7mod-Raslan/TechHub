@@ -20,13 +20,13 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function InstructorManageAssignment({
-    navigate,
     logout,
     userRole,
-    navigationState,
 }: any) {
+    const navigate = useNavigate();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [assignment, setAssignment] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -42,24 +42,27 @@ export default function InstructorManageAssignment({
     ]);
     const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
-    const courseId = navigationState?.courseId;
+    const location = useLocation() as {
+        state?: { courseId?: number };
+    };
+    const courseId = location.state?.courseId; 
     const assignmentId = localStorage.getItem(`assignment_${courseId}`);
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", page: "instructor-dashboard" },
-        { icon: BookOpen, label: "My Courses", page: "instructor-courses" },
-        { icon: BarChart3, label: "Assignments", page: "instructor-assignments" },
-        { icon: Users, label: "Community", page: "community" },
-        { icon: Bell, label: "Notifications", page: "instructor-notifications" },
-        { icon: User, label: "Profile", page: "instructor-profile" },
-        { icon: Settings, label: "Settings", page: "instructor-settings" },
-        { icon: MessageSquare, label: "Contact Us", page: "instructor-contact" },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+        { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+        { icon: User, label: 'Profile', page: '/instructor/profile' },
+        { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
     ];
 
     const fetchAssignment = async () => {
         if (!assignmentId) {
-            navigate("instructor-create-assignment", "instructor", {
-                courseId,
+            navigate("/instructor/create-assignment", {
+                state : {courseId},
             });
             return;
         }
@@ -75,8 +78,8 @@ export default function InstructorManageAssignment({
             );
 
             if (!res.ok) {
-                navigate("instructor-create-assignment", "instructor", {
-                    courseId,
+                navigate("/instructor/create-assignment", {
+                    state : {courseId},
                 });
                 return;
             }
@@ -224,7 +227,6 @@ export default function InstructorManageAssignment({
             <div className="flex">
                 <Sidebar
                     menuItems={menuItems}
-                    navigate={navigate}
                     logout={logout}
                     userRole="instructor"
                     activePage="instructor-assignments"

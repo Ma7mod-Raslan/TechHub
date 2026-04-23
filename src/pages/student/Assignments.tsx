@@ -10,38 +10,39 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentAssignmentsProps {
-  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
 
 
 
-export default function StudentAssignments({ navigate, logout, userRole }: StudentAssignmentsProps) {
+export default function StudentAssignments({ logout, userRole }: StudentAssignmentsProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments', active: true },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments', active: true },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler' },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
   ];
 
   const handleLogout = () => {
     logout();
-    navigate('login');
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -121,8 +122,8 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
               {assignment.status === 'pending' && (
                 <Button
                   onClick={() =>
-                    navigate("assignment-details", undefined, {
-                      assignmentId: assignment.id
+                    navigate("/student/assignment-details", {
+                      state: { assignmentId: assignment.id }
                     })
                   }
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
@@ -141,8 +142,8 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
                   variant="outline"
                   className="border-green-500 text-green-600 hover:bg-green-50"
                   onClick={() =>
-                    navigate("assignment-feedback", undefined, {
-                      assignmentId: assignment.id
+                    navigate("/student/assignment-details", {
+                      state: { assignmentId: assignment.id }
                     })
                   }>
                   View Feedback
@@ -152,7 +153,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </motion.div >
   );
 
   return (
@@ -161,7 +162,6 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-assignments"
@@ -186,7 +186,7 @@ export default function StudentAssignments({ navigate, logout, userRole }: Stude
                 <h1 className="text-xl md:text-2xl">Assignments</h1>
                 <p className="text-gray-600 text-sm md:text-base">Track your assignments and submissions</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 

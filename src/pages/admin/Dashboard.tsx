@@ -26,9 +26,9 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminDashboardProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
@@ -57,7 +57,8 @@ type User = {
 
 
 
-export default function AdminDashboard({ navigate, logout }: AdminDashboardProps) {
+export default function AdminDashboard({ logout }: AdminDashboardProps) {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [activityData, setActivityData] = useState<Activity[]>([]);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
@@ -184,7 +185,6 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-dashboard"
@@ -199,7 +199,7 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
                 <h1 className="text-2xl">Admin Dashboard</h1>
                 <p className="text-gray-600">Welcome back, Administrator!</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-dashboard" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-dashboard" />
             </div>
           </header>
 
@@ -328,7 +328,7 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate('admin-users')}
+                        onClick={() => navigate('/admin/users')}
                         className="hover:bg-gradient-to-r hover:from-violet-600 hover:to-cyan-500 hover:text-white transition-all duration-300"
                       >
                         View All
@@ -372,7 +372,7 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate('admin-courses')}
+                        onClick={() => navigate('/admin/courses')}
                         className="hover:bg-gradient-to-r hover:from-violet-600 hover:to-cyan-500 hover:text-white transition-all duration-300"
                       >
                         View All
@@ -416,7 +416,7 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
                       <CardTitle>Community Activity</CardTitle>
                       <Button
                         className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                        onClick={() => navigate('admin-communities')}
+                        onClick={() => navigate('/admin/communities')}
                       >
                         View Communities
                       </Button>
@@ -466,7 +466,7 @@ export default function AdminDashboard({ navigate, logout }: AdminDashboardProps
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate('admin-reports')}
+                          onClick={() => navigate('/admin/reports')}
                           className="hover:bg-gradient-to-r hover:from-violet-600 hover:to-cyan-500 hover:text-white transition-all duration-300"
                         >
                           View Reports

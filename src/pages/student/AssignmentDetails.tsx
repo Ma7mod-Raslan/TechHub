@@ -12,22 +12,21 @@ import {
     DialogTitle,
     DialogDescription
 } from "../../components/ui/dialog";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-    navigate: (page: string, role?: any, state?: any) => void;
     logout: () => void;
     userRole: "student";
-    navigationState?: any;
 }
 
 export default function StudentAssignmentDetails({
-    navigate,
     logout,
     userRole,
-    navigationState
 }: Props) {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    const assignmentId = navigationState?.assignmentId;
+    const assignmentId = location.state?.assignmentId;
 
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [assignment, setAssignment] = useState<any>(null);
@@ -37,17 +36,17 @@ export default function StudentAssignmentDetails({
     const [openResult, setOpenResult] = useState(false);
 
     const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-        { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-        { icon: FileText, label: 'Assignments', page: 'student-assignments', active: true },
-        { icon: Award, label: 'Certificates', page: 'student-certificates' },
-        { icon: Users, label: 'Community', page: 'community' },
-        { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-        { icon: Code, label: 'Compiler', page: 'student-compiler' },
-        { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-        { icon: User, label: 'Profile', page: 'student-profile' },
-        { icon: Settings, label: 'Settings', page: 'student-settings' },
-        { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments', active: true },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler' },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile' },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
     ];
 
     useEffect(() => {
@@ -127,11 +126,11 @@ export default function StudentAssignmentDetails({
             );
 
             console.log("response status", res.status);
-            
+
             const data = await res.json();
             console.log("server response", data);
 
-            
+
 
             setResult(data.data);
 
@@ -157,7 +156,6 @@ export default function StudentAssignmentDetails({
 
                 <Sidebar
                     menuItems={menuItems}
-                    navigate={navigate}
                     logout={logout}
                     userRole="student"
                     activePage="student-assignments"
@@ -176,7 +174,7 @@ export default function StudentAssignmentDetails({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => navigate("student-assignments")}
+                                onClick={() => navigate("/student/assignments")}
                             >
                                 <ArrowLeft className="h-5 w-5" />
                             </Button>
@@ -196,7 +194,7 @@ export default function StudentAssignmentDetails({
                         </div>
 
                         <HeaderIcons
-                            navigate={navigate}
+                        
                             logout={logout}
                             userRole={userRole}
                         />

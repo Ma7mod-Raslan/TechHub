@@ -5,16 +5,16 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 const API_URL = import.meta.env.VITE_API_URL;
 import { UserRole } from '../App';
-import { NavigateFn } from '../types/Navigation';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderIconsProps {
   userRole: UserRole;
-  navigate: NavigateFn;
   logout: () => void;
   currentPage?: string;
 }
 
-export default function HeaderIcons({ navigate, logout, userRole, currentPage }: HeaderIconsProps) {
+export default function HeaderIcons({ logout, userRole, currentPage }: HeaderIconsProps) {
+  const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -48,11 +48,9 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
   }, []);
 
   // Smart visibility: hide notifications icon when on notifications page
-  const showNotifications = currentPage !== 'notifications';
-
-  // Smart visibility: hide Profile/Settings options when on respective pages
-  const showProfileOption = currentPage !== 'profile';
-  const showSettingsOption = currentPage !== 'settings';
+  const showNotifications = !currentPage?.includes('/notifications');
+  const showProfileOption = !currentPage?.includes('/profile');
+  const showSettingsOption = !currentPage?.includes('/settings');
 
   return (
     <div className="flex items-center gap-2">
@@ -63,9 +61,9 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
           size="icon"
           className="relative hover:bg-gray-100 transition-all duration-300"
           onClick={() => {
-            if (userRole === 'instructor') navigate('instructor-notifications');
-            else if (userRole === 'student') navigate('student-notifications');
-            else if (userRole === 'admin') navigate('admin-notifications');
+            if (userRole === 'instructor') navigate('/instructor/notifications');
+            else if (userRole === 'student') navigate('/student/notifications');
+            else if (userRole === 'admin') navigate('/admin/notifications');
           }}
         >
           <Bell className="h-5 w-5" />
@@ -110,9 +108,9 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
                 {showProfileOption && (
                   <button
                     onClick={() => {
-                      if (userRole === 'student') navigate('student-profile');
-                      else if (userRole === 'instructor') navigate('instructor-profile');
-                      else if (userRole === 'admin') navigate('admin-profile');
+                      if (userRole === 'student') navigate('/student/profile');
+                      else if (userRole === 'instructor') navigate('/instructor/profile');
+                      else if (userRole === 'admin') navigate('/admin/profile');
                       setShowProfileMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-gray-700 transition-colors"
@@ -126,8 +124,8 @@ export default function HeaderIcons({ navigate, logout, userRole, currentPage }:
                 {showSettingsOption && (userRole === 'student' || userRole === 'instructor') && (
                   <button
                     onClick={() => {
-                      if (userRole === 'student') navigate('student-settings');
-                      else if (userRole === 'instructor') navigate('instructor-settings');
+                      if (userRole === 'student') navigate('/student/settings');
+                      else if (userRole === 'instructor') navigate('/instructor/settings');
                       setShowProfileMenu(false);
                     }}
                     className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-gray-700 transition-colors"

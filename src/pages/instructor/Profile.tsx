@@ -33,9 +33,9 @@ import { Input } from '../../components/ui/input';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorProfileProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'instructor';
 
@@ -48,7 +48,8 @@ interface InstructorStats {
 }
 
 
-export default function InstructorProfile({ navigate, logout, userRole }: InstructorProfileProps) {
+export default function InstructorProfile({logout, userRole }: InstructorProfileProps) {
+  const navigate = useNavigate();
   const [editingExpertise, setEditingExpertise] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -71,15 +72,15 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
   });
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   const statsCards = stats
     ? [
@@ -263,7 +264,6 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-profile"
@@ -294,7 +294,7 @@ export default function InstructorProfile({ navigate, logout, userRole }: Instru
                   </p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="profile" />
+              <HeaderIcons logout={logout} userRole={userRole} currentPage="profile" />
             </div>
           </header>
 

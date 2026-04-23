@@ -21,6 +21,7 @@ import {
   LogOut,
   MessageSquare,
   Menu,
+  Settings,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -31,14 +32,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentSettingsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
 
-export default function StudentSettings({ navigate, logout, userRole }: StudentSettingsProps) {
+export default function StudentSettings({logout, userRole }: StudentSettingsProps) {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
@@ -46,22 +48,22 @@ export default function StudentSettings({ navigate, logout, userRole }: StudentS
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: SettingsIcon, label: 'Settings', page: 'student-settings', active: true },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
-  ];
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard'  },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses'  },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps'  },
+        { icon: Code, label: 'Compiler', page: '/student/compiler'   },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile'},
+        { icon: Settings, label: 'Settings', page: '/student/settings', active: true },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
+      ];
 
   const handleLogout = () => {
     logout();
-    navigate('student-login');
+    navigate('/login');
   };
 
   return (
@@ -70,7 +72,6 @@ export default function StudentSettings({ navigate, logout, userRole }: StudentS
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-settings"
@@ -95,7 +96,7 @@ export default function StudentSettings({ navigate, logout, userRole }: StudentS
                 <h1 className="text-xl md:text-2xl">Settings</h1>
                 <p className="text-gray-600 text-sm md:text-base">Manage your preferences and account settings</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="settings" />
+              <HeaderIcons logout={logout} userRole={userRole} currentPage="settings" />
             </div>
           </header>
 

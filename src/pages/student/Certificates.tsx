@@ -6,9 +6,9 @@ import { Button } from '../../components/ui/button';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentCertificatesProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'student';
 }
@@ -21,22 +21,23 @@ interface Certificate {
   certificate_code: string;
 }
 
-export default function StudentCertificates({ navigate, logout, userRole }: StudentCertificatesProps) {
+export default function StudentCertificates({ logout, userRole }: StudentCertificatesProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates', active: true },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' , active: true },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler' },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
   ];
 
   useEffect(() => {
@@ -78,7 +79,6 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-certificates"
@@ -104,7 +104,6 @@ export default function StudentCertificates({ navigate, logout, userRole }: Stud
                 <p className="text-gray-600 text-sm md:text-base">Your achievements and completed courses</p>
               </div>
               <HeaderIcons
-              navigate={navigate}
               logout={logout}
               userRole={userRole}
             />

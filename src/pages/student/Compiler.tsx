@@ -24,11 +24,11 @@ import { Textarea } from "../../components/ui/textarea";
 import AIAssistant from "../../components/AIAssistant";
 import HeaderIcons from "../../components/HeaderIcons";
 import Sidebar from "../../components/Sidebar";
+import { useNavigate } from "react-router-dom";
 
 type Language = "python" | "javascript" | "cpp";
 
 interface StudentCompilerProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: "student";
 }
@@ -58,10 +58,10 @@ int main() {
 };
 
 export default function StudentCompiler({
-  navigate,
   logout,
   userRole,
 }: StudentCompilerProps) {
+  const navigate = useNavigate();
   const [language, setLanguage] = useState<Language>("python");
   const [code, setCode] = useState(initialCode.python);
   const [output, setOutput] = useState("");
@@ -69,17 +69,17 @@ export default function StudentCompiler({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", page: "student-dashboard" },
-    { icon: BookOpen, label: "Courses", page: "student-courses" },
-    { icon: FileText, label: "Assignments", page: "student-assignments" },
-    { icon: Award, label: "Certificates", page: "student-certificates" },
-    { icon: Users, label: "Community", page: "community" },
-    { icon: Map, label: "Roadmaps", page: "student-roadmaps" },
-    { icon: Code, label: "Compiler", page: "student-compiler", active: true },
-    { icon: Bell, label: "Notifications", page: "student-notifications" },
-    { icon: User, label: "Profile", page: "student-profile" },
-    { icon: Settings, label: "Settings", page: "student-settings" },
-    { icon: MessageSquare, label: "Contact Us", page: "student-contact" },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler'  , active: true },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
   ];
 
   const handleRun = async () => {
@@ -155,7 +155,7 @@ export default function StudentCompiler({
 
   const handleLogout = () => {
     logout();
-    navigate("login");
+    navigate("/login");
   };
 
   return (
@@ -163,7 +163,6 @@ export default function StudentCompiler({
       <div className="flex flex-1">
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-compiler"
@@ -203,7 +202,6 @@ export default function StudentCompiler({
                 </Button>
 
                 <HeaderIcons
-                  navigate={navigate}
                   logout={logout}
                   userRole={userRole}
                 />

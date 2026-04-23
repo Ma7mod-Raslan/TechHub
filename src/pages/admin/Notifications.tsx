@@ -24,9 +24,9 @@ import { Badge } from '../../components/ui/badge';
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface NotificationsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
@@ -40,7 +40,8 @@ const getIcon = (type: string) => {
   }
 };
 
-export default function AdminNotifications({ navigate, logout }: NotificationsProps) {
+export default function AdminNotifications({logout }: NotificationsProps) {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
 
   const menuItems = [
@@ -151,7 +152,6 @@ export default function AdminNotifications({ navigate, logout }: NotificationsPr
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-notifications"
@@ -165,7 +165,7 @@ export default function AdminNotifications({ navigate, logout }: NotificationsPr
                 <h1 className="text-2xl">Notifications</h1>
                 <p className="text-gray-600">System updates and admin alerts</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-notifications" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-notifications" />
             </div>
           </header>
 

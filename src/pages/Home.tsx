@@ -10,9 +10,9 @@ import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import AIAssistant from '../components/AIAssistant';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {
-  navigate: (page: string) => void;
   isLoggedIn?: boolean;
   userRole?: 'student' | 'instructor' | 'admin' | 'guest';
   logout?: () => void;
@@ -101,7 +101,8 @@ const stats = [
   { icon: TrendingUp, label: 'Success Rate', value: '95%' },
 ];
 
-export default function Home({ navigate, isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
+export default function Home({ isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
+  const navigate = useNavigate();  
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
   const [allTestimonials, setAllTestimonials] = useState(testimonials);
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
@@ -137,12 +138,12 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
     if (logout) {
       logout();
     }
-    navigate('login');
+    navigate('/login');
   };
 
   return (
     <div className="min-h-screen bg-white overflow-hidden scrollbar-hide">
-      <Navbar navigate={navigate} isLoggedIn={isLoggedIn} userRole={userRole} transparent logout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} userRole={userRole} transparent logout={handleLogout} />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50">
@@ -170,7 +171,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                   <>
                     <Button
                       size="lg"
-                      onClick={() => navigate('signup')}
+                      onClick={() => navigate('/signup')}
                       className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300 w-full sm:w-auto"
                     >
                       Start Learning
@@ -179,7 +180,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                     <Button
                       size="lg"
                       variant="outline"
-                      onClick={() => navigate('all-courses')}
+                      onClick={() => navigate('/courses')}
                       className="transition-all duration-300 w-full sm:w-auto"
                     >
                       <BookOpen className="mr-2 h-5 w-5" />
@@ -191,13 +192,13 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                   <>
                     <Button
                       size="lg"
-                      onClick={() => navigate('instructor-dashboard')}
+                      onClick={() => navigate('/instructor/dashboard')}
                       className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 w-full sm:w-auto"
                     >
                       Start Teaching
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => navigate('instructor-courses')} className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" onClick={() => navigate('/instructor/courses')} className="w-full sm:w-auto">
                       <BookOpen className="mr-2 h-5 w-5" />
                       My Courses
                     </Button>
@@ -206,13 +207,13 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                   <>
                     <Button
                       size="lg"
-                      onClick={() => navigate('student-dashboard')}
+                      onClick={() => navigate('/student/dashboard')}
                       className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 w-full sm:w-auto"
                     >
                       Start Learning
                       <ChevronRight className="ml-2 h-5 w-5" />
                     </Button>
-                    <Button size="lg" variant="outline" onClick={() => navigate('student-courses')} className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" onClick={() => navigate('/student/courses')} className="w-full sm:w-auto">
                       <BookOpen className="mr-2 h-5 w-5" />
                       Browse Courses
                     </Button>
@@ -370,7 +371,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
               <h2 className="text-4xl mb-2">Featured Courses</h2>
               <p className="text-xl text-gray-600">Most popular courses among our learners</p>
             </div>
-            <Button variant="outline" onClick={() => navigate('all-courses')}>
+            <Button variant="outline" onClick={() => navigate('/courses')}>
               View All
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
@@ -386,7 +387,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5 }}
               >
-                <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('course-details')}>
+                <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/course-details')}>
                   <div className="relative">
                     <ImageWithFallback
                       src={course.thumbnail}
@@ -469,7 +470,7 @@ export default function Home({ navigate, isLoggedIn = false, userRole = 'guest',
       </section>
       <AIAssistant />
 
-      <Footer navigate={navigate} />
+      <Footer />
     </div>
   );
 }

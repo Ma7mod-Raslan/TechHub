@@ -7,16 +7,19 @@ import { Input } from "../../components/ui/input";
 import { Card, CardContent } from "../../components/ui/card";
 import { Textarea } from "../../components/ui/textarea";
 import { toast } from "sonner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function InstructorCreateAssignment({
-    navigate,
     logout,
     userRole,
-    navigationState,
 }: any) {
+    const navigate = useNavigate();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    const courseId = navigationState?.courseId;
+    const location = useLocation() as {
+        state?: { courseId?: number };
+    };
+    const courseId = location.state?.courseId;
 
     const [assignmentData, setAssignmentData] = useState({
         passing_percentage: 60,
@@ -38,14 +41,14 @@ export default function InstructorCreateAssignment({
     ]);
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", page: "instructor-dashboard" },
-        { icon: BookOpen, label: "My Courses", page: "instructor-courses" },
-        { icon: BarChart3, label: "Assignments", page: "instructor-assignments" },
-        { icon: Users, label: "Community", page: "community" },
-        { icon: Bell, label: "Notifications", page: "instructor-notifications" },
-        { icon: User, label: "Profile", page: "instructor-profile" },
-        { icon: Settings, label: "Settings", page: "instructor-settings" },
-        { icon: MessageSquare, label: "Contact Us", page: "instructor-contact" },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+        { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+        { icon: User, label: 'Profile', page: '/instructor/profile' },
+        { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
     ];
 
     const handleCorrectOption = (qIndex: number, oIndex: number) => {
@@ -140,7 +143,7 @@ export default function InstructorCreateAssignment({
             }
 
             toast.success("Assignment created successfully");
-            navigate("instructor-assignments");
+            navigate("/instructor/assignments");
 
         } catch (error) {
             console.error(error);
@@ -153,7 +156,6 @@ export default function InstructorCreateAssignment({
             <div className="flex">
                 <Sidebar
                     menuItems={menuItems}
-                    navigate={navigate}
                     logout={logout}
                     userRole="instructor"
                     activePage="instructor-assignments"

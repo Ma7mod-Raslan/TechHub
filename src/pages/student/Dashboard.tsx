@@ -34,9 +34,9 @@ import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import TestimonialForm from '../../components/TestimonialForm';
 import { UserRole } from '../../App';
+import { useNavigate } from 'react-router-dom';
 
 interface StudentDashboardProps {
-  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
@@ -65,7 +65,8 @@ const enrolledCourses = [
   },
 ];
 
-export default function StudentDashboard({ navigate, logout, userRole }: StudentDashboardProps) {
+export default function StudentDashboard({ logout, userRole }: StudentDashboardProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isTestimonialOpen, setIsTestimonialOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -75,17 +76,17 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
 
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard', active: true },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard', active: true },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler' },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
   ];
 
   const [stats, setStats] = useState({
@@ -102,7 +103,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
   );
   const handleLogout = () => {
     logout();
-    navigate('login');
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -153,7 +154,6 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-dashboard"
@@ -180,7 +180,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                 <h1 className="text-xl md:text-2xl">Welcome back, {firstName}!</h1>
                 <p className="text-gray-600 text-sm md:text-base">Continue your learning journey</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 
@@ -257,7 +257,9 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                             key={course.id}
                             className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                             onClick={() =>
-                              navigate("course-details", undefined, { courseId: course.id })
+                              navigate("/course-details", {
+                                state: { courseId: course.id }
+                              })
                             }
                           >
                             <ImageWithFallback
@@ -296,7 +298,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
                         <div className="text-center py-10">
                           <p className="text-gray-500 text-sm">
                             No active courses at the moment
-                            Explore our courses to get started 
+                            Explore our courses to get started
                           </p>
                         </div>
                       )}
@@ -310,7 +312,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
               <div className="space-y-6">
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate('student-roadmaps')}
+                  onClick={() => navigate('/student/roadmaps')}
                 >
                   <CardContent className="pt-6">
                     <Map className="h-10 w-10 text-cyan-600 mb-3" />
@@ -323,7 +325,7 @@ export default function StudentDashboard({ navigate, logout, userRole }: Student
 
                 <Card
                   className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate('student-compiler')}
+                  onClick={() => navigate('/student/compiler')}
                 >
                   <CardContent className="pt-6">
                     <Code className="h-10 w-10 text-purple-600 mb-3" />

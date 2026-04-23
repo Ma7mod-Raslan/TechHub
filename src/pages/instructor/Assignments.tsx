@@ -21,30 +21,32 @@ import Sidebar from "../../components/Sidebar";
 import HeaderIcons from "../../components/HeaderIcons";
 import AIAssistant from "../../components/AIAssistant";
 import { ImageWithFallback } from "../../components/Assets/ImageWithFallback";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function InstructorAssignments({
-    navigate,
     logout,
     userRole,
-    navigationState,
 }: any) {
+    const navigate = useNavigate();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [courses, setCourses] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-
-    const courseId = navigationState?.courseId;
+    const location = useLocation() as {
+        state: { courseId?: number };
+    };
+    const courseId = location.state?.courseId;
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", page: "instructor-dashboard" },
-        { icon: BookOpen, label: "My Courses", page: "instructor-courses" },
-        { icon: BarChart3, label: "Assignments", page: "instructor-assignments" },
-        { icon: Users, label: "Community", page: "community" },
-        { icon: Bell, label: "Notifications", page: "instructor-notifications" },
-        { icon: User, label: "Profile", page: "instructor-profile" },
-        { icon: Settings, label: "Settings", page: "instructor-settings" },
-        { icon: MessageSquare, label: "Contact Us", page: "instructor-contact" },
-    ];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -72,8 +74,8 @@ export default function InstructorAssignments({
 
     useEffect(() => {
         if (courseId) {
-            navigate("instructor-manage-assignment", "instructor", {
-                courseId,
+            navigate('/instructor/manage-assignment', {
+                state: { courseId }
             });
         }
     }, [courseId]);
@@ -87,7 +89,6 @@ export default function InstructorAssignments({
             <div className="flex">
                 <Sidebar
                     menuItems={menuItems}
-                    navigate={navigate}
                     logout={logout}
                     userRole="instructor"
                     activePage="instructor-assignments"
@@ -120,7 +121,6 @@ export default function InstructorAssignments({
                                 </div>
 
                                 <HeaderIcons
-                                    navigate={navigate}
                                     logout={logout}
                                     userRole={userRole}
                                 />
@@ -158,7 +158,6 @@ export default function InstructorAssignments({
                             </div>
 
                             <HeaderIcons
-                                navigate={navigate}
                                 logout={logout}
                                 userRole={userRole}
                             />
@@ -185,8 +184,8 @@ export default function InstructorAssignments({
                                         <Card
                                             className="overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
                                             onClick={() =>
-                                                navigate("instructor-manage-assignment", "instructor", {
-                                                    courseId: course.id,
+                                                navigate('/instructor/manage-assignment', {
+                                                    state: { courseId }
                                                 })
                                             }
                                         >
@@ -214,9 +213,9 @@ export default function InstructorAssignments({
                                                     className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        navigate("instructor-manage-assignment", "instructor", {
-                                                            courseId: course.id,
-                                                        });
+                                                        navigate('/instructor/manage-assignment', {
+                                                            state: { courseId }
+                                                        })
                                                     }}
                                                 >
                                                     Manage Assignments
@@ -229,9 +228,9 @@ export default function InstructorAssignments({
                         )}
                     </main>
                 </div>
-            </div>
+            </div >
 
             <AIAssistant />
-        </div>
+        </div >
     );
 }

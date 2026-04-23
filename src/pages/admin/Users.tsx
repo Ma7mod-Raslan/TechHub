@@ -21,9 +21,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../../components/ui/alert-dialog';
+import { useNavigate } from 'react-router-dom';
 
 interface UsersProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
@@ -38,7 +38,8 @@ interface UserData {
 }
 
 
-export default function AdminUsers({ navigate, logout }: UsersProps) {
+export default function AdminUsers({logout }: UsersProps) {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [instructorsData, setInstructorsData] = useState<UserData[]>([]);
   const [studentsData, setStudentsData] = useState<UserData[]>([]);
@@ -172,7 +173,6 @@ export default function AdminUsers({ navigate, logout }: UsersProps) {
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-users"
@@ -186,7 +186,7 @@ export default function AdminUsers({ navigate, logout }: UsersProps) {
                 <h1 className="text-2xl">User Management</h1>
                 <p className="text-gray-600">Manage instructors and students on the platform</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-users" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-users" />
             </div>
           </header>
 

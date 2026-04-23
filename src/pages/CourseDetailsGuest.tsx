@@ -25,15 +25,13 @@ import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import { toast } from 'sonner';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
 import AIAssistant from '../components/AIAssistant';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 
 interface CourseDetailsProps {
-    navigate: (page: string, role?: UserRole, state?: any) => void;
     userRole: UserRole;
     logout?: () => void;
-    navigationState?: {
-        courseId?: number;
-    };
+   
 }
 
 
@@ -57,11 +55,12 @@ interface Section {
 }
 
 export default function CourseDetails({
-    navigate,
+
     userRole,
     logout,
-    navigationState,
+    
 }: CourseDetailsProps) {
+    const navigate = useNavigate();
 
     // Simulating enrollment status - in real app, this would come from backend/localStorage
     const [activeTab, setActiveTab] = useState('overview');
@@ -70,8 +69,10 @@ export default function CourseDetails({
     const [courseSections, setCourseSections] = useState<Section[]>([]);
     const [totalDuration, setTotalDuration] = useState<string>('0m');
 
-    const id = Number(localStorage.getItem("selectedCourseId"));
-
+    const location = useLocation();
+    const id =
+        location.state?.courseId ??
+        Number(localStorage.getItem("selectedCourseId") || 0);
 
 
 
@@ -209,7 +210,7 @@ export default function CourseDetails({
     return (
         <div className="min-h-screen bg-gray-50 relative">
             {/* Navbar */}
-            <Navbar navigate={navigate} userRole="guest" />
+            <Navbar userRole="guest" />
 
             <div className="container mx-auto px-4 py-8">
                 <div className="grid lg:grid-cols-3 gap-8">
@@ -413,7 +414,7 @@ export default function CourseDetails({
                                     <div className="p-6">
                                         <Button
                                             className="w-full mb-6 bg-gradient-to-r from-violet-600 to-cyan-500"
-                                            onClick={() => navigate("signup")}
+                                            onClick={() => navigate("/signup")}
                                         >
                                             Sign up to Enroll
                                         </Button>

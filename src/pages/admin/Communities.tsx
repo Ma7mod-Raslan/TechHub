@@ -13,9 +13,9 @@ import { Separator } from '../../components/ui/separator';
 import { toast } from 'sonner';
 import Sidebar from '../../components/Sidebar';
 import { COURSE_CATEGORIES } from "../../constants/courseCategories";
+import { useNavigate } from 'react-router-dom';
 
 interface CommunitiesProps {
-  navigate: (page: string, params?: any, query?: any) => void;
   logout: () => void;
   userRole: string;
 }
@@ -48,7 +48,8 @@ interface Reply {
 }
 
 
-export default function AdminCommunities({ navigate, logout }: CommunitiesProps) {
+export default function AdminCommunities({ logout }: CommunitiesProps) {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [communities, setCommunities] = useState<Community[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -241,7 +242,7 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
 
     // Navigate to the actual community page with the specific community ID
     // The community page will detect admin role and show moderation controls
-    navigate('community', undefined, { communityId: selectedCommunity.id });
+    navigate('/community', {state : { communityId: selectedCommunity.id} });
     toast.info('Moderation Mode: ON - You have admin privileges');
   };
 
@@ -286,7 +287,6 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
         <Sidebar
           menuItems={menuItems}
           logout={logout}
-          navigate={navigate}
           userRole="admin"
           activePage="admin-communities"
         />
@@ -299,7 +299,7 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
                 <h1 className="text-2xl">Community Management</h1>
                 <p className="text-gray-600">Monitor all course communities on the platform</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-communities" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-communities" />
             </div>
           </header>
 

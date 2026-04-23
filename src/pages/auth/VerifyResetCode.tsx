@@ -6,27 +6,29 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import api from '../../api';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
-interface VerifyResetCodeProps {
-  navigate: (page: string) => void;
-  email?: string;
-}
 
-export default function VerifyResetCode({ navigate, email: propEmail }: VerifyResetCodeProps) {
+export default function VerifyResetCode() {
+  const navigate = useNavigate();
   const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
   const [isVerifying, setIsVerifying] = useState(false);
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-  const [userEmail, setUserEmail] = useState<string>(propEmail || '');
+  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
-    // prefer prop, otherwise try localStorage
-    if (!propEmail) {
-      const saved = localStorage.getItem('resetEmail');
-      if (saved) setUserEmail(saved);
+    const saved = localStorage.getItem('resetEmail');
+
+    if (saved) {
+      setUserEmail(saved);
+    } else {
+      toast.error("Missing email. Start again.");
+      navigate("/forgot-password");
     }
-    // focus first box shortly after mount
-    setTimeout(() => inputRefs.current[0]?.focus(), 50);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 50);
   }, []);
 
   const handleChange = (index: number, value: string) => {
@@ -87,7 +89,7 @@ export default function VerifyResetCode({ navigate, email: propEmail }: VerifyRe
     }
     if (!userEmail) {
       toast.error('Missing email — start from Reset Password page again');
-      navigate('forgot-password');
+      navigate('/forgot-password');
       return;
     }
 
@@ -99,7 +101,7 @@ export default function VerifyResetCode({ navigate, email: propEmail }: VerifyRe
       localStorage.setItem('resetEmail', userEmail);
       localStorage.setItem('resetCode', codeString);
       // navigate to reset password page
-      setTimeout(() => navigate('reset-password'), 700);
+      navigate('/reset-password')
     } catch (err: any) {
       console.error('Verify reset error', err);
       toast.error(err?.response?.data?.error || err?.message || 'Verification failed');
@@ -120,7 +122,7 @@ export default function VerifyResetCode({ navigate, email: propEmail }: VerifyRe
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-2 cursor-pointer mb-4"
-            onClick={() => navigate('home')}
+            onClick={() => navigate('/')}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl">
               <Code2 className="h-8 w-8 text-white" />
@@ -192,7 +194,7 @@ export default function VerifyResetCode({ navigate, email: propEmail }: VerifyRe
             </div>
 
             <div className="text-center mt-4">
-              <button onClick={() => navigate('forgot-password')} className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">
+              <button onClick={() => navigate('/forgot-password')} className="text-sm text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">
                 <ArrowLeft className="h-3 w-3" />
                 Back to Email
               </button>

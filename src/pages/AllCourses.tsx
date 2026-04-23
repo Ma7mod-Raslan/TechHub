@@ -11,18 +11,14 @@ import Footer from '../components/Footer';
 import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
 import AIAssistant from '../components/AIAssistant';
+import { useNavigate } from 'react-router-dom';
 
-interface AllCoursesProps {
-  navigate: (page: string) => void;
-  isLoggedIn?: boolean;
-  userRole?: 'student' | 'instructor' | 'admin' | 'guest';
-  logout?: () => void;
-}
 
 const categories = ['All Courses', ...Object.values(COURSE_CATEGORIES)];
 
 
-export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'guest', logout }: AllCoursesProps) {
+export default function AllCourses({ isLoggedIn = false, userRole = 'guest', logout }: any) {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('All Courses');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,19 +72,11 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
   });
 
 
-  if (loading) {
-    return (
-      <div className="text-center py-20 text-lg text-gray-600">
-        Loading courses...
-      </div>
-    );
-  }
-
 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden scrollbar-hide">
-      <Navbar navigate={navigate} isLoggedIn={isLoggedIn} userRole={userRole} logout={handleLogout} />
+      <Navbar isLoggedIn={isLoggedIn} userRole={userRole} logout={handleLogout} />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white py-12 md:py-16">
@@ -244,9 +232,14 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                         onClick={() => {
                           localStorage.setItem('selectedCourseId', course.id.toString());
 
-                          userRole === 'guest'
-                            ? navigate('course-details-guest')
-                            : navigate('course-details');
+                          const path =
+                            userRole === 'guest'
+                              ? '/course-details-guest'
+                              : '/course-details';
+
+                          navigate(path, {
+                            state: { courseId: course.id }
+                          });
                         }}
 
 
@@ -290,11 +283,16 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
                                   course.id.toString()
                                 );
 
-                                if (userRole === 'guest') {
-                                  navigate('course-details-guest');
-                                } else {
-                                  navigate('course-details');
-                                }
+                                localStorage.setItem('selectedCourseId', course.id.toString());
+
+                                const path =
+                                  userRole === 'guest'
+                                    ? '/course-details-guest'
+                                    : '/course-details';
+
+                                navigate(path, {
+                                  state: { courseId: course.id }
+                                });
                               }}
 
                             >
@@ -328,9 +326,9 @@ export default function AllCourses({ navigate, isLoggedIn = false, userRole = 'g
           </div>
         </div>
       </div>
-      <AIAssistant/>
+      <AIAssistant />
 
-      <Footer navigate={navigate} />
+      <Footer />
     </div>
   );
 }

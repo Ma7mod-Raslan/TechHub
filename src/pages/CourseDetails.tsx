@@ -14,15 +14,14 @@ import Sidebar from '../components/Sidebar';
 import HeaderIcons from '../components/HeaderIcons';
 import VideoQuestions from '../components/course/VideoQuestions';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 
 interface CourseDetailsProps {
-  navigate: (page: string, role?: UserRole, state?: any) => void;
   userRole: UserRole;
   logout?: () => void;
-  navigationState?: {
-    courseId?: number;
-  };
+
 }
 
 interface VideoProgress {
@@ -59,11 +58,10 @@ interface Note {
 }
 
 export default function CourseDetails({
-  navigate,
   userRole,
   logout,
-  navigationState,
 }: CourseDetailsProps) {
+  const navigate = useNavigate();
 
   // Simulating enrollment status - in real app, this would come from backend/localStorage
   const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
@@ -78,7 +76,11 @@ export default function CourseDetails({
   const progressIntervalRef = useRef<any>(null);
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const id = navigationState?.courseId;
+  const location = useLocation();
+
+  const id =
+    location.state?.courseId ??
+    Number(localStorage.getItem("selectedCourseId") || 0);
   const [courseSections, setCourseSections] = useState<Section[]>([]);
   const [totalDuration, setTotalDuration] = useState<string>('0m');
   const allLectures = courseSections.flatMap(section => section.lectures);
@@ -97,17 +99,17 @@ export default function CourseDetails({
   const getMenuItems = () => {
     if (userRole === 'student') {
       return [
-        { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-        { icon: BookOpen, label: 'Courses', page: 'student-courses' },
-        { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-        { icon: Award, label: 'Certificates', page: 'student-certificates' },
-        { icon: Users, label: 'Community', page: 'community' },
-        { icon: MapIcon, label: 'Roadmaps', page: 'student-roadmaps' },
-        { icon: Code, label: 'Compiler', page: 'student-compiler' },
-        { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-        { icon: User, label: 'Profile', page: 'student-profile' },
-        { icon: Settings, label: 'Settings', page: 'student-settings' },
-        { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: MapIcon, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler' },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile' },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
       ];
     }
     return [];
@@ -265,7 +267,7 @@ export default function CourseDetails({
     if (userRole === 'guest') {
       toast.error('Please sign up or log in to enroll in this course');
       setTimeout(() => {
-        navigate('signup');
+        navigate('/signup');
       }, 1000);
     } else if (userRole === 'student') {
       try {
@@ -601,7 +603,7 @@ export default function CourseDetails({
 
 
 
-  if (!id) {
+  if (!id || id === 0) {
     return (
       <div className="p-10 text-center text-gray-600">
         No course selected
@@ -626,10 +628,9 @@ export default function CourseDetails({
         {showSidebar && (
           <Sidebar
             menuItems={menuItems}
-            navigate={navigate}
             logout={handleLogout}
             userRole={userRole as 'student'}
-            activePage="student-courses"
+            activePage="/student/courses"
             isMobileOpen={isMobileOpen}
             setIsMobileOpen={setIsMobileOpen}
           />
@@ -644,7 +645,7 @@ export default function CourseDetails({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => navigate('student-courses')}
+                  onClick={() => navigate('/student/courses')}
                   className="mr-2"
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -663,7 +664,7 @@ export default function CourseDetails({
                   <h1 className="text-xl md:text-2xl">Course Details</h1>
                   <p className="text-gray-600 text-sm md:text-base">{course?.title}</p>
                 </div>
-                <HeaderIcons navigate={navigate} logout={handleLogout} userRole={userRole} />
+                <HeaderIcons logout={handleLogout} userRole={userRole} />
               </div>
             </header>
           )}
@@ -672,7 +673,7 @@ export default function CourseDetails({
           <main className={`${showSidebar ? 'p-4 md:p-6 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide' : ''}`}>
 
             {/* Navbar for non-students (guest, instructor, admin) */}
-            {!showSidebar && <Navbar navigate={navigate} userRole={userRole} logout={logout} />}
+            {!showSidebar && <Navbar userRole={userRole} logout={logout} />}
 
             {/* Video Player Modal */}
             <AnimatePresence>

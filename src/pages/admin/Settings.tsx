@@ -24,14 +24,15 @@ import { Separator } from '../../components/ui/separator';
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminSettingsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: string;
 }
 
-export default function AdminSettings({ navigate, logout }: AdminSettingsProps) {
+export default function AdminSettings({logout }: AdminSettingsProps) {
+  const navigate = useNavigate();
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
     { icon: Users, label: 'Users', page: 'admin-users' },
@@ -49,7 +50,6 @@ export default function AdminSettings({ navigate, logout }: AdminSettingsProps) 
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="admin"
           activePage="admin-settings"
@@ -63,7 +63,7 @@ export default function AdminSettings({ navigate, logout }: AdminSettingsProps) 
                 <h1 className="text-2xl">Admin Settings</h1>
                 <p className="text-gray-600">Manage platform settings and preferences</p>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole="admin" currentPage="admin-settings" />
+              <HeaderIcons logout={logout} userRole="admin" currentPage="admin-settings" />
             </div>
           </header>
 

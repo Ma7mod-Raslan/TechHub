@@ -37,18 +37,18 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { UserRole } from '../../App';
 import { createCourse } from '../../services/courseApi';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorCreateCourseProps {
-  navigate: (page: string, role?: UserRole, state?: any) => void;
   logout: () => void;
   userRole: 'instructor';
 }
 
 export default function InstructorCreateCourse({
-  navigate,
   logout,
   userRole,
 }: InstructorCreateCourseProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -61,15 +61,15 @@ export default function InstructorCreateCourse({
   const [requirementInput, setRequirementInput] = useState('');
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   const [formData, setFormData] = useState({
     title: '',
@@ -204,9 +204,8 @@ export default function InstructorCreateCourse({
 
       setIsCreating(false);
 
-      navigate("instructor-course-view", "instructor", {
-        courseId,
-      });
+      navigate("/instructor/course-view", {
+        state : {courseId}});
 
     } catch (err: any) {
       console.error(err);
@@ -223,7 +222,6 @@ export default function InstructorCreateCourse({
       <div className="flex">
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
@@ -247,7 +245,7 @@ export default function InstructorCreateCourse({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate('instructor-courses')}
+                  onClick={() => navigate('/instructor/courses')}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </Button>
@@ -258,7 +256,6 @@ export default function InstructorCreateCourse({
                 </div>
               </div>
               <HeaderIcons
-                navigate={navigate}
                 logout={logout}
                 userRole={userRole}
               />
@@ -489,7 +486,7 @@ export default function InstructorCreateCourse({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate('instructor-courses')}
+                    onClick={() => navigate('/instructor/courses')}
                   >
                     Cancel
                   </Button>

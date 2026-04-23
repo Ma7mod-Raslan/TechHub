@@ -24,9 +24,9 @@ import { Badge } from '../../components/ui/badge';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorNotificationsProps {
-  navigate: (page: string) => void;
   logout: () => void;
   userRole: 'instructor';
 }
@@ -79,19 +79,20 @@ const notifications = [
   },
 ];
 
-export default function InstructorNotifications({ navigate, logout, userRole }: InstructorNotificationsProps) {
+export default function InstructorNotifications({logout, userRole }: InstructorNotificationsProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -99,7 +100,6 @@ export default function InstructorNotifications({ navigate, logout, userRole }: 
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-notifications"
@@ -134,7 +134,7 @@ export default function InstructorNotifications({ navigate, logout, userRole }: 
               <div className="flex items-center gap-3">
                 <Button variant="outline">Mark All as Read</Button>
 
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} currentPage="notifications" />
+                <HeaderIcons logout={logout} userRole={userRole} currentPage="notifications" />
               </div>
             </div>
           </header>

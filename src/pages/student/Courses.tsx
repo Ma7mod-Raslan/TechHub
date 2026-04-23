@@ -33,10 +33,10 @@ import Sidebar from '../../components/Sidebar';
 import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import { getAllCourses } from "../../services/courseApi";
+import { useNavigate } from 'react-router-dom';
 
 
 interface StudentCoursesProps {
-  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'student';
 }
@@ -44,7 +44,8 @@ interface StudentCoursesProps {
 
 
 
-export default function StudentCourses({ navigate, logout, userRole }: StudentCoursesProps) {
+export default function StudentCourses({ logout, userRole }: StudentCoursesProps) {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = React.useState<'all' | 'my'>('all');
   const [myCoursesTab, setMyCoursesTab] = React.useState<'in-progress' | 'completed'>('in-progress');
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -59,19 +60,18 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
-    { icon: BookOpen, label: 'Courses', page: 'student-courses', active: true },
-    { icon: FileText, label: 'Assignments', page: 'student-assignments' },
-    { icon: Award, label: 'Certificates', page: 'student-certificates' },
-    { icon: Users, label: 'Community', page: 'community' },
-    { icon: Map, label: 'Roadmaps', page: 'student-roadmaps' },
-    { icon: Code, label: 'Compiler', page: 'student-compiler' },
-    { icon: Bell, label: 'Notifications', page: 'student-notifications' },
-    { icon: User, label: 'Profile', page: 'student-profile' },
-    { icon: Settings, label: 'Settings', page: 'student-settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: 'student-contact' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses', active: true },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+    { icon: Code, label: 'Compiler', page: '/student/compiler' },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
   ];
-
 
 
   useEffect(() => {
@@ -171,7 +171,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
 
   const handleLogout = () => {
     logout();
-    navigate('login');
+    navigate('/login');
   };
 
   // Filter courses based on search query
@@ -213,8 +213,10 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() => navigate("course-details", undefined, { courseId: course.id })}
-
+      <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+        onClick={() => navigate("/course-details", {
+          state: { courseId: course.id }
+        })}
       >
         <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
         <CardContent className="p-4">
@@ -234,7 +236,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
           </Button>
         </CardContent>
       </Card>
-    </motion.div>
+    </motion.div >
   );
 
   // Helper function to render course card for "My Courses" view
@@ -247,7 +249,9 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
       transition={{ duration: 0.3 }}
     >
       <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300" onClick={() =>
-        navigate('course-details', undefined, { courseId: course.id })
+        navigate("/course-details", {
+          state: { courseId: course.id }
+        })
       }
       >
         <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
@@ -299,7 +303,6 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="student"
           activePage="student-courses"
@@ -326,7 +329,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                   <h1 className="text-xl">Courses</h1>
                   <p className="text-gray-600 text-sm">Explor All Courses</p>
                 </div>
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
               </div>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -357,7 +360,7 @@ export default function StudentCourses({ navigate, logout, userRole }: StudentCo
                 />
               </div>
               <div className="flex-shrink-0">
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
               </div>
             </div>
           </header>

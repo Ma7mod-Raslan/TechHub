@@ -27,26 +27,27 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorDashboardProps {
-  navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
   userRole: 'instructor';
 }
 
-export default function InstructorDashboard({ navigate, logout, userRole }: InstructorDashboardProps) {
+export default function InstructorDashboard({ logout, userRole }: InstructorDashboardProps) {
+  const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   const [stats, setStats] = useState({
     total_courses: 0,
@@ -95,7 +96,6 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-dashboard"
@@ -123,7 +123,7 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                   <p className="text-gray-600">Welcome back, {firstName}!</p>
                 </div>
               </div>
-              <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+              <HeaderIcons logout={logout} userRole={userRole} />
             </div>
           </header>
 
@@ -175,12 +175,12 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button
                     className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                    onClick={() => navigate('instructor-courses')}
+                    onClick={() => navigate('/instructor/courses')}
                   >
                     <Plus className="mr-2 h-5 w-5" />
                     Create New Course
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('community')}>
+                  <Button variant="outline" onClick={() => navigate('/community')}>
                     <MessageSquare className="mr-2 h-5 w-5" />
                     View Messages
                   </Button>
@@ -196,7 +196,7 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate('instructor-courses')}
+                    onClick={() => navigate('/instructor/courses')}
                   >
                     View All
                   </Button>
@@ -225,11 +225,9 @@ export default function InstructorDashboard({ navigate, logout, userRole }: Inst
                         variant="ghost"
                         size="icon"
                         onClick={() =>
-                          navigate(
-                            'instructor-course-view',
-                            'instructor',
-                            { courseId: course.id }
-                          )
+                          navigate('/instructor/edit-course', {
+                            state: { courseId : course.id }
+                          })
                         }
                       >
                         <Eye className="h-5 w-5" />

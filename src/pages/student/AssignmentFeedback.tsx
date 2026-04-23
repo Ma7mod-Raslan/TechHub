@@ -22,39 +22,37 @@ import { Button } from "../../components/ui/button";
 import Sidebar from "../../components/Sidebar";
 import HeaderIcons from "../../components/HeaderIcons";
 import AIAssistant from "../../components/AIAssistant";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
-    navigate: (page: string, role?: any, state?: any) => void;
     logout: () => void;
     userRole: "student";
-    navigationState?: any;
 }
 
 export default function StudentAssignmentFeedback({
-    navigate,
     logout,
     userRole,
-    navigationState
 }: Props) {
-
-    const assignmentId = navigationState?.assignmentId;
+    const navigate = useNavigate();
+    const location = useLocation();
+    const assignmentId = location.state?.assignmentId;
 
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const menuItems = [
-        { icon: LayoutDashboard, label: "Dashboard", page: "student-dashboard" },
-        { icon: BookOpen, label: "Courses", page: "student-courses" },
-        { icon: FileText, label: "Assignments", page: "student-assignments", active: true },
-        { icon: Award, label: "Certificates", page: "student-certificates" },
-        { icon: Users, label: "Community", page: "community" },
-        { icon: Map, label: "Roadmaps", page: "student-roadmaps" },
-        { icon: Code, label: "Compiler", page: "student-compiler" },
-        { icon: Bell, label: "Notifications", page: "student-notifications" },
-        { icon: User, label: "Profile", page: "student-profile" },
-        { icon: Settings, label: "Settings", page: "student-settings" },
-        { icon: MessageSquare, label: "Contact Us", page: "student-contact" }
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+        { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+        { icon: FileText, label: 'Assignments', page: '/student/assignments', active: true },
+        { icon: Award, label: 'Certificates', page: '/student/certificates' },
+        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
+        { icon: Code, label: 'Compiler', page: '/student/compiler' },
+        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+        { icon: User, label: 'Profile', page: '/student/profile' },
+        { icon: Settings, label: 'Settings', page: '/student/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
     ];
 
     useEffect(() => {
@@ -101,7 +99,6 @@ export default function StudentAssignmentFeedback({
                 {/* Sidebar */}
                 <Sidebar
                     menuItems={menuItems}
-                    navigate={navigate}
                     logout={logout}
                     userRole="student"
                     activePage="student-assignments"
@@ -115,7 +112,7 @@ export default function StudentAssignmentFeedback({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => navigate("student-assignments")}
+                                onClick={() => navigate("/student/assignments")}
                             >
                                 <ArrowLeft className="h-5 w-5" />
                             </Button>
@@ -129,7 +126,7 @@ export default function StudentAssignmentFeedback({
                             </div>
                         </div>
                         <HeaderIcons
-                            navigate={navigate}
+                        
                             logout={logout}
                             userRole={userRole}
                         />
@@ -175,10 +172,10 @@ export default function StudentAssignmentFeedback({
                                             <div
                                                 key={o.id}
                                                 className={`p-2 rounded mb-2 flex items-center gap-2 ${isCorrect
-                                                        ? "bg-green-100"
-                                                        : isStudentAnswer
-                                                            ? "bg-red-100"
-                                                            : ""
+                                                    ? "bg-green-100"
+                                                    : isStudentAnswer
+                                                        ? "bg-red-100"
+                                                        : ""
                                                     }`}
                                             >
                                                 {isCorrect && (

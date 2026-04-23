@@ -9,13 +9,14 @@ import { Card, CardContent } from '../../components/ui/card';
 import api from '../../api';
 import { toast } from 'sonner';
 import AIAssistant from '../../components/AIAssistant';
+import { useNavigate } from "react-router-dom";
 
 
-interface ForgotPasswordProps {
-  navigate: (page: string) => void;
-}
 
-export default function ForgotPassword({ navigate }: ForgotPasswordProps) {
+
+
+export default function ForgotPassword() {
+  const navigate = useNavigate(); 
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -35,7 +36,7 @@ export default function ForgotPassword({ navigate }: ForgotPasswordProps) {
       toast.success(res.data?.message || 'Reset code sent to your email!');
       setSent(true);
       // navigate to verify-reset-code (user will input the code)
-      setTimeout(() => navigate('verify-reset-code'), 800);
+      navigate('/verify-reset-code');
     } catch (err: any) {
       console.error('Forgot password error', err);
       toast.error(err?.response?.data?.error || err?.message || 'Failed to send reset code');
@@ -56,7 +57,7 @@ export default function ForgotPassword({ navigate }: ForgotPasswordProps) {
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="inline-flex items-center gap-2 cursor-pointer mb-4"
-            onClick={() => navigate('home')}
+            onClick={() => navigate('/')}
           >
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl">
               <Code2 className="h-8 w-8 text-white" />
@@ -73,37 +74,37 @@ export default function ForgotPassword({ navigate }: ForgotPasswordProps) {
 
         <Card>
           <CardContent className="pt-6">
-            
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative mt-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      className="pl-10"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
 
-                <Button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                  disabled={loading}
-                >
-                  {loading ? 'Sending...' : 'Send Reset Code'}
-                </Button>
-              </form>
-            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative mt-1">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                disabled={loading}
+              >
+                {loading ? 'Sending...' : 'Send Reset Code'}
+              </Button>
+            </form>
+
 
             <div className="mt-6 text-center">
               <button
-                onClick={() => navigate('login')}
+                onClick={() => navigate('/login')}
                 className="inline-flex items-center gap-2 text-sm text-cyan-600 hover:text-cyan-700"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -113,9 +114,9 @@ export default function ForgotPassword({ navigate }: ForgotPasswordProps) {
           </CardContent>
         </Card>
       </motion.div>
-      <AIAssistant/>
+      <AIAssistant />
     </div>
-    
-    
+
+
   );
 }

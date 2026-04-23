@@ -37,16 +37,17 @@ import Sidebar from '../../components/Sidebar';
 import { NavigateFn } from '../../types/Navigation';
 import { UserRole } from '../../App';
 import { COURSE_CATEGORIES } from '../../constants/courseCategories';
+import { useNavigate } from 'react-router-dom';
 
 interface InstructorCoursesProps {
-  navigate: NavigateFn;
   logout: () => void;
   userRole: UserRole;
 }
 
 
 
-export default function InstructorCourses({ navigate, logout, userRole }: InstructorCoursesProps) {
+export default function InstructorCourses({ logout, userRole }: InstructorCoursesProps) {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,15 +60,15 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+  ];
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -150,7 +151,6 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
         {/* Sidebar */}
         <Sidebar
           menuItems={menuItems}
-          navigate={navigate}
           logout={logout}
           userRole="instructor"
           activePage="instructor-courses"
@@ -197,11 +197,11 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
               </div>
 
               <div className="flex items-center gap-3">
-                <HeaderIcons navigate={navigate} logout={logout} userRole={userRole} />
+                <HeaderIcons logout={logout} userRole={userRole} />
 
                 <Button
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                  onClick={() => navigate('instructor-create-course')}
+                  onClick={() => navigate('/instructor/create-course')}
                 >
                   <Plus className="mr-2 h-5 w-5" />
                   Create Course
@@ -253,7 +253,7 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                     {!searchQuery && (
                       <Button
                         className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                        onClick={() => navigate('instructor-create-course')}
+                        onClick={() => navigate('/instructor/create-course')}
                       >
                         <Plus className="mr-2 h-5 w-5" />
                         Create Course
@@ -300,8 +300,8 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                                 variant="outline"
                                 className="flex-1"
                                 onClick={() =>
-                                  navigate('instructor-edit-course', undefined, {
-                                    courseId: course.id,
+                                  navigate('/instructor/edit-course', {
+                                    state: { courseId: course.id },
                                   })
                                 }
                               >
@@ -314,39 +314,41 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
                                 variant="outline"
                                 className="flex-1"
                                 onClick={() =>
-                                  navigate('instructor-course-view', undefined, {
-                                    courseId: course.id,
-                                    courseStatus: course.status,
+                                  navigate('/instructor/course-view', {
+                                    state: {
+                                      courseId: course.id,
+                                      courseStatus: course.status,
+                                    },
                                   })
                                 }
                               >
-                                <Eye className="mr-1 h-4 w-4" />
-                                View
-                              </Button>
+                              <Eye className="mr-1 h-4 w-4" />
+                              View
+                            </Button>
 
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => openDeleteDialog(course.id, course.title)}
-                              >
-                                <Trash2 className="h-4 w-4 text-red-600" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => openDeleteDialog(course.id, course.title)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
 
                       </motion.div>
-                    ))}
-                  </div>
+                ))}
+              </div>
                 )}
-              </TabsContent>
-            </Tabs>
-          </main>
-        </div>
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
+    </div>
 
-      {/* Delete Confirmation Dialog */}
-      {/* DEVELOPER: Confirmation modal for course deletion
+      {/* Delete Confirmation Dialog */ }
+  {/* DEVELOPER: Confirmation modal for course deletion
           - On confirm: DELETE /api/courses/:courseId
           - On success: Remove from list, show toast */}
       <Dialog open={deleteDialog.open} onOpenChange={(open) =>
@@ -394,6 +396,6 @@ export default function InstructorCourses({ navigate, logout, userRole }: Instru
       </Dialog>
 
       <AIAssistant />
-    </div>
+    </div >
   );
 }
