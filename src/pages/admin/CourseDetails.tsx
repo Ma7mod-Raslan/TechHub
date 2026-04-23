@@ -26,6 +26,15 @@ import {
 import { toast } from 'sonner';
 import { COURSE_CATEGORIES } from "../../constants/courseCategories";
 
+
+const extractYoutubeId = (url: string) => {
+  if (!url) return "";
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/
+  );
+  return match ? match[1] : "";
+};
+
 interface CourseDetailsProps {
   navigate: (page: string, role?: any, state?: any) => void;
   logout: () => void;
@@ -176,7 +185,13 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
         }
 
         const data = await res.json();
-        console.log("DATA:", data); // 👈 مهم
+
+        if (!data || data.error) {
+          console.error("API Error:", data);
+          return;
+        }
+
+        console.log("DATA:", data);
 
 
         const mappedCourse = {
@@ -206,7 +221,7 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
               id: v.id,
               title: v.title,
               duration: `${v.duration} min`,
-              videoUrl: v.video_url,
+              videoUrl: `http://localhost:5000/${v.video_url}`,
               description: v.description,
               quizQuestions: v.quizQuestions || []
             }))
@@ -214,6 +229,10 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
         ];
 
         setCourseSections(sections);
+
+        if (sections[0]?.lectures?.length > 0) {
+          setSelectedVideo(sections[0].lectures[0]);
+        }
 
       } catch (err) {
         console.error(err);
@@ -376,23 +395,13 @@ export default function AdminCourseDetails({ navigate, logout, navigationState }
                         <CardContent className="p-6">
                           <h3 className="text-xl mb-4">{selectedVideo.title}</h3>
                           <div className="relative bg-black rounded-lg overflow-hidden mb-4">
-                            <video
-                              ref={videoRef}
-                              src={selectedVideo.videoUrl}
+                            <iframe
                               className="w-full aspect-video"
-                              onPlay={() => setIsPlaying(true)}
-                              onPause={() => setIsPlaying(false)}
+                              src={`https://www.youtube.com/embed/${extractYoutubeId(selectedVideo.videoUrl)}`}
+                              title="YouTube video"
+                              allowFullScreen
                             />
-                            <button
-                              onClick={handlePlayPause}
-                              className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors"
-                            >
-                              {isPlaying ? (
-                                <Pause className="h-16 w-16 text-white" />
-                              ) : (
-                                <Play className="h-16 w-16 text-white" />
-                              )}
-                            </button>
+
                           </div>
                           {selectedVideo.description && (
                             <p className="text-gray-600 mb-4">{selectedVideo.description}</p>

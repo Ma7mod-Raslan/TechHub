@@ -13,6 +13,7 @@ import HeaderIcons from '../components/HeaderIcons';
 import { toast } from 'sonner';
 import Sidebar from '../components/Sidebar';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 interface CommunityProps {
   navigate: (page: string) => void;
@@ -48,7 +49,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   const [reportPostId, setReportPostId] = useState<number | null>(null);
   const [reportType, setReportType] = useState<"post" | "reply" | null>(null);
   const [postFilter, setPostFilter] = useState<"all" | "mine">("all");
-
+  const [reportCategory, setReportCategory] = useState("");
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -152,13 +153,36 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     fetchReplies();
   }, [selectedThread]);
 
-  const handleHidePost = (postId: number) => {
-    if (hiddenPosts.includes(postId)) {
-      setHiddenPosts(hiddenPosts.filter(id => id !== postId));
-      toast.success('Post shown successfully');
-    } else {
-      setHiddenPosts([...hiddenPosts, postId]);
-      toast.success('Post hidden successfully');
+  const handleHidePost = async (postId: number) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/posts/${postId}/toggle-hide`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      // 👇 تحديث ال UI من الباك
+      setPosts(prev =>
+        prev.map(post =>
+          post.id === postId
+            ? { ...post, is_hidden: data.post.is_hidden }
+            : post
+        )
+      );
+
+      toast.success(data.message);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to toggle hide");
     }
   };
 
@@ -230,8 +254,8 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
 
   const submitReport = async () => {
-    if (!reportReason.trim() || !reportPostId || !reportType) {
-      toast.error("Please enter a reason");
+    if (!reportCategory || !reportReason.trim() || !reportPostId || !reportType) {
+      toast.error("Please complete all fields");
       return;
     }
 
@@ -241,13 +265,21 @@ export default function Community({ navigate, logout, userRole, initialCommunity
           ? `http://localhost:5000/api/communities/posts/${reportPostId}/report`
           : `http://localhost:5000/api/communities/replies/${reportPostId}/report`;
 
+      // 👇 خزني القيم في variables قبل fetch
+      const payload = {
+        category: reportCategory,
+        reason: reportReason.trim()
+      };
+
+      console.log("SENDING:", payload); // 🔥 مهم
+
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         },
-        body: JSON.stringify({ reason: reportReason })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -258,6 +290,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
 
       setIsReportOpen(false);
       setReportReason("");
+      setReportCategory(""); // 👈 كنتي ناسية دي
       setReportPostId(null);
       setReportType(null);
 
@@ -505,9 +538,15 @@ export default function Community({ navigate, logout, userRole, initialCommunity
   };
 
   const filteredPosts = posts.filter((post) => {
+
+    if (userRole !== "admin" && post.is_hidden) {
+      return false;
+    }
+
     if (postFilter === "mine") {
       return post.user_id === currentUserId;
     }
+
     return true;
   });
 
@@ -570,7 +609,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
     const currentPost = posts.find(p => p.id === selectedThread);
     if (!currentPost) return null;
 
-    const isPostHidden = hiddenPosts.includes(currentPost.id);
+    const isPostHidden = currentPost.is_hidden;
 
 
 
@@ -865,6 +904,25 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                 {reportType === "reply" ? "Report Reply" : "Report Post"}
               </h2>
 
+              <div className="mb-3">
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Category <span className="text-red-500">*</span>
+                </label>
+
+                <Select value={reportCategory} onValueChange={setReportCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="Spam">Spam</SelectItem>
+                    <SelectItem value="Harassment">Harassment</SelectItem>
+                    <SelectItem value="Inappropriate">Inappropriate Content</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <textarea
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
@@ -1082,7 +1140,7 @@ export default function Community({ navigate, logout, userRole, initialCommunity
                         console.log("Post user:", post.user_id);
                         console.log("Current user:", currentUserId);
                         console.log("Equal?", post.user_id === currentUserId);
-                        const isHidden = hiddenPosts.includes(post.id);
+                        const isHidden = post.is_hidden;
 
                         return (
                           <motion.div
@@ -1247,6 +1305,25 @@ export default function Community({ navigate, logout, userRole, initialCommunity
               <h2 className="text-lg font-semibold mb-4">
                 Report Post
               </h2>
+
+              <div className="mb-3">
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Category <span className="text-red-500">*</span>
+                </label>
+
+                <Select value={reportCategory} onValueChange={setReportCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="Spam">Spam</SelectItem>
+                    <SelectItem value="Harassment">Harassment</SelectItem>
+                    <SelectItem value="Inappropriate">Inappropriate Content</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               <textarea
                 value={reportReason}
@@ -1421,6 +1498,25 @@ export default function Community({ navigate, logout, userRole, initialCommunity
             <h2 className="text-lg font-semibold mb-4">
               Report Post
             </h2>
+
+            <div className="mb-3">
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Category <span className="text-red-500">*</span>
+              </label>
+
+              <Select value={reportCategory} onValueChange={setReportCategory}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="Spam">Spam</SelectItem>
+                  <SelectItem value="Harassment">Harassment</SelectItem>
+                  <SelectItem value="Inappropriate">Inappropriate Content</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <textarea
               value={reportReason}

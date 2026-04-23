@@ -85,21 +85,44 @@ export default function AdminCourses({ navigate, logout }: CoursesProps) {
     setConfirmAction({ show: true, course, action });
   };
 
-  const confirmActionHandler = () => {
-    if (confirmAction.course) {
-      const updatedCourses: CourseData[] = coursesData.map(course => {
-        if (course.id === confirmAction.course!.id) {
-          return {
-            ...course,
-            status: confirmAction.action === 'suspend'
-              ? 'Suspended' as const
-              : 'Active' as const,
-          };
+
+  const confirmActionHandler = async () => {
+    const course = confirmAction.course;
+    if (!course) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/courses/${course.id}/toggle-status`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          }
         }
-        return course;
-      });
-      setCoursesData(updatedCourses);
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+
+      setCoursesData(prev =>
+        prev.map(c =>
+          c.id === course.id
+            ? {
+              ...c,
+              status: c.status === 'Active' ? 'Suspended' : 'Active'
+            }
+            : c
+        )
+      );
+
+    } catch (err) {
+      console.error(err);
     }
+
     setConfirmAction({ show: false, course: null, action: 'suspend' });
   };
 
@@ -120,7 +143,7 @@ export default function AdminCourses({ navigate, logout }: CoursesProps) {
           instructor: course.instructor_name || course.instructor || "Unknown",
           category: COURSE_CATEGORIES[course.category] || course.category,
           enrolledStudents: course.enrolled_students || 0,
-          status: course.is_published ? 'Active' : 'Suspended'
+          status: course.status === 'active' ? 'Active' : 'Suspended'
         }));
 
         setCoursesData(mappedData);

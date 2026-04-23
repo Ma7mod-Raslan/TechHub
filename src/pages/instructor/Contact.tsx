@@ -37,22 +37,65 @@ interface InstructorContactProps {
 
 export default function InstructorContact({ navigate, logout, userRole }: InstructorContactProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
   const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
-  { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
-  { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments'},
-  { icon: Users, label: 'Community', page: 'community' },
-  { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
-  { icon: User, label: 'Profile', page: 'instructor-profile' },
-  { icon: Settings, label: 'Settings', page: 'instructor-settings' },
-  { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
-];
+    { icon: LayoutDashboard, label: 'Dashboard', page: 'instructor-dashboard' },
+    { icon: BookOpen, label: 'My Courses', page: 'instructor-courses' },
+    { icon: BarChart3, label: 'Assignments', page: 'instructor-assignments' },
+    { icon: Users, label: 'Community', page: 'community' },
+    { icon: Bell, label: 'Notifications', page: 'instructor-notifications' },
+    { icon: User, label: 'Profile', page: 'instructor-profile' },
+    { icon: Settings, label: 'Settings', page: 'instructor-settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: 'instructor-contact' },
+  ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Message sent! We\'ll get back to you soon.');
+
+    const formData = {
+      full_name: name,
+      email: email,
+      category: category,
+      message: message,
+    };
+
+    try {
+      if (!name || !email || !category || !message) {
+        toast.error("Please fill all fields");
+        return;
+      }
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        },
+        body: JSON.stringify(formData),
+      });
+
+
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success("Message sent successfully!");
+      setName("");
+      setEmail("");
+      setCategory("");
+      setMessage("");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,27 +153,25 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <Label htmlFor="name">Full Name *</Label>
-                          <Input id="name" placeholder="John Doe" required className="mt-1" />
+                          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required className="mt-1" />
                         </div>
                         <div>
                           <Label htmlFor="email">Email Address *</Label>
-                          <Input id="email" type="email" placeholder="you@example.com" required className="mt-1" />
+                          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="mt-1" />
                         </div>
                       </div>
 
                       <div>
                         <Label htmlFor="category">Category *</Label>
-                        <Select required>
+                        <Select onValueChange={(val) => setCategory(val)}>
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="general">General Inquiry</SelectItem>
-                            <SelectItem value="technical">Technical Support</SelectItem>
-                            <SelectItem value="billing">Billing & Payments</SelectItem>
-                            <SelectItem value="course">Course Management</SelectItem>
-                            <SelectItem value="analytics">Analytics & Reports</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                            <SelectItem value="Technical Issue">Technical Issue</SelectItem>
+                            <SelectItem value="Billing">Billing</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -138,8 +179,9 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
                       <div>
                         <Label htmlFor="message">Message *</Label>
                         <Textarea
-                          id="message"
+                          value={message}
                           placeholder="Tell us more about your inquiry..."
+                          onChange={(e) => setMessage(e.target.value)}
                           rows={6}
                           required
                           className="mt-1"
@@ -148,10 +190,11 @@ export default function InstructorContact({ navigate, logout, userRole }: Instru
 
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                       >
                         <Send className="mr-2 h-5 w-5" />
-                        Send Message
+                        {loading ? "Sending..." : "Send Message"}
                       </Button>
                     </form>
                   </CardContent>

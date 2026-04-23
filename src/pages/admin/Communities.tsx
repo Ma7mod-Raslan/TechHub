@@ -91,7 +91,7 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
           content: r.content,
           sender_name: r.sender_name,
           created_at: r.created_at,
-          status: r.status || "visible"
+          status: r.status
         }))
       );
       setIsCommentsOpen(true); // 🔥 فتح المودال
@@ -127,7 +127,7 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
           likes: p.total_likes,
           comments: p.total_replies,
           date: p.time,
-          hidden: false
+          hidden: p.is_hidden
         }))
       );
     } catch (err) {
@@ -147,12 +147,12 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
         }
       );
 
-      
+
       if (!res.ok) throw new Error("Failed to delete reply");
 
       // remove from UI
       setReplies(prev => prev.filter(r => r.id !== replyId));
-      
+
 
     } catch (err) {
       console.error(err);
@@ -264,6 +264,14 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
 
     fetchCommunities();
   }, []);
+
+  useEffect(() => {
+    if (isCommentsOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isCommentsOpen]);
 
   const filterCommunities = (): Community[] =>
     communities.filter((community) =>
@@ -464,7 +472,15 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
                                               </Badge>
                                             )}
                                           </div>
-                                          <div className="text-xs text-gray-500">{post.date}</div>
+                                          <div className="text-xs text-gray-500">
+                                            {new Date(post.date).toLocaleString("en-US", {
+                                              year: "numeric",
+                                              month: "short",
+                                              day: "numeric",
+                                              hour: "2-digit",
+                                              minute: "2-digit"
+                                            })}
+                                          </div>
                                         </div>
                                       </div>
                                       <div className="flex gap-2">
@@ -532,73 +548,77 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
             )}
           </main>
         </div>
-        
+
       </div>
       <AnimatePresence>
-          {isCommentsOpen && (
+        {isCommentsOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-center overflow-y-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
             <motion.div
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              className="bg-white w-full max-w-md max-h-[80vh] rounded-2xl shadow-2xl flex flex-col my-10"
+              initial={{ scale: 0.9, y: 40 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 40 }}
             >
-              <motion.div
-                className="bg-white w-full max-w-md h-[80vh] rounded-2xl shadow-2xl flex flex-col"
-                initial={{ scale: 0.9, y: 40 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 40 }}
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-violet-50 to-cyan-50">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-violet-600" />
-                    Comments
-                  </h2>
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-violet-50 to-cyan-50">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-violet-600" />
+                  Comments
+                </h2>
 
-                  <button
-                    onClick={() => setIsCommentsOpen(false)}
-                    className="p-1 rounded-full hover:bg-gray-200 transition"
-                  >
-                    <X className="h-5 w-5 text-gray-600" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setIsCommentsOpen(false)}
+                  className="p-1 rounded-full hover:bg-gray-200 transition"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
 
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                  {replies.length === 0 ? (
-                    <p className="text-gray-400 text-sm text-center">
-                      No comments yet
-                    </p>
-                  ) : (
-                    replies.map((reply) => (
-                      <div
-                        key={reply.id}
-                        className={`flex gap-3 p-3 rounded-xl transition ${reply.status === "hidden"
-                          ? "opacity-50 bg-gray-50"
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {replies.length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center">
+                    No comments yet
+                  </p>
+                ) : (
+                  replies.map((reply) => (
+                    <div
+                      key={reply.id}
+                      className={`flex gap-3 p-3 rounded-xl transition ${reply.status === "hidden"
+                        ? "opacity-50 bg-gray-50"
+                        : reply.status === "deleted"
+                          ? "opacity-40 bg-red-50 border border-red-200"
                           : "hover:bg-gray-50"
-                          }`}
-                      >
-                        {/* Avatar */}
-                        <div className="bg-gradient-to-br from-violet-100 to-cyan-100 rounded-full p-2 h-fit">
-                          <User className="h-4 w-4 text-violet-600" />
-                        </div>
+                        }`}
+                    >
+                      {/* Avatar */}
+                      <div className="bg-gradient-to-br from-violet-100 to-cyan-100 rounded-full p-2 h-fit">
+                        <User className="h-4 w-4 text-violet-600" />
+                      </div>
 
-                        {/* Content */}
-                        <div className="flex-1">
-                          {/* Top Row */}
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium flex items-center gap-2">
-                              {reply.sender_name}
+                      {/* Content */}
+                      <div className="flex-1">
+                        {/* Top Row */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            {reply.sender_name}
 
-                              {reply.status === "hidden" && (
-                                <span className="text-xs px-2 py-0.5 border rounded-full text-gray-500">
-                                  Hidden
-                                </span>
-                              )}
-                            </span>
+                            {reply.status === "deleted" && (
+                              <span className="text-xs px-2 py-0.5 border rounded-full text-red-600 border-red-300">
+                                Deleted
+                              </span>
+                            )}
+                          </span>
 
-                            {/* Actions */}
+                          {/* Actions */}
+                          {reply.status !== "deleted" && (
                             <div className="flex gap-2">
+
                               {/* Hide / Unhide */}
                               <button
                                 onClick={() => handleToggleReply(reply.id)}
@@ -616,37 +636,41 @@ export default function AdminCommunities({ navigate, logout }: CommunitiesProps)
 
                               {/* Delete */}
                               <button
-                                onClick={() => handleDeleteReply(reply.id)
-                                }
+                                onClick={() => handleDeleteReply(reply.id)}
                                 className="p-1 rounded text-red-600 hover:bg-red-50 transition"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
+
                             </div>
-                          </div>
-
-                          {/* Date */}
-                          <div className="text-xs text-gray-400 mt-1">
-                            {new Date(reply.created_at).toLocaleString()}
-                          </div>
-
-                          {/* Content */}
-                          <p className="text-sm text-gray-700 mt-1">
-                            {reply.content}
-                          </p>
+                          )}
                         </div>
+
+                        {/* Date */}
+                        <div className="text-xs text-gray-400 mt-1">
+                          {new Date(reply.created_at).toLocaleString()}
+                        </div>
+
+                        {/* Content */}
+                        <p className={`text-sm mt-1 ${reply.status === "deleted"
+                          ? "text-gray-400 italic line-through"
+                          : "text-gray-700"
+                          }`}>
+                          {reply.content}
+                        </p>
                       </div>
-                    ))
-                  )}
-                </div>
-              </motion.div>
+                    </div>
+                  ))
+                )}
+              </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AIAssistant />
-      
+
     </div>
-    
+
   );
 }

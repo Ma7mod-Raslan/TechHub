@@ -10,15 +10,51 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Card, CardContent } from '../components/ui/card';
 import { toast } from 'sonner';
 import AIAssistant from '../components/AIAssistant';
+import { useState } from 'react';
 
 interface ContactProps {
   navigate: (page: string) => void;
 }
 
 export default function Contact({ navigate }: ContactProps) {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Message sent! We\'ll get back to you soon.');
+
+    try {
+      const res = await fetch("http://localhost:5000/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}` // لو موجود
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          email,
+          category,
+          message
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success("Message sent successfully ✅");
+
+      // reset
+      setFullName("");
+      setEmail("");
+      setCategory("");
+      setMessage("");
+
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -47,26 +83,34 @@ export default function Contact({ navigate }: ContactProps) {
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <Label htmlFor="name">Full Name *</Label>
-                        <Input id="name" placeholder="John Doe" required className="mt-1" />
+                        <Input
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder="John Doe"
+                          required className="mt-1" />
                       </div>
                       <div>
                         <Label htmlFor="email">Email Address *</Label>
-                        <Input id="email" type="email" placeholder="you@example.com" required className="mt-1" />
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@example.com"
+                          required className="mt-1" />
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="category">Category *</Label>
-                      <Select required>
+                      <Select onValueChange={(value) => setCategory(value)} required>
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="general">General Inquiry</SelectItem>
-                          <SelectItem value="technical">Technical Support</SelectItem>
-                          <SelectItem value="billing">Billing Question</SelectItem>
-                          <SelectItem value="partnership">Partnership</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                          <SelectItem value="Technical Issue">Technical Issue</SelectItem>
+                          <SelectItem value="Billing">Billing</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -74,7 +118,8 @@ export default function Contact({ navigate }: ContactProps) {
                     <div>
                       <Label htmlFor="message">Message *</Label>
                       <Textarea
-                        id="message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
                         placeholder="Tell us more about your inquiry..."
                         rows={6}
                         required

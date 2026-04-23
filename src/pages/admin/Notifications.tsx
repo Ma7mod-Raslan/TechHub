@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -31,88 +31,17 @@ interface NotificationsProps {
   userRole: string;
 }
 
-const notificationsData = [
-  {
-    id: 1,
-    type: 'user',
-    title: 'New Instructor Registered',
-    message: 'Dr. Michael Chen has registered as an instructor',
-    time: '5 minutes ago',
-    read: false,
-    icon: UserPlus,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-  },
-  {
-    id: 2,
-    type: 'support',
-    title: 'Support Request Received',
-    message: 'New support ticket from john.smith@email.com',
-    time: '15 minutes ago',
-    read: false,
-    icon: AlertCircle,
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-  },
-  {
-    id: 3,
-    type: 'course',
-    title: 'New Course Submission',
-    message: 'Sarah Johnson submitted "Advanced React Patterns" for review',
-    time: '1 hour ago',
-    read: false,
-    icon: BookOpen,
-    color: 'text-violet-600',
-    bg: 'bg-violet-50',
-  },
-  {
-    id: 4,
-    type: 'user',
-    title: 'New Student Enrolled',
-    message: '25 new students enrolled today',
-    time: '2 hours ago',
-    read: true,
-    icon: Users,
-    color: 'text-cyan-600',
-    bg: 'bg-cyan-50',
-  },
-  {
-    id: 5,
-    type: 'system',
-    title: 'System Update Complete',
-    message: 'Platform successfully updated to version 2.5.0',
-    time: '3 hours ago',
-    read: true,
-    icon: CheckCircle,
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-  },
-  {
-    id: 6,
-    type: 'report',
-    title: 'Content Flagged',
-    message: 'A post in Web Development community was reported',
-    time: '5 hours ago',
-    read: true,
-    icon: AlertCircle,
-    color: 'text-orange-600',
-    bg: 'bg-orange-50',
-  },
-  {
-    id: 7,
-    type: 'info',
-    title: 'Scheduled Maintenance',
-    message: 'Platform maintenance scheduled for Nov 15, 2024',
-    time: '1 day ago',
-    read: true,
-    icon: Info,
-    color: 'text-gray-600',
-    bg: 'bg-gray-50',
-  },
-];
+const getIcon = (type: string) => {
+  switch (type) {
+    case "contact": return AlertCircle;
+    case "user": return UserPlus;
+    case "course": return BookOpen;
+    default: return Bell;
+  }
+};
 
 export default function AdminNotifications({ navigate, logout }: NotificationsProps) {
-  const [notifications, setNotifications] = useState(notificationsData);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
@@ -127,18 +56,93 @@ export default function AdminNotifications({ navigate, logout }: NotificationsPr
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAsRead = (id: number) => {
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
+
+
+
+
+  const markAsRead = async (id: number) => {
+    try {
+      await fetch(`http://localhost:5000/notifications/${id}/read`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      setNotifications(prev =>
+        prev.map(n => n.id === id ? { ...n, read: true } : n)
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  const markAllAsRead = async () => {
+    try {
+      await fetch("http://localhost:5000/notifications/read-all", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      setNotifications(prev =>
+        prev.map(n => ({ ...n, read: true }))
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const deleteNotification = (id: number) => {
-    setNotifications(notifications.filter(n => n.id !== id));
+  const deleteNotification = async (id: number) => {
+    try {
+      await fetch(`http://localhost:5000/notifications/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      setNotifications(prev => prev.filter(n => n.id !== id));
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/admin/notifications", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      const data = await res.json();
+
+      setNotifications(
+        data.map((n: any) => ({
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          time: new Date(n.created_at).toLocaleString(),
+          read: n.is_read,
+          type: n.type,
+          icon: Bell, // ممكن تطوريها بعدين حسب النوع
+          color: "text-blue-600",
+          bg: "bg-blue-50"
+        }))
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -192,53 +196,73 @@ export default function AdminNotifications({ navigate, logout }: NotificationsPr
 
               {/* Notifications List */}
               <div className="space-y-3">
-                {notifications.map((notification) => (
-                  <motion.div
-                    key={notification.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                  >
-                    <Card className={`${!notification.read ? 'border-l-4 border-l-violet-600' : ''}`}>
-                      <CardContent className="p-4">
-                        <div className="flex gap-4">
-                          <div className={`${notification.bg} p-3 rounded-lg h-fit`}>
-                            <notification.icon className={`h-5 w-5 ${notification.color}`} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-1">
-                              <h3 className={`${!notification.read ? 'font-semibold' : ''}`}>
-                                {notification.title}
-                              </h3>
-                              <div className="flex gap-2">
-                                {!notification.read && (
+                {notifications.map((notification) => {
+                  const Icon = getIcon(notification.type);
+
+                  return (
+                    <motion.div
+                      key={notification.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                    >
+                      <Card className={`${!notification.read ? 'border-l-4 border-l-violet-600' : ''}`}>
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+
+                            {/* Icon */}
+                            <div className={`${notification.bg} p-3 rounded-lg h-fit`}>
+                              <Icon className="h-5 w-5 text-blue-600" />
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-1">
+
+                                <h3 className={`${!notification.read ? 'font-semibold' : ''}`}>
+                                  {notification.title}
+                                </h3>
+
+                                <div className="flex gap-2">
+
+                                  {!notification.read && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => markAsRead(notification.id)}
+                                      className="h-8 px-2 hover:bg-green-50 hover:text-green-600"
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                  )}
+
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    onClick={() => markAsRead(notification.id)}
-                                    className="h-8 px-2 hover:bg-green-50 hover:text-green-600"
+                                    onClick={() => deleteNotification(notification.id)}
+                                    className="h-8 px-2 hover:bg-red-50 hover:text-red-600"
                                   >
-                                    <Check className="h-4 w-4" />
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
-                                )}
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  onClick={() => deleteNotification(notification.id)}
-                                  className="h-8 px-2 hover:bg-red-50 hover:text-red-600"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+
+                                </div>
                               </div>
+
+                              <p className="text-sm text-gray-600 mb-2">
+                                {notification.message}
+                              </p>
+
+                              <span className="text-xs text-gray-500">
+                                {notification.time}
+                              </span>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
-                            <span className="text-xs text-gray-500">{notification.time}</span>
+
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
               </div>
 
               {notifications.length === 0 && (

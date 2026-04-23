@@ -38,7 +38,6 @@ interface UserData {
 }
 
 
-
 export default function AdminUsers({ navigate, logout }: UsersProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [instructorsData, setInstructorsData] = useState<UserData[]>([]);
@@ -124,6 +123,19 @@ export default function AdminUsers({ navigate, logout }: UsersProps) {
     status: user.is_active ? 'Active' : 'Suspended',
     courses: user.courses_count || 0,
   });
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -223,7 +235,7 @@ export default function AdminUsers({ navigate, logout }: UsersProps) {
                                 <Badge className="bg-violet-100 text-violet-700">Instructor</Badge>
                               </TableCell>
                               <TableCell>{instructor.courses}</TableCell>
-                              <TableCell className="text-gray-600">{instructor.joinedDate}</TableCell>
+                              <TableCell className="text-gray-600">{formatDateTime(instructor.joinedDate)}</TableCell>
                               <TableCell>
                                 <Badge className={instructor.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
                                   {instructor.status}

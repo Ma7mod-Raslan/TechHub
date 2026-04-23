@@ -39,7 +39,12 @@ interface StudentContactProps {
 
 export default function StudentContact({ navigate, logout, userRole }: StudentContactProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: 'student-dashboard' },
     { icon: BookOpen, label: 'Courses', page: 'student-courses' },
@@ -54,9 +59,47 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
     { icon: MessageSquare, label: 'Contact Us', page: 'student-contact', active: true },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Message sent! We\'ll get back to you soon.');
+
+    if (!name || !email || !category || !message) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:5000/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        },
+        body: JSON.stringify({
+          full_name: name,
+          email,
+          category,
+          message,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success("Message sent successfully!");
+
+      setName("");
+      setEmail("");
+      setCategory("");
+      setMessage("");
+
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -87,7 +130,7 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex-1">
                 <h1 className="text-xl md:text-2xl">Contact Us</h1>
                 <p className="text-gray-600 text-sm md:text-base">Get in touch with our support team</p>
@@ -111,27 +154,25 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
                           <Label htmlFor="name">Full Name *</Label>
-                          <Input id="name" placeholder="John Doe" required className="mt-1" />
+                          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required className="mt-1" />
                         </div>
                         <div>
                           <Label htmlFor="email">Email Address *</Label>
-                          <Input id="email" type="email" placeholder="you@example.com" required className="mt-1" />
+                          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="mt-1" />
                         </div>
                       </div>
 
                       <div>
                         <Label htmlFor="category">Category *</Label>
-                        <Select required>
+                        <Select required onValueChange={(val) => setCategory(val)}>
                           <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="general">General Inquiry</SelectItem>
-                            <SelectItem value="technical">Technical Support</SelectItem>
-                            <SelectItem value="course">Course Question</SelectItem>
-                            <SelectItem value="account">Account & Billing</SelectItem>
-                            <SelectItem value="certificate">Certificates</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                            <SelectItem value="Technical Issue">Technical Issue</SelectItem>
+                            <SelectItem value="Billing">Billing</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -139,7 +180,8 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
                       <div>
                         <Label htmlFor="message">Message *</Label>
                         <Textarea
-                          id="message"
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
                           placeholder="Tell us more about your inquiry..."
                           rows={6}
                           required
@@ -149,10 +191,11 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
 
                       <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                       >
                         <Send className="mr-2 h-5 w-5" />
-                        Send Message
+                        {loading ? "Sending..." : "Send Message"}
                       </Button>
                     </form>
                   </CardContent>
@@ -237,7 +280,7 @@ export default function StudentContact({ navigate, logout, userRole }: StudentCo
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

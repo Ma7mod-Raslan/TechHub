@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
+import { useState, useEffect } from 'react'; import { motion } from 'motion/react';
 import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, Search, Eye, Trash2, EyeOff, Send } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
@@ -41,14 +40,14 @@ interface ReportsProps {
 
 interface ReportData {
   id: number;
-  type: 'Reported Post' | 'Reported Comment';
+  type: 'Reported Post' | 'Reported Reply';
   name: string;
   email: string;
   category: string;
   message: string;
   date: string;
   status: 'Pending' | 'Resolved';
-  hidden: boolean;
+
 }
 
 interface ContactMessage {
@@ -61,100 +60,17 @@ interface ContactMessage {
   status: 'New' | 'Replied' | 'Pending';
 }
 
-const initialReportsData: ReportData[] = [
-  {
-    id: 1,
-    type: 'Reported Post',
-    name: 'Robert Lee',
-    email: 'robert.lee@email.com',
-    category: 'Spam',
-    message: 'Inappropriate promotional content posted in Web Development community. The user is repeatedly posting links to their own website without contributing to discussions.',
-    date: '2024-11-06',
-    status: 'Pending',
-    hidden: false,
-  },
-  {
-    id: 2,
-    type: 'Reported Comment',
-    name: 'Sophie Turner',
-    email: 'sophie.turner@email.com',
-    category: 'Harassment',
-    message: 'Offensive comment targeting another user in the discussion thread. The comment contains personal attacks and violates our community guidelines.',
-    date: '2024-11-05',
-    status: 'Resolved',
-    hidden: true,
-  },
-  {
-    id: 3,
-    type: 'Reported Post',
-    name: 'Lisa Anderson',
-    email: 'lisa.anderson@email.com',
-    category: 'Inappropriate Content',
-    message: 'Post contains inappropriate language and violates community guidelines. The content is not suitable for our educational platform.',
-    date: '2024-11-03',
-    status: 'Pending',
-    hidden: false,
-  },
-];
-
-const initialContactMessages: ContactMessage[] = [
-  {
-    id: 1,
-    name: 'John Smith',
-    email: 'john.smith@email.com',
-    subject: 'Technical Support - Video Loading Issue',
-    message: 'I am having trouble accessing my course materials. The videos are not loading properly. I have tried refreshing the page and clearing my browser cache, but the issue persists. Can you please help?',
-    date: '2024-11-08',
-    status: 'Pending',
-  },
-  {
-    id: 2,
-    name: 'Emma Davis',
-    email: 'emma.davis@email.com',
-    subject: 'Billing Inquiry',
-    message: 'I was charged twice for the same course. Can you please refund the duplicate charge? My transaction IDs are #12345 and #12346.',
-    date: '2024-11-07',
-    status: 'Replied',
-  },
-  {
-    id: 3,
-    name: 'David Kim',
-    email: 'david.kim@email.com',
-    subject: 'Code Compiler Error',
-    message: 'The code compiler is not working. I get an error every time I try to run my code. The error message says "Runtime error: Cannot compile". Please fix this issue as soon as possible.',
-    date: '2024-11-04',
-    status: 'New',
-  },
-  {
-    id: 4,
-    name: 'Rachel Green',
-    email: 'rachel.green@email.com',
-    subject: 'Certificate Issue',
-    message: 'I completed the course but have not received my certificate yet. It has been 3 days since I finished all the modules. When can I expect to receive it?',
-    date: '2024-11-02',
-    status: 'Pending',
-  },
-  {
-    id: 5,
-    name: 'Michael Brown',
-    email: 'michael.brown@email.com',
-    subject: 'Course Content Question',
-    message: 'I have a question about the course content in Section 5. Is there any additional material available for advanced topics? The current material is great but I would like to dive deeper.',
-    date: '2024-10-31',
-    status: 'Replied',
-  },
-];
 
 export default function AdminReports({ navigate, logout }: ReportsProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [reports, setReports] = useState(initialReportsData);
-  const [contactMessages, setContactMessages] = useState(initialContactMessages);
+  const [reports, setReports] = useState<ReportData[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; id: number | null; type: 'report' | 'contact' }>({ 
-    show: false, id: null, type: 'report' 
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; id: number | null; type: 'report' | 'contact' }>({
+    show: false, id: null, type: 'report'
   });
   const [replyText, setReplyText] = useState('');
   const [showReplyDialog, setShowReplyDialog] = useState(false);
@@ -171,8 +87,8 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
   ];
 
   const filterReports = () => {
-    return reports.filter(report => {
-      const matchesSearch = 
+    return reports.filter((report: ReportData) => {
+      const matchesSearch =
         report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -183,36 +99,63 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
 
   const filterContactMessages = () => {
     return contactMessages.filter(message => {
-      const matchesSearch = 
-        message.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        message.subject.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
+      const matchesSearch =
+        (message.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (message.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (message.subject || "").toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === 'all' || message.status === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
-  };
-
-  const toggleHide = (id: number) => {
-    setReports(reports.map(report => 
-      report.id === id ? { ...report, hidden: !report.hidden } : report
-    ));
-    toast.success('Report visibility updated');
   };
 
   const confirmDelete = (id: number, type: 'report' | 'contact') => {
     setDeleteConfirm({ show: true, id, type });
   };
 
-  const handleDeleteConfirm = () => {
-    if (deleteConfirm.id) {
-      if (deleteConfirm.type === 'report') {
-        setReports(reports.filter(report => report.id !== deleteConfirm.id));
-        toast.success('Report deleted successfully');
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.id) return;
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      let url = "";
+
+      if (deleteConfirm.type === "report") {
+        url = `http://localhost:5000/admin/reports/${deleteConfirm.id}`;
       } else {
-        setContactMessages(contactMessages.filter(message => message.id !== deleteConfirm.id));
-        toast.success('Message deleted successfully');
+        url = `http://localhost:5000/admin/contact-messages/${deleteConfirm.id}`;
       }
+
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      // 👇 update UI بعد النجاح
+      if (deleteConfirm.type === "report") {
+        setReports(prev => prev.filter(r => r.id !== deleteConfirm.id));
+      } else {
+        setContactMessages(prev => prev.filter(m => m.id !== deleteConfirm.id));
+      }
+
+      toast.success(data.message);
+
+      fetchReports();
+      fetchMessages();
+
+    } catch (err: any) {
+      toast.error(err.message);
     }
+
     setDeleteConfirm({ show: false, id: null, type: 'report' });
   };
 
@@ -222,15 +165,74 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
     setReplyText('');
   };
 
-  const sendReply = () => {
-    if (selectedMessage && replyText.trim()) {
-      setContactMessages(contactMessages.map(msg => 
-        msg.id === selectedMessage.id ? { ...msg, status: 'Replied' } : msg
-      ));
-      toast.success('Reply sent successfully');
+  const sendReply = async () => {
+    if (!selectedMessage || !replyText.trim()) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/contact-messages/${selectedMessage.id}/reply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          },
+          body: JSON.stringify({
+            reply: replyText
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success("Reply sent successfully");
+
+      setContactMessages(prev =>
+        prev.map(msg =>
+          msg.id === selectedMessage.id
+            ? { ...msg, status: "Replied" }
+            : msg
+        )
+      );
+
       setShowReplyDialog(false);
-      setReplyText('');
+      setReplyText("");
       setSelectedMessage(null);
+
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const fetchReports = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/admin/reports", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch reports");
+
+      const data = await res.json();
+
+      setReports(
+        data.map((r: any) => ({
+          id: r.id,
+          type: r.type,
+          name: r.reporter_name,
+          email: r.email,
+          category: r.category,
+          message: r.message_excerpt,
+          date: new Date(r.created_at).toLocaleString(),
+          status: r.status === "pending" ? "Pending" : "Resolved",
+        }))
+      );
+
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -244,6 +246,104 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
         return 'bg-yellow-100 text-yellow-700';
       default:
         return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+    fetchReports();
+  }, []);
+
+  const toggleReportStatus = async (id: number) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/reports/${id}/toggle-status`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      toast.success(data.message);
+
+      fetchReports(); // refresh
+
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/admin/contact-messages", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch messages");
+      }
+
+      const data = await res.json();
+
+      console.log(data);
+
+      setContactMessages(
+        data.map((msg: any) => ({
+          id: msg.id,
+          name: msg.name || "",
+          email: msg.email || "",
+          subject: msg.subject || "",
+          message: msg.message_preview || "",
+          date: (msg.created_at || msg.date)
+            ? new Date(msg.created_at || msg.date).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+            : "",
+          status:
+            msg.status === "replied"
+              ? "Replied"
+              : msg.status === "pending"
+                ? "Pending"
+                : "New"
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchReportDetails = async (id: number) => {
+    try {
+      const res = await fetch(`http://localhost:5000/admin/reports/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      const data = await res.json();
+
+      setSelectedReport({
+        id: data.id,
+        type: data.type,
+        name: data.reporter_name,
+        email: data.email,
+        category: data.category,
+        message: data.content, // 👈 هنا الفرق (full message)
+        date: new Date(data.created_at).toLocaleString(),
+        status: data.status === "pending" ? "Pending" : "Resolved",
+      });
+
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -325,11 +425,11 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                         </TableHeader>
                         <TableBody>
                           {filterReports().map((report) => (
-                            <TableRow key={report.id} className={report.hidden ? 'opacity-50' : ''}>
+                            <TableRow key={report.id}>
                               <TableCell>
                                 <Badge className={
-                                  report.type === 'Reported Post' 
-                                    ? 'bg-orange-100 text-orange-700' 
+                                  report.type === 'Reported Post'
+                                    ? 'bg-orange-100 text-orange-700'
                                     : 'bg-red-100 text-red-700'
                                 }>
                                   {report.type}
@@ -344,9 +444,6 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                                 <div className="truncate">
                                   {report.message}
                                 </div>
-                                {report.hidden && (
-                                  <Badge className="mt-1 bg-gray-200 text-gray-700">Hidden</Badge>
-                                )}
                               </TableCell>
                               <TableCell className="text-gray-600">{report.date}</TableCell>
                               <TableCell>
@@ -359,21 +456,21 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => toggleHide(report.id)}
-                                    className={report.hidden 
-                                      ? "text-green-600 hover:bg-green-50 border-green-200" 
-                                      : "text-gray-600 hover:bg-gray-50"
+                                    onClick={() => toggleReportStatus(report.id)}
+                                    className={
+                                      report.status === "Pending"
+                                        ? "text-green-600 border-green-200 hover:bg-green-50"
+                                        : "text-gray-500 border-gray-200 hover:bg-gray-100"
                                     }
-                                    title={report.hidden ? "Unhide" : "Hide"}
                                   >
-                                    {report.hidden ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                    {report.status === "Pending" ? "Mark as Resolved" : "Mark as Pending"}
                                   </Button>
                                   <Dialog>
                                     <DialogTrigger asChild>
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => setSelectedReport(report)}
+                                        onClick={() => fetchReportDetails(report.id)}
                                         className="hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all duration-300"
                                       >
                                         <Eye className="h-4 w-4" />
@@ -391,8 +488,8 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                                           <div>
                                             <span className="text-sm text-gray-600">Type: </span>
                                             <Badge className={
-                                              report.type === 'Reported Post' 
-                                                ? 'bg-orange-100 text-orange-700' 
+                                              report.type === 'Reported Post'
+                                                ? 'bg-orange-100 text-orange-700'
                                                 : 'bg-red-100 text-red-700'
                                             }>
                                               {report.type}
@@ -482,81 +579,89 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filterContactMessages().map((message) => (
-                            <TableRow key={message.id}>
-                              <TableCell>{message.name}</TableCell>
-                              <TableCell className="text-gray-600">{message.email}</TableCell>
-                              <TableCell className="max-w-xs truncate">
-                                {message.subject}
-                              </TableCell>
-                              <TableCell className="max-w-xs truncate text-gray-600">
-                                {message.message}
-                              </TableCell>
-                              <TableCell className="text-gray-600">{message.date}</TableCell>
-                              <TableCell>
-                                <Badge className={getStatusBadgeClass(message.status)}>
-                                  {message.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-2">
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all duration-300"
-                                      >
-                                        <Eye className="h-4 w-4" />
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
-                                      <DialogHeader>
-                                        <DialogTitle>Contact Message</DialogTitle>
-                                        <DialogDescription>
-                                          From {message.name} ({message.email}) on {message.date}
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <div className="mt-4 space-y-4">
-                                        <div className="flex gap-3 items-center">
-                                          <span className="text-sm text-gray-600">Status: </span>
-                                          <Badge className={getStatusBadgeClass(message.status)}>
-                                            {message.status}
-                                          </Badge>
-                                        </div>
-                                        <div>
-                                          <p className="text-sm text-gray-600 mb-2">Subject:</p>
-                                          <p>{message.subject}</p>
-                                        </div>
-                                        <div>
-                                          <p className="text-sm text-gray-600 mb-2">Message:</p>
-                                          <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-gray-700">{message.message}</p>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </DialogContent>
-                                  </Dialog>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleReply(message)}
-                                    className="hover:bg-cyan-50 hover:text-cyan-600 hover:border-cyan-200 transition-all duration-300"
-                                  >
-                                    <Send className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => confirmDelete(message.id, 'contact')}
-                                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-300"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
+                          {contactMessages.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={7} className="text-center text-gray-500 py-6">
+                                No messages found
                               </TableCell>
                             </TableRow>
-                          ))}
+                          ) : (
+                            filterContactMessages().map((message) => (
+                              <TableRow key={message.id}>
+                                <TableCell>{message.name}</TableCell>
+                                <TableCell className="text-gray-600">{message.email}</TableCell>
+                                <TableCell className="max-w-xs truncate">
+                                  {message.subject}
+                                </TableCell>
+                                <TableCell className="max-w-xs truncate text-gray-600">
+                                  {message.message}
+                                </TableCell>
+                                <TableCell className="text-gray-600">{message.date}</TableCell>
+                                <TableCell>
+                                  <Badge className={getStatusBadgeClass(message.status)}>
+                                    {message.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Dialog>
+                                      <DialogTrigger asChild>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-all duration-300"
+                                        >
+                                          <Eye className="h-4 w-4" />
+                                        </Button>
+                                      </DialogTrigger>
+                                      <DialogContent className="max-w-2xl">
+                                        <DialogHeader>
+                                          <DialogTitle>Contact Message</DialogTitle>
+                                          <DialogDescription>
+                                            From {message.name} ({message.email}) on {message.date}
+                                          </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="mt-4 space-y-4">
+                                          <div className="flex gap-3 items-center">
+                                            <span className="text-sm text-gray-600">Status: </span>
+                                            <Badge className={getStatusBadgeClass(message.status)}>
+                                              {message.status}
+                                            </Badge>
+                                          </div>
+                                          <div>
+                                            <p className="text-sm text-gray-600 mb-2">Subject:</p>
+                                            <p>{message.subject}</p>
+                                          </div>
+                                          <div>
+                                            <p className="text-sm text-gray-600 mb-2">Message:</p>
+                                            <div className="bg-gray-50 p-4 rounded-lg">
+                                              <p className="text-gray-700">{message.message}</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </DialogContent>
+                                    </Dialog>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleReply(message)}
+                                      className="hover:bg-cyan-50 hover:text-cyan-600 hover:border-cyan-200 transition-all duration-300"
+                                    >
+                                      <Send className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => confirmDelete(message.id, 'contact')}
+                                      className="hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-300"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
                         </TableBody>
                       </Table>
                     </div>
@@ -578,7 +683,7 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
               Delete {deleteConfirm.type === 'report' ? 'Report' : 'Message'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete this {deleteConfirm.type === 'report' ? 'report' : 'message'}? 
+              Are you sure you want to permanently delete this {deleteConfirm.type === 'report' ? 'report' : 'message'}?
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -625,7 +730,7 @@ export default function AdminReports({ navigate, logout }: ReportsProps) {
             <Button variant="outline" onClick={() => setShowReplyDialog(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={sendReply}
               disabled={!replyText.trim()}
               className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
