@@ -51,15 +51,15 @@ export default function AdminUsers({logout }: UsersProps) {
   }>({ show: false, user: null, action: 'suspend', type: 'instructor' });
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-    { icon: Users, label: 'Users', page: 'admin-users', active: true },
-    { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-    { icon: MessageSquare, label: 'Communities', page: 'admin-communities' },
-    { icon: FileText, label: 'Reports', page: 'admin-reports' },
-    { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-    { icon: User, label: 'Profile', page: 'admin-profile' },
-    { icon: Settings, label: 'Settings', page: 'admin-settings' },
-  ];
+      { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+      { icon: Users, label: 'Users', page: '/admin/users', active: true   },
+      { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
+      { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+      { icon: FileText, label: 'Reports', page: '/admin/reports' },
+      { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
+      { icon: User, label: 'Profile', page: '/admin/profile' },
+      { icon: Settings, label: 'Settings', page: '/admin/settings'  },
+    ];
 
   const filterUsers = (users: UserData[]) => {
     return users.filter(user =>

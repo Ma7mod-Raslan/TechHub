@@ -59,6 +59,7 @@ import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 
 import { Toaster } from './components/ui/sonner';
+import PageWrapper from './types/animation';
 
 export type UserRole = 'guest' | 'student' | 'instructor' | 'admin';
 
@@ -94,84 +95,78 @@ export default function App() {
   return (
     <>
       <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Routes>
+        <Routes location={location} key={location.pathname}>
 
-            {/* Auth */}
-            <Route path="/" element={<Home userRole={userRole} logout={logout} />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/verification" element={<Verification />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-reset-code" element={<VerifyResetCode />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* Auth */}
+          <Route path="/" element={<PageWrapper><Home userRole={userRole} logout={logout} /></PageWrapper>} />
+          <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+          <Route path="/signup" element={<PageWrapper><SignUp /></PageWrapper>} />
+          <Route path="/verification" element={<PageWrapper><Verification /></PageWrapper>} />
+          <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
+          <Route path="/verify-reset-code" element={<PageWrapper><VerifyResetCode /></PageWrapper>} />
+          <Route path="/reset-password" element={<PageWrapper><ResetPasswordPage /></PageWrapper>} />
 
-            {/* Instructor */}
-            <Route path="/instructor/dashboard" element={<InstructorDashboard logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/courses" element={<InstructorCourses logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/course-view" element={<InstructorCourseView logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/edit-course" element={<InstructorEditCourse logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/create-course" element={<InstructorCreateCourse logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/assignments" element={<InstructorAssignments />} />
-            <Route path="/instructor/manage-assignment" element={<InstructorManageAssignment />} />
-            <Route path="/instructor/create-assignment" element={<InstructorCreateAssignment />} />
-            <Route path="/instructor/profile" element={<InstructorProfile logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/settings" element={<InstructorSettings logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/notifications" element={<InstructorNotifications logout={logout} userRole="instructor" />} />
-            <Route path="/instructor/contact" element={<InstructorContact logout={logout} userRole="instructor" />} />
+          {/* Instructor */}
+          <Route path="/instructor/dashboard" element={<PageWrapper><InstructorDashboard logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/courses" element={<PageWrapper><InstructorCourses logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/course-view" element={<PageWrapper><InstructorCourseView logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/edit-course" element={<PageWrapper><InstructorEditCourse logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/create-course" element={<PageWrapper><InstructorCreateCourse logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/assignments" element={<PageWrapper><InstructorAssignments /></PageWrapper>} />
+          <Route path="/instructor/manage-assignment" element={<PageWrapper><InstructorManageAssignment /></PageWrapper>} />
+          <Route path="/instructor/create-assignment" element={<PageWrapper><InstructorCreateAssignment /></PageWrapper>} />
+          <Route path="/instructor/profile" element={<PageWrapper><InstructorProfile logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/settings" element={<PageWrapper><InstructorSettings logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/notifications" element={<PageWrapper><InstructorNotifications logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/contact" element={<PageWrapper><InstructorContact logout={logout} userRole="instructor" /></PageWrapper>} />
 
-            {/* Student */}
-            <Route path="/student/dashboard" element={<StudentDashboard logout={logout} userRole="student" />} />
-            <Route path="/student/courses" element={<StudentCourses logout={logout} userRole="student" />} />
-            <Route path="/student/assignments" element={<StudentAssignments userRole="student" logout={logout} />} />
-            <Route path="/student/assignment-details" element={<StudentAssignmentDetails userRole="student" logout={logout} />} />
-            <Route path="/student/assignment-feedback" element={<StudentAssignmentFeedback userRole="student" logout={logout} />} />
-            <Route path="/student/certificates" element={<StudentCertificates userRole="student" logout={logout} />} />
-            <Route path="/student/compiler" element={<StudentCompiler userRole="student" logout={logout} />} />
-            <Route path="/student/roadmaps" element={<StudentRoadmaps userRole="student" logout={logout} />} />
-            <Route path="/student/profile" element={<StudentProfile userRole="student" logout={logout} />} />
-            <Route path="/student/settings" element={<StudentSettings userRole="student" logout={logout} />} />
-            <Route path="/student/notifications" element={<StudentNotifications userRole="student" logout={logout} />} />
-            <Route path="/student/contact" element={<StudentContact userRole="student" logout={logout} />} />
+          {/* Student */}
+          <Route path="/student/dashboard" element={<PageWrapper><StudentDashboard logout={logout} userRole="student" /></PageWrapper>} />
+          <Route path="/student/courses" element={<PageWrapper><StudentCourses logout={logout} userRole="student" /></PageWrapper>} />
+          <Route path="/student/assignments" element={<PageWrapper><StudentAssignments userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/assignment-details" element={<PageWrapper><StudentAssignmentDetails userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/assignment-feedback" element={<PageWrapper><StudentAssignmentFeedback userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/certificates" element={<PageWrapper><StudentCertificates userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/compiler" element={<PageWrapper><StudentCompiler userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/roadmaps" element={<PageWrapper><StudentRoadmaps userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/profile" element={<PageWrapper><StudentProfile userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/settings" element={<PageWrapper><StudentSettings userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/notifications" element={<PageWrapper><StudentNotifications userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/contact" element={<PageWrapper><StudentContact userRole="student" logout={logout} /></PageWrapper>} />
 
-            {/* Admin */}
-            <Route path="/admin/dashboard" element={<AdminDashboard logout={logout} userRole="admin" />} />
-            <Route path="/admin/users" element={<AdminUsers logout={logout} userRole="admin" />} />
-            <Route path="/admin/courses" element={<AdminCourses logout={logout} userRole="admin" />} />
-            <Route path="/admin/course-details" element={<AdminCourseDetails logout={logout} userRole="admin" />} />
-            <Route path="/admin/reports" element={<AdminReports logout={logout} userRole="admin" />} />
-            <Route path="/admin/communities" element={<AdminCommunities logout={logout} userRole="admin" />} />
-            <Route path="/admin/profile" element={<AdminProfile logout={logout} userRole="admin" />} />
-            <Route path="/admin/settings" element={<AdminSettings logout={logout} userRole="admin" />} />
-            <Route path="/admin/notifications" element={<AdminNotifications logout={logout} userRole="admin" />} />
+          {/* Admin */}
+          <Route path="/admin/dashboard" element={<PageWrapper><AdminDashboard logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/users" element={<PageWrapper><AdminUsers logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/courses" element={<PageWrapper><AdminCourses logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/course-details" element={<PageWrapper><AdminCourseDetails logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/reports" element={<PageWrapper><AdminReports logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/communities" element={<PageWrapper><AdminCommunities logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/profile" element={<PageWrapper><AdminProfile logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/settings" element={<PageWrapper><AdminSettings logout={logout} userRole="admin" /></PageWrapper>} />
+          <Route path="/admin/notifications" element={<PageWrapper><AdminNotifications logout={logout} userRole="admin" /></PageWrapper>} />
 
-            {/* Shared */}
-            <Route path="/course-details" element={<CourseDetails userRole={userRole} logout={logout} />} />
-            <Route path="/courses" element={<AllCourses userRole={userRole} logout={logout} />} />
-            <Route path="/course-details-guest" element={<CourseDetailsGuest userRole="guest" />} />
-            <Route
-              path="/community"
-              element={
-                userRole === null
-                  ? <div>Loading...</div>
-                  : userRole === 'guest'
-                    ? <Navigate to="/login" />
-                    : <Community userRole={userRole} logout={logout} />
-              }
-            />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
+          {/* Shared */}
+          <Route path="/course-details" element={<PageWrapper><CourseDetails userRole={userRole} logout={logout} /></PageWrapper>} />
+          <Route path="/courses" element={<PageWrapper><AllCourses userRole={userRole} logout={logout} /></PageWrapper>} />
+          <Route path="/course-details-guest" element={<PageWrapper><CourseDetailsGuest userRole="guest" /></PageWrapper>} />
 
-            <Route path="*" element={<NotFound />} />
+          <Route
+            path="/community"
+            element={
+              userRole === null
+                ? <div>Loading...</div>
+                : userRole === 'guest'
+                  ? <Navigate to="/login" />
+                  : <PageWrapper><Community userRole={userRole} logout={logout} /></PageWrapper>
+            }
+          />
 
-          </Routes>
-        </motion.div>
+          <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+          <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
+
+          <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
+
+        </Routes>
       </AnimatePresence>
 
       <Toaster />

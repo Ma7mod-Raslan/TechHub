@@ -14,6 +14,7 @@ import {
   Globe,
   Shield,
   Mail,
+  Settings,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -34,15 +35,15 @@ interface AdminSettingsProps {
 export default function AdminSettings({logout }: AdminSettingsProps) {
   const navigate = useNavigate();
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-    { icon: Users, label: 'Users', page: 'admin-users' },
-    { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-    { icon: MessageSquare, label: 'Communities', page: 'admin-communities' },
-    { icon: FileText, label: 'Reports', page: 'admin-reports' },
-    { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-    { icon: User, label: 'Profile', page: 'admin-profile' },
-    { icon: SettingsIcon, label: 'Settings', page: 'admin-settings', active: true },
-  ];
+      { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+      { icon: Users, label: 'Users', page: '/admin/users' },
+      { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
+      { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+      { icon: FileText, label: 'Reports', page: '/admin/reports' },
+      { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
+      { icon: User, label: 'Profile', page: '/admin/profile' },
+      { icon: Settings, label: 'Settings', page: '/admin/settings' , active: true   },
+    ];
 
   return (
     <div className="min-h-screen bg-gray-50">

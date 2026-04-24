@@ -77,14 +77,14 @@ export default function AdminReports({logout }: ReportsProps) {
   const [showReplyDialog, setShowReplyDialog] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-    { icon: Users, label: 'Users', page: 'admin-users' },
-    { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-    { icon: MessageSquare, label: 'Communities', page: 'admin-communities' },
-    { icon: FileText, label: 'Reports', page: 'admin-reports', active: true },
-    { icon: Bell, label: 'Notifications', page: 'admin-notifications' },
-    { icon: User, label: 'Profile', page: 'admin-profile' },
-    { icon: Settings, label: 'Settings', page: 'admin-settings' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+    { icon: Users, label: 'Users', page: '/admin/users' },
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
+    { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+    { icon: FileText, label: 'Reports', page: '/admin/reports' , active: true  },
+    { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
+    { icon: User, label: 'Profile', page: '/admin/profile' },
+    { icon: Settings, label: 'Settings', page: '/admin/settings' },
   ];
 
   const filterReports = () => {

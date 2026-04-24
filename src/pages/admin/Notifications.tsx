@@ -45,14 +45,14 @@ export default function AdminNotifications({logout }: NotificationsProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: 'admin-dashboard' },
-    { icon: Users, label: 'Users', page: 'admin-users' },
-    { icon: BookOpen, label: 'Courses', page: 'admin-courses' },
-    { icon: MessageSquare, label: 'Communities', page: 'admin-communities' },
-    { icon: FileText, label: 'Reports', page: 'admin-reports' },
-    { icon: Bell, label: 'Notifications', page: 'admin-notifications', active: true },
-    { icon: User, label: 'Profile', page: 'admin-profile' },
-    { icon: Settings, label: 'Settings', page: 'admin-settings' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+    { icon: Users, label: 'Users', page: '/admin/users' },
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
+    { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+    { icon: FileText, label: 'Reports', page: '/admin/reports' },
+    { icon: Bell, label: 'Notifications', page: '/admin/notifications' , active: true   },
+    { icon: User, label: 'Profile', page: '/admin/profile' },
+    { icon: Settings, label: 'Settings', page: '/admin/settings' },
   ];
 
   const unreadCount = notifications.filter(n => !n.read).length;
