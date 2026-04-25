@@ -124,7 +124,7 @@ export const createAdminNotification = async ({
   type,
   reference_id = null
 }) => {
-  const admins = await db.query(
+  const admins = await pool.query(
     `SELECT id FROM users WHERE role = 'admin'`
   );
 
@@ -146,7 +146,7 @@ export const createAdminNotification = async ({
     );
   });
 
-  await db.query(
+  await pool.query(
     `
     INSERT INTO notifications (user_id, title, message, type, reference_id)
     VALUES ${values}
@@ -154,6 +154,7 @@ export const createAdminNotification = async ({
     params
   );
 };
+
 
 export default {
   createNotification,
