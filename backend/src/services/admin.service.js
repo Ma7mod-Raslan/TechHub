@@ -1,5 +1,6 @@
 import db from "../db.js";
 import { transporter } from "./mail.js";
+import { uploadProfileImage } from "./cloudinary.js";
 
 
 // Dashboard Stats
@@ -634,27 +635,43 @@ export const getAdminProfile = async (adminId) => {
   return result.rows[0];
 };
 
-// Update Admin Info
-export const updateAdminProfile = async (adminId, data) => {
-  const { full_name, email, profile_image, bio } = data;
+// Update Admin Name and Profile_image
+export const updateAdminProfile = async (adminId, name, file) => {
+  let imageUrl = null;
 
-  const result = await db.query(
-    `
-    UPDATE users
-    SET 
-      full_name = COALESCE($1, full_name),
-      email = COALESCE($2, email),
-      profile_image = COALESCE($3, profile_image),
-      bio = COALESCE($4, bio)
-    WHERE id = $5 AND role = 'admin'
-    RETURNING id, full_name, email, role, profile_image, bio
-    `,
-    [full_name, email, profile_image, bio, adminId]
-  );
-
-  if (result.rows.length === 0) {
-    throw new Error("Admin not found");
+  if (file) {
+    imageUrl = await uploadProfileImage(file.buffer);
   }
+
+  // Build dynamic query
+  const fields = [];
+  const values = [];
+  let index = 1;
+
+  if (name) {
+    fields.push(`name=$${index++}`);
+    values.push(name);
+  }
+
+  if (imageUrl) {
+    fields.push(`profile_image=$${index++}`);
+    values.push(imageUrl);
+  }
+
+  if (fields.length === 0) {
+    throw new Error("No data to update");
+  }
+
+  values.push(adminId);
+
+  const query = `
+    UPDATE users
+    SET ${fields.join(", ")}
+    WHERE id=$${index} AND role='admin'
+    RETURNING id, name, email, profile_image
+  `;
+
+  const result = await db.query(query, values);
 
   return result.rows[0];
 };

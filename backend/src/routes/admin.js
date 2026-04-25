@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { authMiddleware } from "../middleware/auth.js";
 import { allowRoles } from "../middleware/roles.js";
 import {
@@ -18,7 +19,6 @@ import {
     toggleReportStatus,
     getReportDetails,
     getAdminProfile,
-    updateAdminProfile,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -341,24 +341,29 @@ router.get(
   }
 );
 
-// Update Admin Info
-router.patch(
-  "/profile",
-  authMiddleware,
-  allowRoles("admin"),
-  async (req, res) => {
-    try {
-      const updated = await updateAdminProfile(req.user.id, req.body);
+// Update Name and profile image
+router.put("/update-profile", authMiddleware, upload.single("profile_image"), async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const { name } = req.body;
+    const file = req.file;
 
-      res.json({
-        message: "Profile updated successfully",
-        profile: updated
-      });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
+    const updatedAdmin = await updateAdminProfile(adminId, name, file);
+
+    if (!updatedAdmin) {
+      return res.status(404).json({ error: "Admin not found" });
     }
+
+    res.json({
+      message: "Profile updated successfully",
+      data: updatedAdmin
+    });
+
+  } catch (err) {
+    console.error("Update Admin Profile Error:", err);
+    res.status(500).json({ error: err.message });
   }
-);
+});
 
 // Get Notifications
 router.get(
