@@ -676,6 +676,27 @@ export const updateAdminProfile = async (adminId, name, file) => {
   return result.rows[0];
 };
 
+// Update Profile_image
+export const updateAdminProfileImage = async (adminId, file) => {
+  if (!file) {
+    throw new Error("Image is required");
+  }
+
+  // Upload to Cloudinary
+  const imageUrl = await uploadProfileImage(file.buffer);
+
+  // Update DB (admin only)
+  const result = await db.query(
+    `UPDATE users
+     SET profile_image = $1
+     WHERE id = $2 AND role = 'admin'
+     RETURNING profile_image`,
+    [imageUrl, adminId]
+  );
+
+  return result.rows[0];
+};
+
 // Mark As Read
 export const markAsRead = async (notificationId, userId) => {
   await db.query(

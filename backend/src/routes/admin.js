@@ -31,6 +31,7 @@ import {
     getContactMessageDetails,
     replyToContactMessage,
     deleteReport,
+    updateAdminProfileImage,
     deleteContactMessageById
 } from "../services/admin.service.js";
 import { uploadProfileImage } from "../services/cloudinary.js";
@@ -376,27 +377,32 @@ router.put(
   upload.single("file"),
   async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: "Image is required" });
+      // 🔐 check admin
+      if (req.user.role !== "admin") {
+        return res.status(403).json({ error: "Access denied" });
       }
 
-      const imageUrl = await uploadProfileImage(req.file.buffer);
-
-      await db.query(
-        "UPDATE users SET profile_image = $1 WHERE id = $2",
-        [imageUrl, req.user.id]
+      const updated = await updateAdminProfileImage(
+        req.user.id,
+        req.file
       );
 
+      if (!updated) {
+        return res.status(404).json({ error: "Admin not found" });
+      }
+
       res.json({
-        message: "Profile image updated",
-        profile_image: imageUrl,
+        message: "Admin profile image updated",
+        profile_image: updated.profile_image,
       });
+
     } catch (err) {
-      console.error("Profile image upload error:", err);
-      res.status(500).json({ error: "Internal server error" });
+      console.error("Admin image update error:", err);
+      res.status(500).json({ error: err.message });
     }
   }
 );
+
 
 // Get Notifications
 router.get(
