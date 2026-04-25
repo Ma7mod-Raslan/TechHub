@@ -649,7 +649,7 @@ export const updateAdminProfile = async (adminId, name, file) => {
   let index = 1;
 
   if (name) {
-    fields.push(`name=$${index++}`);
+    fields.push(`full_name=$${index++}`);
     values.push(name);
   }
 
@@ -668,7 +668,7 @@ export const updateAdminProfile = async (adminId, name, file) => {
     UPDATE users
     SET ${fields.join(", ")}
     WHERE id=$${index} AND role='admin'
-    RETURNING id, name, email, profile_image
+    RETURNING id, full_name, email, profile_image
   `;
 
   const result = await db.query(query, values);
