@@ -3,7 +3,7 @@ import pool from "../db.js";
 /* ===============================
    Create single notification
 ================================ */
-const createNotification = async (
+export const createNotification = async (
   userId,
   title,
   message,
