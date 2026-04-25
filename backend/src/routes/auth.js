@@ -3,6 +3,7 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { authMiddleware } from "../middleware/auth.js";
 import db from "../db.js";
 import { sendVerificationEmail } from "../services/mail.js";
 import { 
@@ -520,19 +521,20 @@ router.post("/reset-password", async (req, res) => {
 });
 
 // Change Password for local users ONLY
-router.post("/change-password", async (req, res) => {
+router.post("/change-password", authMiddleware, async (req, res) => {
   try {
-    const { email, code, new_password } = req.body;
+    const userId = req.user.id;
+    const { current_password, new_password } = req.body;
 
-    if (!email || !code || !new_password)
+    if (!current_password || !new_password)
       return res.status(400).json({
-        error: "Email, code, and new password are required"
+        error: "Current password and new password are required"
       });
 
+    //`` Get user data
     const result = await db.query(
-      `SELECT id, verification_code, verification_expires_at, auth_provider 
-       FROM users WHERE email=$1`,
-      [email]
+      `SELECT password, auth_provider FROM users WHERE id=$1`,
+      [userId]
     );
 
     if (result.rows.length === 0)
@@ -540,43 +542,43 @@ router.post("/change-password", async (req, res) => {
 
     const user = result.rows[0];
 
-    //  Google users can't do this
+    // Prevent Google users
     if (user.auth_provider !== "local")
       return res.status(403).json({
-        error: "Password reset is not allowed for Google accounts"
+        error: "Password change is not allowed for Google accounts"
       });
 
-    // Validate code
-    if (user.verification_code !== code)
-      return res.status(400).json({ error: "Invalid code" });
+    // Validate current password
+    const isMatch = await bcrypt.compare(current_password, user.password);
 
-    if (new Date() > user.verification_expires_at)
-      return res.status(400).json({ error: "Code expired" });
+    if (!isMatch)
+      return res.status(400).json({
+        error: "Current password is incorrect"
+      });
 
-    // Update password
+    // Hash new password
     const hashed = await bcrypt.hash(new_password, 10);
 
+    // Update password
     await db.query(
-      `UPDATE users 
-       SET password=$1, verification_code=NULL, verification_expires_at=NULL 
-       WHERE id=$2`,
-      [hashed, user.id]
+      `UPDATE users SET password=$1 WHERE id=$2`,
+      [hashed, userId]
     );
 
-    //  Notification
+    // Notification
     const time = new Date().toLocaleString();
 
     await createNotification(
-      user.id,
-      "Password Reset",
-      `Your password was reset successfully on ${time}. If this wasn't you, please contact support immediately.`,
+      userId,
+      "Password Changed",
+      `Your password was changed successfully on ${time}. If this wasn't you, please contact support immediately.`,
       "PASSWORD_CHANGED"
     );
 
     res.json({ message: "Password updated successfully" });
 
   } catch (err) {
-    console.error("Reset Password Error:", err);
+    console.error("Change Password Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
