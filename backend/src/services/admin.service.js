@@ -635,7 +635,7 @@ export const getAdminProfile = async (adminId) => {
   return result.rows[0];
 };
 
-// Update Admin Name and Profile_image
+// Update Admin Name 
 export const updateAdminProfile = async (adminId, name) => {
   const result = await db.query(
     `

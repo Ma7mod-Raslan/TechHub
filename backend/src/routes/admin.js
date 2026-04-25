@@ -31,6 +31,7 @@ import {
     getContactMessageDetails,
     replyToContactMessage,
     deleteReport,
+    updateAdminProfile,
     updateAdminProfileImage,
     deleteContactMessageById
 } from "../services/admin.service.js";
