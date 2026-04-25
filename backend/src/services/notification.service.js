@@ -1,4 +1,4 @@
-import pool from "../db.js";
+import db from "../db.js";
 
 /* ===============================
    Create single notification
@@ -11,7 +11,7 @@ export const createNotification = async (
   referenceId = null
 ) => {
 
-  const result = await pool.query(
+  const result = await db.query(
     `INSERT INTO notifications
      (user_id, title, message, type, reference_id)
      VALUES ($1,$2,$3,$4,$5)
@@ -61,7 +61,7 @@ const createBulkNotifications = async (
     VALUES ${values.join(",")}
   `;
 
-  await pool.query(query, params);
+  await db.query(query, params);
 };
 
 
@@ -70,7 +70,7 @@ const createBulkNotifications = async (
 ================================ */
 const getUserNotifications = async (userId) => {
 
-  const result = await pool.query(
+  const result = await db.query(
     `SELECT *
      FROM notifications
      WHERE user_id=$1
@@ -88,7 +88,7 @@ const getUserNotifications = async (userId) => {
 ================================ */
 const getUnreadCount = async (userId) => {
 
-  const result = await pool.query(
+  const result = await db.query(
     `SELECT COUNT(*) 
      FROM notifications
      WHERE user_id=$1
@@ -105,7 +105,7 @@ const getUnreadCount = async (userId) => {
 ================================ */
 const markAsRead = async (notificationId,userId) => {
 
-  const result = await pool.query(
+  const result = await db.query(
     `UPDATE notifications
      SET is_read=true
      WHERE id=$1
@@ -124,7 +124,7 @@ export const createAdminNotification = async ({
   type,
   reference_id = null
 }) => {
-  const admins = await pool.query(
+  const admins = await db.query(
     `SELECT id FROM users WHERE role = 'admin'`
   );
 
@@ -146,7 +146,7 @@ export const createAdminNotification = async ({
     );
   });
 
-  await pool.query(
+  await db.query(
     `
     INSERT INTO notifications (user_id, title, message, type, reference_id)
     VALUES ${values}

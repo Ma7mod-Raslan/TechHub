@@ -419,13 +419,13 @@ router.put(
 
 // Get Notifications
 router.get(
-  "/admin/notifications",
+  "/notifications",
   authMiddleware,
   allowRoles("admin"),
   async (req, res) => {
     const result = await db.query(
       `
-      SELECT id, title, message, type, is_read, created_at
+      SELECT *
       FROM notifications
       WHERE user_id = $1
       ORDER BY created_at DESC
