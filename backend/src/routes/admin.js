@@ -32,6 +32,8 @@ import {
     deleteReport,
     deleteContactMessageById
 } from "../services/admin.service.js";
+import { uploadProfileImage } from "../services/cloudinary.js";
+
 
 const router = express.Router();
 
@@ -365,6 +367,35 @@ router.put("/update-profile", authMiddleware, upload.single("profile_image"), as
     res.status(500).json({ error: err.message });
   }
 });
+
+// Update Image ONLY
+router.put(
+  "/profile-image",
+  authMiddleware,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Image is required" });
+      }
+
+      const imageUrl = await uploadProfileImage(req.file.buffer);
+
+      await db.query(
+        "UPDATE users SET profile_image = $1 WHERE id = $2",
+        [imageUrl, req.user.id]
+      );
+
+      res.json({
+        message: "Profile image updated",
+        profile_image: imageUrl,
+      });
+    } catch (err) {
+      console.error("Profile image upload error:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+);
 
 // Get Notifications
 router.get(
