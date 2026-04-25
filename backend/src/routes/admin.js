@@ -346,14 +346,27 @@ router.get(
   }
 );
 
-// Update Name and profile image
-router.put("/update-profile", authMiddleware, upload.single("profile_image"), async (req, res) => {
+// Update Name
+router.put("/update-profile",
+    authMiddleware,
+    async (req, res) => {
   try {
     const adminId = req.user.id;
     const { name } = req.body;
-    const file = req.file;
 
-    const updatedAdmin = await updateAdminProfile(adminId, name, file);
+    if (!name) {
+      return res.status(400).json({
+        error: "Name is required"
+      });
+    }
+
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        error: "Access denied"
+      });
+    }
+
+    const updatedAdmin = await updateAdminProfile(adminId, name);
 
     if (!updatedAdmin) {
       return res.status(404).json({ error: "Admin not found" });
@@ -372,7 +385,7 @@ router.put("/update-profile", authMiddleware, upload.single("profile_image"), as
 
 // Update Image ONLY
 router.put(
-  "/profile-image",
+  "/update-image",
   authMiddleware,
   upload.single("file"),
   async (req, res) => {

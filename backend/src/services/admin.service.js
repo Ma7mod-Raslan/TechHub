@@ -636,42 +636,16 @@ export const getAdminProfile = async (adminId) => {
 };
 
 // Update Admin Name and Profile_image
-export const updateAdminProfile = async (adminId, name, file) => {
-  let imageUrl = null;
-
-  if (file) {
-    imageUrl = await uploadProfileImage(file.buffer);
-  }
-
-  // Build dynamic query
-  const fields = [];
-  const values = [];
-  let index = 1;
-
-  if (name) {
-    fields.push(`full_name=$${index++}`);
-    values.push(name);
-  }
-
-  if (imageUrl) {
-    fields.push(`profile_image=$${index++}`);
-    values.push(imageUrl);
-  }
-
-  if (fields.length === 0) {
-    throw new Error("No data to update");
-  }
-
-  values.push(adminId);
-
-  const query = `
+export const updateAdminProfile = async (adminId, name) => {
+  const result = await db.query(
+    `
     UPDATE users
-    SET ${fields.join(", ")}
-    WHERE id=$${index} AND role='admin'
+    SET full_name = $1
+    WHERE id = $2 AND role = 'admin'
     RETURNING id, full_name, email, profile_image
-  `;
-
-  const result = await db.query(query, values);
+    `,
+    [name, adminId]
+  );
 
   return result.rows[0];
 };
@@ -684,6 +658,7 @@ export const updateAdminProfileImage = async (adminId, file) => {
 
   // Upload to Cloudinary
   const imageUrl = await uploadProfileImage(file.buffer);
+
 
   // Update DB (admin only)
   const result = await db.query(
