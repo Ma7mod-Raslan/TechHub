@@ -583,4 +583,72 @@ router.post("/change-password", authMiddleware, async (req, res) => {
   }
 });
 
+
+// Change Email for admin ONLY
+router.post("/change-email", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { new_email } = req.body;
+
+    if (!new_email)
+      return res.status(400).json({
+        error: "New email is required"
+      });
+
+    // Get user
+    const result = await db.query(
+      `SELECT role, email FROM users WHERE id=$1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: "User not found" });
+
+    const user = result.rows[0];
+
+    // Allow ONLY admin
+    if (user.role !== "admin")
+      return res.status(403).json({
+        error: "Only admins can change email"
+      });
+
+    // Check if email already exists
+    const existing = await db.query(
+      `SELECT id FROM users WHERE email=$1`,
+      [new_email]
+    );
+
+    if (existing.rows.length > 0)
+      return res.status(400).json({
+        error: "Email already in use"
+      });
+
+    const oldEmail = user.email;
+
+    // Update email
+    await db.query(
+      `UPDATE users SET email=$1 WHERE id=$2`,
+      [new_email, userId]
+    );
+
+    // Notification
+    const time = new Date().toLocaleString();
+
+
+    await createAdminNotification({
+      title: "Email Changed",
+      message: `Your email was changed from ${oldEmail} to ${new_email} on ${time}. If this wasn't you, please contact support immediately.`,
+      type: "EMAIL_CHANGED",
+      reference_id: user.id
+    });
+
+
+    res.json({ message: "Email updated successfully" });
+
+  } catch (err) {
+    console.error("Change Email Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
