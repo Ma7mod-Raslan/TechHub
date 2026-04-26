@@ -287,3 +287,40 @@ CREATE TABLE contact_messages (
   status VARCHAR(20) DEFAULT 'unread',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE roadmaps (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  duration VARCHAR(50),
+  difficulty VARCHAR(50),
+  progress INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE roadmap_steps (
+  id SERIAL PRIMARY KEY,
+  roadmap_id INT REFERENCES roadmaps(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  estimated_time VARCHAR(50),
+  status VARCHAR(50) DEFAULT 'locked',
+  step_order INT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE step_learning_objectives (
+  id SERIAL PRIMARY KEY,
+  step_id INT REFERENCES roadmap_steps(id) ON DELETE CASCADE,
+  objective TEXT NOT NULL
+);
+
+CREATE TABLE user_roadmap_steps (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  step_id INT REFERENCES roadmap_steps(id) ON DELETE CASCADE,
+  status VARCHAR(50) DEFAULT 'locked',
+  completed_at TIMESTAMP,
+  UNIQUE(user_id, step_id)
+);

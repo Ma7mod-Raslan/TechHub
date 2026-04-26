@@ -26,6 +26,7 @@ import adminRoutes  from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
 import compilerRoutes from "./routes/compiler.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import roadmapsRoutes from "./routes/roadmaps.js";
 
 
 // ===== Create app =====
@@ -90,6 +91,9 @@ app.use("/admin", adminRoutes);
 
 // Contact Us
 app.use("/", contactRoutes);
+
+// Roadmaps
+app.use("/api", roadmapsRoutes);
 
 // ===== Start server =====
 app.listen(5000, () => {
