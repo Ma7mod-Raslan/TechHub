@@ -1,0 +1,597 @@
+[
+    {
+        "id": 1,
+        "category": "gibberish",
+        "question": "asjdklasd qweoip zxcvbn",
+        "expected_source": "rejected",
+        "description": "Random characters"
+    },
+    {
+        "id": 2,
+        "category": "gibberish",
+        "question": "aaaaaaa bbbbbb cccccc",
+        "expected_source": "rejected",
+        "description": "Repeated characters"
+    },
+    {
+        "id": 3,
+        "category": "gibberish",
+        "question": "x",
+        "expected_source": "rejected",
+        "description": "Single character"
+    },
+    {
+        "id": 4,
+        "category": "gibberish",
+        "question": "a b c d e f",
+        "expected_source": "rejected",
+        "description": "All single letters"
+    },
+    {
+        "id": 5,
+        "category": "gibberish",
+        "question": "qwerty asdf zxcv",
+        "expected_source": "rejected",
+        "description": "Keyboard patterns"
+    },
+    {
+        "id": 6,
+        "category": "gibberish",
+        "question": "jjjjjjjjjjj",
+        "expected_source": "rejected",
+        "description": "Single repeated char"
+    },
+    {
+        "id": 7,
+        "category": "gibberish",
+        "question": "!@#$%^&*",
+        "expected_source": "rejected",
+        "description": "Only symbols"
+    },
+    {
+        "id": 8,
+        "category": "gibberish",
+        "question": "sdfgh jklmn bvcxz",
+        "expected_source": "rejected",
+        "description": "Random letter groups"
+    },
+    {
+        "id": 9,
+        "category": "gibberish",
+        "question": "",
+        "expected_source": "rejected",
+        "description": "Empty input"
+    },
+    {
+        "id": 10,
+        "category": "gibberish",
+        "question": "rrrrtttttyyyy",
+        "expected_source": "rejected",
+        "description": "Repeated pattern"
+    },
+    {
+        "id": 11,
+        "category": "greeting",
+        "question": "hi",
+        "expected_source": "qa_or_video",
+        "description": "Simple hi"
+    },
+    {
+        "id": 12,
+        "category": "greeting",
+        "question": "hello",
+        "expected_source": "qa_or_video",
+        "description": "Hello"
+    },
+    {
+        "id": 13,
+        "category": "greeting",
+        "question": "good morning",
+        "expected_source": "qa_or_video",
+        "description": "Morning greeting"
+    },
+    {
+        "id": 14,
+        "category": "greeting",
+        "question": "thank you",
+        "expected_source": "qa_or_video",
+        "description": "Thanks"
+    },
+    {
+        "id": 15,
+        "category": "greeting",
+        "question": "who are you",
+        "expected_source": "qa_or_video",
+        "description": "Bot identity"
+    },
+    {
+        "id": 16,
+        "category": "greeting",
+        "question": "what can you do",
+        "expected_source": "qa_or_video",
+        "description": "Bot capabilities"
+    },
+    {
+        "id": 17,
+        "category": "greeting",
+        "question": "bye",
+        "expected_source": "qa_or_video",
+        "description": "Goodbye"
+    },
+    {
+        "id": 18,
+        "category": "greeting",
+        "question": "help me",
+        "expected_source": "qa_or_video",
+        "description": "Help request"
+    },
+    {
+        "id": 19,
+        "category": "greeting",
+        "question": "thanks a lot",
+        "expected_source": "qa_or_video",
+        "description": "Extended thanks"
+    },
+    {
+        "id": 20,
+        "category": "greeting",
+        "question": "ok",
+        "expected_source": "qa_or_video",
+        "description": "Acknowledgment"
+    },
+    {
+        "id": 21,
+        "category": "qa_match",
+        "question": "How do I create an account?",
+        "expected_source": "qa",
+        "description": "Account creation"
+    },
+    {
+        "id": 22,
+        "category": "qa_match",
+        "question": "How to reset my password?",
+        "expected_source": "qa",
+        "description": "Password reset"
+    },
+    {
+        "id": 23,
+        "category": "qa_match",
+        "question": "How can I get a certificate?",
+        "expected_source": "qa",
+        "description": "Certificate"
+    },
+    {
+        "id": 24,
+        "category": "qa_match",
+        "question": "How do I submit an assignment?",
+        "expected_source": "qa",
+        "description": "Assignment"
+    },
+    {
+        "id": 25,
+        "category": "qa_match",
+        "question": "How to contact support?",
+        "expected_source": "qa",
+        "description": "Support"
+    },
+    {
+        "id": 26,
+        "category": "qa_match",
+        "question": "What courses are available?",
+        "expected_source": "qa",
+        "description": "Courses"
+    },
+    {
+        "id": 27,
+        "category": "qa_match",
+        "question": "How to enroll in a course?",
+        "expected_source": "qa",
+        "description": "Enrollment"
+    },
+    {
+        "id": 28,
+        "category": "qa_match",
+        "question": "How to track my progress?",
+        "expected_source": "qa",
+        "description": "Progress"
+    },
+    {
+        "id": 29,
+        "category": "qa_match",
+        "question": "How do I log in?",
+        "expected_source": "qa",
+        "description": "Login"
+    },
+    {
+        "id": 30,
+        "category": "qa_match",
+        "question": "How to update my profile?",
+        "expected_source": "qa",
+        "description": "Profile"
+    },
+    {
+        "id": 31,
+        "category": "video_match",
+        "question": "What is HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V14 - What is HTML"
+    },
+    {
+        "id": 32,
+        "category": "video_match",
+        "question": "What does HTML stand for?",
+        "expected_source": "qa_or_video",
+        "description": "V14 - HyperText Markup Language"
+    },
+    {
+        "id": 33,
+        "category": "video_match",
+        "question": "How do web browsers display HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V14 - Browsers read HTML"
+    },
+    {
+        "id": 34,
+        "category": "video_match",
+        "question": "What text editor should I use to learn HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V15 - Notepad/TextEdit"
+    },
+    {
+        "id": 35,
+        "category": "video_match",
+        "question": "How to create my first web page?",
+        "expected_source": "qa_or_video",
+        "description": "V15 - 4 steps"
+    },
+    {
+        "id": 36,
+        "category": "video_match",
+        "question": "How to save an HTML file?",
+        "expected_source": "qa_or_video",
+        "description": "V15 - Save as index.html"
+    },
+    {
+        "id": 37,
+        "category": "video_match",
+        "question": "What is an HTML element?",
+        "expected_source": "qa_or_video",
+        "description": "V16 - Start tag + end tag"
+    },
+    {
+        "id": 38,
+        "category": "video_match",
+        "question": "What are nested HTML elements?",
+        "expected_source": "qa_or_video",
+        "description": "V16 - Elements within elements"
+    },
+    {
+        "id": 39,
+        "category": "video_match",
+        "question": "What is an empty element in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V16 - br element"
+    },
+    {
+        "id": 40,
+        "category": "video_match",
+        "question": "What are HTML attributes?",
+        "expected_source": "qa_or_video",
+        "description": "V17 - name/value pairs"
+    },
+    {
+        "id": 41,
+        "category": "video_match",
+        "question": "What is the href attribute in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V17 - Link attribute"
+    },
+    {
+        "id": 42,
+        "category": "video_match",
+        "question": "How to add an image in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V17 - src attribute"
+    },
+    {
+        "id": 43,
+        "category": "video_match",
+        "question": "What are HTML headings?",
+        "expected_source": "qa_or_video",
+        "description": "V18 - h1 to h6"
+    },
+    {
+        "id": 44,
+        "category": "video_match",
+        "question": "How many heading levels are there in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V18 - Six levels"
+    },
+    {
+        "id": 45,
+        "category": "video_match",
+        "question": "What is the difference between h1 and h6?",
+        "expected_source": "qa_or_video",
+        "description": "V18 - h1 largest h6 smallest"
+    },
+    {
+        "id": 46,
+        "category": "video_match",
+        "question": "Why are headings important in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V18 - SEO and skimming"
+    },
+    {
+        "id": 47,
+        "category": "video_match",
+        "question": "How to change the size of an HTML heading?",
+        "expected_source": "qa_or_video",
+        "description": "V18 - CSS font-size"
+    },
+    {
+        "id": 48,
+        "category": "video_match",
+        "question": "What is the HTML paragraph element?",
+        "expected_source": "qa_or_video",
+        "description": "V19 - p element"
+    },
+    {
+        "id": 49,
+        "category": "video_match",
+        "question": "How to add a line break in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V19 - br element"
+    },
+    {
+        "id": 50,
+        "category": "video_match",
+        "question": "How to change background color in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V20 - background-color"
+    },
+    {
+        "id": 51,
+        "category": "video_match",
+        "question": "How to change text color in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V20 - CSS color property"
+    },
+    {
+        "id": 52,
+        "category": "video_match",
+        "question": "How to change font in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V20 - font-family"
+    },
+    {
+        "id": 53,
+        "category": "video_match",
+        "question": "How to center text in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V20 - text-align center"
+    },
+    {
+        "id": 54,
+        "category": "video_match",
+        "question": "How to make text bold in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V21 - b and strong"
+    },
+    {
+        "id": 55,
+        "category": "video_match",
+        "question": "What is the difference between bold and strong in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V21 - b vs strong"
+    },
+    {
+        "id": 56,
+        "category": "video_match",
+        "question": "How to make text italic in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V21 - i and em"
+    },
+    {
+        "id": 57,
+        "category": "video_match",
+        "question": "What are HTML comments?",
+        "expected_source": "qa_or_video",
+        "description": "V22 - Comment tags"
+    },
+    {
+        "id": 58,
+        "category": "video_match",
+        "question": "Are HTML comments displayed in the browser?",
+        "expected_source": "qa_or_video",
+        "description": "V22 - Not displayed"
+    },
+    {
+        "id": 59,
+        "category": "video_match",
+        "question": "What is RGB in HTML colors?",
+        "expected_source": "qa_or_video",
+        "description": "V23 - Red Green Blue"
+    },
+    {
+        "id": 60,
+        "category": "video_match",
+        "question": "What is a hex color value?",
+        "expected_source": "qa_or_video",
+        "description": "V23 - Hexadecimal colors"
+    },
+    {
+        "id": 61,
+        "category": "video_match",
+        "question": "How to make text transparent in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "V23 - RGBA alpha channel"
+    },
+    {
+        "id": 62,
+        "category": "video_match",
+        "question": "How many color names does HTML support?",
+        "expected_source": "qa_or_video",
+        "description": "V23 - 140 predefined colors"
+    },
+    {
+        "id": 63,
+        "category": "out_of_domain",
+        "question": "What is the weather today?",
+        "expected_source": "none",
+        "description": "Weather"
+    },
+    {
+        "id": 64,
+        "category": "out_of_domain",
+        "question": "Who is the president of Egypt?",
+        "expected_source": "none",
+        "description": "Politics"
+    },
+    {
+        "id": 65,
+        "category": "out_of_domain",
+        "question": "How to cook pasta?",
+        "expected_source": "none",
+        "description": "Cooking"
+    },
+    {
+        "id": 66,
+        "category": "out_of_domain",
+        "question": "What is the capital of France?",
+        "expected_source": "none",
+        "description": "Geography"
+    },
+    {
+        "id": 67,
+        "category": "out_of_domain",
+        "question": "Tell me a joke",
+        "expected_source": "none",
+        "description": "Entertainment"
+    },
+    {
+        "id": 68,
+        "category": "out_of_domain",
+        "question": "How to fix my car engine?",
+        "expected_source": "none",
+        "description": "Car repair"
+    },
+    {
+        "id": 69,
+        "category": "out_of_domain",
+        "question": "What is quantum physics?",
+        "expected_source": "none",
+        "description": "Physics"
+    },
+    {
+        "id": 70,
+        "category": "out_of_domain",
+        "question": "How to lose weight fast?",
+        "expected_source": "none",
+        "description": "Health"
+    },
+    {
+        "id": 71,
+        "category": "out_of_domain",
+        "question": "Who won the World Cup?",
+        "expected_source": "none",
+        "description": "Sports"
+    },
+    {
+        "id": 72,
+        "category": "out_of_domain",
+        "question": "How to play guitar?",
+        "expected_source": "none",
+        "description": "Music"
+    },
+    {
+        "id": 73,
+        "category": "out_of_domain",
+        "question": "What is a variable in Python?",
+        "expected_source": "none",
+        "description": "Python NOT in data"
+    },
+    {
+        "id": 74,
+        "category": "out_of_domain",
+        "question": "How to create a function in JavaScript?",
+        "expected_source": "none",
+        "description": "JavaScript NOT in data"
+    },
+    {
+        "id": 75,
+        "category": "out_of_domain",
+        "question": "What is the DOM?",
+        "expected_source": "none",
+        "description": "DOM NOT in data"
+    },
+    {
+        "id": 76,
+        "category": "spell_error",
+        "question": "What is an HTML elemnt?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: element - V16"
+    },
+    {
+        "id": 77,
+        "category": "spell_error",
+        "question": "What are HTML headngs?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: headings - V18"
+    },
+    {
+        "id": 78,
+        "category": "spell_error",
+        "question": "How to change backgrond color?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: background - V20"
+    },
+    {
+        "id": 79,
+        "category": "spell_error",
+        "question": "How to make text bld in HTML?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: bold - V21"
+    },
+    {
+        "id": 80,
+        "category": "spell_error",
+        "question": "What are HTML atributes?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: attributes - V17"
+    },
+    {
+        "id": 81,
+        "category": "spell_error",
+        "question": "How do I reest my passwrod?",
+        "expected_source": "qa",
+        "description": "Misspelled: reset password"
+    },
+    {
+        "id": 82,
+        "category": "spell_error",
+        "question": "How to get a certiifcate?",
+        "expected_source": "qa",
+        "description": "Misspelled: certificate"
+    },
+    {
+        "id": 83,
+        "category": "spell_error",
+        "question": "What is the paragrph element?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: paragraph - V19"
+    },
+    {
+        "id": 84,
+        "category": "spell_error",
+        "question": "What are HTML coments?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: comments - V22"
+    },
+    {
+        "id": 85,
+        "category": "spell_error",
+        "question": "What is a hx color value?",
+        "expected_source": "qa_or_video",
+        "description": "Misspelled: hex - V23"
+    }
+]

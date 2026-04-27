@@ -200,6 +200,18 @@
     "answer": "Yes, TechHub offers intermediate and advanced-level courses for students who want to deepen their skills. These include advanced programming courses, data science methodologies, AI concepts, and specialized software testing techniques."
   },
   {
+    "topic": "What can you do",
+    "answer": "I am TechHub Assistant. I can help you with: 1) Questions about the TechHub platform like account creation, certificates, assignments, and course enrollment. 2) Course content questions - I can find answers from video lectures and tell you exactly which video and timestamp to watch. 3) I currently cover the HTML for Beginners course. Just ask me anything!"
+  },
+  {
+    "topic": "What is your purpose",
+    "answer": "I am TechHub Assistant, an AI chatbot designed to help students on the TechHub platform. I can answer questions about your account, courses, assignments, certificates, and I can also explain course content from video lectures with exact timestamps."
+  },
+  {
+    "topic": "What topics can you help with",
+    "answer": "I can help you with TechHub platform questions like account management, course enrollment, assignments, certificates, and payments. I can also answer questions about course content from video lectures, currently covering HTML for Beginners including topics like HTML elements, attributes, headings, paragraphs, styles, formatting, comments, and colors."
+  },
+  {
     "topic": "What HTML courses do you have?",
     "answer": "TechHub offers the 'HTML for Beginners' course which covers HTML essentials including elements, attributes, headings, paragraphs, links, images, lists, tables, and more. It is a beginner-level course perfect for learning how to build web pages."
   },
