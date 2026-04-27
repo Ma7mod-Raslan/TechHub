@@ -55,6 +55,45 @@ router.get(
   }
 );
 
+
+// GET Activity
+router.get("/dashboard/activity", async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT 
+        TO_CHAR(date_trunc('month', d.month), 'Mon YYYY') AS month,
+        COALESCE(u.users, 0) AS users,
+        COALESCE(c.courses, 0) AS courses
+      FROM (
+        SELECT generate_series(
+          date_trunc('month', NOW()) - interval '11 months',
+          date_trunc('month', NOW()),
+          interval '1 month'
+        ) AS month
+      ) d
+
+      LEFT JOIN (
+        SELECT date_trunc('month', created_at) AS month, COUNT(*) AS users
+        FROM users
+        GROUP BY month
+      ) u ON u.month = d.month
+
+      LEFT JOIN (
+        SELECT date_trunc('month', created_at) AS month, COUNT(*) AS courses
+        FROM courses
+        GROUP BY month
+      ) c ON c.month = d.month
+
+      ORDER BY d.month;
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET Instructors data
 router.get(
   "/instructors",

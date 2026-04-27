@@ -5,38 +5,93 @@ import { uploadProfileImage } from "./cloudinary.js";
 
 // Dashboard Stats
 export const getDashboardStats = async () => {
-  const totalUsersQuery = db.query(`SELECT COUNT(*) FROM users`);
-  
-  const totalInstructorsQuery = db.query(
-    `SELECT COUNT(*) FROM users WHERE role = 'instructor'`
-  );
-
-  const activeCoursesQuery = db.query(
-    `SELECT COUNT(*) FROM courses WHERE is_active = true`
-  );
-
-  const reportsQuery = db.query(
-    `SELECT COUNT(*) FROM community_reports`
-  );
-
-  // run queries in parallel 🔥
   const [
     totalUsers,
     totalInstructors,
     activeCourses,
-    reports
+    reports,
+
+    usersGrowth,
+    instructorsGrowth,
+    coursesThisWeek,
+    pendingReports
   ] = await Promise.all([
-    totalUsersQuery,
-    totalInstructorsQuery,
-    activeCoursesQuery,
-    reportsQuery
+    db.query(`SELECT COUNT(*) FROM users`),
+
+    db.query(`SELECT COUNT(*) FROM users WHERE role = 'instructor'`),
+
+    db.query(`SELECT COUNT(*) FROM courses WHERE is_active = true`),
+
+    db.query(`SELECT COUNT(*) FROM community_reports`),
+
+    // users growth
+    db.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE)) AS current_month,
+        COUNT(*) FILTER (
+          WHERE created_at >= date_trunc('month', CURRENT_DATE - interval '1 month')
+          AND created_at < date_trunc('month', CURRENT_DATE)
+        ) AS last_month
+      FROM users
+    `),
+
+    // instructors growth
+    db.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE created_at >= date_trunc('month', CURRENT_DATE)) AS current_month,
+        COUNT(*) FILTER (
+          WHERE created_at >= date_trunc('month', CURRENT_DATE - interval '1 month')
+          AND created_at < date_trunc('month', CURRENT_DATE)
+        ) AS last_month
+      FROM users
+      WHERE role = 'instructor'
+    `),
+
+    // courses this week
+    db.query(`
+      SELECT COUNT(*) FROM courses
+      WHERE created_at >= date_trunc('week', CURRENT_DATE)
+    `),
+
+    // pending reports
+    db.query(`
+      SELECT COUNT(*) FROM community_reports
+      WHERE status = 'pending'
+    `)
   ]);
 
+  // helper function
+  const calcGrowth = (current, last) => {
+    if (last === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - last) / last) * 100);
+  };
+
+  const usersCurrent = Number(usersGrowth.rows[0].current_month);
+  const usersLast = Number(usersGrowth.rows[0].last_month);
+
+  const instructorsCurrent = Number(instructorsGrowth.rows[0].current_month);
+  const instructorsLast = Number(instructorsGrowth.rows[0].last_month);
+
   return {
-    totalUsers: Number(totalUsers.rows[0].count),
-    totalInstructors: Number(totalInstructors.rows[0].count),
-    activeCourses: Number(activeCourses.rows[0].count),
-    reports: Number(reports.rows[0].count)
+    totalUsers: {
+      value: Number(totalUsers.rows[0].count),
+      growth: calcGrowth(usersCurrent, usersLast)
+    },
+
+    totalInstructors: {
+      value: Number(totalInstructors.rows[0].count),
+      growth: calcGrowth(instructorsCurrent, instructorsLast)
+    },
+
+    activeCourses: {
+      value: Number(activeCourses.rows[0].count),
+      thisWeek: Number(coursesThisWeek.rows[0].count)
+    },
+
+    reports: {
+      value: Number(reports.rows[0].count),
+      pending: Number(pendingReports.rows[0].count)
+    }
   };
 };
 
