@@ -6,7 +6,8 @@ import {
     getAllRoadmaps,
     getStepDetails,
     completeStep,
-    goToNextStep
+    goToNextStep,
+    startRoadmap
 } from "../services/roadmaps.service.js"
 
 const router = express.Router();
@@ -27,6 +28,21 @@ router.get(
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch roadmaps" });
+  }
+});
+
+// start roadmap
+router.post("/roadmaps/:roadmapId/start", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const roadmapId = req.params.roadmapId;
+
+    const result = await startRoadmap(userId, roadmapId);
+
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to start roadmap" });
   }
 });
 
