@@ -1,95 +1,69 @@
-import { spawn  } from "child_process";
-import fs from "fs/promises";
-import path from "path";
-import { v4 as uuid } from "uuid";
+import axios from "axios";
 
-const TEMP_DIR = "./temp";
+const BASE_URL = "https://judge0-ce.p.rapidapi.com/submissions";
 
-export const runCode = async (language, code, input = "") => {
-  const id = uuid();
-  const dirPath = path.join(TEMP_DIR, id);
+const headers = {
+  "X-RapidAPI-Key": process.env.JUDGE0_API_KEY,
+  "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+  "Content-Type": "application/json"
+};
 
-  await fs.mkdir(dirPath, { recursive: true });
+const createSubmission = async ({ source_code, language_id, stdin }) => {
+  const { data } = await axios.post(
+    `${BASE_URL}?base64_encoded=false&wait=false`,
+    {
+      source_code,
+      language_id,
+      stdin
+    },
+    { headers }
+  );
 
-  let fileName;
-  let dockerArgs;
+  return data.token;
+};
 
-  const fullPath = path.resolve(dirPath).replace(/\\/g, "/");
+const getSubmission = async (token) => {
+  const { data } = await axios.get(`${BASE_URL}/${token}`, {
+    headers
+  });
 
-  switch (language) {
-    case "python":
-      fileName = "main.py";
-      dockerArgs = [
-        "run", "--rm", "-i",
-        "--memory=100m", "--cpus=0.5", "--network=none",
-        "-v", `${fullPath}:/app`,
-        "python:3.10",
-        "python", "/app/main.py"
-      ];
-      break;
+  return data;
+};
 
-    case "javascript":
-      fileName = "main.js";
-      dockerArgs = [
-        "run", "--rm", "-i",
-        "--memory=100m", "--cpus=0.5", "--network=none",
-        "-v", `${fullPath}:/app`,
-        "node:18",
-        "node", "/app/main.js"
-      ];
-      break;
+const waitForResult = async (token) => {
+  let attempts = 0;
 
-    case "cpp":
-      fileName = "main.cpp";
-      dockerArgs = [
-        "run", "--rm", "-i",
-        "--memory=100m", "--cpus=0.5", "--network=none",
-        "-v", `${fullPath}:/app`,
-        "gcc:latest",
-        "bash", "-c",
-        "g++ /app/main.cpp -o /app/a.out && /app/a.out"
-      ];
-      break;
+  while (attempts < 10) {
+    const result = await getSubmission(token);
 
-    default:
-      throw new Error("Unsupported language");
+    if (result.status.id > 2) return result;
+
+    await new Promise((r) => setTimeout(r, 1000));
+    attempts++;
   }
 
-  const filePath = path.join(dirPath, fileName);
-  await fs.writeFile(filePath, code);
+  throw new Error("Execution timeout");
+};
 
-  return new Promise((resolve) => {
-    const process = spawn("docker", dockerArgs);
-
-    let stdout = "";
-    let stderr = "";
-
-    // 📥 نبعت input هنا
-    if (input) {
-      process.stdin.write(input);
-    }
-    process.stdin.end();
-
-    process.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    process.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    process.on("close", async () => {
-      await fs.rm(dirPath, { recursive: true, force: true });
-
-      resolve({
-        output: stdout || null,
-        error: stderr || null,
-      });
-    });
-
-    // ⏱️ timeout protection
-    setTimeout(() => {
-      process.kill();
-    }, 5000);
+export const executeCode = async ({
+  source_code,
+  language_id,
+  stdin
+}) => {
+  const token = await createSubmission({
+    source_code,
+    language_id,
+    stdin
   });
+
+  const result = await waitForResult(token);
+
+  return {
+  output: result.stdout || null,
+  error: result.stderr || result.compile_output || null,
+  status: result.status.description,
+  time: result.time,
+  memory: result.memory
+};
+
 };
