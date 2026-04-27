@@ -63,16 +63,14 @@ export default function AdminNotifications({logout }: NotificationsProps) {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/notifications/${id}/read`, {
+      await fetch(`http://localhost:5000/admin/notifications/${id}/read`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
       });
 
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, read: true } : n)
-      );
+      await fetchNotifications();
 
     } catch (err) {
       console.error(err);
@@ -81,16 +79,14 @@ export default function AdminNotifications({logout }: NotificationsProps) {
 
   const markAllAsRead = async () => {
     try {
-      await fetch("http://localhost:5000/notifications/read-all", {
+      await fetch("http://localhost:5000/admin/notifications/read-all", {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
       });
 
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, read: true }))
-      );
+      await fetchNotifications();
 
     } catch (err) {
       console.error(err);

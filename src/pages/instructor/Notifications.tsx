@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   LayoutDashboard,
@@ -31,57 +31,21 @@ interface InstructorNotificationsProps {
   userRole: 'instructor';
 }
 
-const notifications = [
-  {
-    id: 1,
-    type: 'revenue',
-    icon: DollarSign,
-    title: 'New Payment Received',
-    message: 'You earned $450 from course enrollments this week.',
-    time: '1 hour ago',
-    read: false,
-  },
-  {
-    id: 2,
-    type: 'student',
-    icon: UserPlus,
-    title: 'New Student Enrollment',
-    message: '25 students enrolled in "Complete Web Development Bootcamp" today.',
-    time: '3 hours ago',
-    read: false,
-  },
-  {
-    id: 3,
-    type: 'review',
-    icon: Star,
-    title: 'New Course Review',
-    message: 'John Doe gave your course a 5-star rating with positive feedback!',
-    time: '5 hours ago',
-    read: false,
-  },
-  {
-    id: 4,
-    type: 'message',
-    icon: MessageSquare,
-    title: 'Student Question',
-    message: 'Sarah Martinez asked a question in "React Masterclass" discussion.',
-    time: '1 day ago',
-    read: true,
-  },
-  {
-    id: 5,
-    type: 'achievement',
-    icon: TrendingUp,
-    title: 'Milestone Reached',
-    message: 'Congratulations! You now have 3,000 total students across all courses!',
-    time: '2 days ago',
-    read: true,
-  },
-];
+type Notification = {
+  id: number;
+  title: string;
+  message: string;
+  type: string;
+  is_read: boolean;
+  created_at: string;
+};
 
-export default function InstructorNotifications({logout, userRole }: InstructorNotificationsProps) {
+
+export default function InstructorNotifications({ logout, userRole }: InstructorNotificationsProps) {
   const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
@@ -93,6 +57,65 @@ export default function InstructorNotifications({logout, userRole }: InstructorN
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
     { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
   ];
+
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch("http://localhost:5000/api/notifications", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setNotifications(data);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  const handleMarkAsRead = async (id: number) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      await fetch(
+        `http://localhost:5000/api/notifications/${id}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === id ? { ...n, is_read: true } : n
+        )
+      );
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "revenue": return DollarSign;
+      case "student": return UserPlus;
+      case "review": return Star;
+      case "achievement": return TrendingUp;
+      default: return MessageSquare;
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -142,42 +165,74 @@ export default function InstructorNotifications({logout, userRole }: InstructorN
 
           <main className="p-6 max-w-4xl">
             <div className="space-y-3">
-              {notifications.map((notification) => (
-                <motion.div
-                  key={notification.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.01 }}
-                >
-                  <Card className={`cursor-pointer transition-all ${!notification.read ? 'border-l-4 border-l-violet-600 bg-violet-50/30' : ''}`}>
-                    <CardContent className="p-4">
-                      <div className="flex gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${notification.type === 'revenue' ? 'bg-green-100' :
-                          notification.type === 'review' ? 'bg-yellow-100' :
-                            notification.type === 'achievement' ? 'bg-purple-100' :
-                              'bg-blue-100'
-                          }`}>
-                          <notification.icon className={`h-6 w-6 ${notification.type === 'revenue' ? 'text-green-600' :
-                            notification.type === 'review' ? 'text-yellow-600' :
-                              notification.type === 'achievement' ? 'text-purple-600' :
-                                'text-blue-600'
-                            }`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-1">
-                            <h3>{notification.title}</h3>
-                            {!notification.read && (
-                              <Badge className="bg-violet-600">New</Badge>
-                            )}
+              {notifications.map((notification) => {
+                const Icon = getIcon(notification.type);
+
+                return (
+                  <motion.div
+                    key={notification.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.01 }}
+                  >
+                    <Card
+                      onClick={() => handleMarkAsRead(notification.id)}
+                      className={`cursor-pointer transition-all ${!notification.is_read
+                          ? "border-l-4 border-l-violet-600 bg-violet-50/30"
+                          : ""
+                        }`}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+
+                          {/* Icon */}
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${notification.type === "revenue"
+                                ? "bg-green-100"
+                                : notification.type === "review"
+                                  ? "bg-yellow-100"
+                                  : notification.type === "achievement"
+                                    ? "bg-purple-100"
+                                    : "bg-blue-100"
+                              }`}
+                          >
+                            <Icon
+                              className={`h-6 w-6 ${notification.type === "revenue"
+                                  ? "text-green-600"
+                                  : notification.type === "review"
+                                    ? "text-yellow-600"
+                                    : notification.type === "achievement"
+                                      ? "text-purple-600"
+                                      : "text-blue-600"
+                                }`}
+                            />
                           </div>
-                          <p className="text-gray-600 mb-2">{notification.message}</p>
-                          <span className="text-sm text-gray-500">{notification.time}</span>
+
+                          {/* Content */}
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-1">
+                              <h3>{notification.title}</h3>
+
+                              {!notification.is_read && (
+                                <Badge className="bg-violet-600">New</Badge>
+                              )}
+                            </div>
+
+                            <p className="text-gray-600 mb-2">
+                              {notification.message}
+                            </p>
+
+                            <span className="text-sm text-gray-500">
+                              {new Date(notification.created_at).toLocaleString()}
+                            </span>
+                          </div>
+
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </div>
           </main>
         </div>

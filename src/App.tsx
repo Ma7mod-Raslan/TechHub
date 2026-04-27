@@ -33,6 +33,7 @@ import StudentAssignmentFeedback from './pages/student/AssignmentFeedback';
 import StudentCertificates from './pages/student/Certificates';
 import StudentCompiler from './pages/student/Compiler';
 import StudentRoadmaps from './pages/student/Roadmaps';
+import StudentRoadmapDetails from './pages/student/RoadmapDetails';
 import StudentProfile from './pages/student/Profile';
 import StudentSettings from './pages/student/Settings';
 import StudentNotifications from './pages/student/Notifications';
@@ -129,6 +130,7 @@ export default function App() {
           <Route path="/student/certificates" element={<PageWrapper><StudentCertificates userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/compiler" element={<PageWrapper><StudentCompiler userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/roadmaps" element={<PageWrapper><StudentRoadmaps userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/student/roadmap-details" element={ <PageWrapper><StudentRoadmapDetails userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/profile" element={<PageWrapper><StudentProfile userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/settings" element={<PageWrapper><StudentSettings userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/notifications" element={<PageWrapper><StudentNotifications userRole="student" logout={logout} /></PageWrapper>} />

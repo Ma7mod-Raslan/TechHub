@@ -69,7 +69,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }
-          
+
         });
         console.log("TOKEN 👉", localStorage.getItem("accessToken"));
 
@@ -623,7 +623,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex">
+        <div className="flex h-screen overflow-hidden">
           {/* Sidebar - Always visible */}
           <Sidebar
             userRole={userRole}
@@ -656,7 +656,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
                       Moderation Mode: ON
                     </Badge>
                   )}
-              
+
                   <HeaderIcons logout={logout} userRole={userRole} />
                 </div>
               </div>
@@ -979,7 +979,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="flex">
+        <div className="flex h-screen overflow-hidden">
           {/* Sidebar - Always visible */}
           <Sidebar
             userRole={userRole}
@@ -991,7 +991,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
           />
 
           {/* Main Content - Community Detail */}
-          <div className="flex-1">
+          <div className="flex-1 h-screen overflow-y-auto">
             <header className="bg-white border-b px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -1012,7 +1012,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
                       Moderation Mode: ON
                     </Badge>
                   )}
-                  <HeaderIcons  logout={logout} userRole={userRole} />
+                  <HeaderIcons logout={logout} userRole={userRole} />
                   {userRole === 'instructor' && (
                     <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
                       <Plus className="mr-2 h-5 w-5" />
@@ -1364,8 +1364,8 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
 
   // Community list view
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
-      <div className="flex relative overflow-hidden">
+    <div className="h-screen bg-gray-50 relative overflow-hidden">
+      <div className="flex h-screen overflow-hidden">
         {/* Sidebar - Always visible */}
         <Sidebar
           userRole={userRole}
@@ -1377,7 +1377,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
         />
 
         {/* Main Content */}
-        <div className="flex-1 lg:ml-0 w-full overflow-hidden">
+        <div className="flex-1 lg:ml-0 w-full overflow-hidden h-screen overflow-y-auto scrollbar-hide">
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             {/* Mobile: Two-row layout */}
             <div className="lg:hidden">
@@ -1392,7 +1392,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
                   <Menu className="h-5 w-5" />
                 </Button>
 
-                <div className="flex-1">
+                <div className="flex-1 h-screen overflow-y-auto scrollbar-hide">
                   <h1 className="text-xl">Communities</h1>
                   <p className="text-gray-600 text-sm">Connect with learners in your courses</p>
                 </div>

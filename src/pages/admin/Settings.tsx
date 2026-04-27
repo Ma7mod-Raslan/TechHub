@@ -26,24 +26,135 @@ import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 interface AdminSettingsProps {
   logout: () => void;
   userRole: string;
 }
 
-export default function AdminSettings({logout }: AdminSettingsProps) {
+export default function AdminSettings({ logout }: AdminSettingsProps) {
   const navigate = useNavigate();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const menuItems = [
-      { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
-      { icon: Users, label: 'Users', page: '/admin/users' },
-      { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
-      { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
-      { icon: FileText, label: 'Reports', page: '/admin/reports' },
-      { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
-      { icon: User, label: 'Profile', page: '/admin/profile' },
-      { icon: Settings, label: 'Settings', page: '/admin/settings' , active: true   },
-    ];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+    { icon: Users, label: 'Users', page: '/admin/users' },
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
+    { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+    { icon: FileText, label: 'Reports', page: '/admin/reports' },
+    { icon: Bell, label: 'Notifications', page: '/admin/notifications' },
+    { icon: User, label: 'Profile', page: '/admin/profile' },
+    { icon: Settings, label: 'Settings', page: '/admin/settings', active: true },
+  ];
+
+  const validatePassword = (password: string) => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()[\]{}\-_=+\\|;:'",.<>\/?]).{8,}$/;
+
+    return regex.test(password);
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      if (newPassword !== confirmPassword) {
+        toast.error("Passwords do not match");
+        return;
+      }
+
+      if (!validatePassword(newPassword)) {
+        toast.error(
+          "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+        );
+        return;
+      }
+
+      const token = localStorage.getItem("accessToken");
+
+      const res = await fetch("http://localhost:5000/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // 🔥 أهم سطر
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error);
+      } else {
+        toast.success("Password updated successfully");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleChangeEmail = async () => {
+    try {
+      if (!newEmail) {
+        toast.error("Please enter new email");
+        return;
+      }
+
+      const token = localStorage.getItem("accessToken");
+
+      const res = await fetch("http://localhost:5000/api/auth/change-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          new_email: newEmail,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error);
+      } else {
+        toast.success("Email updated successfully");
+        setCurrentEmail(newEmail);
+        setNewEmail("");
+      }
+
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
+  useEffect(() => {
+    const fetchEmail = async () => {
+      const token = localStorage.getItem("accessToken");
+
+      const res = await fetch("http://localhost:5000/admin/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      setCurrentEmail(data.email);
+    };
+
+    fetchEmail();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,13 +193,16 @@ export default function AdminSettings({logout }: AdminSettingsProps) {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="currentEmail">Current Email</Label>
-                      <Input id="currentEmail" type="email" defaultValue="admin@techhub.com" disabled className="bg-gray-50" />
+                      <Input value={currentEmail} type="email" disabled className="bg-gray-50" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="newEmail">New Email</Label>
-                      <Input id="newEmail" type="email" placeholder="Enter new email" />
+                      <Input value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        type="email"
+                        placeholder="Enter new email" />
                     </div>
-                    <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
+                    <Button onClick={handleChangeEmail} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
                       Update Email
                     </Button>
                   </div>
@@ -107,117 +221,38 @@ export default function AdminSettings({logout }: AdminSettingsProps) {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="currentPassword">Current Password</Label>
-                      <Input id="currentPassword" type="password" placeholder="Enter current password" />
+                      <Input value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        type="password"
+                        placeholder="Enter current password" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="newPassword">New Password</Label>
-                      <Input id="newPassword" type="password" placeholder="Enter new password" />
+                      <Input value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        type="password"
+                        placeholder="Enter new password" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                      <Input id="confirmPassword" type="password" placeholder="Confirm new password" />
+                      <Input value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        type="password"
+                        placeholder="Confirm new password" />
                     </div>
-                    <Button className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
+                    <Button onClick={handleChangePassword} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
                       Update Password
                     </Button>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Notification Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
-                    Manage Notifications
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>New User Registration</h4>
-                        <p className="text-sm text-gray-600">Get notified when new users register</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Course Submissions</h4>
-                        <p className="text-sm text-gray-600">Get notified when instructors submit new courses</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Support Requests</h4>
-                        <p className="text-sm text-gray-600">Get notified about new support tickets</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Community Reports</h4>
-                        <p className="text-sm text-gray-600">Get notified about flagged content</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Email Notifications</h4>
-                        <p className="text-sm text-gray-600">Receive notifications via email</p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
-              {/* Platform Settings */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Platform Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Course Auto-Approval</h4>
-                        <p className="text-sm text-gray-600">Automatically approve new course submissions</p>
-                      </div>
-                      <Switch />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Maintenance Mode</h4>
-                        <p className="text-sm text-gray-600">Enable platform maintenance mode</p>
-                      </div>
-                      <Switch />
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4>Public Registration</h4>
-                        <p className="text-sm text-gray-600">Allow new users to register</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </main>
         </div>
       </div>
-      
+
       <AIAssistant />
     </div>
   );

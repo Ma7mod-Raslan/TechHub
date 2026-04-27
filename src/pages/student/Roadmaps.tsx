@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LayoutDashboard, BookOpen, FileText, Award, Users, Code, Map, Bell, User, Settings, Code2, CheckCircle2, Circle, ArrowRight, LogOut, MessageSquare, Menu } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -7,84 +7,81 @@ import { Badge } from '../../components/ui/badge';
 import AIAssistant from '../../components/AIAssistant';
 import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface StudentRoadmapsProps {
   logout: () => void;
   userRole: 'student';
 }
 
-const roadmaps = [
-  {
-    id: 1,
-    title: 'Full Stack Web Developer',
-    description: 'Master frontend and backend development',
-    duration: '6-8 months',
-    difficulty: 'Intermediate',
-    progress: 45,
-    steps: [
-      { title: 'HTML & CSS Fundamentals', status: 'completed' },
-      { title: 'JavaScript Mastery', status: 'completed' },
-      { title: 'React Framework', status: 'in-progress' },
-      { title: 'Node.js & Express', status: 'locked' },
-      { title: 'Database Design', status: 'locked' },
-      { title: 'Full Stack Project', status: 'locked' },
-    ],
-  },
-  {
-    id: 2,
-    title: 'Data Science Professional',
-    description: 'Analyze data and build ML models',
-    duration: '8-10 months',
-    difficulty: 'Advanced',
-    progress: 20,
-    steps: [
-      { title: 'Python Programming', status: 'completed' },
-      { title: 'Statistics & Math', status: 'in-progress' },
-      { title: 'Data Analysis with Pandas', status: 'locked' },
-      { title: 'Machine Learning', status: 'locked' },
-      { title: 'Deep Learning', status: 'locked' },
-      { title: 'Capstone Project', status: 'locked' },
-    ],
-  },
-  {
-    id: 3,
-    title: 'Mobile App Developer',
-    description: 'Build iOS and Android applications',
-    duration: '5-7 months',
-    difficulty: 'Intermediate',
-    progress: 0,
-    steps: [
-      { title: 'Mobile UI/UX Basics', status: 'locked' },
-      { title: 'React Native', status: 'locked' },
-      { title: 'API Integration', status: 'locked' },
-      { title: 'App Deployment', status: 'locked' },
-    ],
-  },
-];
 
 export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const roadmap = (location.state as any)?.roadmap;
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const [roadmaps, setRoadmaps] = useState<any[]>([]);
+
   const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard'  },
-        { icon: BookOpen, label: 'Courses', page: '/student/courses'  },
-        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
-        { icon: Award, label: 'Certificates', page: '/student/certificates' },
-        { icon: Users, label: 'Community', page: '/community' },
-        { icon: Map, label: 'Roadmaps', page: '/student/roadmaps', active: true  },
-        { icon: Code, label: 'Compiler', page: '/student/compiler'   },
-        { icon: Bell, label: 'Notifications', page: '/student/notifications' },
-        { icon: User, label: 'Profile', page: '/student/profile'},
-        { icon: Settings, label: 'Settings', page: '/student/settings' },
-        { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
-      ];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
+    { icon: BookOpen, label: 'Courses', page: '/student/courses' },
+    { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates' },
+    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Map, label: 'Roadmaps', page: '/student/roadmaps', active: true },
+    { icon: Code, label: 'Compiler', page: '/student/compiler' },
+    { icon: Bell, label: 'Notifications', page: '/student/notifications' },
+    { icon: User, label: 'Profile', page: '/student/profile' },
+    { icon: Settings, label: 'Settings', page: '/student/settings' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/student/contact' },
+  ];
+
+  const handleStartRoadmap = async (roadmapId: number) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`http://localhost:5000/api/roadmaps/${roadmapId}/start`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+
+      if (data.currentStepId) {
+        const roadmap = roadmaps.find(r => r.id === roadmapId);
+        navigate('/student/roadmap-details', {
+          state: { stepId: data.currentStepId, roadmap }
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+
+        const res = await fetch("http://localhost:5000/api/roadmaps", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+        setRoadmaps(data);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchRoadmaps();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -111,7 +108,7 @@ export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsPro
               >
                 <Menu className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex-1">
                 <h1 className="text-xl md:text-2xl">Learning Roadmaps</h1>
                 <p className="text-gray-600 text-sm md:text-base">AI-powered personalized learning paths</p>
@@ -143,7 +140,7 @@ export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsPro
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {roadmap.steps.map((step, stepIndex) => (
+                        {roadmap.steps.map((step: any, stepIndex: number) => (
                           <div key={stepIndex} className="flex items-center gap-4">
                             {step.status === 'completed' ? (
                               <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
@@ -156,16 +153,53 @@ export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsPro
                               <div className={step.status === 'locked' ? 'text-gray-400' : ''}>{step.title}</div>
                             </div>
                             {step.status === 'in-progress' && (
-                              <Button size="sm" className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
+                              <Button
+                                size="sm"
+                                className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                                onClick={() => {
+                                  navigate('/student/roadmap-details', {
+                                    state: { stepId: step.id, roadmap }
+                                  })
+                                }}
+                              >
                                 Continue <ArrowRight className="ml-2 h-4 w-4" />
                               </Button>
                             )}
                           </div>
                         ))}
                       </div>
-                      {roadmap.progress === 0 && (
-                        <Button className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300">
+                      {Number(roadmap.progress) === 0 && !roadmap.steps.find((s: any) => s.status === 'in-progress') && (
+                        <Button
+                          className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                          onClick={() => handleStartRoadmap(roadmap.id)}
+                        >
                           Start Roadmap
+                        </Button>
+                      )}
+                      {roadmap.progress > 0 && roadmap.progress < 100 && !roadmap.steps.find((s: any) => s.status === 'in-progress') && (
+                        <Button
+                          className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                          onClick={() => {
+                            const inProgressStep = roadmap.steps.find((s: any) => s.status !== 'locked' && s.status !== 'completed');
+                            navigate('/student/roadmap-details', {
+                              state: { stepId: inProgressStep?.id || roadmap.steps[0].id, roadmap }
+                            })
+                          }}
+                        >
+                          View Progress
+                        </Button>
+                      )}
+
+                      {Number(roadmap.progress) === 100 && (
+                        <Button
+                          className="w-full mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
+                          onClick={() => {
+                            navigate('/student/roadmap-details', {
+                              state: { stepId: roadmap.steps[0].id, roadmap }
+                            })
+                          }}
+                        >
+                          View Completed Roadmap
                         </Button>
                       )}
                     </CardContent>
