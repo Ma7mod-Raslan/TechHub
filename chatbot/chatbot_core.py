@@ -9,7 +9,7 @@ from groq import Groq
 from spellchecker import SpellChecker
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from dotenv import load_dotenv
-import os
+
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 os.environ["HF_HUB_OFFLINE"] = "1"
@@ -181,14 +181,23 @@ def decide_best_source(qa_res, vid_res):
     return qa_res[0], "qa"
 
 
-def rerank(query, results, source=None):
+def _rerank(query, results):
+    """Rerank results without threshold check (sort only)."""
     if not reranker or not results:
-        return results, True
+        return results
     texts = [r.get("answer") or r.get("chunk") for r in results]
     scores = reranker.predict([(query, t) for t in texts]).tolist()
     for r, s in zip(results, scores):
         r["rerank_score"] = float(s)
     results.sort(key=lambda x: x["rerank_score"], reverse=True)
+    return results
+
+
+def rerank(query, results, source=None):
+    """Rerank with optional threshold check."""
+    results = _rerank(query, results)
+    if not results:
+        return results, True
 
     if source is None:
         return results, True
@@ -282,15 +291,21 @@ def chatbot_response(user_text):
         return {"answer": REJECTION["bad_question"], "source": "rejected",
                 "rejection_reason": "gibberish", "total_time": time.time() - t0}
 
-    # Greeting fast path
+    # ✅ Greeting Early Return - skip LLM, use reranker to pick best match
     if matches_greeting(user_text):
-        print("👋 Greeting → FAST path")
-        q_emb = encode_query(preprocess_text(user_text))
+        print("👋 Greeting detected → FAST path")
+        q = preprocess_text(user_text)
+        q_emb = encode_query(q)
         qa_res = search_qa(q_emb)
         if qa_res and qa_res[0]["score"] >= 0.40:
-            print(f"✅ Greeting matched | Score: {qa_res[0]['score']:.4f}")
-            return {"answer": qa_res[0]["answer"], "source": "qa", "path": "GREETING",
-                    "score": qa_res[0]["score"], "total_time": time.time() - t0}
+            qa_res = _rerank(q, qa_res)
+            best = qa_res[0]
+            print(f"✅ Greeting matched | Score: {best['score']:.4f} | Rerank: {best.get('rerank_score', 0):.4f}")
+            return {
+                "answer": best["answer"], "source": "qa", "path": "GREETING",
+                "score": best["score"], "rerank_score": best.get("rerank_score"),
+                "total_time": time.time() - t0,
+            }
 
     # Full pipeline
     query = preprocess_text(user_text)
