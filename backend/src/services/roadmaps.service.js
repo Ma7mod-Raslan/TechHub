@@ -36,6 +36,66 @@ export const getAllRoadmaps = async (userId) => {
   return rows;
 };
 
+// Start Roadmap
+export const startRoadmap = async (userId, roadmapId) => {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // 1. check if already started
+    const checkRes = await client.query(
+      `SELECT 1
+       FROM user_roadmap_steps urs
+       JOIN roadmap_steps rs ON rs.id = urs.step_id
+       WHERE urs.user_id = $1 AND rs.roadmap_id = $2
+       LIMIT 1`,
+      [userId, roadmapId]
+    );
+
+    // 2. if not started → initialize
+    if (checkRes.rowCount === 0) {
+      await client.query(
+        `INSERT INTO user_roadmap_steps (user_id, step_id, status)
+         SELECT 
+           $1,
+           rs.id,
+           CASE 
+             WHEN rs.step_order = 1 THEN 'in-progress'
+             ELSE 'locked'
+           END
+         FROM roadmap_steps rs
+         WHERE rs.roadmap_id = $2`,
+        [userId, roadmapId]
+      );
+    }
+
+    // 3. get current step
+    const currentStepRes = await client.query(
+      `SELECT rs.id
+       FROM user_roadmap_steps urs
+       JOIN roadmap_steps rs ON rs.id = urs.step_id
+       WHERE urs.user_id = $1 
+       AND rs.roadmap_id = $2
+       AND urs.status = 'in-progress'
+       LIMIT 1`,
+      [userId, roadmapId]
+    );
+
+    await client.query("COMMIT");
+
+    return {
+      started: true,
+      currentStepId: currentStepRes.rows[0]?.id || null
+    };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+};
+
 // Get Step Details 
 export const getStepDetails = async (userId, stepId) => {
   const query = `
