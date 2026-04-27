@@ -1,6 +1,10 @@
 import express from "express";
 import assignmentService from "../services/assignment.service.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { 
+  createAdminNotification,
+  createNotification
+ } from "../services/notification.service.js";
 
 const router = express.Router();
 
@@ -175,6 +179,10 @@ router.post(
   authMiddleware,
   async (req, res, next) => {
     try {
+
+      const userId = req.user.id;
+      const courseTitle = req.title;
+
       if (req.user.role !== "instructor") {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -202,6 +210,14 @@ router.post(
           max_attempts,
           instructor_id: req.user.id
         });
+
+        // Notification 
+      await createNotification(
+      userId,
+      "Assignment Added",
+      `Assignment Added successfully for ${courseTitle} course`,
+      "ASSIGNMENT_ADDED"
+    );
 
       res.status(201).json(result);
     } catch (error) {
@@ -387,6 +403,9 @@ router.delete(
   authMiddleware,
   async (req, res, next) => {
     try {
+
+      const userId = req.user.id;
+
       if (req.user.role !== "instructor") {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -397,6 +416,14 @@ router.delete(
         assignmentId,
         req.user.id
       );
+
+      // Notification 
+      await createNotification(
+      userId,
+      "Assignment Deleted",
+      `Assignment deleted successfully`,
+      "ASSIGNMENT_DELETED"
+    );
 
       res.json({
         message: "Assignment deleted successfully",

@@ -66,11 +66,16 @@ router.post(
 
       await client.query("BEGIN");
 
-      // 1️⃣ ensure course exists and is Published
+      // ensure course exists and is Published
       const c = await client.query(
-        "SELECT id, status, title FROM courses WHERE id=$1",
+        "SELECT id, status, title, instructor_id FROM courses WHERE id=$1",
         [courseId]
       );
+
+      const student = await client.query(
+      "SELECT full_name FROM users WHERE id=$1",
+      [studentId]
+    );
 
       if (c.rows.length === 0) {
         await client.query("ROLLBACK");
@@ -82,7 +87,7 @@ router.post(
         return res.status(400).json({ error: "Cannot enroll in a draft course" });
       }
 
-      // 2️⃣ prevent duplicate enrollment
+      // prevent duplicate enrollment
       const exists = await client.query(
         "SELECT id FROM enrollments WHERE student_id=$1 AND course_id=$2",
         [studentId, courseId]
@@ -93,7 +98,7 @@ router.post(
         return res.status(200).json({ message: "Already enrolled" });
       }
 
-      // 3️⃣ insert enrollment
+      // insert enrollment
       const result = await client.query(
         `INSERT INTO enrollments (student_id, course_id, progress, completed)
          VALUES ($1, $2, 0, false)
@@ -101,7 +106,7 @@ router.post(
         [studentId, courseId]
       );
 
-      // 4️⃣ get or create community for this course
+      // get or create community for this course
       let community = await client.query(
         "SELECT id FROM communities WHERE course_id=$1",
         [courseId]
@@ -121,7 +126,7 @@ router.post(
         communityId = community.rows[0].id;
       }
 
-      // 5️⃣ insert into community_members
+      // insert into community_members
       await client.query(
         `
         INSERT INTO community_members (community_id, user_id)
@@ -131,7 +136,7 @@ router.post(
         [communityId, studentId]
       );
 
-      // 6️⃣ update members_count
+      // update members_count
       await client.query(
         `
         UPDATE communities
@@ -143,11 +148,20 @@ router.post(
 
       await client.query("COMMIT");
 
-      // 🔔 notification
+      // notification for student
       await notificationService.createNotification(
         studentId,
         "Course Enrollment",
         `You successfully enrolled in "${c.rows[0].title}"`,
+        "course_enroll",
+        courseId
+      );
+
+      // notification for instructor
+      await notificationService.createNotification(
+        c.rows[0].instructor_id,
+        "New Enrollment",
+        `A new student ${student.rows[0].full_name} has enrolled in your course "${c.rows[0].title}"`,
         "course_enroll",
         courseId
       );
@@ -514,9 +528,9 @@ router.put(
 
       await client.query("BEGIN");
 
-      // 1️⃣ check course exists and instructor owns it
+      // 1️⃣ check course exists
       const c = await client.query(
-        "SELECT instructor_id, status FROM courses WHERE id=$1",
+        "SELECT instructor_id, status, title FROM courses WHERE id=$1",
         [courseId]
       );
 
@@ -530,13 +544,15 @@ router.put(
         return res.status(403).json({ error: "Not allowed" });
       }
 
-      // 2️⃣ update status to Published
+      const courseTitle = c.rows[0].title;
+
+      // 2️⃣ update status
       const result = await client.query(
         "UPDATE courses SET status='Published' WHERE id=$1 RETURNING *",
         [courseId]
       );
 
-      // 3️⃣ get or create community
+      // 3️⃣ community logic (زي ما هو)
       let community = await client.query(
         "SELECT id FROM communities WHERE course_id=$1",
         [courseId]
@@ -559,7 +575,6 @@ router.put(
         communityId = community.rows[0].id;
       }
 
-      // 4️⃣ add instructor as admin in community
       const memberExists = await client.query(
         `
         SELECT id FROM community_members
@@ -577,7 +592,6 @@ router.put(
           [communityId, instructorId]
         );
 
-        // update members_count
         await client.query(
           `
           UPDATE communities
@@ -588,17 +602,28 @@ router.put(
         );
       }
 
-      await createAdminNotification({
-      title: "New Course Created",
-      message: `New course "${course.title}" added`,
-      type: "course_created",
-      reference_id: course.id
-    });
-
       await client.query("COMMIT");
 
+      // Notification for instructor
+      await notificationService.createNotification(
+        instructorId,
+        "Course Published",
+        `Your course "${courseTitle}" has been published successfully.`,
+        "course_publish",
+        courseId
+      );
+
+      // Notification for Admin
+      await createAdminNotification({
+      title: "New Course Created",
+      message: `New course "${courseTitle}" added`,
+      type: "course_created",
+      reference_id: courseId
+    });
+
+
       res.json({
-        message: "Course published and instructor assigned to community",
+        message: "Course published successfully",
         course: result.rows[0],
       });
 

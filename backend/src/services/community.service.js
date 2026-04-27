@@ -63,6 +63,7 @@ const createPost = async (communityId, userId, content) => {
   try {
     await client.query("BEGIN");
 
+    // create post
     const postResult = await client.query(
       `
       INSERT INTO community_posts (community_id, user_id, content)
@@ -72,6 +73,7 @@ const createPost = async (communityId, userId, content) => {
       [communityId, userId, content]
     );
 
+    // update posts count
     await client.query(
       `
       UPDATE communities
@@ -85,6 +87,7 @@ const createPost = async (communityId, userId, content) => {
 
     const newPostId = postResult.rows[0].id;
 
+    // get full post
     const fullPost = await client.query(
       `
       SELECT p.*,
@@ -98,9 +101,39 @@ const createPost = async (communityId, userId, content) => {
       [newPostId]
     );
 
-await client.query("COMMIT");
+    // Notification Logic
 
-return fullPost.rows[0];
+    // get user role
+    const user = await client.query(
+      `SELECT full_name, role FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (user.rows[0].role === "student") {
+      // get instructor from course via community
+      const course = await client.query(
+        `
+        SELECT c.instructor_id, c.title
+        FROM communities cm
+        JOIN courses c ON c.id = cm.course_id
+        WHERE cm.id = $1
+        `,
+        [communityId]
+      );
+
+      if (course.rows.length > 0) {
+        await notificationService.createNotification(
+          course.rows[0].instructor_id,
+          "New Post",
+          `Student ${user.rows[0].full_name} posted in your course "${course.rows[0].title}" community`,
+          "community_post",
+          communityId
+        );
+      }
+    }
+
+    return fullPost.rows[0];
+
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
@@ -175,7 +208,7 @@ const createReply = async (postId, userId, content) => {
 
     await client.query("COMMIT");
 
-      // 🔔 notification
+      // notification
       if (postOwnerId !== userId) {
         await notificationService.createNotification(
           postOwnerId,
