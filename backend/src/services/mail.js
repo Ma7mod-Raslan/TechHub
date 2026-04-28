@@ -18,7 +18,7 @@ export async function sendVerificationEmail(to, code, userId) {
     <h2>Welcome to TechHub</h2>
     <p>Your verification code is:</p>
     <h1>${code}</h1>
-    <p>This code expires in 30 minutes.</p>
+    <p>This code expires in 5 minutes.</p>
   `;
 
   await transporter.sendMail({
