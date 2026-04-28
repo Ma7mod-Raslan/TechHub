@@ -16,6 +16,7 @@ import {
   Shield,
   FileText,
   Linkedin,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -48,6 +49,7 @@ export default function AdminProfile({ logout }: AdminProfileProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [originalData, setOriginalData] = useState<ProfileData>({
     firstName: '',
@@ -240,13 +242,23 @@ export default function AdminProfile({ logout }: AdminProfileProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-profile"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Admin Profile</h1>
                 <p className="text-gray-600">Manage your admin profile information</p>

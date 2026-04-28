@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Filter, Ban, CheckCircle } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Filter, Ban, CheckCircle, Menu } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -38,11 +38,12 @@ interface UserData {
 }
 
 
-export default function AdminUsers({logout }: UsersProps) {
+export default function AdminUsers({ logout }: UsersProps) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [instructorsData, setInstructorsData] = useState<UserData[]>([]);
   const [studentsData, setStudentsData] = useState<UserData[]>([]);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     show: boolean;
     user: UserData | null;
@@ -51,15 +52,15 @@ export default function AdminUsers({logout }: UsersProps) {
   }>({ show: false, user: null, action: 'suspend', type: 'instructor' });
 
   const menuItems = [
-      { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
-      { icon: Users, label: 'Users', page: '/admin/users', active: true   },
-      { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
-      { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
-      { icon: FileText, label: 'Reports', page: '/admin/reports' },
-      { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
-      { icon: User, label: 'Profile', page: '/admin/profile' },
-      { icon: Settings, label: 'Settings', page: '/admin/settings'  },
-    ];
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
+    { icon: Users, label: 'Users', page: '/admin/users', active: true },
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
+    { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
+    { icon: FileText, label: 'Reports', page: '/admin/reports' },
+    { icon: Bell, label: 'Notifications', page: '/admin/notifications' },
+    { icon: User, label: 'Profile', page: '/admin/profile' },
+    { icon: Settings, label: 'Settings', page: '/admin/settings' },
+  ];
 
   const filterUsers = (users: UserData[]) => {
     return users.filter(user =>
@@ -175,13 +176,23 @@ export default function AdminUsers({logout }: UsersProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-users"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">User Management</h1>
                 <p className="text-gray-600">Manage instructors and students on the platform</p>

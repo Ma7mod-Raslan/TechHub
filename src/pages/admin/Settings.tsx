@@ -15,6 +15,7 @@ import {
   Shield,
   Mail,
   Settings,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -41,6 +42,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [currentEmail, setCurrentEmail] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
     { icon: Users, label: 'Users', page: '/admin/users' },
@@ -164,13 +166,23 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-settings"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Admin Settings</h1>
                 <p className="text-gray-600">Manage platform settings and preferences</p>

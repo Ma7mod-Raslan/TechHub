@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'; import { motion } from 'motion/react';
-import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, Search, Eye, Trash2, EyeOff, Send } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, Search, Eye, Trash2, EyeOff, Send, Menu } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -61,7 +61,7 @@ interface ContactMessage {
 }
 
 
-export default function AdminReports({logout }: ReportsProps) {
+export default function AdminReports({ logout }: ReportsProps) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [reports, setReports] = useState<ReportData[]>([]);
@@ -70,6 +70,7 @@ export default function AdminReports({logout }: ReportsProps) {
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; id: number | null; type: 'report' | 'contact' }>({
     show: false, id: null, type: 'report'
   });
@@ -79,10 +80,10 @@ export default function AdminReports({logout }: ReportsProps) {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
     { icon: Users, label: 'Users', page: '/admin/users' },
-    { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
     { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
-    { icon: FileText, label: 'Reports', page: '/admin/reports' , active: true  },
-    { icon: Bell, label: 'Notifications', page: '/admin/notifications'  },
+    { icon: FileText, label: 'Reports', page: '/admin/reports', active: true },
+    { icon: Bell, label: 'Notifications', page: '/admin/notifications' },
     { icon: User, label: 'Profile', page: '/admin/profile' },
     { icon: Settings, label: 'Settings', page: '/admin/settings' },
   ];
@@ -356,13 +357,23 @@ export default function AdminReports({logout }: ReportsProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-reports"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Reports & Messages</h1>
                 <p className="text-gray-600">Review contact messages and reported content</p>

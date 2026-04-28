@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Eye, Trash2, X, Heart, Shield, ArrowRight, EyeOff } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Eye, Trash2, X, Heart, Shield, ArrowRight, EyeOff, Menu } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -57,13 +57,14 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [replies, setReplies] = useState<any[]>([]);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
     { icon: Users, label: 'Users', page: '/admin/users' },
-    { icon: BookOpen, label: 'Courses', page: '/admin/courses'},
-    { icon: MessageSquare, label: 'Communities', page: '/admin/communities', active: true  },
+    { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
+    { icon: MessageSquare, label: 'Communities', page: '/admin/communities', active: true },
     { icon: FileText, label: 'Reports', page: '/admin/reports' },
     { icon: Bell, label: 'Notifications', page: '/admin/notifications' },
     { icon: User, label: 'Profile', page: '/admin/profile' },
@@ -242,7 +243,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
 
     // Navigate to the actual community page with the specific community ID
     // The community page will detect admin role and show moderation controls
-    navigate('/community', {state : { communityId: selectedCommunity.id} });
+    navigate('/community', { state: { communityId: selectedCommunity.id } });
     toast.info('Moderation Mode: ON - You have admin privileges');
   };
 
@@ -288,13 +289,23 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-communities"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Community Management</h1>
                 <p className="text-gray-600">Monitor all course communities on the platform</p>

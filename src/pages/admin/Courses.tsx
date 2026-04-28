@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Filter, Ban, CheckCircle, Eye } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings, LogOut, Search, Filter, Ban, CheckCircle, Eye, Menu } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -48,11 +48,12 @@ interface CourseData {
 
 
 
-export default function AdminCourses({logout }: CoursesProps) {
+export default function AdminCourses({ logout }: CoursesProps) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [coursesData, setCoursesData] = useState<CourseData[]>([]);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
     show: boolean;
     course: CourseData | null;
@@ -164,13 +165,23 @@ export default function AdminCourses({logout }: CoursesProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-courses"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Course Management</h1>
                 <p className="text-gray-600">View and manage all courses on the platform</p>
@@ -239,7 +250,7 @@ export default function AdminCourses({logout }: CoursesProps) {
                                 size="sm"
                                 className="text-violet-600 hover:bg-violet-50 border-violet-200"
                                 onClick={() =>
-                                  navigate('/admin/course-details', { state: {courseId: course.id }})
+                                  navigate('/admin/course-details', { state: { courseId: course.id } })
                                 }
                               >
                                 <Eye className="h-4 w-4 mr-2" />

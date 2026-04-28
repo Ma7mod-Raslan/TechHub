@@ -17,6 +17,7 @@ import {
   CheckCircle,
   XCircle,
   FileText,
+  Menu,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -75,6 +76,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [recentCourses, setRecentCourses] = useState([]);
   const [reportedContent, setReportedContent] = useState([]);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard', active: true },
     { icon: Users, label: 'Users', page: '/admin/users' },
@@ -197,13 +199,23 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
           logout={logout}
           userRole="admin"
           activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           {/* Header */}
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
               <div>
                 <h1 className="text-2xl">Admin Dashboard</h1>
                 <p className="text-gray-600">Welcome back, Administrator!</p>

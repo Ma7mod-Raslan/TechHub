@@ -3,7 +3,8 @@ import { motion } from 'motion/react';
 import {
   LayoutDashboard, Users, BookOpen, MessageSquare, FileText, Bell, User, Settings,
   ArrowLeft, Play, Clock, Award, CheckCircle2, Download, Edit, Trash2, Ban, CheckCircle,
-  PlayCircle, Pause, Volume2, Maximize, ChevronDown, ChevronRight
+  PlayCircle, Pause, Volume2, Maximize, ChevronDown, ChevronRight,
+  Menu
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -85,6 +86,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [suspendConfirm, setSuspendConfirm] = useState(false);
   const [courseStatus, setCourseStatus] = useState<'Active' | 'Suspended'>('Active');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [deleteQuestionConfirm, setDeleteQuestionConfirm] = useState<{
     show: boolean;
     questionId: number | null;
@@ -207,7 +209,10 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
           rating: data.rating || 0,
           language: data.language,
           level: data.level,
-          lastUpdated: data.updated_at
+          lastUpdated: data.updated_at,
+
+          outcomes: data.outcomes || [],
+          requirements: data.requirements || []
         };
 
         setCourseData(mappedCourse);
@@ -257,11 +262,13 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
           menuItems={menuItems}
           logout={logout}
           userRole="admin"
-          activePage="admin-courses"
+          activePage="admin-dashboard"
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
         />
 
         {/* Main Content */}
-        <div className="flex-1">
+        <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -273,6 +280,14 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back to Courses
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
                 </Button>
                 <div>
                   <h1 className="text-2xl">Course Details</h1>
@@ -359,13 +374,6 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
                           Activate Course
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        className="gap-2 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Edit Course
-                      </Button>
                       <Button
                         variant="outline"
                         className="gap-2 text-red-600 hover:bg-red-50 border-red-200"
@@ -532,30 +540,20 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
                         <div>
                           <h3 className="text-lg mb-3">What You'll Learn</h3>
                           <ul className="space-y-2">
-                            <li className="flex items-start gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">Build responsive websites using HTML, CSS, and JavaScript</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">Master modern frameworks like React and Node.js</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">Understand database design and implementation</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-gray-600">Deploy full-stack applications to production</span>
-                            </li>
+                            {courseData.outcomes.map((item: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                                <span className="text-gray-600">{item}</span>
+                              </li>
+                            ))}
                           </ul>
                         </div>
                         <div>
                           <h3 className="text-lg mb-3">Requirements</h3>
                           <ul className="space-y-2 text-gray-600">
-                            <li>• Basic computer skills and internet access</li>
-                            <li>• No prior programming experience required</li>
-                            <li>• Willingness to learn and practice regularly</li>
+                            {courseData.requirements.map((item: string, i: number) => (
+                              <li key={i}>• {item}</li>
+                            ))}
                           </ul>
                         </div>
                       </CardContent>
