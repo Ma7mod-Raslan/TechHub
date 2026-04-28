@@ -38,15 +38,15 @@ export default function InstructorAssignments({
     const courseId = location.state?.courseId;
 
     const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
-    { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
-    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
-    { icon: User, label: 'Profile', page: '/instructor/profile' },
-    { icon: Settings, label: 'Settings', page: '/instructor/settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
-  ];
+        { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+        { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments', active: true },
+        { icon: Users, label: 'Community', page: '/instructor/community' },
+        { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+        { icon: User, label: 'Profile', page: '/instructor/profile' },
+        { icon: Settings, label: 'Settings', page: '/instructor/settings' },
+        { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+    ];
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -83,6 +83,15 @@ export default function InstructorAssignments({
     const filteredCourses = courses.filter((course: any) =>
         course.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+
+        if (!token || !user || user.role !== "instructor") {
+            navigate("/login", { replace: true });
+        }
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">

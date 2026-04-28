@@ -39,10 +39,10 @@ export default function InstructorDashboard({ logout, userRole }: InstructorDash
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
+    { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard', active: true },
     { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -88,6 +88,28 @@ export default function InstructorDashboard({ logout, userRole }: InstructorDash
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      navigate("/login", { replace: true });
+    }
+  }, []);
+
+
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
 
 
   return (
@@ -226,7 +248,7 @@ export default function InstructorDashboard({ logout, userRole }: InstructorDash
                         size="icon"
                         onClick={() =>
                           navigate('/instructor/edit-course', {
-                            state: { courseId : course.id }
+                            state: { courseId: course.id }
                           })
                         }
                       >

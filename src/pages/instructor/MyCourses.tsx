@@ -61,9 +61,9 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses', active: true },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -144,6 +144,20 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
   const openDeleteDialog = (courseId: number, courseTitle: string) => {
     setDeleteDialog({ open: true, courseId, courseTitle });
   };
+
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -322,33 +336,33 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
                                   })
                                 }
                               >
-                              <Eye className="mr-1 h-4 w-4" />
-                              View
-                            </Button>
+                                <Eye className="mr-1 h-4 w-4" />
+                                View
+                              </Button>
 
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => openDeleteDialog(course.id, course.title)}
-                            >
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => openDeleteDialog(course.id, course.title)}
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
 
                       </motion.div>
-                ))}
-              </div>
+                    ))}
+                  </div>
                 )}
-            </TabsContent>
-          </Tabs>
-        </main>
+              </TabsContent>
+            </Tabs>
+          </main>
+        </div>
       </div>
-    </div>
 
-      {/* Delete Confirmation Dialog */ }
-  {/* DEVELOPER: Confirmation modal for course deletion
+      {/* Delete Confirmation Dialog */}
+      {/* DEVELOPER: Confirmation modal for course deletion
           - On confirm: DELETE /api/courses/:courseId
           - On success: Remove from list, show toast */}
       <Dialog open={deleteDialog.open} onOpenChange={(open) =>

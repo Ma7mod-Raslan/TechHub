@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   LayoutDashboard,
@@ -49,11 +49,11 @@ export default function InstructorContact({ logout, userRole }: InstructorContac
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
     { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
-    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
+    { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact', active: true },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,6 +98,20 @@ export default function InstructorContact({ logout, userRole }: InstructorContac
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-50">

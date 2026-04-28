@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LayoutDashboard, BookOpen, BarChart3, Users, Bell, User, Settings, MessageSquare, Menu, Plus } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import HeaderIcons from "../../components/HeaderIcons";
@@ -43,8 +43,8 @@ export default function InstructorCreateAssignment({
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
         { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
-        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-        { icon: Users, label: 'Community', page: '/community' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments', active: true },
+        { icon: Users, label: 'Community', page: '/instructor/community' },
         { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
         { icon: User, label: 'Profile', page: '/instructor/profile' },
         { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -151,6 +151,16 @@ export default function InstructorCreateAssignment({
         }
     };
 
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+
+        if (!token || !user || user.role !== "instructor") {
+            navigate("/login", { replace: true });
+        }
+    }, []);
+    
     return (
         <div className="min-h-screen bg-gray-50">
             <div className="flex">

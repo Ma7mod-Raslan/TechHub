@@ -75,15 +75,21 @@ export default function Login() {
         const parsed = JSON.parse(redirect);
         localStorage.removeItem('redirectAfterAuth');
 
-        navigate('/' + parsed.page);
+        navigate('/' + parsed.page, { replace: true });
         return;
       }
 
 
 
-      if (user.role === "admin") window.location.href = "/admin/dashboard";
-      else if (user.role === "instructor") window.location.href = "/instructor/dashboard";
-      else window.location.href = "/student/dashboard";
+      if (user.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      }
+      else if (user.role === "instructor") {
+        navigate("/instructor/dashboard", { replace: true });
+      }
+      else {
+        navigate("/student/dashboard", { replace: true });
+      }
       return;
     } catch (err: any) {
       const msg = err?.response?.data?.error;
@@ -126,9 +132,15 @@ export default function Login() {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success("Signed in with Google");
 
-      if (backendUser.role === "admin") window.location.href = "/admin/dashboard";
-      else if (backendUser.role === "instructor") window.location.href = "/instructor/dashboard";
-      else window.location.href = "/student/dashboard";
+      if (backendUser.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      }
+      else if (backendUser.role === "instructor") {
+        navigate("/instructor/dashboard", { replace: true });
+      }
+      else {
+        navigate("/student/dashboard", { replace: true });
+      }
     } catch (err: any) {
       console.error("Google login error:", err);
       toast.error(err?.response?.data?.error || err?.message || "Google Sign in failed");
@@ -136,6 +148,21 @@ export default function Login() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (token && user) {
+      if (user.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (user.role === "instructor") {
+        navigate("/instructor/dashboard", { replace: true });
+      } else {
+        navigate("/student/dashboard", { replace: true });
+      }
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50 flex items-center justify-center p-4">

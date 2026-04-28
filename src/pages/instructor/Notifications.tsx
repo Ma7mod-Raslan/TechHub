@@ -51,8 +51,8 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
     { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
-    { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
+    { icon: Bell, label: 'Notifications', page: '/instructor/notifications', active: true },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
     { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
@@ -116,6 +116,20 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
     }
   };
 
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -178,8 +192,8 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
                     <Card
                       onClick={() => handleMarkAsRead(notification.id)}
                       className={`cursor-pointer transition-all ${!notification.is_read
-                          ? "border-l-4 border-l-violet-600 bg-violet-50/30"
-                          : ""
+                        ? "border-l-4 border-l-violet-600 bg-violet-50/30"
+                        : ""
                         }`}
                     >
                       <CardContent className="p-4">
@@ -188,22 +202,22 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
                           {/* Icon */}
                           <div
                             className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${notification.type === "revenue"
-                                ? "bg-green-100"
-                                : notification.type === "review"
-                                  ? "bg-yellow-100"
-                                  : notification.type === "achievement"
-                                    ? "bg-purple-100"
-                                    : "bg-blue-100"
+                              ? "bg-green-100"
+                              : notification.type === "review"
+                                ? "bg-yellow-100"
+                                : notification.type === "achievement"
+                                  ? "bg-purple-100"
+                                  : "bg-blue-100"
                               }`}
                           >
                             <Icon
                               className={`h-6 w-6 ${notification.type === "revenue"
-                                  ? "text-green-600"
-                                  : notification.type === "review"
-                                    ? "text-yellow-600"
-                                    : notification.type === "achievement"
-                                      ? "text-purple-600"
-                                      : "text-blue-600"
+                                ? "text-green-600"
+                                : notification.type === "review"
+                                  ? "text-yellow-600"
+                                  : notification.type === "achievement"
+                                    ? "text-purple-600"
+                                    : "text-blue-600"
                                 }`}
                             />
                           </div>

@@ -18,7 +18,7 @@ interface MenuItem {
 
 
 interface SidebarProps {
-  menuItems: MenuItem[]; 
+  menuItems: MenuItem[];
   logout: () => void;
   userRole: UserRole;
   activePage?: string;
@@ -45,17 +45,8 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
     localStorage.setItem(`sidebar-${userRole}-collapsed`, String(newState));
   };
 
-  const getDashboardPage = () => {
-    switch (userRole) {
-      case 'admin':
-        return '/admin/dashboard';
-      case 'instructor':
-        return '/';
-      case 'student':
-        return '/';
-      default:
-        return '/';
-    }
+  const getHomePage = () => {
+    return '/';
   };
 
   const handleMobileNavigation = (page?: string) => {
@@ -96,9 +87,8 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                   <div
                     className="flex items-center gap-2 cursor-pointer mb-8"
                     onClick={() => {
-                      navigate(getDashboardPage());
-                      setIsMobileOpen?.(false)
-
+                      navigate("/");
+                      setIsMobileOpen?.(false);
                     }}
                   >
                     <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-2 rounded-xl">
@@ -119,8 +109,8 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                           key={index}
                           onClick={() => handleMobileNavigation(item.page)}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${isActive
-                              ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
-                              : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
+                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
                             }`}
                         >
                           <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -172,7 +162,7 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
             <div className="flex items-center justify-between mb-8">
               <motion.div
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate(getDashboardPage())}
+                onClick={() => navigate(getHomePage())}
                 animate={{ opacity: isCollapsed ? 0 : 1 }}
                 transition={{ duration: 0.2 }}
               >
@@ -194,7 +184,7 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                   className="bg-gradient-to-br from-violet-600 to-cyan-500 p-2 rounded-xl cursor-pointer mx-auto"
-                  onClick={() => navigate(getDashboardPage())}
+                  onClick={() => navigate(getHomePage())}
                 >
                   <Code2 className="h-6 w-6 text-white" />
                 </motion.div>
@@ -233,8 +223,8 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                           whileHover={{ x: isCollapsed ? 0 : 4 }}
                           onClick={() => item.page && navigate(item.page)}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${isActive
-                              ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
-                              : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
+                            ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-lg shadow-violet-200'
+                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 hover:shadow-md'
                             } ${isCollapsed ? 'justify-center' : ''}`}
                         >
                           <item.icon className="h-5 w-5 flex-shrink-0" style={{ opacity: 1 }} />

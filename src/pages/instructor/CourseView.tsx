@@ -76,9 +76,9 @@ export default function InstructorCourseView({
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses', active: true },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -549,6 +549,20 @@ export default function InstructorCourseView({
     setLoadingQuestions(false);
   };
 
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
+
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (!course) return null;
@@ -624,350 +638,350 @@ export default function InstructorCourseView({
                         navigate('/instructor/edit-course', {
                           state: { courseId }
                         })
-                  }
-                >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Details
-                  </Button>
+                      }
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Details
+                    </Button>
 
-                {course.status === 'Draft' && (
+                    {course.status === 'Draft' && (
+                      <Button
+                        onClick={handlePublishCourse}
+                        className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
+                      >
+                        Publish Course
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={isSaving}
+                    >
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+
+                    <Button
+                      className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                      onClick={handleSaveCourse}
+                      disabled={isSaving}
+                    >
+                      <Save className="mr-2 h-5 w-5" />
+                      {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
+
+
+
+          {/* Course Info Section */}
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Course Image */}
+                <div>
+                  <ImageWithFallback
+                    src={course.thumbnail || 'https://via.placeholder.com/400x250'}
+                    alt={course.title}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+
+                {/* Course Details */}
+                <div className="md:col-span-2 space-y-4">
+                  <h2 className="text-2xl font-semibold">
+                    {course.title}
+                  </h2>
+
+                  <div className="flex gap-2 flex-wrap">
+                    {course.category && (
+                      <Badge variant="outline">
+                        {COURSE_CATEGORIES[course.category] ?? course.category}
+                      </Badge>
+                    )}
+                    {course.level && (
+                      <Badge variant="outline">{course.level}</Badge>
+                    )}
+                    {course.status && (
+                      <Badge className="bg-yellow-600 text-white">
+                        {course.status}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <p className="text-gray-600">
+                    {course.description || 'No description provided for this course.'}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+
+          <main className="p-6">
+            {/* Videos Section */}
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl">Course Videos</h3>
                   <Button
-                    onClick={handlePublishCourse}
-                    className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
+                    className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
+                    onClick={() => {
+                      setSelectedVideo(null);
+                      setVideoFormData({
+                        title: '',
+                        url: '',
+                        description: '',
+                        order: videos.length + 1,
+                      });
+                      setShowAddVideoDialog(true);
+                    }}
                   >
-                    Publish Course
+                    <Plus className="mr-2 h-5 w-5" />
+                    Add Video
                   </Button>
-                )}
-              </>
-              ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                  disabled={isSaving}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
 
-                <Button
-                  className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                  onClick={handleSaveCourse}
-                  disabled={isSaving}
-                >
-                  <Save className="mr-2 h-5 w-5" />
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </>
+                </div>
+
+                {videos.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Play className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                    <p>No videos added yet. Start by adding your first video.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {videos.map((video, index) => (
+                      <motion.div
+                        key={video.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 text-violet-600">
+                            {video.video_order}
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{video.title}</h4>
+                            <p className="text-sm text-gray-600">
+                              {video.description}
+                            </p>
+
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            disabled={video.video_order === 1}
+                            onClick={() => moveVideo(video, 'up')}
+                            className="hover:bg-violet-50"
+                          >
+                            <ChevronUp className="h-4 w-4 text-gray-600" />
+                          </Button>
+
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            disabled={video.video_order === videos.length}
+                            onClick={() => moveVideo(video, 'down')}
+                            className="hover:bg-violet-50"
+                          >
+                            <ChevronDown className="h-4 w-4 text-gray-600" />
+                          </Button>
+
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
+                              setQuestionText('');
+                              setChoices([
+                                { text: '', is_correct: false },
+                                { text: '', is_correct: false },
+                              ]);
+                              fetchVideoQuestions(video.id);
+                              setShowMCQDialog(true);
+                            }}
+                          >
+                            <MessageSquare className="h-4 w-4 text-indigo-600" />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
+                              setVideoFormData({
+                                title: video.title,
+                                url: video.video_url,
+                                description: video.description || '',
+                                order: video.video_order,
+                              });
+
+                              setShowEditVideoDialog(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setSelectedVideo(video);
+                              setShowDeleteVideoDialog(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
-            </div>
+              </CardContent>
+            </Card>
+
+          </main>
         </div>
-      </header>
-
-
-
-      {/* Course Info Section */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            {/* Course Image */}
-            <div>
-              <ImageWithFallback
-                src={course.thumbnail || 'https://via.placeholder.com/400x250'}
-                alt={course.title}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-            </div>
-
-            {/* Course Details */}
-            <div className="md:col-span-2 space-y-4">
-              <h2 className="text-2xl font-semibold">
-                {course.title}
-              </h2>
-
-              <div className="flex gap-2 flex-wrap">
-                {course.category && (
-                  <Badge variant="outline">
-                    {COURSE_CATEGORIES[course.category] ?? course.category}
-                  </Badge>
-                )}
-                {course.level && (
-                  <Badge variant="outline">{course.level}</Badge>
-                )}
-                {course.status && (
-                  <Badge className="bg-yellow-600 text-white">
-                    {course.status}
-                  </Badge>
-                )}
-              </div>
-
-              <p className="text-gray-600">
-                {course.description || 'No description provided for this course.'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-
-      <main className="p-6">
-        {/* Videos Section */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl">Course Videos</h3>
-              <Button
-                className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
-                onClick={() => {
-                  setSelectedVideo(null);
-                  setVideoFormData({
-                    title: '',
-                    url: '',
-                    description: '',
-                    order: videos.length + 1,
-                  });
-                  setShowAddVideoDialog(true);
-                }}
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Add Video
-              </Button>
-
-            </div>
-
-            {videos.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Play className="mx-auto h-12 w-12 mb-4 opacity-50" />
-                <p>No videos added yet. Start by adding your first video.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {videos.map((video, index) => (
-                  <motion.div
-                    key={video.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-violet-100 text-violet-600">
-                        {video.video_order}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{video.title}</h4>
-                        <p className="text-sm text-gray-600">
-                          {video.description}
-                        </p>
-
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        disabled={video.video_order === 1}
-                        onClick={() => moveVideo(video, 'up')}
-                        className="hover:bg-violet-50"
-                      >
-                        <ChevronUp className="h-4 w-4 text-gray-600" />
-                      </Button>
-
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        disabled={video.video_order === videos.length}
-                        onClick={() => moveVideo(video, 'down')}
-                        className="hover:bg-violet-50"
-                      >
-                        <ChevronDown className="h-4 w-4 text-gray-600" />
-                      </Button>
-
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedVideo(video);
-                          setQuestionText('');
-                          setChoices([
-                            { text: '', is_correct: false },
-                            { text: '', is_correct: false },
-                          ]);
-                          fetchVideoQuestions(video.id);
-                          setShowMCQDialog(true);
-                        }}
-                      >
-                        <MessageSquare className="h-4 w-4 text-indigo-600" />
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedVideo(video);
-                          setVideoFormData({
-                            title: video.title,
-                            url: video.video_url,
-                            description: video.description || '',
-                            order: video.video_order,
-                          });
-
-                          setShowEditVideoDialog(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          setSelectedVideo(video);
-                          setShowDeleteVideoDialog(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-      </main>
-    </div>
       </div >
 
-    {/* ADD VIDEO */ }
-    < Dialog open = { showAddVideoDialog } onOpenChange = { setShowAddVideoDialog } >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Video</DialogTitle>
-        </DialogHeader>
+      {/* ADD VIDEO */}
+      < Dialog open={showAddVideoDialog} onOpenChange={setShowAddVideoDialog} >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Video</DialogTitle>
+          </DialogHeader>
 
-        {/* Title */}
-        <Input
-          placeholder="Title"
-          value={videoFormData.title}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, title: e.target.value });
-            setVideoErrors({ ...videoErrors, title: '' });
-          }}
-        />
-        {videoErrors.title && (
-          <p className="text-sm text-red-600">{videoErrors.title}</p>
-        )}
+          {/* Title */}
+          <Input
+            placeholder="Title"
+            value={videoFormData.title}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, title: e.target.value });
+              setVideoErrors({ ...videoErrors, title: '' });
+            }}
+          />
+          {videoErrors.title && (
+            <p className="text-sm text-red-600">{videoErrors.title}</p>
+          )}
 
 
-        {/* URL */}
-        <Input
-          placeholder="URL"
-          value={videoFormData.url}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, url: e.target.value });
-            setVideoErrors({ ...videoErrors, url: '' });
-          }}
+          {/* URL */}
+          <Input
+            placeholder="URL"
+            value={videoFormData.url}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, url: e.target.value });
+              setVideoErrors({ ...videoErrors, url: '' });
+            }}
 
-        />
-        {videoErrors.url && (
-          <p className="text-sm text-red-600">{videoErrors.url}</p>
-        )}
+          />
+          {videoErrors.url && (
+            <p className="text-sm text-red-600">{videoErrors.url}</p>
+          )}
 
-        {/* Description */}
-        <Textarea
-          placeholder="Description"
-          value={videoFormData.description}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, description: e.target.value });
-            setVideoErrors({ ...videoErrors, description: '' });
-          }}
+          {/* Description */}
+          <Textarea
+            placeholder="Description"
+            value={videoFormData.description}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, description: e.target.value });
+              setVideoErrors({ ...videoErrors, description: '' });
+            }}
 
-        />
-        {videoErrors.description && (
-          <p className="text-sm text-red-600">{videoErrors.description}</p>
-        )}
+          />
+          {videoErrors.description && (
+            <p className="text-sm text-red-600">{videoErrors.description}</p>
+          )}
 
-        <DialogFooter>
-          <Button onClick={handleAddVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
-        </DialogFooter>
-      </DialogContent>
+          <DialogFooter>
+            <Button onClick={handleAddVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog >
 
 
-    {/* EDIT VIDEO */ }
-    < Dialog open = { showEditVideoDialog } onOpenChange = { setShowEditVideoDialog } >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Video</DialogTitle>
-        </DialogHeader>
+      {/* EDIT VIDEO */}
+      < Dialog open={showEditVideoDialog} onOpenChange={setShowEditVideoDialog} >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Video</DialogTitle>
+          </DialogHeader>
 
-        {/* Title */}
-        <Input
-          placeholder="Title"
-          value={videoFormData.title}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, title: e.target.value });
-            setVideoErrors({ ...videoErrors, title: '' });
-          }}
-        />
-        {videoErrors.title && (
-          <p className="text-sm text-red-600">{videoErrors.title}</p>
-        )}
+          {/* Title */}
+          <Input
+            placeholder="Title"
+            value={videoFormData.title}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, title: e.target.value });
+              setVideoErrors({ ...videoErrors, title: '' });
+            }}
+          />
+          {videoErrors.title && (
+            <p className="text-sm text-red-600">{videoErrors.title}</p>
+          )}
 
-        {/* URL */}
-        <Input
-          placeholder="Youtube Video URL"
-          value={videoFormData.url}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, url: e.target.value });
-            setVideoErrors({ ...videoErrors, url: '' });
-          }}
+          {/* URL */}
+          <Input
+            placeholder="Youtube Video URL"
+            value={videoFormData.url}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, url: e.target.value });
+              setVideoErrors({ ...videoErrors, url: '' });
+            }}
 
 
-        />
-        {videoErrors.url && (
-          <p className="text-sm text-red-600">{videoErrors.url}</p>
-        )}
+          />
+          {videoErrors.url && (
+            <p className="text-sm text-red-600">{videoErrors.url}</p>
+          )}
 
-        {/* Description */}
-        <Textarea
-          placeholder="Description"
-          value={videoFormData.description}
-          onChange={e => {
-            setVideoFormData({ ...videoFormData, description: e.target.value });
-            setVideoErrors({ ...videoErrors, description: '' });
-          }}
+          {/* Description */}
+          <Textarea
+            placeholder="Description"
+            value={videoFormData.description}
+            onChange={e => {
+              setVideoFormData({ ...videoFormData, description: e.target.value });
+              setVideoErrors({ ...videoErrors, description: '' });
+            }}
 
-        />
-        {videoErrors.description && (
-          <p className="text-sm text-red-600">{videoErrors.description}</p>
-        )}
+          />
+          {videoErrors.description && (
+            <p className="text-sm text-red-600">{videoErrors.description}</p>
+          )}
 
-        <DialogFooter>
-          <Button onClick={handleEditVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
-        </DialogFooter>
-      </DialogContent>
+          <DialogFooter>
+            <Button onClick={handleEditVideo} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Save</Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog >
 
 
-    {/* DELETE VIDEO */ }
-    < Dialog open = { showDeleteVideoDialog } onOpenChange = { setShowDeleteVideoDialog } >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Video?</DialogTitle>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="destructive" onClick={handleDeleteVideo}>
-            Delete
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+      {/* DELETE VIDEO */}
+      < Dialog open={showDeleteVideoDialog} onOpenChange={setShowDeleteVideoDialog} >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Video?</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="destructive" onClick={handleDeleteVideo}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog >
 
       <Dialog open={showMCQDialog} onOpenChange={setShowMCQDialog}>

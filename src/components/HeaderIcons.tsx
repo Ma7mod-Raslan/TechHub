@@ -18,12 +18,13 @@ export default function HeaderIcons({ logout, userRole, currentPage }: HeaderIco
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
 
+  useEffect(() => {
     const fetchUnread = async () => {
       try {
-
         const token = localStorage.getItem("accessToken");
+
+        if (!token) return; // ← add this line
 
         const res = await fetch(
           "http://localhost:5000/api/notifications/unread-count",
@@ -35,16 +36,13 @@ export default function HeaderIcons({ logout, userRole, currentPage }: HeaderIco
         );
 
         const data = await res.json();
-
         setUnreadCount(data.unread);
-
       } catch (err) {
         console.error(err);
       }
     };
 
     fetchUnread();
-
   }, []);
 
   // Smart visibility: hide notifications icon when on notifications page

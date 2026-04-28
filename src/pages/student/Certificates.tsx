@@ -30,8 +30,8 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
     { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
     { icon: BookOpen, label: 'Courses', page: '/student/courses' },
     { icon: FileText, label: 'Assignments', page: '/student/assignments' },
-    { icon: Award, label: 'Certificates', page: '/student/certificates' , active: true },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Award, label: 'Certificates', page: '/student/certificates', active: true },
+    { icon: Users, label: 'Community', page: '/student/community' },
     { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
     { icon: Code, label: 'Compiler', page: '/student/compiler' },
     { icon: Bell, label: 'Notifications', page: '/student/notifications' },
@@ -73,6 +73,20 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
     navigate('login');
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (!token || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    if (user.role !== "student") {
+      navigate(`/${user.role}/dashboard`, { replace: true });
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 relative">
       <div className="flex relative">
@@ -104,11 +118,11 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
                 <p className="text-gray-600 text-sm md:text-base">Your achievements and completed courses</p>
               </div>
               <HeaderIcons
-              logout={logout}
-              userRole={userRole}
-            />
+                logout={logout}
+                userRole={userRole}
+              />
             </div>
-            
+
           </header>
 
           <main className="p-4 md:p-6">

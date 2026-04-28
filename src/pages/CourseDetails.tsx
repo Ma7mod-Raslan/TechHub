@@ -103,7 +103,7 @@ export default function CourseDetails({
         { icon: BookOpen, label: 'Courses', page: '/student/courses' },
         { icon: FileText, label: 'Assignments', page: '/student/assignments' },
         { icon: Award, label: 'Certificates', page: '/student/certificates' },
-        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Users, label: 'Community', page: '/student/community' },
         { icon: MapIcon, label: 'Roadmaps', page: '/student/roadmaps' },
         { icon: Code, label: 'Compiler', page: '/student/compiler' },
         { icon: Bell, label: 'Notifications', page: '/student/notifications' },

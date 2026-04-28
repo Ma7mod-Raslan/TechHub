@@ -45,14 +45,14 @@ export default function InstructorManageAssignment({
     const location = useLocation() as {
         state?: { courseId?: number };
     };
-    const courseId = location.state?.courseId; 
+    const courseId = location.state?.courseId;
     const assignmentId = localStorage.getItem(`assignment_${courseId}`);
 
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
         { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
-        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-        { icon: Users, label: 'Community', page: '/community' },
+        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments', active: true },
+        { icon: Users, label: 'Community', page: '/instructor/community' },
         { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
         { icon: User, label: 'Profile', page: '/instructor/profile' },
         { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -62,7 +62,7 @@ export default function InstructorManageAssignment({
     const fetchAssignment = async () => {
         if (!assignmentId) {
             navigate("/instructor/create-assignment", {
-                state : {courseId},
+                state: { courseId },
             });
             return;
         }
@@ -79,7 +79,7 @@ export default function InstructorManageAssignment({
 
             if (!res.ok) {
                 navigate("/instructor/create-assignment", {
-                    state : {courseId},
+                    state: { courseId },
                 });
                 return;
             }
@@ -218,6 +218,15 @@ export default function InstructorManageAssignment({
 
         toast.success("Settings updated");
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+
+        if (!token || !user || user.role !== "instructor") {
+            navigate("/login", { replace: true });
+        }
+    }, []);
 
     if (loading) return <div className="p-6">Loading...</div>;
     if (!assignment) return null;

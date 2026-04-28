@@ -102,10 +102,13 @@ const stats = [
 ];
 
 export default function Home({ isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
   const [allTestimonials, setAllTestimonials] = useState(testimonials);
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const role = user?.role || userRole;
 
 
   useEffect(() => {
@@ -128,6 +131,8 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
       })
       .catch(err => console.error(err));
   }, []);
+
+  const token = localStorage.getItem("accessToken");
 
 
   const handleRoleSelect = (role: 'student' | 'instructor') => {
@@ -188,7 +193,7 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                     </Button>
 
                   </>
-                ) : userRole === 'instructor' ? (
+                ) : role === 'instructor' ? (
                   <>
                     <Button
                       size="lg"

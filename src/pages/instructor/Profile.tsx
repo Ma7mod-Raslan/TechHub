@@ -48,7 +48,7 @@ interface InstructorStats {
 }
 
 
-export default function InstructorProfile({logout, userRole }: InstructorProfileProps) {
+export default function InstructorProfile({ logout, userRole }: InstructorProfileProps) {
   const navigate = useNavigate();
   const [editingExpertise, setEditingExpertise] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -75,9 +75,9 @@ export default function InstructorProfile({logout, userRole }: InstructorProfile
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
     { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
-    { icon: User, label: 'Profile', page: '/instructor/profile' },
+    { icon: User, label: 'Profile', page: '/instructor/profile', active: true },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
     { icon: MessageSquare, label: 'Contact Us', page: '/instructor/contact' },
   ];
@@ -247,6 +247,20 @@ export default function InstructorProfile({logout, userRole }: InstructorProfile
     fetchStats();
   }, []);
 
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
+
   if (!profile) {
     return (
       <div className="p-10 text-center text-gray-600">
@@ -254,6 +268,7 @@ export default function InstructorProfile({logout, userRole }: InstructorProfile
       </div>
     );
   }
+
 
 
 

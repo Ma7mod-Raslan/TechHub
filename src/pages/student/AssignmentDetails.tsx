@@ -40,7 +40,7 @@ export default function StudentAssignmentDetails({
         { icon: BookOpen, label: 'Courses', page: '/student/courses' },
         { icon: FileText, label: 'Assignments', page: '/student/assignments', active: true },
         { icon: Award, label: 'Certificates', page: '/student/certificates' },
-        { icon: Users, label: 'Community', page: '/community' },
+        { icon: Users, label: 'Community', page: '/student/community' },
         { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
         { icon: Code, label: 'Compiler', page: '/student/compiler' },
         { icon: Bell, label: 'Notifications', page: '/student/notifications' },
@@ -142,6 +142,20 @@ export default function StudentAssignmentDetails({
 
     };
 
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+
+        if (!token || !user) {
+            navigate("/login", { replace: true });
+            return;
+        }
+
+        if (user.role !== "student") {
+            navigate(`/${user.role}/dashboard`, { replace: true });
+        }
+    }, []);
+
     if (loading) return <div className="p-6">Loading...</div>;
 
     if (!assignment) return <div className="p-6">Assignment not found</div>;
@@ -194,7 +208,7 @@ export default function StudentAssignmentDetails({
                         </div>
 
                         <HeaderIcons
-                        
+
                             logout={logout}
                             userRole={userRole}
                         />

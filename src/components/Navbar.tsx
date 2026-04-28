@@ -13,6 +13,7 @@ import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserRole } from '../App';
 import { useNavigate } from 'react-router-dom';
+import HeaderIcons from "./HeaderIcons";
 
 interface NavbarProps {
   isLoggedIn?: boolean;
@@ -23,7 +24,7 @@ interface NavbarProps {
 
 
 export default function Navbar({ isLoggedIn = false, userRole = 'guest', transparent = false, logout }: NavbarProps) {
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -46,9 +47,8 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`sticky top-0 z-50 border-b ${
-        transparent ? 'bg-white/80 backdrop-blur-lg' : 'bg-white'
-      }`}
+      className={`sticky top-0 z-50 border-b ${transparent ? 'bg-white/80 backdrop-blur-lg' : 'bg-white'
+        }`}
     >
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
@@ -91,15 +91,15 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
           <div className="flex items-center gap-2 md:gap-3">
             {!isLoggedIn ? (
               <>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   onClick={() => navigate('/login')}
                   className="transition-all duration-300 hidden sm:flex"
                 >
                   Login
                 </Button>
-                <Button 
-                  onClick={() => navigate('/signup')} 
+                <Button
+                  onClick={() => navigate('/signup')}
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
                   size="sm"
                 >
@@ -107,86 +107,13 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
                 </Button>
               </>
             ) : (
-              <>
-                {/* Notifications - Hidden on small mobile */}
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="relative hidden sm:flex"
-                  onClick={() => {
-                    if (userRole === 'instructor') navigate('/instructor/notifications');
-                    else if (userRole === 'student') navigate('/student/notifications');
-                    else if (userRole === 'admin') navigate('/admin/notifications');
-                  }}
-                >
-                  <Bell className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    3
-                  </Badge>
-                </Button>
-
-                {/* Profile Dropdown - Hidden on mobile, show in menu */}
-                <div className="hidden sm:block">
-                  <DropdownMenu onOpenChange={setIsProfileOpen}>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        className="flex items-center gap-2 px-3 cursor-pointer hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-all duration-300"
-                      >
-                        <User className="h-5 w-5" />
-                        <motion.div
-                          animate={{ rotate: isProfileOpen ? 180 : 0 }}
-                          transition={{ duration: 0.2, ease: 'easeInOut' }}
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </motion.div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      align="end" 
-                      className="w-56 bg-white shadow-lg border rounded-lg z-[100]"
-                      sideOffset={8}
-                    >
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          if (userRole === 'instructor') navigate('/instructor/profile');
-                          else if (userRole === 'student') navigate('/student/profile');
-                          else if (userRole === 'admin') navigate('/admin/profile');
-                        }}
-                        className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors duration-200"
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          if (userRole === 'instructor') navigate('/instructor/settings');
-                          else if (userRole === 'student') navigate('/student/settings');
-                          else if (userRole === 'admin') navigate('/admin/settings');
-                        }}
-                        className="cursor-pointer hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors duration-200"
-                      >
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={handleLogout}
-                        className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Sign Out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </>
+              <HeaderIcons logout={logout!} userRole={userRole} />
             )}
 
             {/* Mobile Menu Button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="sm:hidden"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -236,7 +163,7 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
               {isLoggedIn && (
                 <>
                   <div className="border-t my-2" />
-                  
+
                   {/* Mobile notifications */}
                   <button
                     onClick={() => {
@@ -292,22 +219,6 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
                   >
                     <LogOut className="h-5 w-5" />
                     <span>Sign Out</span>
-                  </button>
-                </>
-              )}
-
-              {!isLoggedIn && (
-                <>
-                  <div className="border-t my-2" />
-                  <button
-                    onClick={() => {
-                      navigate('/login');
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left hover:bg-gradient-to-r hover:from-violet-50 hover:to-cyan-50 transition-colors"
-                  >
-                    <User className="h-5 w-5 text-gray-600" />
-                    <span>Login</span>
                   </button>
                 </>
               )}

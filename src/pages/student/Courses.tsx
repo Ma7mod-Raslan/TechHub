@@ -64,7 +64,7 @@ export default function StudentCourses({ logout, userRole }: StudentCoursesProps
     { icon: BookOpen, label: 'Courses', page: '/student/courses', active: true },
     { icon: FileText, label: 'Assignments', page: '/student/assignments' },
     { icon: Award, label: 'Certificates', page: '/student/certificates' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/student/community' },
     { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
     { icon: Code, label: 'Compiler', page: '/student/compiler' },
     { icon: Bell, label: 'Notifications', page: '/student/notifications' },
@@ -286,6 +286,20 @@ export default function StudentCourses({ logout, userRole }: StudentCoursesProps
       </Card>
     </motion.div>
   );
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (!token || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    if (user.role !== "student") {
+      navigate(`/${user.role}/dashboard`, { replace: true });
+    }
+  }, []);
 
   if (loadingAll) {
     return (

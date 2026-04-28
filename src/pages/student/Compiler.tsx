@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_API_URL;
 import {
   LayoutDashboard,
@@ -73,9 +73,9 @@ export default function StudentCompiler({
     { icon: BookOpen, label: 'Courses', page: '/student/courses' },
     { icon: FileText, label: 'Assignments', page: '/student/assignments' },
     { icon: Award, label: 'Certificates', page: '/student/certificates' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/student/community' },
     { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
-    { icon: Code, label: 'Compiler', page: '/student/compiler'  , active: true },
+    { icon: Code, label: 'Compiler', page: '/student/compiler', active: true },
     { icon: Bell, label: 'Notifications', page: '/student/notifications' },
     { icon: User, label: 'Profile', page: '/student/profile' },
     { icon: Settings, label: 'Settings', page: '/student/settings' },
@@ -157,6 +157,20 @@ export default function StudentCompiler({
     logout();
     navigate("/login");
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (!token || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    if (user.role !== "student") {
+      navigate(`/${user.role}/dashboard`, { replace: true });
+    }
+  }, []);
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col">

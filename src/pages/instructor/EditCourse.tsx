@@ -57,9 +57,9 @@ export default function InstructorEditCourse({
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
-    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
+    { icon: BookOpen, label: 'My Courses', page: '/instructor/courses', active: true },
     { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
-    { icon: Users, label: 'Community', page: '/community' },
+    { icon: Users, label: 'Community', page: '/instructor/community' },
     { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
     { icon: User, label: 'Profile', page: '/instructor/profile' },
     { icon: Settings, label: 'Settings', page: '/instructor/settings' },
@@ -238,6 +238,20 @@ export default function InstructorEditCourse({
       setIsSaving(false);
     }
   };
+
+  useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  if (!token || !user) {
+    navigate("/login", { replace: true });
+    return;
+  }
+
+  if (user.role !== "instructor") {
+    navigate(`/${user.role}/dashboard`, { replace: true });
+  }
+}, []);
 
 
 
