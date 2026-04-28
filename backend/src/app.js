@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import "./utils/cleanup.js";
 
 // ===== Load environment variables FIRST =====
 dotenv.config();
