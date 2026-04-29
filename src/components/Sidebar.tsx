@@ -46,8 +46,9 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
   };
 
   const getHomePage = () => {
-    return '/';
-  };
+  if (userRole === 'admin') return '/admin/dashboard';
+  return '/';
+};
 
   const handleMobileNavigation = (page?: string) => {
     if (page) {
@@ -87,7 +88,7 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                   <div
                     className="flex items-center gap-2 cursor-pointer mb-8"
                     onClick={() => {
-                      navigate("/");
+                      navigate(getHomePage());
                       setIsMobileOpen?.(false);
                     }}
                   >
@@ -162,7 +163,10 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
             <div className="flex items-center justify-between mb-8">
               <motion.div
                 className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate(getHomePage())}
+                onClick={() => {
+                  navigate(getHomePage());
+                  setIsMobileOpen?.(false);
+                }}
                 animate={{ opacity: isCollapsed ? 0 : 1 }}
                 transition={{ duration: 0.2 }}
               >
@@ -184,7 +188,10 @@ export default function Sidebar({ menuItems, logout, userRole, activePage, isMob
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                   className="bg-gradient-to-br from-violet-600 to-cyan-500 p-2 rounded-xl cursor-pointer mx-auto"
-                  onClick={() => navigate(getHomePage())}
+                  onClick={() => {
+                    navigate(getHomePage());
+                    setIsMobileOpen?.(false);
+                  }}
                 >
                   <Code2 className="h-6 w-6 text-white" />
                 </motion.div>

@@ -88,7 +88,7 @@ export default function CourseDetails({
   const [courseProgress, setCourseProgress] = useState(0);
 
 
-
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
 
 
@@ -269,6 +269,9 @@ export default function CourseDetails({
       setTimeout(() => {
         navigate('/signup');
       }, 1000);
+    } else if (userRole === 'instructor') {
+      toast.error('Instructors cannot enroll in courses');
+      return;
     } else if (userRole === 'student') {
       try {
 
@@ -1193,7 +1196,7 @@ export default function CourseDetails({
                           ) : (
                             <>
                               <Button className="w-full mb-6 bg-gradient-to-r from-cyan-500 to-blue-600" onClick={handleEnroll}>
-                                Enroll
+                                {userRole === 'instructor' ? 'Sign up as Student to Enroll' : 'Enroll'}
                               </Button>
                             </>
                           )}

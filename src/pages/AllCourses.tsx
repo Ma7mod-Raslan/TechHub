@@ -232,11 +232,12 @@ export default function AllCourses({ isLoggedIn = false, userRole = 'guest', log
                         onClick={() => {
                           localStorage.setItem('selectedCourseId', course.id.toString());
 
+                          const token = localStorage.getItem("accessToken");
+
                           const path =
-                            userRole === 'guest'
+                            !token
                               ? '/course-details-guest'
                               : '/course-details';
-
                           navigate(path, {
                             state: { courseId: course.id }
                           });
@@ -285,8 +286,10 @@ export default function AllCourses({ isLoggedIn = false, userRole = 'guest', log
 
                                 localStorage.setItem('selectedCourseId', course.id.toString());
 
+                                const token = localStorage.getItem("accessToken");
+
                                 const path =
-                                  userRole === 'guest'
+                                  !token
                                     ? '/course-details-guest'
                                     : '/course-details';
 

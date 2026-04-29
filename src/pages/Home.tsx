@@ -392,7 +392,8 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5 }}
               >
-                <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/course-details')}>
+                <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                  onClick={() => navigate(userRole === 'guest' ? '/course-details-guest' : '/course-details')}>                  
                   <div className="relative">
                     <ImageWithFallback
                       src={course.thumbnail}

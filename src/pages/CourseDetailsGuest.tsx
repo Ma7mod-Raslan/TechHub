@@ -31,7 +31,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 interface CourseDetailsProps {
     userRole: UserRole;
     logout?: () => void;
-   
+
 }
 
 
@@ -58,7 +58,7 @@ export default function CourseDetails({
 
     userRole,
     logout,
-    
+
 }: CourseDetailsProps) {
     const navigate = useNavigate();
 
@@ -73,6 +73,11 @@ export default function CourseDetails({
     const id =
         location.state?.courseId ??
         Number(localStorage.getItem("selectedCourseId") || 0);
+
+    const token = localStorage.getItem("accessToken");
+    const isLoggedIn = !!token;
+
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
 
 
@@ -210,7 +215,7 @@ export default function CourseDetails({
     return (
         <div className="min-h-screen bg-gray-50 relative">
             {/* Navbar */}
-            <Navbar userRole="guest" />
+            <Navbar userRole={userRole} logout={logout} isLoggedIn={isLoggedIn} />
 
             <div className="container mx-auto px-4 py-8">
                 <div className="grid lg:grid-cols-3 gap-8">
@@ -414,9 +419,15 @@ export default function CourseDetails({
                                     <div className="p-6">
                                         <Button
                                             className="w-full mb-6 bg-gradient-to-r from-violet-600 to-cyan-500"
-                                            onClick={() => navigate("/signup")}
+                                            onClick={() => {
+                                                if (userRole === 'instructor') {
+                                                    return;
+                                                } else {
+                                                    navigate('/signup');
+                                                }
+                                            }}
                                         >
-                                            Sign up to Enroll
+                                            {'Sign up as Student to Enroll'}
                                         </Button>
 
                                         <div className="space-y-3 text-sm">

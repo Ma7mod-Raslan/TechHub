@@ -66,6 +66,7 @@ export type UserRole = 'guest' | 'student' | 'instructor' | 'admin';
 
 export default function App() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const token = localStorage.getItem("accessToken");
   const isLoggedIn = !!token;
@@ -102,7 +103,7 @@ export default function App() {
         <Routes location={location} key={location.pathname}>
 
           {/* Auth */}
-          <Route path="/" element={<PageWrapper><Home isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>}/>
+          <Route path="/" element={<PageWrapper><Home isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
           <Route path="/signup" element={<PageWrapper><SignUp /></PageWrapper>} />
           <Route path="/verification" element={<PageWrapper><Verification /></PageWrapper>} />
@@ -155,9 +156,8 @@ export default function App() {
 
           {/* Shared */}
           <Route path="/course-details" element={<PageWrapper><CourseDetails userRole={userRole} logout={logout} /></PageWrapper>} />
-          <Route path="/courses" element={<PageWrapper><AllCourses userRole={userRole} logout={logout} /></PageWrapper>} />
-          <Route path="/course-details-guest" element={<PageWrapper><CourseDetailsGuest userRole="guest" /></PageWrapper>} />
-
+          <Route path="/courses" element={<PageWrapper><AllCourses isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>} />
+          <Route path="/course-details-guest" element={<PageWrapper><CourseDetailsGuest userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route
             path="/community"
             element={
