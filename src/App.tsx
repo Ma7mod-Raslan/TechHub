@@ -155,7 +155,7 @@ export default function App() {
           <Route path="/admin/notifications" element={<PageWrapper><AdminNotifications logout={logout} userRole="admin" /></PageWrapper>} />
 
           {/* Shared */}
-          <Route path="/course-details" element={<PageWrapper><CourseDetails userRole={userRole} logout={logout} /></PageWrapper>} />
+          <Route path="/course-details/:id" element={<PageWrapper><CourseDetails userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route path="/courses" element={<PageWrapper><AllCourses isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route path="/course-details-guest" element={<PageWrapper><CourseDetailsGuest userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route

@@ -214,9 +214,7 @@ export default function StudentCourses({ logout, userRole }: StudentCoursesProps
       transition={{ duration: 0.3 }}
     >
       <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
-        onClick={() => navigate("/course-details", {
-          state: { courseId: course.id }
-        })}
+        onClick={() => navigate(`/course-details/${course.id}`)}
       >
         <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
         <CardContent className="p-4">
