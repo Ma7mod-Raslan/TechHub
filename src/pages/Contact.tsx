@@ -15,11 +15,14 @@ import { useNavigate } from 'react-router-dom';
 
 
 export default function Contact() {
-  const navigate = useNavigate();  
-  const [fullName, setFullName] = useState("");
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [category, setCategory] = useState("");
   const [message, setMessage] = useState("");
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isLoggedIn = !!token;
+  const userRole = user?.role || 'guest';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +58,17 @@ export default function Contact() {
       toast.error(err.message);
     }
   };
+  const logoutUser = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    window.location.href = '/login';
+  };
+
+  const [fullName, setFullName] = useState("");
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} userRole={userRole} logout={logoutUser} />
 
       <section className="bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 py-20">
         <div className="container mx-auto px-4">

@@ -1,20 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Star, Users, Clock, Award, CheckCircle2, FileText, MessageSquare, Globe, Lock, ChevronRight, ChevronLeft, SkipForward, SkipBack, X, ArrowLeft, Download, BookOpen, Settings, Volume2, Maximize, Bookmark, Send, LayoutDashboard, Code, Map as mapIcon, Bell, User, Menu, Trash2, MapIcon } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { UserRole } from '../App';
-import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import Navbar from '../../components/Navbar';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { UserRole } from '../../App';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { toast } from 'sonner';
-import Sidebar from '../components/Sidebar';
-import HeaderIcons from '../components/HeaderIcons';
-import VideoQuestions from '../components/course/VideoQuestions';
-import { COURSE_CATEGORIES } from '../constants/courseCategories';
-import { useLocation } from 'react-router-dom';
+import Sidebar from '../../components/Sidebar';
+import HeaderIcons from '../../components/HeaderIcons';
+import VideoQuestions from '../../components/course/VideoQuestions';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
+import { useLocation, useParams } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 
@@ -76,11 +76,8 @@ export default function CourseDetails({
   const progressIntervalRef = useRef<any>(null);
   const [course, setCourse] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
-
-  const id =
-    location.state?.courseId ??
-    Number(localStorage.getItem("selectedCourseId") || 0);
+  const { id } = useParams();
+  const courseId = Number(id);
   const [courseSections, setCourseSections] = useState<Section[]>([]);
   const [totalDuration, setTotalDuration] = useState<string>('0m');
   const allLectures = courseSections.flatMap(section => section.lectures);
@@ -88,7 +85,7 @@ export default function CourseDetails({
   const [courseProgress, setCourseProgress] = useState(0);
 
 
-
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
 
 
@@ -148,8 +145,8 @@ export default function CourseDetails({
   const fetchCourseVideos = async (enrolled: boolean) => {
     try {
       const endpoint = enrolled
-        ? `http://localhost:5000/api/courses/${id}/videos`
-        : `http://localhost:5000/api/courses/${id}/videos-preview`;
+        ? `http://localhost:5000/api/courses/${courseId}/videos`
+        : `http://localhost:5000/api/courses/${courseId}/videos-preview`;
 
       const headers: any = {};
       if (enrolled) {
@@ -204,7 +201,7 @@ export default function CourseDetails({
       if (!res.ok) return false;
 
       const courses = await res.json();
-      return courses.some((c: any) => c.id === id);
+      return courses.some((c: any) => c.id === Number(id));
     } catch {
       return false;
     }
@@ -225,7 +222,7 @@ export default function CourseDetails({
     const load = async () => {
       try {
         const courseRes = await fetch(
-          `http://localhost:5000/api/courses/${id}`,
+          `http://localhost:5000/api/courses/${courseId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -269,10 +266,13 @@ export default function CourseDetails({
       setTimeout(() => {
         navigate('/signup');
       }, 1000);
+    } else if (userRole === 'instructor') {
+      toast.error('Instructors cannot enroll in courses');
+      return;
     } else if (userRole === 'student') {
       try {
 
-        await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
+        await fetch(`http://localhost:5000/api/courses/${courseId}/enroll`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -293,7 +293,7 @@ export default function CourseDetails({
   const fetchCourseProgress = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/courses/${id}/progress`,
+        `http://localhost:5000/api/courses/${courseId}/progress`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -313,7 +313,7 @@ export default function CourseDetails({
   const fetchVideosProgress = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/courses/${id}/videos/progress`,
+        `http://localhost:5000/api/courses/${courseId}/videos/progress`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -603,7 +603,7 @@ export default function CourseDetails({
 
 
 
-  if (!id || id === 0) {
+  if (!courseId || isNaN(courseId)){
     return (
       <div className="p-10 text-center text-gray-600">
         No course selected
@@ -1193,7 +1193,7 @@ export default function CourseDetails({
                           ) : (
                             <>
                               <Button className="w-full mb-6 bg-gradient-to-r from-cyan-500 to-blue-600" onClick={handleEnroll}>
-                                Enroll
+                                {userRole === 'instructor' ? 'Sign up as Student to Enroll' : 'Enroll'}
                               </Button>
                             </>
                           )}

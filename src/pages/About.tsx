@@ -9,10 +9,21 @@ import { useNavigate } from 'react-router-dom';
 
 
 export default function About() {
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const isLoggedIn = !!token;
+  const userRole = user?.role || 'guest';
+
+  const logout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+    window.location.href = '/login';
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      <Navbar  />
+      <Navbar isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} />
 
       <section className="bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 py-20">
         <div className="container mx-auto px-4">
@@ -143,9 +154,9 @@ export default function About() {
           </motion.div>
         </div>
       </section>
-      <AIAssistant/>
+      <AIAssistant />
 
-      <Footer  />
+      <Footer />
     </div>
   );
 }
