@@ -189,11 +189,13 @@ export const toggleUserStatus = async (userId) => {
 
       // Suspend Communities
       await client.query(
-        `UPDATE communities
-         SET is_active = $1
-         WHERE instructor_id = $2`,
-        [newStatus, userId]
-      );
+      `UPDATE communities
+      SET is_active = $1
+      WHERE course_id IN (
+        SELECT id FROM courses WHERE instructor_id = $2
+      )`,
+      [newStatus, userId]
+    );
     }
 
     await client.query("COMMIT");
