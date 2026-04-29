@@ -13,7 +13,7 @@ const getUserCommunities = async (userId) => {
     FROM communities c
     JOIN community_members cm ON cm.community_id = c.id
     JOIN courses ON courses.id = c.course_id
-    WHERE cm.user_id = $1
+    WHERE cm.user_id = $1 AND c.is_active = true
     `,
     [userId]
   );
