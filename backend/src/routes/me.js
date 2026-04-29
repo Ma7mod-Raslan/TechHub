@@ -247,7 +247,7 @@ router.get(
       /**
        * Total enrolled courses
        */
-      
+
       const enrolledRes = await db.query(
       `
       SELECT COUNT(*) 
@@ -259,7 +259,7 @@ router.get(
       [studentId]
     );
       /**
-       * 2️⃣ Total time spent (seconds)
+       * Total time spent (seconds)
        */
       const timeRes = await db.query(
         `
@@ -271,7 +271,7 @@ router.get(
       );
 
       /**
-       * 3️⃣ Total completed courses (NEW LOGIC)
+       * Total completed courses (NEW LOGIC)
        */
       const completedRes = await db.query(
         `
