@@ -204,7 +204,7 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
       LEFT JOIN student_video_progress svp
         ON svp.video_id = cv.id
        AND svp.student_id = $1
-      WHERE e.student_id = $1
+      WHERE e.student_id = $1 AND c.is_active = true
       GROUP BY c.id, u.full_name
       `,
       [studentId]
@@ -245,17 +245,19 @@ router.get(
       const studentId = req.user.id;
 
       /**
-       * 1️⃣ Total enrolled courses
+       * Total enrolled courses
        */
+      
       const enrolledRes = await db.query(
-        `
-        SELECT COUNT(*) 
-        FROM enrollments
-        WHERE student_id = $1
-        `,
-        [studentId]
-      );
-
+      `
+      SELECT COUNT(*) 
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      WHERE e.student_id = $1
+      AND c.is_active = true
+      `,
+      [studentId]
+    );
       /**
        * 2️⃣ Total time spent (seconds)
        */
