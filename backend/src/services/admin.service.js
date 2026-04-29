@@ -141,35 +141,71 @@ export const getStudents = async () => {
 
 // Toggle Suspend user
 export const toggleUserStatus = async (userId) => {
+  const client = await db.connect();
 
-    const userResult = await db.query(
-    `SELECT id, is_active, role FROM users WHERE id = $1`,
-    [userId]
-  );
+  try {
+    await client.query("BEGIN");
 
-  if (userResult.rows.length === 0) {
-    throw new Error("User not found");
+    // Get user
+    const userResult = await client.query(
+      `SELECT id, is_active, role FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      throw new Error("User not found");
+    }
+
+    const user = userResult.rows[0];
+
+    // Prevent admin suspend
+    if (user.role === "admin") {
+      throw new Error("Cannot suspend an admin");
+    }
+
+    // Toggle status
+    const newStatus = !user.is_active;
+
+    // Update user
+    const updateResult = await client.query(
+      `UPDATE users
+       SET is_active = $1
+       WHERE id = $2
+       RETURNING id, full_name, email, role, is_active`,
+      [newStatus, userId]
+    );
+
+    // If instructor → cascade suspend
+    if (user.role === "instructor") {
+
+
+      // Suspend Courses
+      await client.query(
+        `UPDATE courses
+         SET is_active = $1
+         WHERE instructor_id = $2`,
+        [newStatus, userId]
+      );
+
+      // Suspend Communities
+      await client.query(
+        `UPDATE communities
+         SET is_active = $1
+         WHERE instructor_id = $2`,
+        [newStatus, userId]
+      );
+    }
+
+    await client.query("COMMIT");
+
+    return updateResult.rows[0];
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
   }
-
-  const user = userResult.rows[0];
-
-  // Can't suspend itself
-  if (user.role === "admin") {
-    throw new Error("Cannot suspend an admin");
-  }
-
-  // Toggle
-  const newStatus = !user.is_active;
-
-  const updateResult = await db.query(
-    `UPDATE users
-     SET is_active = $1
-     WHERE id = $2
-     RETURNING id, full_name, email, role, is_active`,
-    [newStatus, userId]
-  );
-
-  return updateResult.rows[0];
 };
 
 // Get Courses Data
@@ -190,6 +226,7 @@ export const getAllCourses = async () => {
     ON c.instructor_id = u.id
   LEFT JOIN enrollments e 
     ON c.id = e.course_id
+  WHERE c.status = 'Published'
   GROUP BY c.id, u.full_name
   ORDER BY c.created_at DESC;
   `);
