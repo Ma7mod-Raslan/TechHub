@@ -20,7 +20,7 @@ export const getDashboardStats = async () => {
 
     db.query(`SELECT COUNT(*) FROM users WHERE role = 'instructor'`),
 
-    db.query(`SELECT COUNT(*) FROM courses WHERE is_active = true`),
+    db.query(`SELECT COUNT(*) FROM courses WHERE is_active = true AND status = 'Published'`),
 
     db.query(`SELECT COUNT(*) FROM community_reports`),
 
