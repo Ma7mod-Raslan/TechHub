@@ -232,15 +232,14 @@ export default function AllCourses({ isLoggedIn = false, userRole = 'guest', log
                         onClick={() => {
                           localStorage.setItem('selectedCourseId', course.id.toString());
 
+
                           const token = localStorage.getItem("accessToken");
 
-                          const path =
-                            !token
-                              ? '/course-details-guest'
-                              : '/course-details';
-                          navigate(path, {
-                            state: { courseId: course.id }
-                          });
+                          if (!token) {
+                            navigate(`/course-details-guest/${course.id}`);
+                          } else {
+                            navigate(`/course-details/${course.id}`);
+                          }
                         }}
 
 
