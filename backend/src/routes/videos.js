@@ -439,7 +439,7 @@ router.get(
       const { courseId } = req.params;
 
       /**
-       * 1️⃣ Check enrollment
+       * Check enrollment
        */
       const enrollRes = await db.query(
         `
@@ -457,7 +457,7 @@ router.get(
       }
 
       /**
-       * 2️⃣ Get videos with completion status
+       * Get videos with completion status
        */
       const videosRes = await db.query(
         `

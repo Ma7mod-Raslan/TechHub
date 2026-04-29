@@ -15,29 +15,31 @@ router.get(
     try {
       const instructorId = req.user.id;
 
-      // 1️⃣ Total courses
+      // Total courses
       const coursesRes = await db.query(
         `
         SELECT COUNT(*)
         FROM courses
         WHERE instructor_id = $1 
         AND status = 'Published'
+        AND is_active = true
         `,
         [instructorId]
       );
 
-      // 2️⃣ Total students (unique)
+      // Total students (unique)
       const studentsRes = await db.query(
         `
         SELECT COUNT(DISTINCT e.student_id)
         FROM enrollments e
         JOIN courses c ON c.id = e.course_id
         WHERE c.instructor_id = $1
+        AND c.is_active = true
         `,
         [instructorId]
       );
 
-      // 3️⃣ Top courses by enrollment
+      // Top courses by enrollment
       const topCoursesRes = await db.query(
         `
         SELECT
@@ -46,7 +48,7 @@ router.get(
           COUNT(e.student_id) AS total_students
         FROM courses c
         LEFT JOIN enrollments e ON e.course_id = c.id
-        WHERE c.instructor_id = $1
+        WHERE c.instructor_id = $1 AND c.is_active = true
         GROUP BY c.id
         ORDER BY total_students DESC
         LIMIT 5
