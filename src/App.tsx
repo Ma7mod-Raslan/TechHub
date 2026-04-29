@@ -51,7 +51,7 @@ import AdminSettings from './pages/admin/Settings';
 import AdminNotifications from './pages/admin/Notifications';
 
 // Shared
-import CourseDetails from './pages/CourseDetails';
+import CourseDetails from './pages/student/CourseDetails';
 import CourseDetailsGuest from './pages/CourseDetailsGuest';
 import AllCourses from './pages/AllCourses';
 import Community from './pages/Community';
@@ -78,6 +78,7 @@ export default function App() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     localStorage.removeItem("pendingVerification");
+    localStorage.removeItem("selectedCourseId");
 
     setUserRole('guest');
     navigate('/login');
@@ -142,6 +143,8 @@ export default function App() {
           <Route path="/student/settings" element={<PageWrapper><StudentSettings userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/notifications" element={<PageWrapper><StudentNotifications userRole="student" logout={logout} /></PageWrapper>} />
           <Route path="/student/contact" element={<PageWrapper><StudentContact userRole="student" logout={logout} /></PageWrapper>} />
+          <Route path="/course-details/:id" element={<PageWrapper><CourseDetails userRole="student" logout={logout} /></PageWrapper>} />
+
 
           {/* Admin */}
           <Route path="/admin/dashboard" element={<PageWrapper><AdminDashboard logout={logout} userRole="admin" /></PageWrapper>} />
@@ -155,7 +158,6 @@ export default function App() {
           <Route path="/admin/notifications" element={<PageWrapper><AdminNotifications logout={logout} userRole="admin" /></PageWrapper>} />
 
           {/* Shared */}
-          <Route path="/course-details/:id" element={<PageWrapper><CourseDetails userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route path="/courses" element={<PageWrapper><AllCourses isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route path="/course-details-guest" element={<PageWrapper><CourseDetailsGuest userRole={userRole} logout={logout} /></PageWrapper>} />
           <Route
