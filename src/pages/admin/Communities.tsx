@@ -544,13 +544,6 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
                         <p className="text-sm text-gray-600">
                           View the full community with live interactions and moderation tools
                         </p>
-                        <Button
-                          onClick={handleGoToCommunity}
-                          className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600 transition-all duration-300"
-                        >
-                          Go to Community
-                          <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
                       </div>
                     </div>
                   </Card>

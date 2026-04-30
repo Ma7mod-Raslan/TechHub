@@ -23,6 +23,7 @@ import {
 } from '../../components/ui/alert-dialog';
 import { COURSE_CATEGORIES } from "../../constants/courseCategories";
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface CoursesProps {
   logout: () => void;
@@ -106,16 +107,18 @@ export default function AdminCourses({ logout }: CoursesProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error(data);
+        toast.error(data.error || "Cannot activate course");
         return;
       }
 
+      const updatedCourse = data.course;
+
       setCoursesData(prev =>
         prev.map(c =>
-          c.id === course.id
+          c.id === updatedCourse.id
             ? {
               ...c,
-              status: c.status === 'Active' ? 'Suspended' : 'Active'
+              status: updatedCourse.is_active ? 'Active' : 'Suspended'
             }
             : c
         )
