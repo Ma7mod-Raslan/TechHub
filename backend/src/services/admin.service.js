@@ -934,48 +934,77 @@ export const getContactMessageDetails = async (id) => {
 
 // Replay to message
 export const replyToContactMessage = async (id, replyText) => {
-  // get message
-  const result = await db.query(
-    `SELECT full_name, email, category FROM contact_messages WHERE id=$1`,
-    [id]
-  );
+  const client = await db.connect();
 
-  if (result.rows.length === 0) {
-    throw new Error("Message not found");
+  try {
+    await client.query("BEGIN");
+
+    // validation
+    if (!replyText || replyText.trim() === "") {
+      throw new Error("Reply message cannot be empty");
+    }
+
+    // get message
+    const result = await client.query(
+      `SELECT full_name, email, category, status 
+       FROM contact_messages 
+       WHERE id=$1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Message not found");
+    }
+
+    const { full_name, email, category, status } = result.rows[0];
+
+    // prevent double reply
+    if (status === "Replied") {
+      throw new Error("This message has already been replied to");
+    }
+
+    // prepare email
+    const subject = `Reply to your ${category} - TechHub`;
+
+    const safeReply = replyText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const html = `
+      <h2>Hello ${full_name},</h2>
+      <p>Thank you for contacting TechHub.</p>
+      <p>${safeReply}</p>
+      <br/>
+      <p>Best regards,<br/>TechHub Support Team</p>
+    `;
+
+    // send email
+    await transporter.sendMail({
+      from: process.env.FROM_EMAIL,
+      to: email,
+      subject,
+      html
+    });
+
+    // update DB
+    await client.query(
+      `
+      UPDATE contact_messages
+      SET status = 'replied',
+          reply_message = $1
+      WHERE id = $2
+      `,
+      [replyText, id]
+    );
+
+    await client.query("COMMIT");
+
+    return { message: "Reply sent successfully" };
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
   }
-
-  const { full_name, email, category } = result.rows[0];
-
-  // send email
-  const subject = `Reply to your ${category} - TechHub`;
-
-  const html = `
-    <h2>Hello ${full_name},</h2>
-    <p>Thank you for contacting TechHub.</p>
-    <p>${replyText}</p>
-    <br/>
-    <p>Best regards,<br/>TechHub Support Team</p>
-  `;
-
-  await transporter.sendMail({
-    from: process.env.FROM_EMAIL,
-    to: email,
-    subject,
-    html
-  });
-
-  // update status
-  await db.query(
-    `
-    UPDATE contact_messages
-    SET status = 'Replied',
-        reply_message = $1
-    WHERE id = $2
-    `,
-    [replyText, id]
-  );
-
-  return { message: "Reply sent successfully" };
 };
 
 // Delete Specific message

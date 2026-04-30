@@ -581,12 +581,23 @@ router.get("/contact-messages/:id", authMiddleware, allowRoles("admin"), async (
   res.json(data);
 });
 
-// POST reply
-router.post("/contact-messages/:id/reply", authMiddleware, allowRoles("admin"), async (req, res) => {
-  const { reply } = req.body;
+// POST reply 
+router.post(
+  "/contact-messages/:id/reply", 
+  authMiddleware,
+  async (req, res) => {
+  try {
+    const { replyText } = req.body;
 
-  const result = await replyToContactMessage(req.params.id, reply);
-  res.json(result);
+    const result = await replyToContactMessage(
+      req.params.id,
+      replyText
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 });
 
 
