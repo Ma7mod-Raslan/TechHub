@@ -27,6 +27,7 @@ interface Community {
   category: string;
   members_count: number;
   posts_count: number;
+  is_active: boolean;
 }
 
 interface Post {
@@ -339,6 +340,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
                           <TableHead>Category</TableHead>
                           <TableHead>Members</TableHead>
                           <TableHead>Posts</TableHead>
+                          <TableHead>Status</TableHead>
                           <TableHead>Action</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -352,6 +354,17 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
                             </TableCell>
                             <TableCell>{community.members_count.toLocaleString()}</TableCell>
                             <TableCell>{community.posts_count}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={
+                                  community.is_active
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-gray-200 text-gray-600"
+                                }
+                              >
+                                {community.is_active ? "Active" : "Suspended"}
+                              </Badge>
+                            </TableCell>
                             <TableCell>
                               <Button
                                 size="sm"

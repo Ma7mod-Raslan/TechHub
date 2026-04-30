@@ -134,11 +134,33 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
     navigate('/admin/courses');
   };
 
-  const handleSuspendActivate = () => {
-    const newStatus = courseStatus === 'Active' ? 'Suspended' : 'Active';
-    setCourseStatus(newStatus);
-    toast.success(`Course ${newStatus === 'Suspended' ? 'suspended' : 'activated'} successfully`);
-    setSuspendConfirm(false);
+  const handleSuspendActivate = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/courses/${courseId}/toggle-status`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Cannot activate course");
+        return;
+      }
+
+      setCourseStatus(data.course.is_active ? 'Active' : 'Suspended');
+
+      toast.success(data.message);
+      setSuspendConfirm(false);
+
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
   };
 
   const handleDeleteQuestion = () => {
@@ -216,6 +238,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
         };
 
         setCourseData(mappedCourse);
+        setCourseStatus(data.is_active ? 'Active' : 'Suspended');
 
         const totalMinutes = Math.floor(data.total_duration / 60);
 
