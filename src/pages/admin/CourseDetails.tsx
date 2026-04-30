@@ -128,10 +128,32 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
     }
   };
 
-  const handleDeleteCourse = () => {
-    toast.success('Course deleted successfully');
-    setDeleteConfirm(false);
-    navigate('/admin/courses');
+  const handleDeleteCourse = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/courses/${courseId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Delete failed");
+        return;
+      }
+
+      toast.success("Course deleted successfully");
+      setDeleteConfirm(false);
+      navigate('/admin/courses');
+
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
   };
 
   const handleSuspendActivate = async () => {
