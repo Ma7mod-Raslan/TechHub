@@ -238,41 +238,67 @@ export const getAllCourses = async () => {
 
 // Toggle Suspend course
 export const toggleCourseStatus = async (courseId) => {
-  // Get course + instructor
-  const courseResult = await db.query(
-    `
-    SELECT c.id, c.is_active, c.instructor_id, u.is_active AS instructor_active
-    FROM courses c
-    JOIN users u ON c.instructor_id = u.id
-    WHERE c.id = $1
-    `,
-    [courseId]
-  );
+  const client = await db.connect();
 
-  if (courseResult.rows.length === 0) {
-    throw new Error("Course not found");
+  try {
+    await client.query("BEGIN");
+
+    // Get course + instructor
+    const courseResult = await client.query(
+      `
+      SELECT c.id, c.is_active, c.instructor_id,
+             u.is_active AS instructor_active
+      FROM courses c
+      JOIN users u ON c.instructor_id = u.id
+      WHERE c.id = $1
+      `,
+      [courseId]
+    );
+
+    if (courseResult.rows.length === 0) {
+      throw new Error("Course not found");
+    }
+
+    const course = courseResult.rows[0];
+
+    // Toggle
+    const newStatus = !course.is_active;
+
+    if (newStatus === true && course.instructor_active === false) {
+      throw new Error("Cannot activate course: instructor is suspended");
+    }
+
+    // Update course
+    const updatedCourse = await client.query(
+      `
+      UPDATE courses
+      SET is_active = $1
+      WHERE id = $2
+      RETURNING id, title, is_active
+      `,
+      [newStatus, courseId]
+    );
+
+    // Cascade to communities
+    await client.query(
+      `
+      UPDATE communities
+      SET is_active = $1
+      WHERE course_id = $2
+      `,
+      [newStatus, courseId]
+    );
+
+    await client.query("COMMIT");
+
+    return updatedCourse.rows[0];
+
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
   }
-
-  const course = courseResult.rows[0];
-
-  // Toggle status
-  const newStatus = !course.is_active;
-
-  // If trying to active course & the instructor is suspended
-  if (newStatus === true && course.instructor_active === false) {
-    throw new Error("Cannot activate course: instructor is suspended");
-  }
-
-  // Update course
-  const updated = await db.query(
-    `UPDATE courses
-     SET is_active = $1
-     WHERE id = $2
-     RETURNING id, title, is_active`,
-    [newStatus, courseId]
-  );
-
-  return updated.rows[0];
 };
 
 // Delete course 
