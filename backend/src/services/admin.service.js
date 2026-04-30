@@ -238,9 +238,14 @@ export const getAllCourses = async () => {
 
 // Toggle Suspend course
 export const toggleCourseStatus = async (courseId) => {
-  // Check if course exists
+  // Get course + instructor
   const courseResult = await db.query(
-    `SELECT id, is_active FROM courses WHERE id = $1`,
+    `
+    SELECT c.id, c.is_active, c.instructor_id, u.is_active AS instructor_active
+    FROM courses c
+    JOIN users u ON c.instructor_id = u.id
+    WHERE c.id = $1
+    `,
     [courseId]
   );
 
@@ -253,6 +258,12 @@ export const toggleCourseStatus = async (courseId) => {
   // Toggle status
   const newStatus = !course.is_active;
 
+  // If trying to active course & the instructor is suspended
+  if (newStatus === true && course.instructor_active === false) {
+    throw new Error("Cannot activate course: instructor is suspended");
+  }
+
+  // Update course
   const updated = await db.query(
     `UPDATE courses
      SET is_active = $1
