@@ -934,7 +934,7 @@ export const getContactMessageDetails = async (id) => {
 
 // Replay to message
 export const replyToContactMessage = async (id, replyText) => {
-  // 1️⃣ get message
+  // get message
   const result = await db.query(
     `SELECT full_name, email, category FROM contact_messages WHERE id=$1`,
     [id]
@@ -946,7 +946,7 @@ export const replyToContactMessage = async (id, replyText) => {
 
   const { full_name, email, category } = result.rows[0];
 
-  // 2️⃣ send email
+  // send email
   const subject = `Reply to your ${category} - TechHub`;
 
   const html = `
@@ -964,12 +964,12 @@ export const replyToContactMessage = async (id, replyText) => {
     html
   });
 
-  // 3️⃣ update status
+  // update status
   await db.query(
     `
     UPDATE contact_messages
     SET status = 'Replied',
-        reply_message = $1,
+        reply_message = $1
     WHERE id = $2
     `,
     [replyText, id]
