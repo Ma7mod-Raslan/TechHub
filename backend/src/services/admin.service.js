@@ -388,6 +388,7 @@ export const getCommunities = async () => {
   const result = await db.query(`
     SELECT
       com.id,
+      com.is_active,
       c.title AS course_name,
       c.category,
       u.full_name AS instructor_name,
