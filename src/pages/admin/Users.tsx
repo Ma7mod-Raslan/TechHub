@@ -123,7 +123,8 @@ export default function AdminUsers({ logout }: UsersProps) {
     email: user.email,
     joinedDate: user.created_at,
     status: user.is_active ? 'Active' : 'Suspended',
-    courses: user.courses_count || 0,
+    courses: user.courses_count ?? user.enrolled_courses ?? 0,
+    
   });
 
   const formatDateTime = (dateString: string) => {
@@ -308,7 +309,9 @@ export default function AdminUsers({ logout }: UsersProps) {
                                 <Badge className="bg-cyan-100 text-cyan-700">Student</Badge>
                               </TableCell>
                               <TableCell>{student.courses}</TableCell>
-                              <TableCell className="text-gray-600">{student.joinedDate}</TableCell>
+                              <TableCell className="text-gray-600">
+                                {formatDateTime(student.joinedDate)}
+                              </TableCell>
                               <TableCell>
                                 <Badge className={student.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
                                   {student.status}

@@ -358,8 +358,8 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
                               <Badge
                                 className={
                                   community.is_active
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-gray-200 text-gray-600"
+                                    ? "bg-green-100 text-green-700" 
+                                    : "bg-gray-100 text-gray-700"
                                 }
                               >
                                 {community.is_active ? "Active" : "Suspended"}
