@@ -999,7 +999,7 @@ router.get(
         u.full_name AS instructor_name
       FROM courses c
       JOIN users u ON u.id = c.instructor_id
-      WHERE c.id = $1 AND c.is_active = true`,
+      WHERE c.id = $1 `,
       [courseId]
     );
 
