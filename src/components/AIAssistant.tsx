@@ -120,23 +120,33 @@ export default function AIAssistant() {
                   onClick={() => setShowAIAssistant(false)}
                   className="text-white hover:bg-white/20 p-1 rounded-full transition-colors duration-200"
                 >
-                  <button
-                    onClick={() => {
-                      setChatMessages([
-                        {
-                          id: 1,
-                          role: 'assistant',
-                          content: "Hello! I'm your AI learning assistant...",
-                          timestamp: new Date().toLocaleTimeString(),
-                        },
-                      ]);
-                      setSessionId(null);
-                      localStorage.removeItem(SESSION_STORAGE_KEY);
-                    }}
-                    className="text-white hover:bg-white/20 p-1 rounded-full"
-                  >
-                    🔄
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setChatMessages([
+                          {
+                            id: 1,
+                            role: 'assistant',
+                            content: "Hello! I'm your AI learning assistant. I can help you with questions about courses, assignments, coding help, or general guidance. How can I assist you today?",
+                            timestamp: new Date().toLocaleTimeString(),
+                          },
+                        ]);
+                        setSessionId(null);
+                        localStorage.removeItem(SESSION_STORAGE_KEY);
+                      }}
+                      title="New conversation"
+                      className="text-white hover:bg-white/20 p-2 rounded-full transition-colors duration-200"
+                    >
+                      🔄
+                    </button>
+                    <button
+                      onClick={() => setShowAIAssistant(false)}
+                      className="text-white hover:bg-white/20 p-1 rounded-full transition-colors duration-200"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
                   <X className="h-5 w-5" />
                 </button>
               </div>
