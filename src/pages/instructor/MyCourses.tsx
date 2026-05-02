@@ -146,18 +146,18 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
   };
 
   useEffect(() => {
-  const token = localStorage.getItem("accessToken");
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  if (!token || !user) {
-    navigate("/login", { replace: true });
-    return;
-  }
+    if (!token || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
-  if (user.role !== "instructor") {
-    navigate(`/${user.role}/dashboard`, { replace: true });
-  }
-}, []);
+    if (user.role !== "instructor") {
+      navigate(`/${user.role}/dashboard`, { replace: true });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -292,12 +292,16 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
                             />
 
                             <Badge
-                              className={`absolute top-2 right-2 ${course.status?.toLowerCase() === 'published'
-                                ? 'bg-green-600'
-                                : 'bg-yellow-600'
+                              className={`absolute top-2 right-2 ${!course.is_active
+                                  ? 'bg-red-600'
+                                  : course.status?.toLowerCase() === 'published'
+                                    ? 'bg-green-600'
+                                    : 'bg-yellow-600'
                                 }`}
                             >
-                              {course.status}
+                              {!course.is_active
+                                ? 'Suspended'
+                                : course.status}
                             </Badge>
                           </div>
 

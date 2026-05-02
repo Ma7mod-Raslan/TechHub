@@ -550,18 +550,18 @@ export default function InstructorCourseView({
   };
 
   useEffect(() => {
-  const token = localStorage.getItem("accessToken");
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
-  if (!token || !user) {
-    navigate("/login", { replace: true });
-    return;
-  }
+    if (!token || !user) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
-  if (user.role !== "instructor") {
-    navigate(`/${user.role}/dashboard`, { replace: true });
-  }
-}, []);
+    if (user.role !== "instructor") {
+      navigate(`/${user.role}/dashboard`, { replace: true });
+    }
+  }, []);
 
 
   if (loading) return <div className="p-6">Loading...</div>;
@@ -710,8 +710,16 @@ export default function InstructorCourseView({
                       <Badge variant="outline">{course.level}</Badge>
                     )}
                     {course.status && (
-                      <Badge className="bg-yellow-600 text-white">
-                        {course.status}
+                      <Badge
+                        className={
+                          !course.is_active
+                            ? "bg-red-600 text-white"
+                            : course.status === "Published"
+                              ? "bg-green-600 text-white"
+                              : "bg-yellow-600 text-white"
+                        }
+                      >
+                        {!course.is_active ? "Suspended" : course.status}
                       </Badge>
                     )}
                   </div>
