@@ -43,6 +43,7 @@ export default function Login() {
   const PASSWORD_REGEX = STRONG_PASSWORD_REGEX;
   // If you want digits-only rule, use DIGITS_ONLY_REGEX from the utils file.
 
+
   // Validate password on input change
   function handlePasswordChange(value: string) {
     setPassword(value);

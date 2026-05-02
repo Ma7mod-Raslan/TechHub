@@ -61,6 +61,10 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
 
     return regex.test(password);
   };
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
 
   const handleChangePassword = async () => {
     try {
@@ -112,6 +116,11 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
     try {
       if (!newEmail) {
         toast.error("Please enter new email");
+        return;
+      }
+
+      if (!validateEmail(newEmail)) {
+        toast.error("Invalid email format");
         return;
       }
 

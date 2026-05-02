@@ -1021,7 +1021,6 @@ export default function CourseDetails({
                       <TabsTrigger value="overview">Overview</TabsTrigger>
                       <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                       <TabsTrigger value="instructor">Instructor</TabsTrigger>
-                      <TabsTrigger value="reviews">Reviews</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview" className="mt-6">
@@ -1129,32 +1128,6 @@ export default function CourseDetails({
                               <h2 className="text-2xl mb-2"> {course?.instructor_name} </h2>
                               <p className="text-gray-600 mb-4">Course Instructor</p>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="reviews" className="mt-6">
-                      <Card>
-                        <CardContent className="p-6">
-                          <h2 className="text-2xl mb-6">Student Reviews</h2>
-                          <div className="space-y-4">
-                            {[1, 2, 3].map((i) => (
-                              <div key={i} className="border-b pb-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <div className="flex">
-                                    {Array.from({ length: 5 }).map((_, j) => (
-                                      <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                    ))}
-                                  </div>
-                                  <span>John Doe</span>
-                                  <span className="text-sm text-gray-500">• 2 days ago</span>
-                                </div>
-                                <p className="text-gray-600">
-                                  Excellent course! Very comprehensive and well-structured. The instructor explains everything clearly.
-                                </p>
-                              </div>
-                            ))}
                           </div>
                         </CardContent>
                       </Card>

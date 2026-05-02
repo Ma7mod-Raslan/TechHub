@@ -260,7 +260,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
         };
 
         setCourseData(mappedCourse);
-        setCourseStatus(data.is_active ? 'Active' : 'Suspended');
+        setCourseStatus(data.status === "active" ? 'Active' : 'Suspended');
 
         const totalMinutes = Math.floor(data.total_duration / 60);
 
