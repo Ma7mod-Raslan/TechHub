@@ -23,6 +23,8 @@ export default function AIAssistant() {
   ]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const SESSION_STORAGE_KEY = "chat_session_id";
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const sendMessageToBot = async (message: string): Promise<string> => {
@@ -32,7 +34,7 @@ export default function AIAssistant() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, session_id: sessionId }),
       });
 
       if (!response.ok) {
@@ -40,6 +42,11 @@ export default function AIAssistant() {
       }
 
       const data = await response.json();
+      if (data.session_id && data.session_id !== sessionId) {
+        setSessionId(data.session_id);
+        localStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
+      }
+
       return data.answer ?? "No answer returned from bot.";
     } catch (error) {
       console.error(error);
@@ -48,7 +55,7 @@ export default function AIAssistant() {
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || isTyping) return;
 
     const userMessage: ChatMessage = {
       id: chatMessages.length + 1,
@@ -82,6 +89,11 @@ export default function AIAssistant() {
     }
   }, [chatMessages]);
 
+  useEffect(() => {
+    const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (savedSession) setSessionId(savedSession);
+  }, []);
+
   return (
     <>
       {/* AI Assistant Chat */}
@@ -108,6 +120,23 @@ export default function AIAssistant() {
                   onClick={() => setShowAIAssistant(false)}
                   className="text-white hover:bg-white/20 p-1 rounded-full transition-colors duration-200"
                 >
+                  <button
+                    onClick={() => {
+                      setChatMessages([
+                        {
+                          id: 1,
+                          role: 'assistant',
+                          content: "Hello! I'm your AI learning assistant...",
+                          timestamp: new Date().toLocaleTimeString(),
+                        },
+                      ]);
+                      setSessionId(null);
+                      localStorage.removeItem(SESSION_STORAGE_KEY);
+                    }}
+                    className="text-white hover:bg-white/20 p-1 rounded-full"
+                  >
+                    🔄
+                  </button>
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -134,7 +163,7 @@ export default function AIAssistant() {
                         : 'bg-white text-gray-800 shadow-sm rounded-bl-none'
                         }`}
                     >
-                      <p className="text-sm leading-relaxed">{message.content}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                       <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-white/70' : 'text-gray-400'
                         }`}>{message.timestamp}</p>
                     </div>
@@ -191,7 +220,7 @@ export default function AIAssistant() {
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
+                  disabled={!newMessage.trim() || isTyping}
                   className="bg-gradient-to-r from-violet-600 to-cyan-500 px-4"
                   size="icon"
                 >
