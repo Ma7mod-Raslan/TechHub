@@ -94,7 +94,12 @@ export default function AdminReports({ logout }: ReportsProps) {
         report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || report.category === categoryFilter;
+      const normalize = (str: string) =>
+        str.toLowerCase().replace(" content", "").trim();
+
+      const matchesCategory =
+        categoryFilter === 'all' ||
+        normalize(report.category) === normalize(categoryFilter);
       return matchesSearch && matchesCategory;
     });
   };
