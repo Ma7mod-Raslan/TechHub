@@ -38,6 +38,7 @@ import { UserRole } from '../../App';
 import { createCourse } from '../../services/courseApi';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { notifyUpdate } from '../../utils/notifications';
 
 interface InstructorCreateCourseProps {
   logout: () => void;
@@ -203,6 +204,8 @@ export default function InstructorCreateCourse({
 
 
       setIsCreating(false);
+
+      notifyUpdate();
 
       navigate("/instructor/course-view", {
         state: { courseId }

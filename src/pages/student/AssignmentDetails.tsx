@@ -13,6 +13,7 @@ import {
     DialogDescription
 } from "../../components/ui/dialog";
 import { useLocation, useNavigate } from "react-router-dom";
+import { notifyUpdate } from "../../utils/notifications";
 
 interface Props {
     logout: () => void;
@@ -135,6 +136,7 @@ export default function StudentAssignmentDetails({
             setResult(data.data);
 
             setOpenResult(true);
+            notifyUpdate();
 
         } catch (err) {
             console.error(err);

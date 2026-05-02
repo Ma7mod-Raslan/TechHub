@@ -21,6 +21,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
+import { notifyUpdate } from "../../utils/notifications";
 
 export default function InstructorManageAssignment({
     logout,
@@ -166,6 +167,8 @@ export default function InstructorManageAssignment({
                 );
 
                 toast.success("Question added");
+
+                notifyUpdate();
             }
 
             setQuestionText("");
@@ -197,6 +200,7 @@ export default function InstructorManageAssignment({
         );
 
         toast.success("Question deleted 🗑");
+        notifyUpdate();
         fetchAssignment();
     };
 
@@ -217,6 +221,7 @@ export default function InstructorManageAssignment({
         );
 
         toast.success("Settings updated");
+        notifyUpdate();
     };
 
     useEffect(() => {

@@ -8,6 +8,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Textarea } from "../../components/ui/textarea";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
+import { notifyUpdate } from "../../utils/notifications";
 
 export default function InstructorCreateAssignment({
     logout,
@@ -143,6 +144,7 @@ export default function InstructorCreateAssignment({
             }
 
             toast.success("Assignment created successfully");
+            notifyUpdate();
             navigate("/instructor/assignments");
 
         } catch (error) {

@@ -43,6 +43,16 @@ export default function HeaderIcons({ logout, userRole, currentPage }: HeaderIco
     };
 
     fetchUnread();
+
+    const handler = () => {
+      fetchUnread();
+    };
+
+    window.addEventListener("notificationsUpdated", handler);
+
+    return () => {
+      window.removeEventListener("notificationsUpdated", handler);
+    };
   }, []);
 
   // Smart visibility: hide notifications icon when on notifications page

@@ -26,6 +26,7 @@ import HeaderIcons from '../../components/HeaderIcons';
 import AIAssistant from '../../components/AIAssistant';
 import Sidebar from '../../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { notifyUpdate } from '../../utils/notifications';
 
 interface NotificationsProps {
   logout: () => void;
@@ -72,7 +73,15 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
         }
       });
 
-      await fetchNotifications();
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === id
+            ? { ...n, read: true, is_read: true }
+            : n
+        )
+      );
+
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -88,7 +97,15 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
         }
       });
 
-      await fetchNotifications();
+      setNotifications(prev =>
+        prev.map(n => ({
+          ...n,
+          read: true,
+          is_read: true
+        }))
+      );
+
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);

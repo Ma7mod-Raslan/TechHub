@@ -38,6 +38,7 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { NavigateFn } from '../../types/Navigation';
 import { UserRole } from '../../App';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { notifyUpdate } from '../../utils/notifications';
 
 
 
@@ -229,6 +230,8 @@ export default function InstructorEditCourse({
           }
         );
       }
+
+      notifyUpdate();
 
       navigate('/instructor/course-view', { state: { courseId } });
     } catch (error) {

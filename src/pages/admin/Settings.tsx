@@ -29,6 +29,7 @@ import Sidebar from '../../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { notifyUpdate } from '../../utils/notifications';
 
 interface AdminSettingsProps {
   logout: () => void;
@@ -95,6 +96,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
         toast.error(data.error);
       } else {
         toast.success("Password updated successfully");
+        notifyUpdate();
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
@@ -132,6 +134,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
         toast.error(data.error);
       } else {
         toast.success("Email updated successfully");
+        notifyUpdate();
         setCurrentEmail(newEmail);
         setNewEmail("");
       }

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import AIAssistant from '../components/AIAssistant';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { notifyUpdate } from '../utils/notifications';
 
 
 export default function Contact() {
@@ -47,6 +48,7 @@ export default function Contact() {
       if (!res.ok) throw new Error(data.error);
 
       toast.success("Message sent successfully ✅");
+      notifyUpdate();
 
       // reset
       setFullName("");

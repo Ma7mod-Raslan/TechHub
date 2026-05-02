@@ -15,6 +15,7 @@ import Sidebar from '../components/Sidebar';
 import { COURSE_CATEGORIES } from '../constants/courseCategories';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { useNavigate } from "react-router-dom";
+import { notifyUpdate } from '../utils/notifications';
 
 interface CommunityProps {
   logout: () => void;
@@ -206,6 +207,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       setPosts(prev => prev.filter(post => post.id !== postId));
 
       toast.success("Post deleted successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -242,6 +244,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       setEditingPostId(null);
       setEditContent("");
       toast.success("Post updated successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -338,6 +341,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
 
       setNewPostContent("");
       toast.success("Post created successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -447,6 +451,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
 
       setNewReplyContent("");
       toast.success("Reply posted successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -485,6 +490,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       setEditingReplyId(null);
       setEditReplyContent("");
       toast.success("Reply updated successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
@@ -517,6 +523,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       );
 
       toast.success("Reply deleted successfully");
+      notifyUpdate();
 
     } catch (err) {
       console.error(err);
