@@ -10,17 +10,17 @@ interface ChatMessage {
   timestamp: string;
 }
 
+const getWelcomeMessage = (): ChatMessage => ({
+  id: 1,
+  role: 'assistant',
+  content: "Hello! I'm your AI learning assistant. I can help you with questions about courses, assignments, coding help, or general guidance. How can I assist you today?",
+  timestamp: new Date().toLocaleTimeString()
+});
+
 
 export default function AIAssistant() {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      role: 'assistant',
-      content: 'Hello! I\'m your AI learning assistant. I can help you with questions about courses, assignments, coding help, or general guidance. How can I assist you today?',
-      timestamp: new Date().toLocaleTimeString()
-    }
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([getWelcomeMessage()]); 
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -119,14 +119,7 @@ export default function AIAssistant() {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => {
-                      setChatMessages([
-                        {
-                          id: 1,
-                          role: 'assistant',
-                          content: "Hello! I'm your AI learning assistant. I can help you with questions about courses, assignments, coding help, or general guidance. How can I assist you today?",
-                          timestamp: new Date().toLocaleTimeString(),
-                        },
-                      ]);
+                      setChatMessages([getWelcomeMessage()]);
                       setSessionId(null);
                       localStorage.removeItem(SESSION_STORAGE_KEY);
                     }}
