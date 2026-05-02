@@ -180,7 +180,7 @@ export default function AdminReports({ logout }: ReportsProps) {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           },
           body: JSON.stringify({
-            reply: replyText
+            replyText: replyText
           })
         }
       );
