@@ -330,6 +330,7 @@ export const getCourseFullDetails = async (courseId) => {
       c.category,
       c.level,
       c.is_active,
+      c.status,
       u.full_name AS instructor_name,
       COUNT(e.id) AS enrolled_students
     FROM courses c
@@ -400,7 +401,9 @@ export const getCourseFullDetails = async (courseId) => {
     instructor_name: course.instructor_name,
 
     // status
-    status: course.is_active ? "active" : "inactive",
+    status: course.is_active && course.status === 'Published'
+  ? "active"
+  : "inactive",
 
     total_duration: Number(durationRes.rows[0].total_duration),
     outcomes: outcomesRes.rows.map(o => o.description),
@@ -414,17 +417,24 @@ export const getCommunities = async () => {
   const result = await db.query(`
     SELECT
       com.id,
-      com.is_active,
       c.title AS course_name,
       c.category,
       u.full_name AS instructor_name,
       com.members_count,
-      com.posts_count
+
+      COUNT(p.id) AS posts_count  
+
     FROM communities com
     JOIN courses c ON com.course_id = c.id
     JOIN users u ON c.instructor_id = u.id
-    ORDER BY com.created_at DESC
-  `);
+
+    LEFT JOIN community_posts p 
+      ON p.community_id = com.id
+      AND p.is_deleted = false   -- مهم جدًا
+
+    GROUP BY com.id, c.title, c.category, u.full_name
+    ORDER BY com.created_at DESC;
+    `);
 
   return result.rows;
 };
