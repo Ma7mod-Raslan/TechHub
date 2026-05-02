@@ -427,6 +427,7 @@ router.get(
           c.status,
           c.thumbnail,
           c.created_at,
+          c.is_active,
           COUNT(DISTINCT v.id) AS videos_count,
           COUNT(DISTINCT e.id) AS enrollments_count,
           COUNT(DISTINCT q.id) AS questions_count

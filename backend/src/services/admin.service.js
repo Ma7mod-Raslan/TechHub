@@ -422,7 +422,8 @@ export const getCommunities = async () => {
       u.full_name AS instructor_name,
       com.members_count,
 
-      COUNT(p.id) AS posts_count  
+      COUNT(p.id) AS posts_count,
+      com.is_active
 
     FROM communities com
     JOIN courses c ON com.course_id = c.id
@@ -430,7 +431,7 @@ export const getCommunities = async () => {
 
     LEFT JOIN community_posts p 
       ON p.community_id = com.id
-      AND p.is_deleted = false   -- مهم جدًا
+      AND p.is_deleted = false  
 
     GROUP BY com.id, c.title, c.category, u.full_name
     ORDER BY com.created_at DESC;
