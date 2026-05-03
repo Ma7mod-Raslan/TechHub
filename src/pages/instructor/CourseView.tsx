@@ -143,7 +143,7 @@ export default function InstructorCourseView({
   const fetchCourse = async () => {
     const token = localStorage.getItem('accessToken');
 
-    const res = await fetch(`http://localhost:5000/api/courses/${courseId}`, {
+    const res = await fetch(`/api/courses/${courseId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();
@@ -162,7 +162,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     const res = await fetch(
-      `http://localhost:5000/api/courses/${courseId}/videos`,
+      `/api/courses/${courseId}/videos`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -203,7 +203,7 @@ export default function InstructorCourseView({
 
     const token = localStorage.getItem('accessToken');
 
-    await fetch(`http://localhost:5000/api/courses/${courseId}/videos`, {
+    await fetch(`/api/courses/${courseId}/videos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     await fetch(
-      `http://localhost:5000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      `/api/courses/${courseId}/videos/${selectedVideo.id}`,
       {
         method: 'PUT',
         headers: {
@@ -299,7 +299,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     await fetch(
-      `http://localhost:5000/api/courses/${courseId}/videos/${selectedVideo.id}`,
+      `/api/courses/${courseId}/videos/${selectedVideo.id}`,
       {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
@@ -382,7 +382,7 @@ export default function InstructorCourseView({
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:5000/api/courses/${course.id}/publish`,
+        `/api/courses/${course.id}/publish`,
         {
           method: 'PUT',
           headers: {
@@ -414,7 +414,7 @@ export default function InstructorCourseView({
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:5000/api/courses/${courseId}`,
+        `/api/courses/${courseId}`,
         {
           method: 'PUT',
           headers: {
@@ -467,7 +467,7 @@ export default function InstructorCourseView({
     if (!targetVideo) return;
 
     await fetch(
-      `http://localhost:5000/api/courses/${courseId}/videos/reorder`,
+      `/api/courses/${courseId}/videos/reorder`,
       {
         method: 'PUT',
         headers: {
@@ -504,7 +504,7 @@ export default function InstructorCourseView({
     const token = localStorage.getItem('accessToken');
 
     const res = await fetch(
-      `http://localhost:5000/api/videos/${selectedVideo.id}/questions`,
+      `/api/videos/${selectedVideo.id}/questions`,
       {
         method: 'POST',
         headers: {
@@ -538,7 +538,7 @@ export default function InstructorCourseView({
     setLoadingQuestions(true);
 
     const res = await fetch(
-      `http://localhost:5000/api/videos/${videoId}/questions`,
+      `/api/videos/${videoId}/questions`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

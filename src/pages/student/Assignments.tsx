@@ -51,7 +51,7 @@ export default function StudentAssignments({ logout, userRole }: StudentAssignme
         const token = localStorage.getItem("accessToken");
 
         const res = await fetch(
-          "http://localhost:5000/api/assignments/student/all",
+          "/api/assignments/student/all",
           {
             headers: {
               Authorization: `Bearer ${token}`,

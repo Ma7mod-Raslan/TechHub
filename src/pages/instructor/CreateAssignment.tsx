@@ -88,7 +88,7 @@ export default function InstructorCreateAssignment({
             }
 
             // 1️⃣ create assignment
-            const assignmentRes = await fetch("http://localhost:5000/api/assignments", {
+            const assignmentRes = await fetch("/api/assignments", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -112,7 +112,7 @@ export default function InstructorCreateAssignment({
             // 2️⃣ add questions
             for (const question of questions) {
                 const questionRes = await fetch(
-                    `http://localhost:5000/api/assignments/${assignment.id}/question`,
+                    `/api/assignments/${assignment.id}/question`,
                     {
                         method: "POST",
                         headers: {
@@ -129,7 +129,7 @@ export default function InstructorCreateAssignment({
 
                 // 3️⃣ add options
                 await fetch(
-                    `http://localhost:5000/api/assignments/question/${createdQuestion.id}/options`,
+                    `/api/assignments/question/${createdQuestion.id}/options`,
                     {
                         method: "POST",
                         headers: {

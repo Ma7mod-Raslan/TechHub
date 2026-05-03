@@ -131,7 +131,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
   const handleDeleteCourse = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/courses/${courseId}`,
+        `/api/admin/courses/${courseId}`,
         {
           method: "DELETE",
           headers: {
@@ -159,7 +159,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
   const handleSuspendActivate = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/courses/${courseId}/toggle-status`,
+        `/api/admin/courses/${courseId}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -217,7 +217,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
       try {
         console.log("courseId:", courseId); // 👈 مهم
         const res = await fetch(
-          `http://localhost:5000/admin/courses/${courseId}`,
+          `/api/admin/courses/${courseId}`,
           {
 
             headers: {
@@ -273,7 +273,7 @@ export default function AdminCourseDetails({ logout }: CourseDetailsProps) {
               id: v.id,
               title: v.title,
               duration: `${v.duration} min`,
-              videoUrl: `http://localhost:5000/${v.video_url}`,
+              videoUrl: `/api/${v.video_url}`,
               description: v.description,
               quizQuestions: v.quizQuestions || []
             }))

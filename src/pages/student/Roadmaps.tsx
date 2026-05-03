@@ -39,7 +39,7 @@ export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsPro
   const handleStartRoadmap = async (roadmapId: number) => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`http://localhost:5000/api/roadmaps/${roadmapId}/start`, {
+      const res = await fetch(`/api/roadmaps/${roadmapId}/start`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -66,7 +66,7 @@ export default function StudentRoadmaps({ logout, userRole }: StudentRoadmapsPro
       try {
         const token = localStorage.getItem("accessToken");
 
-        const res = await fetch("http://localhost:5000/api/roadmaps", {
+        const res = await fetch("/api/roadmaps", {
           headers: {
             Authorization: `Bearer ${token}`
           }

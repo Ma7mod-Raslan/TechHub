@@ -66,7 +66,7 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/admin/notifications/${id}/read`, {
+      await fetch(`/api/admin/notifications/${id}/read`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -90,7 +90,7 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
 
   const markAllAsRead = async () => {
     try {
-      await fetch("http://localhost:5000/admin/notifications/read-all", {
+      await fetch("/api/admin/notifications/read-all", {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -114,7 +114,7 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
 
   const deleteNotification = async (id: number) => {
     try {
-      await fetch(`http://localhost:5000/notifications/${id}`, {
+      await fetch(`/api/notifications/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -134,7 +134,7 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/notifications", {
+      const res = await fetch("/api/admin/notifications", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }

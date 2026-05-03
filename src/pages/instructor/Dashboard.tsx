@@ -66,7 +66,7 @@ export default function InstructorDashboard({ logout, userRole }: InstructorDash
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/instructor/stats", {
+        const res = await fetch("/api/instructor/stats", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },

@@ -91,7 +91,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/dashboard/stats", {
+        const res = await fetch("/api/admin/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -113,7 +113,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   useEffect(() => {
     const fetchActivity = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/dashboard/activity", {
+        const res = await fetch("/api/admin/dashboard/activity", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -135,7 +135,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/users/recent", {
+        const res = await fetch("/api/admin/users/recent", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -154,7 +154,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/courses", {
+        const res = await fetch("/api/admin/courses", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -174,7 +174,7 @@ export default function AdminDashboard({ logout }: AdminDashboardProps) {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/reports", {
+        const res = await fetch("/api/admin/reports", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },

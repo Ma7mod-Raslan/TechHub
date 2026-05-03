@@ -172,7 +172,7 @@ export default function InstructorCreateCourse({
 
       if (requirements.length > 0) {
         await fetch(
-          `http://localhost:5000/api/courses/${courseId}/requirements`,
+          `/api/courses/${courseId}/requirements`,
           {
             method: "PUT",
             headers: {
@@ -188,7 +188,7 @@ export default function InstructorCreateCourse({
 
       if (outcomes.length > 0) {
         await fetch(
-          `http://localhost:5000/api/courses/${courseId}/outcomes`,
+          `/api/courses/${courseId}/outcomes`,
           {
             method: "PUT",
             headers: {

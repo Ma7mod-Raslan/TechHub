@@ -75,7 +75,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleViewComments = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/posts/${postId}/replies`,
+        `/api/admin/posts/${postId}/replies`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -106,7 +106,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleViewCommunity = async (community: any) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/communities/${community.id}`,
+        `/api/admin/communities/${community.id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -141,7 +141,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleDeleteReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/replies/${replyId}`,
+        `/api/admin/replies/${replyId}`,
         {
           method: "DELETE",
           headers: {
@@ -165,7 +165,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleToggleReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/replies/${replyId}/toggle-hide`,
+        `/api/admin/replies/${replyId}/toggle-hide`,
         {
           method: "PATCH",
           headers: {
@@ -192,7 +192,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleHidePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/posts/${postId}/toggle-hide`,
+        `/api/admin/posts/${postId}/toggle-hide`,
         {
           method: "PATCH",
           headers: {
@@ -219,7 +219,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   const handleDeletePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/posts/${postId}`,
+        `/api/admin/posts/${postId}`,
         {
           method: "DELETE",
           headers: {
@@ -252,7 +252,7 @@ export default function AdminCommunities({ logout }: CommunitiesProps) {
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/communities", {
+        const res = await fetch("/api/admin/communities", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }

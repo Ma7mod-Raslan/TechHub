@@ -64,7 +64,7 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
       try {
         const token = localStorage.getItem("accessToken");
 
-        const res = await fetch("http://localhost:5000/api/notifications", {
+        const res = await fetch("/api/notifications", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -86,7 +86,7 @@ export default function InstructorNotifications({ logout, userRole }: Instructor
       const token = localStorage.getItem("accessToken");
 
       await fetch(
-        `http://localhost:5000/api/notifications/${id}/read`,
+        `/api/notifications/${id}/read`,
         {
           method: "PATCH",
           headers: {

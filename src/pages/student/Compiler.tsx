@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 const API_URL = import.meta.env.VITE_API_URL;
+import Editor from "@monaco-editor/react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -92,30 +93,24 @@ export default function StudentCompiler({
     setOutput("Running...\n");
 
     try {
-
-      const token = localStorage.getItem("accessToken");
-
-      const res = await fetch("http://localhost:5000/api/compiler/run", {
+      const res = await fetch("/api/compiler/run", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
-          language,
-          code,
+          source_code: code,
+          language: language,
+          stdin: "",
         }),
       });
 
       const data = await res.json();
-
-      if (data.error) {
-        setOutput(`❌ Error:\n\n${data.error}`);
-      } else {
-        setOutput(data.output || "Program finished with no output.");
-      }
-    } catch (err: any) {
-      setOutput("Network Error");
+      const out = data.output || data.error || "No output.";
+      setOutput(out);
+    } catch (err) {
+      setOutput("❌ Network Error");
     } finally {
       setIsRunning(false);
     }
@@ -223,20 +218,20 @@ export default function StudentCompiler({
             </div>
           </header>
 
-          <main className="flex-1 p-6">
-            <Tabs value={language} onValueChange={handleLanguageChange}>
+          <main className="flex-1 px-6 pt-4 pb-0 overflow-hidden flex flex-col">
+            <Tabs value={language} onValueChange={handleLanguageChange} className="flex flex-col flex-1 h-full">
               <TabsList>
                 <TabsTrigger value="python">Python</TabsTrigger>
                 <TabsTrigger value="javascript">JavaScript</TabsTrigger>
                 <TabsTrigger value="cpp">C++</TabsTrigger>
               </TabsList>
 
-              <TabsContent value={language} className="flex-1 mt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-[70vh]">
+              <TabsContent value={language} className="flex-1 mt-4 h-full">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" style={{height: 'calc(100vh - 160px)'}}>
                   {/* Editor */}
                   <Card className="h-full overflow-hidden border-2 border-gray-800 shadow-xl">
                     <CardContent className="p-0 h-full">
-                      <div className="bg-[#1E1E1E] text-gray-100 p-4 h-full flex flex-col">
+                      <div className="bg-[#1E1E1E] text-gray-100 h-full flex flex-col">
                         <div className="mb-3 pb-2 border-b border-gray-700">
                           <span className="text-sm text-gray-400">
                             editor.
@@ -248,10 +243,17 @@ export default function StudentCompiler({
                           </span>
                         </div>
 
-                        <Textarea
+                        <Editor
+                          height="calc(100% - 40px)"
+                          language={language === "cpp" ? "cpp" : language}
                           value={code}
-                          onChange={(e) => setCode(e.target.value)}
-                          className="flex-1 bg-[#1E1E1E] text-gray-100 border-0 font-mono text-sm resize-none focus-visible:ring-0"
+                          onChange={(value) => setCode(value || "")}
+                          theme="vs-dark"
+                          options={{
+                            fontSize: 14,
+                            minimap: { enabled: false },
+                            scrollBeyondLastLine: false,
+                          }}
                         />
                       </div>
                     </CardContent>

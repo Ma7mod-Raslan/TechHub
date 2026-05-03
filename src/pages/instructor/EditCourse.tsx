@@ -126,7 +126,7 @@ export default function InstructorEditCourse({
         const token = localStorage.getItem('accessToken');
 
         const res = await fetch(
-          `http://localhost:5000/api/courses/${courseId}`,
+          `/api/courses/${courseId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -171,7 +171,7 @@ export default function InstructorEditCourse({
     try {
       const token = localStorage.getItem('accessToken');
 
-      await fetch(`http://localhost:5000/api/courses/${courseId}`, {
+      await fetch(`/api/courses/${courseId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ export default function InstructorEditCourse({
       });
 
       await fetch(
-        `http://localhost:5000/api/courses/${courseId}/requirements`,
+        `/api/courses/${courseId}/requirements`,
         {
           method: "PUT",
           headers: {
@@ -200,7 +200,7 @@ export default function InstructorEditCourse({
       );
 
       await fetch(
-        `http://localhost:5000/api/courses/${courseId}/outcomes`,
+        `/api/courses/${courseId}/outcomes`,
         {
           method: "PUT",
           headers: {
@@ -220,7 +220,7 @@ export default function InstructorEditCourse({
         fd.append('file', formData.thumbnailFile);
 
         await fetch(
-          `http://localhost:5000/api/courses/${courseId}/thumbnail`,
+          `/api/courses/${courseId}/thumbnail`,
           {
             method: 'PUT',
             headers: {

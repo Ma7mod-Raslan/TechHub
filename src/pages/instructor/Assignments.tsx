@@ -52,7 +52,7 @@ export default function InstructorAssignments({
         const fetchCourses = async () => {
             try {
                 const res = await fetch(
-                    "http://localhost:5000/api/courses/instructor",
+                    "/api/courses/instructor",
                     {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

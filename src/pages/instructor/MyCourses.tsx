@@ -75,7 +75,7 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
       try {
         const token = localStorage.getItem('accessToken');
 
-        const res = await fetch('http://localhost:5000/api/courses/instructor', {
+        const res = await fetch('/api/courses/instructor', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -121,7 +121,7 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
       const token = localStorage.getItem('accessToken');
 
       const res = await fetch(
-        `http://localhost:5000/api/courses/${courseId}`,
+        `/api/courses/${courseId}`,
         {
           method: 'DELETE',
           headers: {

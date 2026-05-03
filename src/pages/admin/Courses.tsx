@@ -95,7 +95,7 @@ export default function AdminCourses({ logout }: CoursesProps) {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/courses/${course.id}/toggle-status`,
+        `/api/admin/courses/${course.id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -134,7 +134,7 @@ export default function AdminCourses({ logout }: CoursesProps) {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/courses", {
+        const res = await fetch("/api/admin/courses", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }

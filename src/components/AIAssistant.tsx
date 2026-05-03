@@ -29,7 +29,7 @@ export default function AIAssistant() {
 
   const sendMessageToBot = async (message: string): Promise<string> => {
     try {
-      const response = await fetch("http://localhost:5001/chat", {
+      const response = await fetch("/chatbot/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

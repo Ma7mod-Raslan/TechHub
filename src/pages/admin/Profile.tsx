@@ -68,7 +68,7 @@ export default function AdminProfile({ logout }: AdminProfileProps) {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const res = await fetch('http://localhost:5000/admin/profile', {
+        const res = await fetch('/api/admin/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -115,7 +115,7 @@ export default function AdminProfile({ logout }: AdminProfileProps) {
       const body = new FormData();
       body.append("file", file); // مهم الاسم "file"
 
-      const res = await fetch("http://localhost:5000/admin/update-image", {
+      const res = await fetch("/api/admin/update-image", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -170,7 +170,7 @@ export default function AdminProfile({ logout }: AdminProfileProps) {
     try {
       const token = localStorage.getItem('accessToken');
 
-      const res = await fetch('http://localhost:5000/admin/update-profile', {
+      const res = await fetch('/api/admin/update-profile', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

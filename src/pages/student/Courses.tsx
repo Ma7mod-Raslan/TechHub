@@ -100,7 +100,7 @@ export default function StudentCourses({ logout, userRole }: StudentCoursesProps
   useEffect(() => {
     const fetchMyCourses = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/me/my-courses", {
+        const res = await fetch("/api/me/my-courses", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -126,7 +126,7 @@ export default function StudentCourses({ logout, userRole }: StudentCoursesProps
       for (const course of allCourses) {
         try {
           const res = await fetch(
-            `http://localhost:5000/api/courses/${course.id}/videos-preview`
+            `/api/courses/${course.id}/videos-preview`
           );
 
           const videos = await res.json();

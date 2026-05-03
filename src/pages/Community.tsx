@@ -66,7 +66,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/communities", {
+        const res = await fetch("/api/communities", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`
           }
@@ -104,7 +104,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
         setPostsLoading(true);
 
         const res = await fetch(
-          `http://localhost:5000/api/communities/${selectedCommunity}/posts`,
+          `/api/communities/${selectedCommunity}/posts`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -134,7 +134,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
         setRepliesLoading(true);
 
         const res = await fetch(
-          `http://localhost:5000/api/communities/posts/${selectedThread}/replies`,
+          `/api/communities/posts/${selectedThread}/replies`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -160,7 +160,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleHidePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/posts/${postId}/toggle-hide`,
+        `/api/posts/${postId}/toggle-hide`,
         {
           method: "PATCH",
           headers: {
@@ -193,7 +193,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleDeletePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/posts/${postId}`,
+        `/api/communities/posts/${postId}`,
         {
           method: "DELETE",
           headers: {
@@ -218,7 +218,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleUpdatePost = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/posts/${postId}`,
+        `/api/communities/posts/${postId}`,
         {
           method: "PUT",
           headers: {
@@ -268,8 +268,8 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
     try {
       const url =
         reportType === "post"
-          ? `http://localhost:5000/api/communities/posts/${reportPostId}/report`
-          : `http://localhost:5000/api/communities/replies/${reportPostId}/report`;
+          ? `/api/communities/posts/${reportPostId}/report`
+          : `/api/communities/replies/${reportPostId}/report`;
 
       // 👇 خزني القيم في variables قبل fetch
       const payload = {
@@ -322,7 +322,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       setCreatingPost(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/communities/${selectedCommunity}/posts`,
+        `/api/communities/${selectedCommunity}/posts`,
         {
           method: "POST",
           headers: {
@@ -354,7 +354,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleToggleLike = async (postId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/posts/${postId}/like`,
+        `/api/communities/posts/${postId}/like`,
         {
           method: "POST",
           headers: {
@@ -388,7 +388,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleToggleReplyLike = async (replyId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/replies/${replyId}/like`,
+        `/api/communities/replies/${replyId}/like`,
         {
           method: "POST",
           headers: {
@@ -424,7 +424,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/posts/${selectedThread}/replies`,
+        `/api/communities/posts/${selectedThread}/replies`,
         {
           method: "POST",
           headers: {
@@ -462,7 +462,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleUpdateReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/replies/${replyId}`,
+        `/api/communities/replies/${replyId}`,
         {
           method: "PUT",
           headers: {
@@ -501,7 +501,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
   const handleDeleteReply = async (replyId: number) => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/communities/replies/${replyId}`,
+        `/api/communities/replies/${replyId}`,
         {
           method: "DELETE",
           headers: {

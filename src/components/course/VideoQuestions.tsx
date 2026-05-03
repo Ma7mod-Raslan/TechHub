@@ -42,7 +42,7 @@ export default function VideoQuestions({ videoId }: Props) {
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `http://localhost:5000/api/videos/${videoId}/questions`,
+                `/api/videos/${videoId}/questions`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ export default function VideoQuestions({ videoId }: Props) {
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `http://localhost:5000/api/questions/${questionId}/answer`,
+                `/api/questions/${questionId}/answer`,
                 {
                     method: "POST",
                     headers: {

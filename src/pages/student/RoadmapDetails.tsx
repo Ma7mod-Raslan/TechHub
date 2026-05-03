@@ -81,7 +81,7 @@ export default function RoadmapDetails({ logout, userRole, }: RoadmapDetailsProp
         const fetchStep = async () => {
             try {
                 const token = localStorage.getItem("accessToken");
-                const res = await fetch(`http://localhost:5000/api/steps/${stepId}`, {
+                const res = await fetch(`/api/steps/${stepId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -122,7 +122,7 @@ export default function RoadmapDetails({ logout, userRole, }: RoadmapDetailsProp
             const token = localStorage.getItem("accessToken");
 
             const res = await fetch(
-                `http://localhost:5000/api/steps/${selectedStep.id}/complete`,
+                `/api/steps/${selectedStep.id}/complete`,
                 {
                     method: "POST",
                     headers: {
@@ -194,7 +194,7 @@ export default function RoadmapDetails({ logout, userRole, }: RoadmapDetailsProp
 
         try {
             const token = localStorage.getItem("accessToken");
-            const res = await fetch(`http://localhost:5000/api/steps/${step.id}`, {
+            const res = await fetch(`/api/steps/${step.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();

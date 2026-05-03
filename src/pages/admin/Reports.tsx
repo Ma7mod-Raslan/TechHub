@@ -131,9 +131,9 @@ export default function AdminReports({ logout }: ReportsProps) {
       let url = "";
 
       if (deleteConfirm.type === "report") {
-        url = `http://localhost:5000/admin/reports/${deleteConfirm.id}`;
+        url = `/api/admin/reports/${deleteConfirm.id}`;
       } else {
-        url = `http://localhost:5000/admin/contact-messages/${deleteConfirm.id}`;
+        url = `/api/admin/contact-messages/${deleteConfirm.id}`;
       }
 
       const res = await fetch(url, {
@@ -177,7 +177,7 @@ export default function AdminReports({ logout }: ReportsProps) {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/contact-messages/${selectedMessage.id}/reply`,
+        `/api/admin/contact-messages/${selectedMessage.id}/reply`,
         {
           method: "POST",
           headers: {
@@ -215,7 +215,7 @@ export default function AdminReports({ logout }: ReportsProps) {
 
   const fetchReports = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/reports", {
+      const res = await fetch("/api/admin/reports", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
@@ -263,7 +263,7 @@ export default function AdminReports({ logout }: ReportsProps) {
 
   const toggleReportStatus = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/reports/${id}/toggle-status`, {
+      const res = await fetch(`/api/admin/reports/${id}/toggle-status`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -285,7 +285,7 @@ export default function AdminReports({ logout }: ReportsProps) {
 
   const fetchMessages = async () => {
     try {
-      const res = await fetch("http://localhost:5000/admin/contact-messages", {
+      const res = await fetch("/api/admin/contact-messages", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
@@ -330,7 +330,7 @@ export default function AdminReports({ logout }: ReportsProps) {
 
   const fetchReportDetails = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:5000/admin/reports/${id}`, {
+      const res = await fetch(`/api/admin/reports/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }

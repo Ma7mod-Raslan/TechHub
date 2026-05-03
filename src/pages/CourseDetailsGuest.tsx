@@ -109,7 +109,7 @@ export default function CourseDetails({
 
     const fetchCourseVideos = async () => {
         const res = await fetch(
-            `http://localhost:5000/api/courses/${id}/videos-preview`
+            `/api/courses/${id}/videos-preview`
         );
 
         if (!res.ok) {
@@ -149,7 +149,7 @@ export default function CourseDetails({
         const load = async () => {
             try {
                 const res = await fetch(
-                    `http://localhost:5000/api/courses/all-info/${id}`
+                    `/api/courses/all-info/${id}`
                 );
 
                 if (!res.ok) throw new Error("Failed to load course");

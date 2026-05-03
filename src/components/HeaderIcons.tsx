@@ -27,7 +27,7 @@ export default function HeaderIcons({ logout, userRole, currentPage }: HeaderIco
         if (!token) return; // ← add this line
 
         const res = await fetch(
-          "http://localhost:5000/api/notifications/unread-count",
+          "/api/notifications/unread-count",
           {
             headers: {
               Authorization: `Bearer ${token}`

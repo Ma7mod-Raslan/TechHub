@@ -82,7 +82,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
 
       const token = localStorage.getItem("accessToken");
 
-      const res = await fetch("http://localhost:5000/api/auth/change-password", {
+      const res = await fetch("/api/api/auth/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +126,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
 
       const token = localStorage.getItem("accessToken");
 
-      const res = await fetch("http://localhost:5000/api/auth/change-email", {
+      const res = await fetch("/api/api/auth/change-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +157,7 @@ export default function AdminSettings({ logout }: AdminSettingsProps) {
     const fetchEmail = async () => {
       const token = localStorage.getItem("accessToken");
 
-      const res = await fetch("http://localhost:5000/admin/profile", {
+      const res = await fetch("/api/admin/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

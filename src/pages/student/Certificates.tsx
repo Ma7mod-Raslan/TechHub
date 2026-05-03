@@ -47,7 +47,7 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
 
         const token = localStorage.getItem("accessToken");
 
-        const res = await fetch("http://localhost:5000/api/certificates/my", {
+        const res = await fetch("/api/certificates/my", {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -156,7 +156,7 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
                         <div className="flex gap-2">
 
                           <a
-                            href={`http://localhost:5000${cert.certificate_link}`}
+                            href={`/api/${cert.certificate_link}`}
                             download
                             className="flex-1"
                           >
@@ -170,7 +170,7 @@ export default function StudentCertificates({ logout, userRole }: StudentCertifi
                             className="flex-1 hover:bg-gray-100 transition-all duration-300"
                             onClick={() => {
                               navigator.clipboard.writeText(
-                                `http://localhost:5000${cert.certificate_link}`
+                                `${cert.certificate_link}`
                               );
                               alert("Certificate link copied!");
                             }}

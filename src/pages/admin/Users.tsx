@@ -80,7 +80,7 @@ export default function AdminUsers({ logout }: UsersProps) {
       const token = localStorage.getItem("accessToken");
 
       await fetch(
-        `http://localhost:5000/admin/users/${confirmAction.user.id}/toggle-status`,
+        `/api/admin/users/${confirmAction.user.id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -146,14 +146,14 @@ export default function AdminUsers({ logout }: UsersProps) {
         const token = localStorage.getItem("accessToken");
 
         // instructors
-        const instRes = await fetch("http://localhost:5000/admin/instructors", {
+        const instRes = await fetch("/api/admin/instructors", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const instData = await instRes.json();
 
         // students
-        const studRes = await fetch("http://localhost:5000/admin/students", {
+        const studRes = await fetch("/api/admin/students", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

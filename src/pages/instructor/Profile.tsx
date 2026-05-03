@@ -103,7 +103,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
 
 
   const handleSaveExpertise = async () => {
-    await fetch("http://localhost:5000/api/me", {
+    await fetch("/api/me", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -146,7 +146,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
 
   const fetchStats = async () => {
     const res = await fetch(
-      "http://localhost:5000/api/instructor/stats",
+      "/api/instructor/stats",
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -160,7 +160,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
 
 
   const fetchProfile = async () => {
-    const res = await fetch("http://localhost:5000/api/me", {
+    const res = await fetch("/api/me", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -188,7 +188,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
 
 
   const handleSaveMain = async () => {
-    await fetch("http://localhost:5000/api/me", {
+    await fetch("/api/me", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -220,7 +220,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
 
-    const res = await fetch("http://localhost:5000/api/me/profile-image", {
+    const res = await fetch("/api/me/profile-image", {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
