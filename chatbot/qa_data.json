@@ -8,20 +8,16 @@
     "answer": "To register a new account, go to the TechHub homepage and click 'Sign Up'. Enter your personal details in the registration form and click submit to create your account."
   },
   {
-    "topic": "How do I create a TechHub account?",
-    "answer": "Creating a TechHub account is simple. Navigate to the homepage, click the 'Sign Up' button, fill in your name, email, and password, and submit the form to complete account creation."
-  },
-  {
     "topic": "What do I need to sign up?",
     "answer": "To sign up for TechHub, you need a valid email address, a password, and your full name. Click 'Sign Up' on the homepage and fill in the required registration details."
   },
   {
-    "topic": "Is signing up free on TechHub?",
-    "answer": "Yes, creating an account and signing up on TechHub is completely free. Click 'Sign Up' on the homepage to register at no cost and start exploring available courses."
+    "topic": "Is TechHub free?",
+    "answer": "Yes, TechHub is 100% free! Creating an account is free, and all courses, video lessons, assignments, quizzes, and certificates are completely free. There are no hidden fees, subscriptions, or premium tiers."
   },
   {
-    "topic": "Can I sign up using my Google account?",
-    "answer": "Currently, TechHub supports standard email and password registration. Social login options like Google sign-up may be added in future updates. For now, click 'Sign Up' and register with your email."
+    "topic": "Do I need a credit card to sign up?",
+    "answer": "No, you don't need a credit card or any payment information to sign up for TechHub. All you need is your name, email, and a password. Since all courses are free, you'll never be asked for payment details."
   },
   {
     "topic": "How do I sign in to my account?",
@@ -32,1395 +28,727 @@
     "answer": "To log in, visit the TechHub login page, type your registered email and password in the login form, and click the 'Login' button to access your account and dashboard."
   },
   {
-    "topic": "How can I enter my account?",
-    "answer": "To enter and access your TechHub account, navigate to the login page, provide your registered email and password credentials, and click 'Login' to sign in."
-  },
-  {
     "topic": "I can't log in to my account. What should I do?",
-    "answer": "If you cannot log in, first check that your email and password are correct. If you forgot your password, click 'Forgot Password' on the login page. If the issue persists, try clearing your browser cache or contact TechHub Support for help."
+    "answer": "If you cannot log in, first check that your email and password are correct. If you forgot your password, click 'Forgot Password' on the login page. If the issue persists, try clearing your browser cache or contact us through the Contact Us page."
   },
   {
     "topic": "Why is my login not working?",
-    "answer": "Login issues can happen due to incorrect email or password, browser cache problems, or network issues. Double-check your credentials, clear your browser cache, or try a different browser. Use 'Forgot Password' if needed, or contact support."
+    "answer": "Login issues can happen due to incorrect email or password, browser cache problems, or network issues. Double-check your credentials, clear your browser cache, or try a different browser. Use 'Forgot Password' if needed, or reach out via the Contact Us page."
   },
   {
     "topic": "How do I log out of my account?",
-    "answer": "To log out and safely end your session on TechHub, open the left sidebar menu, scroll to the bottom, and click the red 'Sign Out' button to securely exit your account."
+    "answer": "You can log out in two ways: 1) Click the red 'Sign Out' button at the bottom of the left sidebar, or 2) Click your profile icon at the top-right corner and select 'Logout' from the dropdown menu."
   },
   {
     "topic": "How do I sign out?",
-    "answer": "To sign out, open the main left sidebar, scroll down to the bottom, and click the red 'Sign Out' button to safely log out of your TechHub session."
-  },
-  {
-    "topic": "How do I exit my account?",
-    "answer": "To exit your account securely, open the left sidebar navigation menu, scroll to the bottom, and select the red 'Sign Out' button to end your active session."
+    "answer": "To sign out, either click the red 'Sign Out' button at the bottom of the left sidebar, or open the user menu in the top-right corner of the page and click 'Logout'."
   },
   {
     "topic": "Where is the logout button?",
-    "answer": "The logout button is located at the bottom of the left sidebar menu. Open the sidebar, scroll down, and you will find the red 'Sign Out' button to safely log out."
+    "answer": "The logout option is available in two places: 1) At the bottom of the left sidebar as a red 'Sign Out' button, or 2) In the user menu dropdown in the top-right corner under 'Logout'."
   },
   {
     "topic": "I forgot my password. What do I do?",
     "answer": "If you forgot your password, click the 'Forgot Password' link on the login page. Enter your registered email address, and you will receive a password reset link via email. Follow the instructions in the email to create a new password."
   },
   {
-    "topic": "How do I recover my account if I forgot my password?",
-    "answer": "To recover your account, go to the login page and click 'Forgot Password'. Enter your email address to receive a reset link. Open the email and follow the steps to securely reset your password and regain access."
-  },
-  {
-    "topic": "How can I reset my password if I can't remember it?",
-    "answer": "To reset a forgotten password, use the 'Forgot Password' link on the login page. A password recovery email will be sent to your registered address with instructions to set a new password."
-  },
-  {
     "topic": "I didn't receive the password reset email. What should I do?",
-    "answer": "If you did not receive the password reset email, check your spam or junk folder. Make sure you entered the correct registered email address. If you still cannot find it, try again or contact TechHub Support for assistance."
+    "answer": "If you did not receive the password reset email, check your spam or junk folder. Make sure you entered the correct registered email address. If you still cannot find it, try again or reach out via the Contact Us page."
   },
   {
     "topic": "How do I change my password?",
-    "answer": "To change your password, go to your Profile Settings page. Find the password change section, enter your current password and your new password, then confirm the change to update your login credentials."
+    "answer": "To change your password, navigate to the Settings page from the left sidebar. In the Account Security section, enter your current password, type your new password, confirm the new password, and click 'Update Password' to save the changes."
   },
   {
     "topic": "How can I update my password in settings?",
-    "answer": "Navigate to Profile Settings from the sidebar or dashboard. Select the password change option, enter your old password, type your new password, confirm it, and save the changes."
+    "answer": "Go to Settings from the sidebar. Under 'Account Security', enter your current password, then your new password, confirm it, and click the 'Update Password' button to apply the change."
   },
   {
     "topic": "Where can I change my security password?",
-    "answer": "You can change your password in the Profile Settings page. Go to the security section, enter your current password, set a new one, and confirm to update your credentials."
+    "answer": "You can change your password in the Settings page accessible from the sidebar. Open the Account Security section, enter your current and new passwords, then click 'Update Password'."
   },
   {
-    "topic": "How do I change my email address?",
-    "answer": "For security reasons, email address changes cannot be made directly through the platform settings. To update your registered email, please contact TechHub Support and they will assist you with the change after identity verification."
-  },
-  {
-    "topic": "Can I update my account email?",
-    "answer": "Direct email changes are not available in account settings for security purposes. Please reach out to TechHub Support to request an email update. They will verify your identity before making the change."
-  },
-  {
-    "topic": "How do I edit my registered email?",
-    "answer": "Email modifications cannot be done through your profile settings for security. You must contact TechHub Support to request an email address update after identity verification."
+    "topic": "Can I change my email address?",
+    "answer": "No, changing your email address is not available on TechHub. The email you registered with is permanent for your account. If you have an issue with your email, please reach out through the Contact Us page."
   },
   {
     "topic": "How do I update my profile information?",
-    "answer": "To update your profile information such as your name, bio, or profile picture, navigate to the Profile Settings page from the sidebar. Edit the fields you want to change and click 'Save' to update your profile."
+    "answer": "To update your profile information such as your name, bio, or profile picture, navigate to the Profile page from the sidebar. Click 'Edit Profile' (or the edit icon next to the field), make your changes, and save."
   },
   {
     "topic": "Can I change my display name?",
-    "answer": "Yes, you can change your display name by going to Profile Settings. Edit the name field with your preferred name and save the changes to update your profile."
+    "answer": "Yes, you can change your display name by going to the Profile page from the sidebar. Edit the name field with your preferred name and save the changes."
   },
   {
     "topic": "How do I upload a profile picture?",
-    "answer": "To upload or change your profile picture, go to Profile Settings, click on your current avatar or the upload button, select an image from your device, and save the changes."
+    "answer": "To upload or change your profile picture, go to the Profile page, click on the camera icon on your avatar, select an image from your device, and save the changes."
+  },
+  {
+    "topic": "Can I add a bio to my profile?",
+    "answer": "Yes, you can add a bio to your profile. Go to the Profile page from the sidebar, click on the bio section (where it says 'No bio yet'), write your bio, and save."
   },
   {
     "topic": "Where are my account settings?",
-    "answer": "Your account settings are accessible through the Profile Settings page. You can reach it from the left sidebar menu or by clicking on your profile icon and selecting 'Settings'."
-  },
-  {
-    "topic": "How do I delete my account?",
-    "answer": "To permanently delete your TechHub account, contact TechHub Support and request account deletion. After verifying your identity, the support team will remove your account and all associated personal data permanently."
-  },
-  {
-    "topic": "How can I remove my account permanently?",
-    "answer": "To permanently remove your account, send a deletion request to TechHub Support. After identity verification and security confirmation, your profile, data, and course history will be permanently deleted."
-  },
-  {
-    "topic": "How do I close my account?",
-    "answer": "To close and permanently delete your TechHub account, contact the support team. They will verify your identity and then proceed with the complete removal of your account and personal data."
-  },
-  {
-    "topic": "What happens to my data if I delete my account?",
-    "answer": "When your account is deleted, all your personal data, course progress, certificates, and profile information are permanently removed from TechHub. This action cannot be undone, so please be certain before requesting deletion."
+    "answer": "Your account settings are accessible through the Settings page from the left sidebar. There you can change your password and manage your account security."
   },
   {
     "topic": "Where can I see my enrolled courses?",
-    "answer": "To view your enrolled courses, click on 'My Courses' in the left sidebar menu. You can also see your enrolled courses list on your main dashboard under the 'Enrolled Courses' section."
+    "answer": "To view your enrolled courses, go to the Dashboard from the left sidebar. You'll see all your enrolled courses there, along with your current progress for each one."
   },
   {
     "topic": "How do I view my registered courses?",
-    "answer": "Your registered and enrolled courses are accessible through the 'My Courses' section in the left sidebar. You can also find them displayed on your dashboard for quick access."
-  },
-  {
-    "topic": "Where is my course list?",
-    "answer": "Your course list is available in the 'My Courses' section of the left sidebar navigation. Additionally, your enrolled courses appear on your main dashboard for easy access."
+    "answer": "Your registered courses appear on your Dashboard. Open the Dashboard from the sidebar to see all the courses you've enrolled in and continue learning."
   },
   {
     "topic": "How do I access a course I enrolled in?",
-    "answer": "To access an enrolled course, go to 'My Courses' in the left sidebar or your dashboard. Click on the course name to open it and start watching the video lessons and completing assignments."
+    "answer": "To access an enrolled course, go to the Dashboard or open the Courses page from the sidebar. Click on the course you want to continue, then click 'Start Learning' to watch lessons and complete assignments."
+  },
+  {
+    "topic": "How do I see my course progress?",
+    "answer": "Your course progress is shown on each course's details page as a 'Your Progress' bar with a completion percentage. You can also see overall progress on your Profile page under 'Current Progress'."
   },
   {
     "topic": "What is TechHub?",
-    "answer": "TechHub is a comprehensive e-learning platform designed for computer science students and aspiring developers. It offers high-quality recorded video courses, hands-on coding assignments, real-world projects, and official course completion certificates to help students build practical tech skills and advance their careers."
+    "answer": "TechHub is a free e-learning platform designed for computer science students and aspiring developers. It offers high-quality recorded video courses, hands-on coding assignments, real-world projects, and official course completion certificates — all at no cost."
   },
   {
     "topic": "What is TechHub about?",
-    "answer": "TechHub is an online educational platform focused on technology and computer science. It provides recorded video lessons, practical coding assignments, real-world projects, and certificates to help students learn programming, AI, data science, and software development."
+    "answer": "TechHub is a free online educational platform focused on technology and computer science. It provides recorded video lessons, practical assignments, and certificates to help students learn programming, web development, databases, and more."
   },
   {
     "topic": "Tell me about TechHub",
-    "answer": "TechHub is a practical e-learning platform that teaches computer science and software development through recorded video courses, coding assignments, and hands-on projects. Students can earn certificates, follow structured learning tracks, and learn at their own pace."
+    "answer": "TechHub is a free practical e-learning platform that teaches computer science and software development through recorded video courses, coding assignments, quizzes, and final exams. Students can earn certificates, follow structured learning roadmaps, and learn at their own pace."
   },
   {
     "topic": "What makes TechHub different from other platforms?",
-    "answer": "TechHub stands out with its focus on practical, hands-on learning for computer science students. It offers structured learning tracks, real-world coding projects, automated code grading with instant feedback, and official completion certificates, all accessible at your own pace."
+    "answer": "TechHub stands out with its 100% free access to quality content, focus on practical hands-on learning, structured learning roadmaps (like Full Stack and Backend Developer), built-in code compiler, course-specific communities, and official completion certificates."
   },
   {
     "topic": "Who is TechHub for?",
-    "answer": "TechHub is designed for computer science students, aspiring developers, and anyone interested in learning technology skills. Whether you are a complete beginner or an intermediate learner, TechHub offers courses suited to your level and career goals."
+    "answer": "TechHub is designed for computer science students, aspiring developers, and anyone interested in learning technology skills. Whether you are a complete beginner or an intermediate learner, TechHub offers free courses suited to your level."
   },
   {
-    "topic": "What types of courses are available?",
-    "answer": "TechHub offers courses across key technology areas including Programming Languages like Python, JavaScript, and C++, Artificial Intelligence, Data Science, Software Testing, Web Development, Mobile App Development, SQL and Databases, and more."
+    "topic": "What courses are available on TechHub?",
+    "answer": "TechHub currently offers the following courses: 1) HTML for Beginners, 2) JavaScript for Beginners, 3) JavaScript Programming – Complete Beginner Course, 4) Introduction to CSS, 5) SQL for Beginners, 6) SQL DML – Complete Guide, and 7) Operating System | CS & IT. All courses are completely free."
   },
   {
     "topic": "What programming courses does TechHub offer?",
-    "answer": "TechHub offers courses in multiple programming languages including Python, JavaScript, C++, HTML, CSS, and SQL. Additional courses cover Artificial Intelligence, Data Science, Software Testing, and Web Development."
-  },
-  {
-    "topic": "Does TechHub have AI and data science courses?",
-    "answer": "Yes, TechHub provides comprehensive courses in Artificial Intelligence and Data Science, along with courses in Programming Languages, Web Development, Mobile Development, SQL, and Software Testing."
-  },
-  {
-    "topic": "What subjects can I learn on TechHub?",
-    "answer": "On TechHub you can learn Programming Languages like Python, JavaScript, C++, HTML, and CSS, as well as SQL and Databases, Artificial Intelligence, Data Science, Web Development, Mobile App Development, Software Testing, and Operating Systems."
+    "answer": "TechHub offers programming courses in JavaScript (Beginners and Complete Beginner Course), along with web development courses (HTML, CSS) and database courses (SQL for Beginners, SQL DML)."
   },
   {
     "topic": "Do you have web development courses?",
-    "answer": "Yes, TechHub offers a complete Web Development learning track that includes courses on HTML, CSS, JavaScript, and more. The track covers front-end and back-end development to prepare you for web developer roles."
+    "answer": "Yes, TechHub offers several Web Development courses including: HTML for Beginners, Introduction to CSS, JavaScript for Beginners, and JavaScript Programming – Complete Beginner Course. You can also follow the Full Stack Web Developer roadmap."
   },
   {
     "topic": "Do you have database courses?",
-    "answer": "Yes, TechHub offers database courses including SQL for Beginners and SQL DML Complete Guide. These courses teach you how to create, query, and manage relational databases using SQL."
+    "answer": "Yes, TechHub offers two database courses: 'SQL for Beginners' which introduces relational databases and basic queries, and 'SQL DML – Complete Guide to Data Manipulation Language' which covers advanced topics like joins, indexing, and transactions."
   },
   {
-    "topic": "Are there beginner-friendly courses?",
-    "answer": "Yes, TechHub offers many beginner-level courses designed for students with no prior experience. Courses like HTML for Beginners, JavaScript for Beginners, SQL for Beginners, and Introduction to CS and Programming Using Python are great starting points."
+    "topic": "Do you have HTML courses?",
+    "answer": "Yes, TechHub offers 'HTML for Beginners', a beginner-level Web Development course that teaches HTML fundamentals, structuring web pages, working with attributes, headings, text, links, images, lists, and tables."
   },
   {
-    "topic": "Are there advanced courses?",
-    "answer": "Yes, TechHub offers intermediate and advanced-level courses for students who want to deepen their skills. These include advanced programming courses, data science methodologies, AI concepts, and specialized software testing techniques."
+    "topic": "Do you have JavaScript courses?",
+    "answer": "Yes, TechHub offers two JavaScript courses: 'JavaScript for Beginners' (Beginner level) covering JavaScript basics, variables, functions, and DOM manipulation, and 'JavaScript Programming – Complete Beginner Course' (Intermediate level) covering client-side scripting, form handling, and validation."
   },
   {
-    "topic": "What can you do",
-    "answer": "I am TechHub Assistant. I can help you with: 1) Questions about the TechHub platform like account creation, certificates, assignments, and course enrollment. 2) Course content questions - I can find answers from video lectures and tell you exactly which video and timestamp to watch. 3) I currently cover the HTML for Beginners course. Just ask me anything!"
-  },
-  {
-    "topic": "What is your purpose",
-    "answer": "I am TechHub Assistant, an AI chatbot designed to help students on the TechHub platform. I can answer questions about your account, courses, assignments, certificates, and I can also explain course content from video lectures with exact timestamps."
-  },
-  {
-    "topic": "What topics can you help with",
-    "answer": "I can help you with TechHub platform questions like account management, course enrollment, assignments, certificates, and payments. I can also answer questions about course content from video lectures, currently covering HTML for Beginners including topics like HTML elements, attributes, headings, paragraphs, styles, formatting, comments, and colors."
-  },
-  {
-    "topic": "What HTML courses do you have?",
-    "answer": "TechHub offers the 'HTML for Beginners' course which covers HTML essentials including elements, attributes, headings, paragraphs, links, images, lists, tables, and more. It is a beginner-level course perfect for learning how to build web pages."
-  },
-  {
-    "topic": "What Python courses are available?",
-    "answer": "TechHub offers 'Introduction to CS and Programming Using Python' available at both beginner and intermediate levels. These courses cover computation basics, Python fundamentals, variables, data types, mathematical operations, and Python programs."
-  },
-  {
-    "topic": "What JavaScript courses are available?",
-    "answer": "TechHub offers 'JavaScript for Beginners' for new learners and 'JavaScript Programming Complete Beginner Course' at intermediate level. These cover core JavaScript concepts, client-side scripting, DOM manipulation, form handling, and validation."
-  },
-  {
-    "topic": "What SQL courses are available?",
-    "answer": "TechHub offers 'SQL for Beginners' which introduces basic SQL queries, tables, and data management, and 'SQL DML Complete Guide' which covers advanced data manipulation, joins, indexing, and transactions."
-  },
-  {
-    "topic": "Do you have C++ courses?",
-    "answer": "Yes, TechHub offers a 'C++ Full Course' at the beginner level. It is a beginner-friendly introduction to C++ that explains how the language works and how to set up the development environment."
+    "topic": "Do you have SQL courses?",
+    "answer": "Yes, TechHub offers 'SQL for Beginners' which introduces relational databases and basic SQL queries, and 'SQL DML – Complete Guide' which covers advanced data manipulation, joins, indexing, and transactions."
   },
   {
     "topic": "Do you have CSS courses?",
-    "answer": "Yes, TechHub offers an 'Introduction to CSS' course at the intermediate level. It is part of a series of video tutorials designed to teach you CSS for styling and designing web pages."
+    "answer": "Yes, TechHub offers 'Introduction to CSS', an Intermediate-level Web Development course that teaches what CSS is, how to add CSS to HTML (Inline, Internal, External), CSS syntax, selectors, properties, and values."
   },
   {
-    "topic": "Do you have operating system courses?",
-    "answer": "Yes, TechHub offers Operating System courses for CS and IT students at the intermediate level, including a crash course for GATE-level preparation. These cover core OS concepts, problem-solving, and key exam topics."
+    "topic": "Do you have Operating System courses?",
+    "answer": "Yes, TechHub offers 'Operating System | CS & IT', an Intermediate-level course covering core OS concepts, process and CPU scheduling, synchronization, deadlock handling, memory management, and virtual memory. It's ideal for CS/IT students and GATE preparation."
   },
   {
-    "topic": "What is the Number Systems course about?",
-    "answer": "The 'Number Systems' course is a short beginner-level course that explains the number systems used in computer science, such as binary, decimal, octal, and hexadecimal, and teaches how to convert between them."
+    "topic": "Are there beginner-friendly courses?",
+    "answer": "Yes, TechHub has several Beginner-level courses perfect for those with no prior experience: HTML for Beginners, JavaScript for Beginners, and SQL for Beginners. These are great starting points to learn the fundamentals."
   },
   {
-    "topic": "What are learning tracks?",
-    "answer": "Learning tracks are structured career paths and skill roadmaps on TechHub. They guide you through a series of related courses in a logical order. Available tracks include Web Development, Mobile App Development, Data Science, and Software Testing."
-  },
-  {
-    "topic": "What learning paths are available?",
-    "answer": "TechHub offers structured learning paths including Web Development, Mobile App Development, Data Science, and Software Testing. Each track provides a step-by-step roadmap of courses designed to build your skills progressively."
-  },
-  {
-    "topic": "What is a learning track and how do I use it?",
-    "answer": "A learning track is a curated sequence of courses that builds specific skills for a career goal. To use one, choose a track that matches your interests, then follow the structured course order at your own pace from beginner to advanced."
-  },
-  {
-    "topic": "How do I choose the right learning track?",
-    "answer": "Choose a learning track based on your career goals and interests. If you want to build websites, choose Web Development. If you love working with data, choose Data Science. If you prefer mobile apps, select Mobile App Development."
-  },
-  {
-    "topic": "Can I switch between learning tracks?",
-    "answer": "Yes, you can switch between learning tracks at any time. Your progress in each track is saved separately, so you can explore multiple tracks and return to any of them whenever you want."
-  },
-  {
-    "topic": "How do I get started learning on TechHub?",
-    "answer": "To start learning on TechHub, first create an account by clicking 'Sign Up'. Then browse the available courses or choose a learning track that matches your career goals. Enroll in a course and begin watching the recorded video lessons at your own pace."
-  },
-  {
-    "topic": "How do I begin learning and choose a track?",
-    "answer": "After signing up, explore the available learning tracks like Web Development, Data Science, or Mobile Development. Select one that aligns with your goals, enroll in the first course, and start learning through the structured video lessons."
-  },
-  {
-    "topic": "What's the first step to start learning?",
-    "answer": "The first step is to create a free TechHub account. Then browse courses or choose a learning track. Enroll in a beginner course that interests you, and start watching the recorded lessons and completing assignments at your pace."
-  },
-  {
-    "topic": "I'm a complete beginner. Where should I start?",
-    "answer": "If you are a complete beginner, start with foundational courses like 'HTML for Beginners', 'Introduction to CS and Programming Using Python', or 'JavaScript for Beginners'. These courses require no prior experience and teach core concepts from scratch."
-  },
-  {
-    "topic": "What course should I take first?",
-    "answer": "For absolute beginners, TechHub recommends starting with 'Introduction to CS and Programming Using Python' or 'HTML for Beginners'. If you prefer web development, start with HTML then move to CSS and JavaScript."
-  },
-  {
-    "topic": "How do I enroll in a course?",
-    "answer": "To enroll in a course, browse the course catalog or use the search bar to find a course. Click on the course to view its details, then click the 'Enroll' button. For paid courses, complete the checkout process to gain access."
-  },
-  {
-    "topic": "How do I join a course?",
-    "answer": "To join a course on TechHub, find the course using the search bar or browse the catalog. Open the course page and click 'Enroll' to register. Free courses give instant access, while paid courses require checkout first."
-  },
-  {
-    "topic": "Can I enroll in multiple courses at the same time?",
-    "answer": "Yes, you can enroll in multiple courses simultaneously on TechHub. There is no limit to how many courses you can take at once. Manage all your enrolled courses from the 'My Courses' section."
-  },
-  {
-    "topic": "How do I unenroll from a course?",
-    "answer": "To unenroll from a course, go to 'My Courses', find the course you want to leave, and select the unenroll or drop option. Note that for paid courses, check the refund policy if you want your money back."
-  },
-  {
-    "topic": "How can I become an instructor on TechHub?",
-    "answer": "To become an instructor, sign up for a TechHub account and select the 'Instructor' role during registration. Once approved, you can create and publish courses, upload video lessons, design assignments, and manage your students through the instructor dashboard."
-  },
-  {
-    "topic": "How do I create and teach a course?",
-    "answer": "After registering as an Instructor, use the course creation tools in your instructor dashboard. You can build your course structure, upload recorded video lessons, create assignments and quizzes, then publish it for students to enroll."
-  },
-  {
-    "topic": "Can I teach courses on TechHub?",
-    "answer": "Yes, anyone can become an instructor on TechHub. During sign-up, select the Instructor role. Once registered, you get access to course creation tools to build, publish, and manage your own courses."
-  },
-  {
-    "topic": "How do I manage my students as an instructor?",
-    "answer": "As an instructor, you can manage your students through the instructor dashboard. You can view enrolled students, track their progress, review assignment submissions, and communicate with them through the platform."
-  },
-  {
-    "topic": "Are courses live or recorded?",
-    "answer": "All courses on TechHub are pre-recorded video lessons, also known as asynchronous content. This means you can watch the lessons anytime, pause, rewind, and replay them as often as you need without any scheduling constraints."
-  },
-  {
-    "topic": "Can I take live classes on TechHub?",
-    "answer": "Currently, TechHub offers only recorded, asynchronous courses for maximum flexibility. Live sessions are not available yet, but optional live Q&A sessions may be introduced in future updates."
-  },
-  {
-    "topic": "Do you offer live sessions?",
-    "answer": "TechHub currently focuses on recorded video courses that you can watch anytime at your own pace. Live sessions are not currently available, but may be added in future platform updates."
-  },
-  {
-    "topic": "Can I replay course videos?",
-    "answer": "Yes, since all courses are recorded, you can replay any video lesson as many times as you want. You can also pause, rewind, and fast-forward through the content at your convenience."
-  },
-  {
-    "topic": "Can I watch lectures at any time?",
-    "answer": "Yes, all lectures on TechHub are pre-recorded, so you can watch them at any time that suits you. There are no scheduled class times, giving you complete flexibility."
-  },
-  {
-    "topic": "Do courses include real-world projects?",
-    "answer": "Yes, TechHub courses include hands-on, real-world projects and practical coding assignments. These projects simulate actual industry scenarios to help you build a portfolio and gain verifiable professional experience."
-  },
-  {
-    "topic": "Are there practical projects I can work on?",
-    "answer": "Yes, TechHub courses feature numerous practical, real-world projects designed to give you hands-on experience. These projects simulate professional scenarios and help you build skills that employers value."
-  },
-  {
-    "topic": "How much hands-on experience will I get?",
-    "answer": "TechHub strongly emphasizes hands-on learning. Every course includes practical coding assignments and real-world projects that simulate industry problems, ensuring you gain applicable experience alongside theoretical knowledge."
-  },
-  {
-    "topic": "Can I build a portfolio with TechHub projects?",
-    "answer": "Yes, the real-world projects and coding assignments in TechHub courses are designed to be portfolio-worthy. You can showcase your completed projects to demonstrate your skills to potential employers."
-  },
-  {
-    "topic": "Are there course deadlines?",
-    "answer": "No, TechHub courses have no strict deadlines or time limits. You can complete lessons and assignments at your own pace. Course access is permanent once enrolled, so you are never rushed."
-  },
-  {
-    "topic": "Can I learn at my own pace?",
-    "answer": "Yes, TechHub is designed for self-paced learning. There are no deadlines or time limits. You have permanent access to enrolled courses and can complete lessons and assignments whenever you are ready."
-  },
-  {
-    "topic": "What if I need more time to complete assignments?",
-    "answer": "You have unlimited time to complete all coursework and assignments on TechHub. There are no deadlines, so you can take as long as you need without any penalty."
-  },
-  {
-    "topic": "Is there a time limit to finish a course?",
-    "answer": "No, there is no time limit to finish any course on TechHub. You have permanent access and can learn at your own pace, completing lessons and assignments whenever it suits your schedule."
-  },
-  {
-    "topic": "Do courses expire?",
-    "answer": "No, once you enroll in a course on TechHub, your access does not expire. You have permanent, lifetime access to the course content and can revisit it anytime."
-  },
-  {
-    "topic": "How do I find a specific course?",
-    "answer": "To find a specific course, use the search bar on the homepage. You can search by course name, topic, programming language, or instructor name. Browse the results and click on a course to see its details."
-  },
-  {
-    "topic": "Can I search courses by instructor?",
-    "answer": "Yes, the search bar on the homepage allows you to search for courses by instructor name, as well as by course name or topic. Type the instructor's name to find all their available courses."
-  },
-  {
-    "topic": "How do I search for courses I'm interested in?",
-    "answer": "Use the search bar on the TechHub homepage to find courses. You can type a course name, topic keyword, programming language, or instructor name. The results will show matching courses you can explore."
-  },
-  {
-    "topic": "Can I filter courses by difficulty level?",
-    "answer": "You can browse courses by their difficulty level. TechHub courses are categorized as Beginner, Intermediate, or Advanced, making it easy to find courses that match your current skill level."
-  },
-  {
-    "topic": "How do I browse all available courses?",
-    "answer": "To browse all available courses, visit the course catalog page accessible from the homepage or navigation menu. You can view courses by category, difficulty level, or popularity."
-  },
-  {
-    "topic": "How do I save a course for later?",
-    "answer": "To save a course for later, click 'Add to Favorites' on the course page. This adds the course to your favorites list, which you can access later to review and enroll when you are ready."
-  },
-  {
-    "topic": "Can I bookmark a course?",
-    "answer": "Yes, you can bookmark any course by clicking 'Add to Favorites' on the course page. Your bookmarked courses are saved in your favorites list for easy access later."
-  },
-  {
-    "topic": "How do I add courses to my favorites?",
-    "answer": "On any course page, click the 'Add to Favorites' button to bookmark it. You can view all your saved favorite courses in the Favorites section of your dashboard."
-  },
-  {
-    "topic": "Where can I find my saved courses?",
-    "answer": "Your saved and bookmarked courses are available in the Favorites section of your dashboard. Any course you added to favorites can be found there for quick access."
-  },
-  {
-    "topic": "How do I remove a course from favorites?",
-    "answer": "To remove a course from your favorites, go to your Favorites section, find the course you want to remove, and click the 'Remove from Favorites' button."
-  },
-  {
-    "topic": "Are there free and paid courses?",
-    "answer": "Yes, TechHub offers both free and paid courses. Free courses cover foundational topics and are great for beginners. Paid premium courses provide advanced content, specialized tracks, and deeper learning opportunities."
-  },
-  {
-    "topic": "How much do courses cost?",
-    "answer": "TechHub offers a mix of free and paid courses. Free courses are available for foundational learning. Paid course prices vary depending on the content and specialization. Check each course page for specific pricing details."
-  },
-  {
-    "topic": "Can I take courses without paying?",
-    "answer": "Yes, TechHub offers free foundational courses that you can take without any payment. These are great for getting started. You can later upgrade to paid premium courses for more advanced and specialized content."
-  },
-  {
-    "topic": "Are free courses good quality?",
-    "answer": "Yes, free courses on TechHub maintain the same high quality as paid courses. They cover foundational topics thoroughly with recorded video lessons and assignments, and are an excellent starting point for beginners."
-  },
-  {
-    "topic": "How do I pay for a course?",
-    "answer": "To pay for a course, click the 'Enroll' button on the course page, and you will be taken to the secure checkout page. Select your preferred payment method, enter your details, and complete the transaction."
-  },
-  {
-    "topic": "What payment methods are accepted?",
-    "answer": "TechHub accepts multiple secure payment methods through the checkout page. Select your preferred payment option when enrolling in a paid course to complete the transaction safely."
-  },
-  {
-    "topic": "Can I pay per course?",
-    "answer": "Yes, you can pay for each individual course separately through the checkout page. Click 'Enroll' on the course detail page and complete the secure payment process."
-  },
-  {
-    "topic": "Is my payment information secure?",
-    "answer": "Yes, all payments on TechHub are processed through a secure, encrypted checkout system. Your payment details are protected and handled safely throughout the transaction."
-  },
-  {
-    "topic": "What is your refund policy?",
-    "answer": "TechHub allows refund requests within 7 days of enrollment. To request a refund, go to the payment management section in your account settings and submit a refund request following the platform's refund policy."
-  },
-  {
-    "topic": "Can I get a refund if I change my mind?",
-    "answer": "Yes, you can request a full refund within 7 days of purchasing a course. Go to the payment section in your account settings to submit your refund request."
-  },
-  {
-    "topic": "What's the refund window?",
-    "answer": "The refund window is 7 days from the date of enrollment. You must submit your refund request through the payment management section of your account within this period."
-  },
-  {
-    "topic": "How do I request a refund?",
-    "answer": "To request a refund, navigate to the payment management section in your account settings within 7 days of enrollment. Submit a refund request and the team will process it according to the refund policy."
-  },
-  {
-    "topic": "What types of assessments are there?",
-    "answer": "TechHub courses include two main types of assessments: coding assignments and short quizzes. Coding assignments test your practical programming skills, while quizzes assess your understanding of course concepts and theory."
-  },
-  {
-    "topic": "How will I be evaluated?",
-    "answer": "Your learning is evaluated through coding assignments and quizzes in each course. Assignments test your hands-on coding ability, while quizzes check your theoretical knowledge and understanding of key concepts."
-  },
-  {
-    "topic": "What tests or quizzes are included?",
-    "answer": "Each course includes short quizzes to test your understanding of concepts and coding assignments to evaluate your programming skills. Both are designed to reinforce your learning and measure your progress."
-  },
-  {
-    "topic": "Are quizzes multiple choice?",
-    "answer": "Quizzes on TechHub include various question formats designed to test your understanding of course material. They assess your grasp of concepts covered in the video lessons."
-  },
-  {
-    "topic": "How many assignments are in each course?",
-    "answer": "The number of assignments varies by course. Each course includes multiple coding assignments and quizzes distributed throughout the curriculum to help reinforce your learning at each stage."
-  },
-  {
-    "topic": "How is my code graded?",
-    "answer": "Your submitted code is automatically tested and graded instantly by TechHub's automated evaluation system. You receive immediate feedback with detailed results showing which test cases passed and where improvements are needed."
-  },
-  {
-    "topic": "Does TechHub have automatic code checking?",
-    "answer": "Yes, TechHub uses an automated code grading system that instantly tests and validates your submitted code. You get immediate feedback on your performance with detailed test results."
-  },
-  {
-    "topic": "When will I get feedback on my code?",
-    "answer": "You receive feedback instantly after submitting your code. The automated grading system tests your solution immediately and provides detailed results showing your score and any issues found."
-  },
-  {
-    "topic": "How does the auto-grader work?",
-    "answer": "The auto-grader runs your submitted code against a set of test cases. It checks if your code produces the correct output for each case and provides instant feedback with a score and details about passed and failed tests."
-  },
-  {
-    "topic": "Can I retry assignments if I fail?",
-    "answer": "Yes, you can retry assignments as many times as you need. There is no limit on the number of attempts. You can correct your code and resubmit until you achieve a passing score."
-  },
-  {
-    "topic": "How many times can I attempt an assignment?",
-    "answer": "You have unlimited attempts for every assignment on TechHub. There is no restriction on retries, so you can keep improving your code and resubmitting until you pass."
-  },
-  {
-    "topic": "Can I resubmit an assignment?",
-    "answer": "Yes, you can resubmit assignments unlimited times on TechHub. After reviewing the feedback from your previous attempt, fix your code and submit again until you achieve a passing grade."
-  },
-  {
-    "topic": "What happens if I fail an assignment?",
-    "answer": "If you fail an assignment, you can review the automated feedback to understand what went wrong. Then you can correct your code and resubmit as many times as needed. There is no penalty for retrying."
-  },
-  {
-    "topic": "How do I track my learning progress?",
-    "answer": "Track your learning progress from the student dashboard. The progress section shows a clear overview of your completed video lessons, submitted assignments, quiz scores, and overall course completion percentage."
-  },
-  {
-    "topic": "Where can I see my course progress?",
-    "answer": "Your course progress is displayed in the progress section of your dashboard. It shows which video lessons you have watched, which assignments you have completed, and your overall completion percentage."
-  },
-  {
-    "topic": "How do I monitor my learning?",
-    "answer": "Your dashboard provides a clear overview of your learning progress. You can see completed lessons, submitted assignments, quiz results, and how far along you are in each course."
-  },
-  {
-    "topic": "Can I see how much of a course I've completed?",
-    "answer": "Yes, each course displays a progress bar and completion percentage on your dashboard. It tracks how many video lessons you have watched and how many assignments you have completed."
-  },
-  {
-    "topic": "Where can I see my grades?",
-    "answer": "Your grades and assignment scores are available in the Assignments section of your dashboard. This section shows detailed results for every submitted assignment and quiz, including scores and feedback."
-  },
-  {
-    "topic": "How do I check my assignment scores?",
-    "answer": "Go to the Assignments section on your dashboard to view all your grades. Each assignment shows your score, submission status, and detailed feedback from the automated grading system."
-  },
-  {
-    "topic": "Can I view my past scores?",
-    "answer": "Yes, all your historical grades, past assignment results, and quiz scores are permanently recorded and available in the Assignments section of your dashboard for review at any time."
-  },
-  {
-    "topic": "Where can I see my quiz results?",
-    "answer": "Quiz results are displayed alongside your assignment grades in the Assignments section of your dashboard. You can review your scores and see which questions you answered correctly."
-  },
-  {
-    "topic": "Do I get feedback on my assignments?",
-    "answer": "Yes, TechHub provides structured, detailed feedback on all assignments. The feedback helps you understand your mistakes, improve your coding logic, debug errors, and enhance your overall code quality."
-  },
-  {
-    "topic": "How detailed is the assignment feedback?",
-    "answer": "Assignment feedback on TechHub is structured and detailed. It shows which test cases passed and failed, highlights errors in your code, and provides guidance on how to improve your solution."
-  },
-  {
-    "topic": "Will instructors comment on my work?",
-    "answer": "Assignments include automated structured feedback to help you understand errors and improve your skills. This feedback is generated instantly when you submit your code and covers test results and common issues."
-  },
-  {
-    "topic": "How can I improve my code based on feedback?",
-    "answer": "Review the detailed feedback from the auto-grader to understand which test cases failed and why. Check for logical errors, edge cases, and syntax issues. Then modify your code and resubmit for a better score."
-  },
-  {
-    "topic": "How do I get a certificate?",
-    "answer": "To earn a course completion certificate, you must successfully complete all required video lessons, coding assignments, and quizzes in the course. Once finished, your certificate becomes available for download from your dashboard."
-  },
-  {
-    "topic": "Are certificates provided?",
-    "answer": "Yes, TechHub provides official course completion certificates. When you finish all course requirements including lessons, assignments, and quizzes, you can download your certificate directly from your dashboard."
-  },
-  {
-    "topic": "How do I download my certificate?",
-    "answer": "After completing all course assignments, quizzes, and video lessons, go to your dashboard and find the completed course. Click the download button to save your official completion certificate."
-  },
-  {
-    "topic": "Are TechHub certificates recognized?",
-    "answer": "TechHub certificates are official course completion certificates that verify your skills and knowledge. You can add them to your resume, LinkedIn profile, or portfolio to showcase your learning achievements."
-  },
-  {
-    "topic": "Can I share my certificate on LinkedIn?",
-    "answer": "Yes, after downloading your TechHub course completion certificate, you can share it on LinkedIn, add it to your resume, or include it in your professional portfolio to showcase your skills."
-  },
-  {
-    "topic": "What are the requirements to get a certificate?",
-    "answer": "To earn a certificate, you must complete all course requirements: watch all video lessons, pass all coding assignments with a passing score, and complete all quizzes. Once all requirements are met, the certificate is unlocked."
-  },
-  {
-    "topic": "Can I get a certificate for free courses?",
-    "answer": "Certificate availability depends on the specific course. Check the course details page to see if a completion certificate is offered for that particular course."
-  },
-  {
-    "topic": "Is TechHub mobile-friendly?",
-    "answer": "Yes, TechHub is fully responsive and works perfectly on mobile phones and tablets. The platform is optimized for mobile browsers, allowing you to learn anywhere, anytime from your smartphone or tablet."
-  },
-  {
-    "topic": "Can I learn on my phone?",
-    "answer": "Yes, TechHub is fully optimized for mobile devices. You can access all courses, watch video lessons, complete assignments, and track your progress using your smartphone's browser."
-  },
-  {
-    "topic": "Does TechHub work on tablets?",
-    "answer": "Yes, TechHub is fully responsive and works seamlessly on tablets, iPads, and all mobile devices. The interface adjusts to your screen size for a comfortable learning experience."
-  },
-  {
-    "topic": "Is there a TechHub mobile app?",
-    "answer": "Currently, TechHub is accessible through mobile web browsers and is fully optimized for mobile use. A dedicated mobile app may be developed in future updates. You can use your phone's browser for the full experience."
-  },
-  {
-    "topic": "Can I download courses for offline viewing?",
-    "answer": "Currently, TechHub courses are available for online streaming through the platform. Offline download functionality may be added in future updates. For now, you need an internet connection to access course content."
-  },
-  {
-    "topic": "What languages does TechHub support?",
-    "answer": "TechHub currently operates exclusively in English. All platform content, interface, and course materials are in English. Arabic language support is planned for a future update."
-  },
-  {
-    "topic": "Is TechHub available in Arabic?",
-    "answer": "TechHub is currently available only in English. Arabic language support for the platform interface and course materials is planned for a future update."
-  },
-  {
-    "topic": "Does TechHub support other languages?",
-    "answer": "The platform currently operates exclusively in English. Support for additional languages, starting with Arabic, is planned for upcoming releases."
-  },
-  {
-    "topic": "How do I debug my code?",
-    "answer": "To debug your code in the TechHub editor, use the 'Run' button to execute your code and check the output. Review any error messages, test with different inputs, and verify variable values. Advanced debugging tools are being developed."
-  },
-  {
-    "topic": "Can I test my code before submitting?",
-    "answer": "Yes, use the 'Run' button in the code editor to test your code before submitting it for grading. This lets you see the output, catch errors, and make corrections before your final submission."
-  },
-  {
-    "topic": "How do I check if my code works?",
-    "answer": "Click the 'Run' button in the code editor to execute your code and see the output. Check if the output matches what you expect. Fix any errors, then submit when you are confident it works correctly."
-  },
-  {
-    "topic": "Does TechHub have a code editor?",
-    "answer": "Yes, TechHub includes a built-in code editor where you can write, run, and test your code directly on the platform. Use the 'Run' button to execute and debug before submitting assignments."
-  },
-  {
-    "topic": "What programming languages can I code in on the platform?",
-    "answer": "The TechHub code editor supports multiple programming languages used across the platform's courses, including Python, JavaScript, C++, SQL, and others depending on the specific course requirements."
-  },
-  {
-    "topic": "What programming language should I learn first?",
-    "answer": "TechHub recommends Python or JavaScript as ideal first programming languages. Python has simple, readable syntax great for beginners and is used in AI and data science. JavaScript is essential for web development."
-  },
-  {
-    "topic": "Is Python good for beginners?",
-    "answer": "Yes, Python is excellent for beginners. It has a clean, readable syntax that is easy to learn. TechHub recommends Python as a first language, and offers 'Introduction to CS and Programming Using Python' to get you started."
-  },
-  {
-    "topic": "Which language is easiest to start with?",
-    "answer": "Python and JavaScript are both excellent choices for beginners. Python is known for its simple syntax and is great for data science and AI. JavaScript is essential for web development. TechHub offers beginner courses for both."
-  },
-  {
-    "topic": "Should I learn HTML or Python first?",
-    "answer": "It depends on your goals. If you want to build websites, start with HTML then learn CSS and JavaScript. If you want to learn programming logic, data science, or AI, start with Python. Both paths have beginner courses on TechHub."
-  },
-  {
-    "topic": "What careers can I pursue after the Web Development track?",
-    "answer": "After completing the Web Development track, you can pursue careers as a Front-End Developer, Back-End Developer, Full-Stack Developer, or Web Designer. The track covers all skills needed for these professional roles."
-  },
-  {
-    "topic": "Can I become a full-stack developer?",
-    "answer": "Yes, the Web Development learning track on TechHub prepares you for a Full-Stack Developer career. It covers both front-end and back-end technologies needed to build complete web applications."
-  },
-  {
-    "topic": "What job titles can I pursue?",
-    "answer": "Depending on your learning track, you can pursue roles like Front-End Developer, Back-End Developer, Full-Stack Developer, Data Scientist, Data Analyst, Mobile App Developer, Software Tester, or QA Engineer."
-  },
-  {
-    "topic": "Will TechHub help me get a job?",
-    "answer": "TechHub prepares you for tech careers through practical skills, real-world projects, and certificates. The hands-on experience and portfolio projects from courses help demonstrate your abilities to potential employers."
-  },
-  {
-    "topic": "What can I do after completing the Data Science track?",
-    "answer": "After completing the Data Science track, you can pursue careers as a Data Scientist, Data Analyst, Machine Learning Engineer, or Business Intelligence Analyst, applying the analytical and programming skills you learned."
-  },
-  {
-    "topic": "I'm having technical issues with the platform",
-    "answer": "If you experience technical issues, try clearing your browser cache and cookies, or switch to a different browser like Chrome or Firefox. Make sure your internet connection is stable. If problems persist, contact TechHub Support for assistance."
-  },
-  {
-    "topic": "My code won't submit. What should I do?",
-    "answer": "If your code fails to submit, try clearing your browser cache, switching to a different browser, or checking your internet connection. Make sure your code has no syntax errors. If the problem continues, contact TechHub Support."
-  },
-  {
-    "topic": "The platform isn't loading properly",
-    "answer": "If the platform is not loading correctly, clear your browser cache and cookies, try a different browser, or check your internet connection. Disable browser extensions that might interfere. Contact TechHub Support if issues persist."
-  },
-  {
-    "topic": "Videos are not playing. What should I do?",
-    "answer": "If videos are not playing, check your internet connection speed, try refreshing the page, or switch to a different browser. Clear your browser cache and make sure your browser is up to date. Contact support if the issue continues."
-  },
-  {
-    "topic": "The page is loading slowly",
-    "answer": "Slow loading can be caused by poor internet connection, browser cache issues, or too many open tabs. Try closing other tabs, clearing your cache, or switching to a faster network. Contact support if the problem persists."
-  },
-  {
-    "topic": "I'm getting an error message",
-    "answer": "If you encounter an error message, try refreshing the page, clearing your browser cache, or switching browsers. Note the exact error message and contact TechHub Support if the problem continues."
-  },
-  {
-    "topic": "Does TechHub have a community?",
-    "answer": "Yes, TechHub has a community system where students can interact, collaborate, share knowledge, ask questions, and solve programming problems together. It fosters group learning and helps build communication skills."
-  },
-  {
-    "topic": "Can I collaborate with other students?",
-    "answer": "Yes, TechHub features a community system for student collaboration. You can engage in group discussions, share insights, ask for help, and work together to solve programming challenges."
-  },
-  {
-    "topic": "Is there a discussion forum?",
-    "answer": "Yes, TechHub includes community forums where students can post questions, share solutions, discuss course content, and collaborate with peers. It is a great place to get help and connect with other learners."
-  },
-  {
-    "topic": "Can I ask questions to other students?",
-    "answer": "Yes, the TechHub community allows you to post questions and interact with other students. You can ask for help with assignments, discuss course concepts, and share your knowledge with fellow learners."
-  },
-  {
-    "topic": "How do I join the TechHub community?",
-    "answer": "The community is accessible to all registered TechHub users. Once you have an account, you can participate in discussions, ask questions, and collaborate with other students through the community features."
-  },
-  {
-    "topic": "Does the system recommend courses to me?",
-    "answer": "Yes, TechHub provides intelligent course recommendations based on your learning history, interests, and career goals. The system analyzes your activity to suggest courses and technologies that match your profile."
-  },
-  {
-    "topic": "How does TechHub help me choose courses?",
-    "answer": "TechHub offers smart course recommendations based on your learning goals, completed courses, and interests. The system suggests relevant courses that align with your career path and skill development needs."
-  },
-  {
-    "topic": "Can the platform suggest courses for me?",
-    "answer": "Yes, TechHub uses an intelligent recommendation system to suggest courses that match your learning goals, career interests, and current skill level. Check your dashboard for personalized suggestions."
-  },
-  {
-    "topic": "Can I resume a course where I left off?",
-    "answer": "Yes, TechHub automatically saves your progress. When you return to a course, you can resume exactly where you left off. Your completed lessons, assignment submissions, and video position are all saved."
-  },
-  {
-    "topic": "Will my progress be saved?",
-    "answer": "Yes, TechHub automatically saves all your learning progress. Completed video lessons, assignment submissions, quiz results, and your last position in a course are all preserved when you return."
-  },
-  {
-    "topic": "What happens if I pause a course?",
-    "answer": "Your progress is automatically saved when you pause or leave a course. You can come back at any time and continue exactly from where you stopped, with all your previous work preserved."
-  },
-  {
-    "topic": "Will I lose my progress if I close the browser?",
-    "answer": "No, your progress is automatically saved on TechHub's servers. Closing the browser, logging out, or switching devices will not affect your saved progress. You can resume anytime."
-  },
-  {
-    "topic": "Does TechHub update its content?",
-    "answer": "Yes, TechHub is committed to continuously updating its course content. Courses are regularly refreshed to reflect the latest technologies, industry trends, and best practices in software engineering."
-  },
-  {
-    "topic": "Will courses be updated with new material?",
-    "answer": "Yes, TechHub regularly updates courses with new material to keep content current with the latest technologies, frameworks, and industry practices in the rapidly evolving tech field."
-  },
-  {
-    "topic": "Are courses kept current?",
-    "answer": "Yes, TechHub commits to continuous content updates. Courses are regularly reviewed and updated to ensure they reflect the latest technologies, tools, and industry standards."
-  },
-  {
-    "topic": "How often is new content added?",
-    "answer": "TechHub regularly adds new courses and updates existing ones. The platform continuously expands its library to cover emerging technologies and meet the evolving needs of tech learners."
-  },
-  {
-    "topic": "How do I contact support?",
-    "answer": "To contact TechHub Support, use the support option available in the platform. You can reach the support team for help with account issues, technical problems, payment questions, or any other platform-related concerns."
-  },
-  {
-    "topic": "Where can I get help?",
-    "answer": "For help on TechHub, you can ask me any question about the platform, browse the community forums, or contact TechHub Support directly for account, technical, or payment issues."
-  },
-  {
-    "topic": "Is there customer support?",
-    "answer": "Yes, TechHub has a dedicated support team ready to help you with account issues, technical problems, payment concerns, and any other platform-related questions. Contact them through the support section."
-  },
-  {
-    "topic": "How quickly does support respond?",
-    "answer": "TechHub Support aims to respond to all inquiries as quickly as possible. Response times may vary, but the team works to resolve your issues promptly and efficiently."
-  },
-  {
-    "topic": "Do I get notifications for new courses?",
-    "answer": "Yes, TechHub sends notifications to keep you informed about new courses, updates to enrolled courses, assignment deadlines reminders, and platform announcements. Check your notification settings to customize preferences."
-  },
-  {
-    "topic": "How do I manage my notifications?",
-    "answer": "You can manage your notification preferences through your account settings. Customize which notifications you receive, including new course alerts, assignment reminders, and platform updates."
-  },
-  {
-    "topic": "Will I be notified about course updates?",
-    "answer": "Yes, when a course you are enrolled in receives updates or new content, you will be notified through the platform. Check your notification settings to ensure you receive update alerts."
-  },
-  {
-    "topic": "Can I rate or review a course?",
-    "answer": "Yes, after taking a course you can rate it and leave a review to share your experience. Your feedback helps other students make informed decisions and helps instructors improve their content."
-  },
-  {
-    "topic": "How do I leave a course review?",
-    "answer": "After enrolling in or completing a course, you can leave a review on the course page. Rate the course and write your feedback to help other students and provide constructive input to the instructor."
-  },
-  {
-    "topic": "Can I see reviews before enrolling?",
-    "answer": "Yes, you can read reviews and ratings from other students on each course page before enrolling. Reviews provide insights about course quality, content, and teaching style to help you decide."
-  },
-  {
-    "topic": "Are there prerequisites for courses?",
-    "answer": "Some courses have prerequisites while others do not. Beginner-level courses typically require no prior knowledge. Check the course description page for any listed prerequisites before enrolling."
-  },
-  {
-    "topic": "Do I need prior experience to start?",
-    "answer": "Not for beginner courses. TechHub offers many courses designed for absolute beginners with no prior experience required. Check the course level (Beginner, Intermediate, Advanced) and prerequisites on the course page."
-  },
-  {
-    "topic": "What do I need to know before taking an advanced course?",
-    "answer": "Advanced courses typically require completion of foundational courses or equivalent knowledge. Check the course page for specific prerequisites and recommended prior courses to ensure you are prepared."
-  },
-  {
-    "topic": "How long are the courses?",
-    "answer": "Course length varies depending on the topic and depth. Each course page displays the total number of video lessons and estimated duration. Some courses are short crash courses while others are comprehensive programs."
-  },
-  {
-    "topic": "How many hours does a course take?",
-    "answer": "The time to complete a course varies. Each course page shows the total number of lessons and estimated hours. Since you learn at your own pace, actual completion time depends on your schedule and speed."
-  },
-  {
-    "topic": "How many videos are in each course?",
-    "answer": "The number of videos varies by course. Each course page lists the total number of video lessons. Courses range from short focused tutorials to comprehensive multi-section programs with many lessons."
-  },
-  {
-    "topic": "Is my personal data safe on TechHub?",
-    "answer": "Yes, TechHub takes data privacy and security seriously. Your personal information is protected and handled securely. The platform uses encryption and follows best practices to safeguard your data."
-  },
-  {
-    "topic": "Does TechHub share my data?",
-    "answer": "TechHub is committed to protecting your privacy. Your personal data is handled securely and is not shared with unauthorized third parties. Review the privacy policy for complete details."
-  },
-  {
-    "topic": "Where can I find the privacy policy?",
-    "answer": "The TechHub privacy policy is accessible from the platform footer or settings page. It provides full details about how your personal data is collected, used, stored, and protected."
-  },
-  {
-    "topic": "Can I access TechHub from any device?",
-    "answer": "Yes, TechHub is a web-based platform that works on any device with a modern web browser. You can access it from desktop computers, laptops, tablets, and smartphones seamlessly."
-  },
-  {
-    "topic": "What browser should I use?",
-    "answer": "TechHub works on all modern web browsers including Google Chrome, Mozilla Firefox, Safari, and Microsoft Edge. For the best experience, use the latest version of your preferred browser."
-  },
-  {
-    "topic": "Do I need to install anything?",
-    "answer": "No, TechHub is entirely web-based and requires no software installation. Simply open your web browser, go to the TechHub website, and start learning. All you need is an internet connection."
-  },
-  {
-    "topic": "Can I study with friends on TechHub?",
-    "answer": "Yes, you and your friends can create TechHub accounts and enroll in the same courses. Use the community features to discuss lessons, collaborate on problems, and support each other's learning."
-  },
-  {
-    "topic": "Can I share a course with someone?",
-    "answer": "You can share course links with friends and fellow students so they can view and enroll in the same course. Each person needs their own TechHub account to access course content."
-  },
-  {
-    "topic": "What is the course structure like?",
-    "answer": "TechHub courses are structured with organized sections containing recorded video lessons, practical coding assignments, and quizzes. You progress through sections sequentially, building knowledge from basics to advanced topics."
-  },
-  {
-    "topic": "How are courses organized?",
-    "answer": "Courses on TechHub are organized into logical sections and chapters. Each section contains video lessons that explain concepts, followed by coding assignments and quizzes to practice and test your understanding."
-  },
-  {
-    "topic": "What does a typical course include?",
-    "answer": "A typical TechHub course includes recorded video lessons, hands-on coding assignments, short quizzes, real-world projects, and a completion certificate. Content is organized in sections from beginner to advanced topics."
-  },
-  {
-    "topic": "Can I speed up or slow down videos?",
-    "answer": "Yes, you can adjust the playback speed of video lessons on TechHub. Speed up for review or slow down for complex topics. Use the video player controls to set your preferred playback speed."
-  },
-  {
-    "topic": "Do videos have subtitles or captions?",
-    "answer": "Subtitle availability may vary by course. Some courses include captions or subtitles for accessibility. Check the course details or video player for caption options."
-  },
-  {
-    "topic": "What happens after I complete a course?",
-    "answer": "After completing all course requirements including video lessons, assignments, and quizzes, you earn a completion certificate. You can download it from your dashboard, and the course remains accessible for future review."
-  },
-  {
-    "topic": "Can I retake a completed course?",
-    "answer": "Yes, you can revisit and retake any completed course on TechHub. Your permanent access allows you to review lessons, redo assignments, and refresh your knowledge anytime."
-  },
-  {
-    "topic": "Who are you?",
-    "answer": "I am TechHub Assistant, your AI-powered learning companion. I am here to help you navigate the TechHub platform, answer your questions about courses, assignments, certificates, account management, and provide technical support."
-  },
-  {
-    "topic": "What is your purpose?",
-    "answer": "I am TechHub Assistant, an AI helper designed to instantly answer your questions about TechHub. I can help with courses, assignments, grading, certificates, account settings, payments, technical issues, and general platform guidance."
-  },
-  {
-    "topic": "Can you tell me about yourself?",
-    "answer": "I am TechHub Assistant, your AI learning guide. I am designed to support you with any questions about the TechHub platform, including course information, account help, assignment guidance, technical support, and career advice."
+    "topic": "Are there intermediate courses?",
+    "answer": "Yes, TechHub offers Intermediate-level courses including: Introduction to CSS, JavaScript Programming – Complete Beginner Course, SQL DML – Complete Guide, and Operating System | CS & IT. These are great for learners ready to deepen their skills."
   },
   {
     "topic": "What can you do?",
-    "answer": "I can help you with a wide range of TechHub topics including account management, course enrollment, assignment help, grading questions, certificate information, payment support, technical troubleshooting, and learning recommendations."
+    "answer": "I'm TechHub Assistant, and here's how I can help you: 1) Answer questions about the TechHub platform — accounts, courses, certificates, assignments, and navigation. 2) Provide details about all available courses and learning roadmaps. 3) Explain video lecture content with exact timestamps — currently I cover the 'HTML for Beginners' course in detail. Just ask me anything!"
   },
   {
-    "topic": "What support can you provide?",
-    "answer": "I provide support for all TechHub platform features including account registration and settings, course browsing and enrollment, assignment and quiz guidance, certificate information, payment help, technical troubleshooting, and general learning advice."
+    "topic": "What is your purpose?",
+    "answer": "I'm TechHub Assistant, an AI chatbot built to help students on TechHub. I assist with platform-related questions (accounts, courses, certificates, assignments) and explain video lecture content — currently focusing on the 'HTML for Beginners' course with exact video timestamps."
   },
   {
-    "topic": "Can you help me with assignments?",
-    "answer": "Yes, I can help you understand assignment requirements, explain coding concepts, guide you through debugging, and answer questions about the submission and grading process on TechHub."
+    "topic": "What topics can you help with?",
+    "answer": "I can help you with: 1) Account & Platform: sign-up, login, profile, settings, certificates, and navigation. 2) Course Discovery: information about all TechHub free courses and learning roadmaps. 3) HTML Course Content: detailed explanations of HTML topics like elements, attributes, headings, paragraphs, styles, formatting, comments, and colors — with exact video timestamps."
   },
   {
-    "topic": "What questions can I ask you?",
-    "answer": "You can ask me about anything related to TechHub: signing up, logging in, finding courses, enrolling, assignments, quizzes, grading, certificates, payments, refunds, technical issues, career guidance, and more."
+    "topic": "Which course content can you explain in detail?",
+    "answer": "Currently, I can provide detailed explanations and exact video timestamps only for the 'HTML for Beginners' course. For all other courses, I can give you general information and recommendations, but detailed video content explanations are not yet available for them."
   },
   {
-    "topic": "Can you help me choose a course?",
-    "answer": "Yes, I can help you choose a course based on your interests, skill level, and career goals. Tell me what you want to learn or what career you are targeting, and I will recommend suitable courses and learning tracks."
+    "topic": "What are learning roadmaps?",
+    "answer": "Learning Roadmaps are structured career paths on TechHub that guide you through a series of courses to build skills for a specific role. Currently available roadmaps include: Full Stack Web Developer (6-8 months) and Backend Developer (5-7 months)."
   },
   {
-    "topic": "Can you explain a programming concept to me?",
-    "answer": "I can help explain programming concepts covered in TechHub courses and guide you to the relevant video lessons. For detailed explanations, I recommend watching the specific course video where the concept is taught."
+    "topic": "What roadmaps are available?",
+    "answer": "TechHub currently offers two learning roadmaps: 1) Full Stack Web Developer (Intermediate, 6-8 months) covering HTML & CSS, JavaScript, React, Node.js & Express, Database Design, and a Full Stack Project. 2) Backend Developer (Intermediate, 5-7 months) covering Programming Fundamentals, Node.js, Express.js & APIs, Database Integration, Authentication, and Deployment."
   },
   {
-    "topic": "Hello",
-    "answer": "Hello! Welcome to TechHub. I am your AI assistant and I am here to help you with any questions about the platform, courses, assignments, or anything else. How can I assist you today?"
+    "topic": "What is the Full Stack Web Developer roadmap?",
+    "answer": "The Full Stack Web Developer roadmap is an Intermediate-level learning path estimated at 6-8 months. It covers HTML & CSS Fundamentals, JavaScript Mastery, React Framework, Node.js & Express, Database Design, and a Full Stack Project."
   },
   {
-    "topic": "Hi there",
-    "answer": "Hi there! Welcome to TechHub. I am ready to help you with any questions you have. Whether it is about courses, assignments, your account, or anything else, just ask!"
+    "topic": "What is the Backend Developer roadmap?",
+    "answer": "The Backend Developer roadmap is an Intermediate-level path estimated at 5-7 months. It covers Programming Fundamentals, Node.js Basics, Express.js & APIs, Database Integration, Authentication & Security, and Deployment & DevOps Basics."
   },
   {
-    "topic": "Hey",
-    "answer": "Hey! How can I help you today? Feel free to ask me anything about TechHub, courses, assignments, or your learning journey."
+    "topic": "How do I start a roadmap?",
+    "answer": "To start a roadmap, go to the Roadmaps page from the sidebar. Browse the available roadmaps, choose one that matches your goals, and click 'Start Roadmap' to begin following the structured learning path."
   },
   {
-    "topic": "Good morning",
-    "answer": "Good morning! Welcome to TechHub. How can I assist you today? I am here to help with any questions about your courses, account, or the platform."
+    "topic": "How do I get started learning on TechHub?",
+    "answer": "To start learning on TechHub: 1) Sign up for a free account. 2) Browse the Courses page or check the Roadmaps for a structured path. 3) Click 'Enroll' on any course you like. 4) Click 'Start Learning' and watch the video lessons at your own pace."
   },
   {
-    "topic": "Good evening",
-    "answer": "Good evening! Welcome to TechHub. How can I help you tonight? Ask me anything about courses, assignments, or your learning progress."
+    "topic": "I'm a complete beginner. Where should I start?",
+    "answer": "If you're a complete beginner, start with foundational courses like 'HTML for Beginners' or 'JavaScript for Beginners'. If you want a structured path, follow the Full Stack Web Developer roadmap which begins with HTML & CSS fundamentals."
   },
   {
-    "topic": "What's up",
-    "answer": "Hey! I am here and ready to help you with TechHub. What can I assist you with today? Feel free to ask any question."
+    "topic": "What course should I take first?",
+    "answer": "For absolute beginners interested in web development, start with 'HTML for Beginners', then move to 'Introduction to CSS', followed by 'JavaScript for Beginners'. If you're interested in databases, start with 'SQL for Beginners'."
   },
   {
-    "topic": "Thank you",
-    "answer": "You are very welcome! I am glad I could help. If you have any more questions about TechHub, do not hesitate to ask. Happy learning!"
+    "topic": "How do I enroll in a course?",
+    "answer": "To enroll in a course, go to the Courses page from the sidebar, click 'View Course' on the course you're interested in, then click the 'Enroll' button on the course details page. Since all courses are free, you'll get instant access."
   },
   {
-    "topic": "Thanks for your help",
-    "answer": "Happy to help! If you need anything else, feel free to ask anytime. Good luck with your learning on TechHub!"
+    "topic": "How do I join a course?",
+    "answer": "Open the Courses page from the sidebar, browse or search for a course, click 'View Course', then click 'Enroll' on the course details page. You'll instantly join the course and can click 'Start Learning' to begin."
   },
   {
-    "topic": "I appreciate your assistance",
-    "answer": "You are very welcome! I am always here to help you succeed on TechHub. Do not hesitate to come back with more questions anytime."
+    "topic": "Can I enroll in multiple courses at the same time?",
+    "answer": "Yes, you can enroll in multiple courses at once on TechHub. There's no limit. All your enrolled courses will appear on your Dashboard for easy access."
   },
   {
-    "topic": "That was helpful",
-    "answer": "I am glad I could help! Remember, I am always here if you need more assistance with TechHub. Keep up the great work with your learning!"
+    "topic": "Are courses live or recorded?",
+    "answer": "All courses on TechHub are pre-recorded video lessons. You can watch them anytime, pause, rewind, and replay as often as you need without any scheduling constraints."
   },
   {
-    "topic": "Thanks a lot",
-    "answer": "You are most welcome! It is my pleasure to assist you. Feel free to reach out anytime you have questions about TechHub or your courses."
+    "topic": "Can I watch lectures at any time?",
+    "answer": "Yes, all lectures on TechHub are pre-recorded, so you can watch them anytime that suits you. There are no scheduled class times — complete flexibility."
   },
   {
-    "topic": "Goodbye",
-    "answer": "Goodbye! I wish you all the best in your studies on TechHub. Keep learning and growing. Have a wonderful and productive day!"
+    "topic": "Can I replay course videos?",
+    "answer": "Yes, since all courses are recorded, you can replay any video lesson as many times as you want. You can also pause, rewind, and fast-forward at your convenience."
   },
   {
-    "topic": "See you later",
-    "answer": "See you later! Best of luck with your courses and assignments. I am always here whenever you need help. Happy learning!"
+    "topic": "Are there course deadlines?",
+    "answer": "No, TechHub courses have no deadlines. You can complete lessons and assignments at your own pace with permanent access to all enrolled courses."
   },
   {
-    "topic": "Bye",
-    "answer": "Bye! Keep up the great work with your studies on TechHub. Come back anytime you have questions. Good luck!"
+    "topic": "Can I learn at my own pace?",
+    "answer": "Yes, TechHub is fully self-paced. There are no deadlines or time limits. You can complete lessons whenever you're ready and revisit them anytime."
   },
   {
-    "topic": "Have a good day",
-    "answer": "Thank you, you too! Keep making progress on your learning journey. I am here whenever you need assistance. Have a great day!"
+    "topic": "Do courses expire?",
+    "answer": "No, once you enroll in a course on TechHub, your access never expires. You have permanent access to all course content."
   },
   {
-    "topic": "See you soon",
-    "answer": "See you soon! I hope your studies are going well. Remember, I am always here to help you with anything on TechHub. Take care!"
+    "topic": "How do I find a specific course?",
+    "answer": "To find a specific course, go to the Courses page from the sidebar and use the 'Search courses...' bar at the top. You can search by course name or topic to quickly find what you're looking for."
   },
   {
-    "topic": "How do I navigate the TechHub dashboard?",
-    "answer": "The TechHub dashboard is your central learning hub. It displays your enrolled courses, learning progress, recent activity, assignment status, and course recommendations. Use the left sidebar to navigate to My Courses, Assignments, Certificates, Profile Settings, and other sections."
+    "topic": "How do I browse all available courses?",
+    "answer": "To browse all available courses, click 'Courses' in the left sidebar. You'll see all the courses TechHub offers with their details, duration, and ratings."
   },
   {
-    "topic": "What is on the dashboard?",
-    "answer": "Your TechHub dashboard shows your enrolled courses, learning progress, recent activity, upcoming assignments, grades overview, and personalized course recommendations. It is your main page for managing your learning."
+    "topic": "How do I contact support?",
+    "answer": "To contact support, click 'Contact Us' at the bottom of the left sidebar. Fill out the form with your full name, email address, category, and message, then click 'Send Message'. The team's reply will be sent to your registered email."
   },
   {
-    "topic": "How do I use the sidebar?",
-    "answer": "The left sidebar is your main navigation menu on TechHub. It contains links to your Dashboard, My Courses, Assignments, Certificates, Profile Settings, Community, and the Sign Out button at the bottom."
+    "topic": "How do I send a message to the support team?",
+    "answer": "Open the Contact Us page from the sidebar, fill in your full name, email, choose a category, write your message, and click 'Send Message'. You'll receive a response via email."
   },
   {
-    "topic": "Where is the navigation menu?",
-    "answer": "The main navigation menu is the left sidebar on TechHub. It gives you quick access to all platform sections including Dashboard, My Courses, Assignments, Certificates, Settings, and Community features."
+    "topic": "What are the support hours?",
+    "answer": "TechHub Support hours are: Monday to Friday from 9:00 AM to 6:00 PM, Saturday from 10:00 AM to 4:00 PM, and Sunday is closed."
   },
   {
-    "topic": "How do I watch a course video?",
-    "answer": "To watch a course video, go to My Courses, click on the course you want to study, then select the video lesson you want to watch. The video player will open and you can play, pause, rewind, and adjust the speed."
+    "topic": "Where can I find the Contact Us page?",
+    "answer": "The Contact Us page is located at the bottom of the left sidebar. Click 'Contact Us' to open the support form where you can send a message and view contact information."
   },
   {
-    "topic": "Can I skip videos in a course?",
-    "answer": "Course structure may require you to follow a sequence, but you can navigate between available video lessons within a course. It is recommended to watch lessons in order for the best learning experience."
+    "topic": "How will support respond to my message?",
+    "answer": "After submitting your message through the Contact Us form, the support team will reply directly to your registered email address. Make sure to check your inbox (and spam folder) for the response."
   },
   {
-    "topic": "How do I go to the next lesson?",
-    "answer": "After finishing a video lesson, you can click the Next button or select the next lesson from the course content list to continue to the following video in the course sequence."
+    "topic": "What types of assessments are there?",
+    "answer": "TechHub courses include coding assignments and quizzes designed to test your understanding. Each course also has a final exam at the end that you must pass to earn the completion certificate."
   },
   {
-    "topic": "Can I take notes while watching videos?",
-    "answer": "While TechHub does not currently have a built-in note-taking feature, you can use any external note-taking app alongside the platform. Pause the video anytime to take notes at your own pace."
+    "topic": "How will I be evaluated?",
+    "answer": "You're evaluated through coding assignments and quizzes throughout the course, plus a final exam at the end of the course. The instructor sets the passing score and the number of attempts allowed."
   },
   {
-    "topic": "How do I submit an assignment?",
-    "answer": "To submit an assignment, navigate to the assignment page within your course. Write your code in the built-in code editor, test it using the Run button, and when you are ready, click the Submit button to send it for automated grading."
+    "topic": "Is there a final exam?",
+    "answer": "Yes, every TechHub course has a final exam at the end. You must pass this exam to earn the official course completion certificate."
   },
   {
-    "topic": "Where do I write my code for assignments?",
-    "answer": "You write your code directly in the TechHub built-in code editor on the assignment page. The editor supports syntax highlighting for the programming language used in the course. Write, run, test, and submit all from the same page."
+    "topic": "How is my code graded?",
+    "answer": "Your submitted code is graded automatically by the platform's evaluation system, providing instant feedback on your performance with detailed test results."
   },
   {
-    "topic": "How do I know if my assignment is submitted?",
-    "answer": "After clicking Submit, you will receive instant automated feedback showing your score and test results. You can also verify your submission status in the Assignments section of your dashboard."
+    "topic": "When will I get feedback on my assignments?",
+    "answer": "You receive feedback instantly after submitting your assignment. The automated system tests your solution immediately and shows your score and any issues found."
   },
   {
-    "topic": "Can I see the assignment requirements?",
-    "answer": "Yes, each assignment page displays the full requirements, instructions, expected input and output, and any constraints. Read the requirements carefully before starting to code your solution."
+    "topic": "What is the passing score for assignments?",
+    "answer": "The passing score for assignments is set by the course instructor and may vary from one course to another. Check each assignment's details for the specific passing score required."
   },
   {
-    "topic": "What if I don't understand an assignment?",
-    "answer": "If you do not understand an assignment, try re-watching the related video lesson first. You can also ask for help in the TechHub community forums or ask me to explain the concept behind the assignment."
+    "topic": "Can I retry assignments if I fail?",
+    "answer": "Yes, you can retry assignments. The number of allowed attempts is set by the course instructor and may vary by course and assignment. Check the assignment details for retry limits."
   },
   {
-    "topic": "How do I take a quiz?",
-    "answer": "Quizzes are available within the course after completing the relevant video lessons. Navigate to the quiz section in the course, read each question carefully, select your answers, and submit the quiz to see your results."
+    "topic": "How many times can I attempt an assignment?",
+    "answer": "The number of attempts allowed for each assignment is determined by the course instructor. Some assignments may have unlimited retries, while others may have a specific limit. Check the assignment details for exact information."
   },
   {
-    "topic": "Can I retake a quiz?",
-    "answer": "Quiz retake policies may vary by course. Check the specific course quiz settings to see if retakes are allowed. In general, TechHub encourages learning from mistakes and provides feedback on quiz results."
+    "topic": "How many times can I take the final exam?",
+    "answer": "The number of attempts for the final exam is set by the course instructor. Check the exam details before starting to know how many tries you have to pass and earn your certificate."
   },
   {
-    "topic": "How are quizzes scored?",
-    "answer": "Quizzes are scored automatically based on your correct answers. Your score is displayed immediately after submission. You can review which questions you got right and wrong to improve your understanding."
+    "topic": "Where can I find my assignments?",
+    "answer": "All your assignments are available in the Assignments page accessible from the left sidebar. You can filter them by 'All' or 'Graded' to track your progress."
   },
   {
-    "topic": "What is the difference between an assignment and a quiz?",
-    "answer": "Assignments are coding tasks where you write and submit code that gets automatically tested against test cases. Quizzes are question-based assessments that test your theoretical understanding of concepts covered in the video lessons."
+    "topic": "How do I take an assignment?",
+    "answer": "Go to the Assignments page from the sidebar, find the assignment you want to do, and click 'Take Assignment' next to it. Complete the assignment and submit it for instant grading."
   },
   {
-    "topic": "How can I improve my coding skills?",
-    "answer": "To improve your coding skills on TechHub, complete all course assignments, practice with real-world projects, review the automated feedback carefully, retry failed assignments, and engage with the community to learn from other students."
+    "topic": "Where can I see my grades?",
+    "answer": "Your grades and assignment scores are available in the Assignments page from the sidebar. Each assignment shows your status (Pending, Graded), points, and feedback."
   },
   {
-    "topic": "How do I practice programming?",
-    "answer": "Practice programming by completing the coding assignments in your enrolled courses. Write code in the built-in editor, test with the Run button, learn from feedback, and retry as many times as needed to strengthen your skills."
+    "topic": "How do I track my learning progress?",
+    "answer": "You can track your progress in two places: 1) The Profile page shows your overall learning statistics including enrolled courses, completed courses, and learning hours. 2) Each course details page shows a 'Your Progress' bar with completion percentage."
   },
   {
-    "topic": "How can I get better at problem solving?",
-    "answer": "To improve problem solving, work through all coding assignments, analyze the feedback from failed attempts, break problems into smaller steps, review relevant video lessons, and practice consistently. The community forums are also great for discussing approaches."
+    "topic": "Where can I see my learning statistics?",
+    "answer": "Your Learning Statistics are displayed on the Profile page from the sidebar. You'll see your number of Enrolled Courses, Completed Courses, and Learning Hours."
   },
   {
-    "topic": "Any tips for learning programming effectively?",
-    "answer": "Here are effective learning tips: watch all video lessons carefully, take notes, practice coding daily, complete every assignment, read the feedback, do not skip exercises, engage with the community, and follow a structured learning track for consistent progress."
+    "topic": "How do I get a certificate?",
+    "answer": "To earn a TechHub certificate, you must complete all video lessons, pass all assignments, and pass the final exam at the end of the course. Once all requirements are met, your certificate becomes available in the Certificates page."
   },
   {
-    "topic": "Can I use TechHub for school or university?",
-    "answer": "Yes, TechHub courses cover topics commonly taught in computer science programs and can supplement your school or university education. The practical assignments and projects provide additional hands-on experience beyond classroom learning."
+    "topic": "Are certificates provided?",
+    "answer": "Yes, TechHub provides official course completion certificates for every course — completely free. After passing the final exam and completing course requirements, your certificate is available in the Certificates section."
   },
   {
-    "topic": "Is TechHub good for self-study?",
-    "answer": "Yes, TechHub is ideal for self-study. All courses are self-paced with recorded lessons, no deadlines, and permanent access. You can learn independently, track your progress, and earn certificates to validate your knowledge."
+    "topic": "Where can I find my certificates?",
+    "answer": "Your certificates are available in the Certificates page accessible from the left sidebar. There you can view and download all certificates you've earned from completed courses."
   },
   {
-    "topic": "Can I use TechHub to prepare for interviews?",
-    "answer": "Yes, TechHub courses build practical skills and real-world project experience that are valuable for technical interviews. The coding assignments help sharpen your problem-solving abilities that interviewers look for."
+    "topic": "How do I download my certificate?",
+    "answer": "After completing a course and passing the final exam, go to the Certificates page from the sidebar. Find your completed course and download your official certificate from there."
   },
   {
-    "topic": "What is the difference between beginner and intermediate courses?",
-    "answer": "Beginner courses assume no prior knowledge and teach fundamentals from scratch. Intermediate courses build on basic concepts and cover more advanced topics. Check the course level and prerequisites on the course page before enrolling."
+    "topic": "What are the requirements to get a certificate?",
+    "answer": "To earn a TechHub certificate, you must complete the following requirements: 1) Watch all video lessons in the course. 2) Complete all assignments with a passing score (set by the instructor). 3) Pass the final exam at the end of the course. Once all requirements are met, your certificate will be available to download from the Certificates page."
   },
   {
-    "topic": "How do I know which level is right for me?",
-    "answer": "If you are new to a topic, start with Beginner level courses. If you already understand the basics and want to go deeper, choose Intermediate. Check the course description and prerequisites to ensure the level matches your current knowledge."
+    "topic": "Is the certificate free?",
+    "answer": "Yes! All TechHub certificates are completely free. There are no fees to earn or download your course completion certificate."
   },
   {
-    "topic": "Can I get a course outline before enrolling?",
-    "answer": "Yes, each course page on TechHub includes a detailed outline showing the sections, topics covered, number of video lessons, assignments, and course objectives. Review this information before enrolling to make sure it matches your needs."
+    "topic": "Can I share my certificate on LinkedIn?",
+    "answer": "Yes, after downloading your TechHub certificate, you can share it on LinkedIn, add it to your resume, or include it in your professional portfolio to showcase your skills."
   },
   {
-    "topic": "What information is on the course page?",
-    "answer": "Each course page displays the course title, level, description, detailed outline, instructor name, number of lessons, estimated duration, student reviews, and enrollment button. All the information you need to decide before enrolling."
+    "topic": "What if I don't have any certificates yet?",
+    "answer": "If you don't have certificates yet, the Certificates page will show 'No Certificates Yet'. Click 'Browse Courses' to find courses to enroll in and start working toward your first certificate."
   },
   {
-    "topic": "Can I preview a course before enrolling?",
-    "answer": "Course pages on TechHub provide detailed descriptions, outlines, and student reviews so you can understand the content before enrolling. Some courses may also offer preview lessons. Check the course page for available preview options."
+    "topic": "Does TechHub have a community?",
+    "answer": "Yes, TechHub has course-specific communities. Each course has its own dedicated community where students can interact, share knowledge, ask questions, and discuss the course content together."
   },
   {
-    "topic": "How do I give feedback about the platform?",
-    "answer": "You can share your feedback about the TechHub platform by contacting TechHub Support. Your suggestions, bug reports, and feature requests are valuable and help improve the platform for all learners."
+    "topic": "How do I access the community?",
+    "answer": "Click 'Community' in the left sidebar to see all the communities you have access to. Each course you're enrolled in has its own community. Click 'View Community' to enter and start interacting."
   },
   {
-    "topic": "How do I report a bug?",
-    "answer": "If you find a bug or issue on the TechHub platform, please report it to TechHub Support with details about what happened, what page you were on, and any error messages you saw. This helps the team fix issues quickly."
+    "topic": "Is there a community for each course?",
+    "answer": "Yes, every course on TechHub has its own dedicated community. When you enroll in a course, you automatically gain access to its community where you can discuss content with other students."
   },
   {
-    "topic": "Can I suggest a new feature?",
-    "answer": "Yes, TechHub welcomes feature suggestions from users. Contact TechHub Support with your ideas for new features or improvements. User feedback plays an important role in shaping future platform updates."
+    "topic": "Can I interact with other students?",
+    "answer": "Yes, you can interact with other students in the course communities. Each course has its own community where you can post, share insights, ask questions, and collaborate with fellow learners."
   },
   {
-    "topic": "Can I suggest a new course topic?",
-    "answer": "Yes, you can suggest new course topics by contacting TechHub Support. Share what subjects you would like to learn, and the team considers user requests when planning new courses and content."
+    "topic": "Is there a discussion forum?",
+    "answer": "Yes, TechHub has course-specific community forums. Open the Community page from the sidebar, choose your course community, and you can post questions, share solutions, and discuss course content with peers."
   },
   {
-    "topic": "Is TechHub accessible for people with disabilities?",
-    "answer": "TechHub is committed to accessibility. The platform is designed to work with screen readers and assistive technologies. If you encounter any accessibility issues, please contact support so the team can assist you."
+    "topic": "How do I contact an instructor?",
+    "answer": "You can interact with the course instructor through the course's dedicated community. Each course has its own community where the instructor may participate in discussions. Open the Community page from the sidebar to access it."
   },
   {
-    "topic": "Can I change the video quality?",
-    "answer": "Video quality settings may be available in the video player. Adjust the quality based on your internet speed. Lower quality works better with slow connections, while higher quality provides a better viewing experience."
+    "topic": "Can I ask the instructor questions?",
+    "answer": "Yes, each course has its own community where you can post questions and the instructor may engage with students. Access it from the Community page in the sidebar."
   },
   {
-    "topic": "Can I watch videos in fullscreen?",
-    "answer": "Yes, you can watch course videos in fullscreen mode. Click the fullscreen button on the video player to expand the video to fill your entire screen for a more focused viewing experience."
+    "topic": "Does TechHub have a code editor?",
+    "answer": "Yes, TechHub includes a built-in Code Compiler accessible from the sidebar. It supports Python, JavaScript, and C++. You can write code, click 'Run' to execute it, see the console output, and save your work."
   },
   {
-    "topic": "How do I stay motivated while learning?",
-    "answer": "To stay motivated on TechHub, set clear learning goals, follow a consistent schedule, track your progress on the dashboard, celebrate completing courses and earning certificates, and engage with the community for support and encouragement."
+    "topic": "What is the Compiler page?",
+    "answer": "The Compiler page is TechHub's built-in code editor where you can practice coding directly in your browser. It supports Python, JavaScript, and C++. Use the 'Run' button to execute, 'Save' to keep your code, and 'Reset' to start over."
   },
   {
-    "topic": "How much time should I study each day?",
-    "answer": "The amount of study time depends on your goals and schedule. Even 30 minutes to 1 hour of consistent daily practice on TechHub can lead to significant progress. The key is consistency rather than long irregular sessions."
+    "topic": "What programming languages does the compiler support?",
+    "answer": "The TechHub Compiler supports three languages: Python, JavaScript, and C++. You can switch between them using the tabs at the top of the editor."
   },
   {
-    "topic": "How long does it take to complete a learning track?",
-    "answer": "Completion time for a learning track varies based on the number of courses, your pace, and available study time. Since TechHub is self-paced with no deadlines, you can take as long as you need. Consistent daily practice will help you finish faster."
+    "topic": "How do I run code on TechHub?",
+    "answer": "Open the Compiler page from the sidebar, choose your language (Python, JavaScript, or C++), write your code in the editor, then click the 'Run' button to execute it and see the output in the Console Output panel."
   },
   {
-    "topic": "What is the difference between a course and a learning track?",
-    "answer": "A course is a single educational program focused on one topic, like HTML or Python. A learning track is a curated sequence of multiple related courses that together build comprehensive skills for a specific career path like Web Development."
+    "topic": "Can I save my code in the compiler?",
+    "answer": "Yes, the TechHub Compiler has a 'Save' button at the top right that lets you save your code so you can come back to it later."
   },
   {
-    "topic": "Do I need a fast internet connection?",
-    "answer": "A stable internet connection is needed to stream video lessons and submit assignments on TechHub. A moderate speed connection should be sufficient. If you experience buffering, try lowering the video quality."
+    "topic": "How do I reset my code in the compiler?",
+    "answer": "To reset the code editor to its default state, click the 'Reset' button at the top of the Compiler page."
   },
   {
-    "topic": "Can I use TechHub at work?",
-    "answer": "Yes, you can access TechHub from any location including your workplace, as long as you have internet access and a web browser. Since courses are self-paced, you can fit learning into your schedule."
+    "topic": "Where can I see my notifications?",
+    "answer": "Click 'Notifications' in the left sidebar or the bell icon at the top right of any page to view your notifications. You'll see updates about course enrollments, achievements, and other learning activities."
   },
   {
-    "topic": "Does TechHub offer group or team plans?",
-    "answer": "For information about group plans, team enrollments, or institutional access, please contact TechHub Support. The team can provide details about available options for organizations and educational institutions."
+    "topic": "How do I mark notifications as read?",
+    "answer": "Open the Notifications page from the sidebar, then click 'Mark All as Read' at the top right to mark all notifications as read at once."
   },
   {
-    "topic": "Can my company use TechHub for training?",
-    "answer": "TechHub can be used for professional development and corporate training. For company or team enrollment options, contact TechHub Support for more information about available plans."
+    "topic": "What notifications will I receive as an instructor?",
+    "answer": "As an instructor, you'll receive notifications about activities related to your courses, such as new student enrollments, messages, and platform updates. Check the Notifications page from the sidebar to view them."
   },
   {
-    "topic": "What are the system requirements for TechHub?",
-    "answer": "TechHub is a web-based platform that requires a modern web browser like Chrome, Firefox, Safari, or Edge, and a stable internet connection. No special software installation is needed. It works on Windows, Mac, Linux, and mobile devices."
+    "topic": "Is TechHub mobile-friendly?",
+    "answer": "Yes, TechHub is fully responsive and works perfectly on mobile phones and tablets. The platform is optimized for mobile browsers, allowing you to learn anywhere from your smartphone or tablet."
   },
   {
-    "topic": "Does TechHub work on Linux?",
-    "answer": "Yes, since TechHub is a web-based platform, it works on any operating system including Linux. Just open a modern web browser and navigate to TechHub to start learning."
+    "topic": "Can I learn on my phone?",
+    "answer": "Yes, TechHub is fully optimized for mobile devices. You can access all courses, watch video lessons, complete assignments, and track progress from your smartphone's browser."
   },
   {
-    "topic": "Does TechHub work on Chromebook?",
-    "answer": "Yes, TechHub works on Chromebooks through the Chrome browser. Since the platform is entirely web-based, you can access all courses, assignments, and features from any Chromebook."
+    "topic": "Is there a TechHub mobile app?",
+    "answer": "Currently, TechHub is accessible through web browsers on any device, including mobile phones and tablets. A dedicated mobile app is not available at the moment."
   },
   {
-    "topic": "How do I know if a course is right for me?",
-    "answer": "To determine if a course is right for you, check the course level (Beginner, Intermediate, Advanced), read the description and outline, review prerequisites, and read student reviews. Start with beginner courses if you are new to the topic."
+    "topic": "What languages does TechHub support?",
+    "answer": "TechHub currently operates exclusively in English. All platform content, interface, and course materials are in English."
   },
   {
-    "topic": "Can I ask questions during a course?",
-    "answer": "While courses are pre-recorded, you can ask questions in the course community forums where other students and the community can help. You can also ask me any course-related questions anytime."
+    "topic": "Is TechHub available in Arabic?",
+    "answer": "TechHub is currently available only in English. Arabic language support is not available at the moment."
   },
   {
-    "topic": "What if I get stuck on a topic?",
-    "answer": "If you get stuck, try rewatching the relevant video lesson, reviewing the assignment feedback, asking for help in the community forums, or asking me to explain the concept. Practice and repetition are key to overcoming difficult topics."
+    "topic": "I'm having technical issues with the platform",
+    "answer": "If you experience technical issues, try clearing your browser cache and cookies, or switch to a different browser like Chrome or Firefox. Make sure your internet connection is stable. If problems persist, reach out via the Contact Us page."
   },
   {
-    "topic": "Can I learn multiple programming languages at once?",
-    "answer": "While you can enroll in multiple courses simultaneously, it is generally recommended to focus on one programming language at a time, especially as a beginner. Build a strong foundation first, then expand to other languages."
+    "topic": "Videos are not playing. What should I do?",
+    "answer": "If videos are not playing, check your internet connection, try refreshing the page, or switch to a different browser. Clear your browser cache and ensure your browser is up to date. If the issue continues, contact us through the Contact Us page."
   },
   {
-    "topic": "What is the best order to learn web development?",
-    "answer": "For web development on TechHub, the recommended learning order is: start with HTML to learn page structure, then CSS for styling, followed by JavaScript for interactivity. After these fundamentals, explore frameworks and back-end development."
-  },
-  {
-    "topic": "What should I learn after HTML?",
-    "answer": "After learning HTML, the natural next step is CSS to learn how to style and design web pages. After CSS, move on to JavaScript to add interactivity and dynamic features to your websites."
-  },
-  {
-    "topic": "What should I learn after Python basics?",
-    "answer": "After mastering Python basics, you can explore Data Science, Artificial Intelligence, or advanced Python programming. TechHub offers intermediate Python courses and specialized tracks in Data Science and AI."
-  },
-  {
-    "topic": "Can I get a job with just TechHub certificates?",
-    "answer": "TechHub certificates demonstrate your skills and course completion, which can strengthen your resume. However, employers also value practical experience, portfolios, and projects. Use TechHub projects to build a portfolio alongside your certificates."
-  },
-  {
-    "topic": "How do I build a portfolio?",
-    "answer": "Build a portfolio by completing the real-world projects in TechHub courses. Save your project work, document what you built and learned, and showcase them on platforms like GitHub or a personal website to demonstrate your skills to employers."
-  },
-  {
-    "topic": "Does TechHub offer mentorship?",
-    "answer": "TechHub provides learning support through course content, community forums, and the AI assistant. Formal one-on-one mentorship programs may be added in future updates. For now, the community is a great place to get guidance from peers."
-  },
-  {
-    "topic": "Can I connect with instructors?",
-    "answer": "You can interact with course content created by instructors and engage in community forums. Direct messaging with instructors may vary by course. For specific questions, try the community forums or contact TechHub Support."
-  },
-  {
-    "topic": "Is there a leaderboard or ranking system?",
-    "answer": "TechHub focuses on personal learning progress rather than competition. Your dashboard tracks your individual progress, grades, and achievements. The platform is designed to encourage learning at your own pace."
-  },
-  {
-    "topic": "Do I earn badges or achievements?",
-    "answer": "TechHub recognizes your achievements through course completion certificates. Additional gamification features like badges or achievements may be introduced in future platform updates."
+    "topic": "The page is loading slowly",
+    "answer": "Slow loading can be caused by poor internet, browser cache issues, or too many open tabs. Try closing other tabs, clearing your cache, or switching to a faster network."
   },
   {
     "topic": "Can I access TechHub from multiple devices?",
-    "answer": "Yes, you can access your TechHub account from multiple devices including desktop, laptop, tablet, and phone. Your progress syncs across all devices, so you can seamlessly switch between them."
+    "answer": "Yes, you can access your TechHub account from multiple devices including desktop, laptop, tablet, and phone. Your progress syncs across all devices."
   },
   {
     "topic": "Will my progress sync across devices?",
-    "answer": "Yes, your learning progress is stored on TechHub servers and syncs automatically. You can start a lesson on your computer and continue on your phone or tablet without losing any progress."
+    "answer": "Yes, your learning progress is stored on TechHub servers and syncs automatically across all your devices. Start a lesson on one device and continue on another seamlessly."
   },
   {
-    "topic": "What happens if my internet disconnects during a quiz?",
-    "answer": "If your internet disconnects during a quiz, try reconnecting and refreshing the page. Your answers may be saved depending on how far you progressed. If you lose your progress, you may need to retake the quiz."
+    "topic": "What are the system requirements for TechHub?",
+    "answer": "TechHub is a web-based platform that requires a modern web browser like Chrome, Firefox, Safari, or Edge, and a stable internet connection. It works on Windows, Mac, Linux, and mobile devices."
   },
   {
-    "topic": "What happens if my internet disconnects while submitting code?",
-    "answer": "If your internet disconnects during code submission, your code in the editor should still be available. Reconnect to the internet, verify your code is still in the editor, and try submitting again."
+    "topic": "Does TechHub work on Linux?",
+    "answer": "Yes, since TechHub is web-based, it works on any operating system including Linux. Just open a modern browser and navigate to TechHub."
   },
   {
-    "topic": "How do I report inappropriate content?",
-    "answer": "If you encounter inappropriate content on TechHub, including in community forums or course materials, please report it immediately to TechHub Support. The team takes content moderation seriously and will review your report promptly."
+    "topic": "Can I download courses for offline viewing?",
+    "answer": "No, TechHub courses are available for online streaming only. You need an internet connection to access course content."
   },
   {
-    "topic": "Are there community guidelines?",
-    "answer": "Yes, TechHub has community guidelines that promote respectful, constructive, and supportive interactions. Be kind, helpful, and professional when interacting with other students in forums and discussions."
+    "topic": "What is the Dashboard?",
+    "answer": "The Dashboard is your personal home page on TechHub. It shows an overview of your enrolled courses, learning progress, and quick access to continue learning."
   },
   {
-    "topic": "Can I learn TechHub courses in a group?",
-    "answer": "Yes, you can form study groups with other TechHub students. Enroll in the same courses, use the community forums to discuss topics, and collaborate on understanding concepts together while each tracking individual progress."
+    "topic": "What is the Profile page?",
+    "answer": "The Profile page shows your personal information, profile picture, bio, and learning statistics including Enrolled Courses, Completed Courses, and Learning Hours. It also displays your Current Progress for each course."
+  },
+  {
+    "topic": "What is in the Settings page?",
+    "answer": "The Settings page is where you manage your Account Security. You can change your password by entering your current password, new password, and confirming the change."
   },
   {
     "topic": "What is computer science?",
-    "answer": "Computer science is the study of computers, programming, and computational systems. TechHub offers courses that cover core CS topics including programming languages, algorithms, data structures, operating systems, databases, and software development."
+    "answer": "Computer science is the study of computers, programming, and computational systems. TechHub offers courses covering core CS topics including programming, web development, databases, and operating systems."
   },
   {
     "topic": "What is programming?",
-    "answer": "Programming is the process of writing instructions that tell a computer what to do. On TechHub, you can learn programming through courses in Python, JavaScript, C++, HTML, CSS, SQL, and more with hands-on coding practice."
+    "answer": "Programming is the process of writing instructions that tell a computer what to do. On TechHub, you can learn programming through free courses in JavaScript, with HTML and CSS for web structure and styling."
   },
   {
     "topic": "What is web development?",
-    "answer": "Web development is the process of building websites and web applications. TechHub offers a Web Development track covering HTML for structure, CSS for styling, and JavaScript for interactivity, preparing you for developer roles."
-  },
-  {
-    "topic": "What is data science?",
-    "answer": "Data science is the field of extracting insights and knowledge from data using programming, statistics, and machine learning. TechHub offers a Data Science learning track with courses covering the essential tools and techniques."
-  },
-  {
-    "topic": "What is artificial intelligence?",
-    "answer": "Artificial Intelligence is the field of creating computer systems that can perform tasks requiring human-like intelligence. TechHub offers AI courses that cover fundamental concepts and practical applications."
-  },
-  {
-    "topic": "What is software testing?",
-    "answer": "Software testing is the process of evaluating software to find bugs and ensure quality. TechHub offers Software Testing courses and a dedicated learning track covering testing methodologies, techniques, and certification preparation."
-  },
-  {
-    "topic": "What is SQL?",
-    "answer": "SQL stands for Structured Query Language and is used to manage and interact with relational databases. TechHub offers SQL for Beginners and SQL DML Complete Guide courses to teach you how to query, insert, update, and manage data."
+    "answer": "Web development is the process of building websites and web applications. TechHub offers a Full Stack Web Developer roadmap covering HTML, CSS, JavaScript, React, Node.js, and databases."
   },
   {
     "topic": "What is HTML?",
-    "answer": "HTML stands for HyperText Markup Language and is the standard language for creating web pages. TechHub offers the HTML for Beginners course that teaches you how to structure web content using HTML elements, tags, and attributes."
+    "answer": "HTML stands for HyperText Markup Language and is the standard language for creating web pages. TechHub offers 'HTML for Beginners' which teaches you to structure web content using HTML elements, tags, and attributes."
   },
   {
     "topic": "What is CSS?",
-    "answer": "CSS stands for Cascading Style Sheets and is used to style and design the appearance of web pages. TechHub offers an Introduction to CSS course that teaches you how to add colors, layouts, fonts, and visual design to HTML pages."
+    "answer": "CSS stands for Cascading Style Sheets and is used to style web pages. TechHub offers 'Introduction to CSS' that teaches CSS syntax, selectors, properties, and how to apply CSS to HTML."
+  },
+  {
+    "topic": "What is JavaScript?",
+    "answer": "JavaScript is a programming language that brings web pages to life with interactivity. TechHub offers two JavaScript courses to help you learn variables, functions, DOM manipulation, and more."
+  },
+  {
+    "topic": "What is SQL?",
+    "answer": "SQL (Structured Query Language) is used to manage and interact with relational databases. TechHub offers 'SQL for Beginners' and 'SQL DML – Complete Guide' to teach you database management."
   },
   {
     "topic": "I don't know what to learn",
-    "answer": "No worries! Tell me about your interests or career goals and I can recommend a starting point. If you like building websites, try Web Development. If you enjoy data and analytics, try Data Science. If you are completely new, start with Python or HTML basics."
-  },
-  {
-    "topic": "Help me decide what to study",
-    "answer": "I would love to help! Here are some options: for web development start with HTML, CSS, and JavaScript; for programming fundamentals try Python or C++; for databases learn SQL; for data and AI explore the Data Science track. What interests you most?"
+    "answer": "No worries! Tell me your interests. If you want to build websites, start with HTML for Beginners. If you're interested in databases, try SQL for Beginners. For programming logic, try JavaScript for Beginners. Or follow the Full Stack Web Developer roadmap for a complete path."
   },
   {
     "topic": "What should I learn to become a web developer?",
-    "answer": "To become a web developer, follow the TechHub Web Development track. Start with HTML for Beginners, then learn CSS for styling, followed by JavaScript for interactivity. This path prepares you for front-end, back-end, or full-stack developer roles."
+    "answer": "To become a web developer, follow the TechHub Full Stack Web Developer roadmap. Start with HTML for Beginners, then Introduction to CSS, followed by JavaScript courses. The roadmap also covers React, Node.js, and Database Design."
   },
   {
-    "topic": "What should I learn to become a data scientist?",
-    "answer": "To become a data scientist, follow the TechHub Data Science track. Start with Python programming, then learn SQL for databases, followed by data science courses covering statistics, data analysis, and machine learning."
+    "topic": "What should I learn to become a backend developer?",
+    "answer": "Follow the Backend Developer roadmap on TechHub. It covers Programming Fundamentals, Node.js, Express.js & APIs, Database Integration, Authentication & Security, and Deployment basics over 5-7 months."
   },
   {
-    "topic": "How old do I have to be to use TechHub?",
-    "answer": "TechHub is designed for students and learners of all ages who are interested in technology and programming. There is no strict age requirement, but the platform content is geared toward high school students, university students, and adult learners."
+    "topic": "What's the best order to learn web development?",
+    "answer": "For web development on TechHub, start with HTML for Beginners (page structure), then Introduction to CSS (styling), then JavaScript for Beginners (interactivity), and finally JavaScript Programming – Complete Beginner Course for advanced topics."
   },
   {
-    "topic": "Is TechHub available worldwide?",
-    "answer": "Yes, TechHub is a web-based platform accessible from anywhere in the world. All you need is an internet connection and a web browser to access all courses and features regardless of your location."
+    "topic": "What should I learn after HTML?",
+    "answer": "After HTML for Beginners, the natural next step is 'Introduction to CSS' to learn how to style your web pages. Then move on to JavaScript to add interactivity."
   },
   {
-    "topic": "What timezone does TechHub use?",
-    "answer": "Since TechHub courses are all self-paced with recorded content and no deadlines, timezone does not affect your learning. You can study at any time that works for you from anywhere in the world."
+    "topic": "Can TechHub help me get a job?",
+    "answer": "TechHub prepares you for tech careers through quality courses, structured roadmaps, and certificates. The hands-on experience and certificates from courses help demonstrate your skills to potential employers."
   },
   {
-    "topic": "Can I transfer my progress to another account?",
-    "answer": "Progress transfer between accounts is not directly available through the platform. If you need to transfer your learning data to a different account, contact TechHub Support for assistance."
-  },
-  {
-    "topic": "I have two accounts. Can I merge them?",
-    "answer": "Account merging is not available as a self-service feature. If you need to merge two accounts, contact TechHub Support with the details of both accounts and they will assist you."
-  },
-  {
-    "topic": "Is there a dark mode?",
-    "answer": "Dark mode availability depends on the current platform features. Check your Profile Settings or display settings for theme options. If dark mode is not yet available, it may be added in a future update."
-  },
-  {
-    "topic": "Can I change the platform theme?",
-    "answer": "Theme customization options may be available in your Profile Settings. Check the display or appearance settings to see available options. Feature requests for new themes can be sent to TechHub Support."
-  },
-  {
-    "topic": "How do I unsubscribe from emails?",
-    "answer": "To manage your email preferences, check your account notification settings. You can customize which emails you receive or unsubscribe from specific email notifications. You can also use the unsubscribe link in any TechHub email."
-  },
-  {
-    "topic": "I'm receiving too many emails",
-    "answer": "You can adjust your email notification preferences in your account settings. Turn off notifications you do not need, or contact TechHub Support if you want to unsubscribe from all non-essential emails."
-  },
-  {
-    "topic": "What does enrollment mean?",
-    "answer": "Enrollment means registering for a course on TechHub. When you enroll, the course is added to your My Courses list and you gain access to all its video lessons, assignments, quizzes, and eventually the completion certificate."
-  },
-  {
-    "topic": "What is the difference between signing up and enrolling?",
-    "answer": "Signing up means creating a TechHub account. Enrolling means registering for a specific course after you have an account. First sign up for a TechHub account, then enroll in the courses you want to take."
+    "topic": "What can I do after completing the Full Stack roadmap?",
+    "answer": "After completing the Full Stack Web Developer roadmap, you'll have skills for roles like Front-End Developer, Back-End Developer, or Full-Stack Developer. You'll be able to build complete web applications from scratch."
   },
   {
     "topic": "Can TechHub help me with my homework?",
-    "answer": "TechHub courses teach programming concepts and skills that can help with your homework. While I cannot solve your specific homework, I can explain concepts, guide you to relevant course videos, and help you understand the material."
+    "answer": "TechHub courses teach concepts that can help with your homework. While I can't solve your specific homework, I can explain concepts, guide you to relevant videos, and help you understand the material."
   },
   {
     "topic": "Can you write code for me?",
-    "answer": "I am designed to help you learn and understand concepts rather than write code for you. I can explain programming concepts, guide you to relevant TechHub course videos, help debug approaches, and suggest learning resources so you can write the code yourself."
+    "answer": "I'm designed to help you learn rather than write code for you. I can explain concepts, guide you to relevant TechHub course videos, and suggest approaches so you can write the code yourself and truly learn."
   },
   {
     "topic": "Can you solve my assignment?",
-    "answer": "I cannot solve assignments for you, as the purpose of assignments is to help you learn through practice. However, I can help explain the concepts behind the assignment, suggest which course video to review, and guide your approach to solving it."
+    "answer": "I cannot solve assignments for you, since the purpose is to help you learn through practice. However, I can explain the concepts, suggest which course video to review, and guide your approach to solving it."
   },
   {
-    "topic": "What is a dashboard?",
-    "answer": "The dashboard is your personal home page on TechHub after logging in. It shows an overview of your enrolled courses, learning progress, recent activity, grades, assignment status, and personalized course recommendations."
+    "topic": "What if I get stuck on a topic?",
+    "answer": "If you get stuck, try rewatching the relevant video lesson, asking in the course community, or asking me to explain the concept. You can also reach out via the Contact Us page for additional help."
   },
   {
-    "topic": "What is a sidebar?",
-    "answer": "The sidebar is the navigation menu on the left side of the TechHub platform. It contains links to key sections including Dashboard, My Courses, Assignments, Certificates, Community, Profile Settings, and the Sign Out button."
+    "topic": "Are TechHub certificates recognized?",
+    "answer": "TechHub certificates are official course completion certificates that verify your learning. You can add them to your resume, LinkedIn, or portfolio to showcase your skills to employers."
   },
   {
-    "topic": "What is a learning path?",
-    "answer": "A learning path, also called a learning track, is a curated sequence of courses on TechHub designed to build skills for a specific career or specialization. It guides you step by step from beginner to advanced topics."
+    "topic": "Is TechHub available worldwide?",
+    "answer": "Yes, TechHub is a web-based platform accessible from anywhere in the world. All you need is internet and a browser to access all free courses and features."
   },
   {
-    "topic": "How is TechHub different from YouTube?",
-    "answer": "Unlike YouTube, TechHub provides a structured learning experience with organized courses, hands-on coding assignments, automated code grading with instant feedback, progress tracking, quizzes, and official completion certificates. It is designed specifically for learning, not just watching."
+    "topic": "How old do I have to be to use TechHub?",
+    "answer": "TechHub is open to learners of all ages who are interested in technology and programming. The content is suitable for high school students, university students, and adult learners."
   },
   {
-    "topic": "How is TechHub different from Udemy?",
-    "answer": "TechHub is specifically designed for computer science and technology education. It features a built-in code editor, automated code grading, structured learning tracks, and focuses on practical hands-on experience with real-world projects."
+    "topic": "What does enrollment mean?",
+    "answer": "Enrollment means joining a course on TechHub. When you enroll, the course is added to your Dashboard and you gain access to all its video lessons, assignments, and the final certificate."
   },
   {
-    "topic": "Is TechHub better than free online tutorials?",
-    "answer": "TechHub offers a structured, organized learning experience that goes beyond scattered tutorials. With curated courses, hands-on assignments, automated grading, progress tracking, and certificates, TechHub provides a complete learning ecosystem."
+    "topic": "What's the difference between signing up and enrolling?",
+    "answer": "Signing up means creating a TechHub account. Enrolling means joining a specific course after you have an account. First sign up, then enroll in any free course you want to take."
   },
   {
-    "topic": "Do you have any promotions or discounts?",
-    "answer": "For information about current promotions, discounts, or special offers on TechHub courses, check the homepage or announcements section. You can also contact TechHub Support for details about any available deals."
-  },
-  {
-    "topic": "Is there a student discount?",
-    "answer": "For information about student discounts or special pricing, please contact TechHub Support or check the platform announcements. TechHub also offers free courses that anyone can access without payment."
+    "topic": "How do I report a problem?",
+    "answer": "To report any problem with the platform, content, or your account, use the Contact Us page from the sidebar. Choose the appropriate category, describe the issue, and submit. The team will respond via your registered email."
   },
   {
     "topic": "What if I have a question not covered here?",
-    "answer": "If you have a question I cannot answer, please contact TechHub Support directly. The support team can help with specific account issues, technical problems, and any questions beyond my current knowledge."
-  },
-  {
-    "topic": "I have a problem you can't solve",
-    "answer": "I am sorry I could not help with that specific issue. For problems beyond my capabilities, please contact TechHub Support directly. They have full access to platform tools and can assist you with any account or technical issues."
-  },
-  {
-    "topic": "What are the terms of service?",
-    "answer": "TechHub's terms of service outline the rules and guidelines for using the platform. You can find the full terms of service document in the platform footer or through the settings page."
+    "answer": "If I can't answer your question, please use the Contact Us page from the sidebar to send a message to the support team. They'll respond directly to your registered email."
   },
   {
     "topic": "I love TechHub",
-    "answer": "That is wonderful to hear! Thank you for your kind words. The TechHub team works hard to provide the best learning experience. Keep learning and growing, and do not hesitate to share your feedback!"
+    "answer": "That's wonderful to hear! Thank you for your kind words. The TechHub team works hard to provide quality free education. Keep learning and growing!"
   },
   {
     "topic": "TechHub is great",
-    "answer": "Thank you so much! We are glad you are enjoying TechHub. Your positive feedback motivates the team to keep improving. Keep up your great learning journey!"
+    "answer": "Thank you so much! We're glad you're enjoying TechHub. Your positive feedback motivates the team to keep improving the platform."
   },
   {
     "topic": "I have a complaint",
-    "answer": "I am sorry to hear that you are not satisfied. Please share your concern with me and I will try to help. For formal complaints or issues that require direct attention, please contact TechHub Support for a resolution."
+    "answer": "I'm sorry to hear that. Please share your concern through the Contact Us page from the sidebar with all the details, and the team will look into it and get back to you via email."
   },
   {
     "topic": "The platform needs improvement",
-    "answer": "Thank you for your feedback. TechHub is continuously working to improve the platform. Please share your specific suggestions with TechHub Support so the team can consider your input for future updates."
+    "answer": "Thank you for your feedback! TechHub is continuously improving. Please share your specific suggestions through the Contact Us page so the team can consider them for future updates."
+  },
+  {
+    "topic": "How do I sign up as an instructor?",
+    "answer": "To sign up as an instructor, click 'Sign Up' on the homepage and select 'Instructor' as your account type. Fill in your full name, email, password, job title (e.g., Backend Engineer), expertise (skills separated by commas), and optionally your LinkedIn profile, then click 'Create Account'."
+  },
+  {
+    "topic": "What's the difference between a student and instructor account?",
+    "answer": "When signing up, you can choose between two account types: 'Student' for those who want to learn and take courses, or 'Instructor' for those who want to create and teach courses. Instructors have additional fields during signup like Job Title, Expertise, and LinkedIn."
+  },
+  {
+    "topic": "Can I become an instructor on TechHub?",
+    "answer": "Yes! Anyone can become an instructor on TechHub. Just sign up and select 'Instructor' as your role. You'll need to provide your job title, areas of expertise, and optionally your LinkedIn. Once registered, you can start creating courses."
+  },
+  {
+    "topic": "What is the Job Title field during instructor signup?",
+    "answer": "The Job Title field is where instructors specify their professional role (for example: Backend Engineer, Frontend Developer, Data Scientist). It helps students learn about the instructor's professional background."
+  },
+  {
+    "topic": "What is the Expertise field?",
+    "answer": "The Expertise field is where instructors list their skills and areas of specialization, separated by commas (for example: Node.js, PostgreSQL, React). This helps students understand what topics the instructor can teach."
+  },
+  {
+    "topic": "Is LinkedIn required for instructor signup?",
+    "answer": "No, the LinkedIn field is optional during instructor signup. You can add your LinkedIn profile if you want to share it with students, but it's not required to create your instructor account."
+  },
+  {
+    "topic": "How do I create a new course as an instructor?",
+    "answer": "To create a new course, go to 'My Courses' from the sidebar and click '+ Create Course' (or use the Quick Action on your Dashboard). Fill in all the course details and content, and your course will be saved as a Draft."
+  },
+  {
+    "topic": "How do I publish my course?",
+    "answer": "Once you've created your course as a Draft and finished adding all the content, you can change its status to 'Published' from your course management. Published courses become visible to students who can then enroll."
+  },
+  {
+    "topic": "What is a Draft course?",
+    "answer": "A Draft course is a course you've started creating but haven't published yet. Drafts are private — only you can see them. Once you're ready, you can publish the course to make it available for students to enroll in."
+  },
+  {
+    "topic": "Where can I see my draft courses?",
+    "answer": "Open 'My Courses' from the sidebar. At the top, you'll find tabs: 'All Courses', 'Published', and 'Drafts'. Click 'Drafts' to view all the courses you haven't published yet."
+  },
+  {
+    "topic": "Where can I see my published courses?",
+    "answer": "Go to 'My Courses' from the sidebar and click the 'Published' tab. You'll see all your courses that are currently live and available for students to enroll in."
+  },
+  {
+    "topic": "How do I view all my courses?",
+    "answer": "Open 'My Courses' from the sidebar. The 'All Courses' tab shows all your courses — both Drafts and Published — in one place."
+  },
+  {
+    "topic": "Can I save a course before publishing it?",
+    "answer": "Yes! When you create a course, it's automatically saved as a Draft. You can work on it gradually, add all the content, and only publish it when you're ready."
+  },
+  {
+    "topic": "What's on my instructor dashboard?",
+    "answer": "Your Instructor Dashboard shows: Total Courses you've created, Total Students enrolled across your courses, Quick Actions (Create New Course, View Messages), and a Top Courses section with your most popular courses."
+  },
+  {
+    "topic": "Where do I see my total students?",
+    "answer": "Your Instructor Dashboard displays your Total Students count at the top, showing how many students are enrolled across all your courses combined."
+  },
+  {
+    "topic": "How can I quickly create a course from the dashboard?",
+    "answer": "On your Instructor Dashboard, click the '+ Create New Course' button under Quick Actions to start creating a new course right away."
+  },
+  {
+    "topic": "What are 'Top Courses' on the dashboard?",
+    "answer": "The 'Top Courses' section on your Instructor Dashboard shows your most popular or top-performing courses. Click 'View All' to see the full list."
+  },
+  {
+    "topic": "What information is on the instructor profile?",
+    "answer": "Your Instructor Profile shows your profile picture, name, bio, email, joined date, LinkedIn link, Teaching Statistics (Total Courses and Total Students), Expertise, and Recent Achievements."
+  },
+  {
+    "topic": "How do I edit my instructor profile?",
+    "answer": "Go to the Profile page from the sidebar and click 'Edit Profile'. You can update your profile picture, name, bio, and other information, then save the changes."
+  },
+  {
+    "topic": "How do I update my expertise?",
+    "answer": "On your Instructor Profile page, find the Expertise section and click 'Edit'. Update your list of skills (separated by commas) and save the changes."
+  },
+  {
+    "topic": "How do I add my LinkedIn to my profile?",
+    "answer": "Open your Profile page from the sidebar, click 'Edit Profile', and add your LinkedIn URL in the LinkedIn field. Save the changes to display the link on your profile."
+  },
+  {
+    "topic": "What are Teaching Statistics?",
+    "answer": "Teaching Statistics on your Instructor Profile show your Total Courses (how many courses you've created) and Total Students (how many students are enrolled across all your courses)."
+  },
+  {
+    "topic": "What are Recent Achievements?",
+    "answer": "The Recent Achievements section on your Instructor Profile displays milestones and accomplishments you've earned as a teacher on TechHub. If you don't have any yet, it will say 'No achievements yet'."
+  },
+  {
+    "topic": "How do I manage my course assignments as an instructor?",
+    "answer": "Go to the Assignments page from the sidebar to manage assignments for your courses. You can search for a specific course and view or edit its assignments from there."
+  },
+  {
+    "topic": "How do I set the passing score for an assignment?",
+    "answer": "When creating or editing an assignment, you can set the passing score that students need to achieve. This score is determined by you as the instructor and may vary per assignment."
+  },
+  {
+    "topic": "How do I set the number of attempts for an assignment?",
+    "answer": "As an instructor, you can specify the number of attempts students are allowed for each assignment when creating or editing it. This gives you full control over how many tries your students get."
+  },
+  {
+    "topic": "Can I create a final exam for my course?",
+    "answer": "Yes, every course can have a final exam at the end. Students must pass this exam to earn the course completion certificate. You can configure the exam details when creating your course content."
+  },
+  {
+    "topic": "What's in the instructor settings page?",
+    "answer": "The Settings page for instructors has two sections: 'Account Information' which displays your registered email (view only), and 'Account Security' where you can change your password by entering your current and new password."
+  },
+  {
+    "topic": "Can I change my email as an instructor?",
+    "answer": "No, the email address is displayed in your Account Information for reference but cannot be changed. The email you registered with is permanent for your account."
+  },
+  {
+    "topic": "How do I change my password as an instructor?",
+    "answer": "Go to Settings from the sidebar. In the Account Security section, enter your current password, type your new password, confirm it, and click 'Update Password' to save."
+  },
+  {
+    "topic": "How do I access the community as an instructor?",
+    "answer": "Click 'Community' in the sidebar to access the communities for your courses. You can interact with your students, answer their questions, and engage in discussions."
+  },
+  {
+    "topic": "How do I view messages as an instructor?",
+    "answer": "On your Instructor Dashboard, click the 'View Messages' button under Quick Actions to see messages related to your courses and students."
+  },
+  {
+    "topic": "How do I log out as an instructor?",
+    "answer": "You can log out in two ways: 1) Click the red 'Sign Out' button at the bottom of the left sidebar, or 2) Click your profile icon at the top-right corner and select 'Logout' from the dropdown menu."
+  },
+  {
+    "topic": "Where can I see my notifications as an instructor?",
+    "answer": "Click 'Notifications' in the sidebar or the bell icon at the top right to see updates about your courses, student activities, and platform announcements."
   }
 ]
