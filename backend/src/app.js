@@ -37,15 +37,7 @@ const app = express();
 app.use(express.json());
 
 // ===== CORS (must be before routes) =====
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Vite dev server
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-    // credentials: true
-  })
-);
-
+app.use(cors({ origin: false }));
 // ===== Routes =====
 
 // Auth
@@ -88,7 +80,7 @@ app.use("/api", videoNotesRoutes);
 app.use("/api/me", meRoutes);
 
 // Admin Route
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Contact Us
 app.use("/", contactRoutes);
