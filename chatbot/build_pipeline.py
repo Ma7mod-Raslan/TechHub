@@ -43,6 +43,7 @@ def load_and_split():
 
         meta_items.append({
             "id": str(i).zfill(3),
+            "topic": topic,
             "full_answer": full_ans
         })
 
@@ -79,7 +80,7 @@ def main(force=False):
     old_hash = open(HASH_PATH).read().strip() if os.path.exists(HASH_PATH) else None
 
     if current_hash == old_hash and os.path.exists(FAISS_INDEX_PATH) and not force:
-        print("✔ No data change — Skip rebuild")
+        print("No data change — Skip rebuild")
         return
 
     items, texts = load_and_split()
@@ -88,7 +89,7 @@ def main(force=False):
     with open(HASH_PATH, "w") as f:
         f.write(current_hash)
 
-    print("🎯 Pipeline rebuilt successfully!")
+    print("Pipeline rebuilt successfully!")
 
 
 if __name__ == "__main__":

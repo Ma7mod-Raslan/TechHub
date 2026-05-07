@@ -9,19 +9,19 @@ import chatbot_core as core
 app = Flask(__name__)
 CORS(app)
 
-# ==================== SESSION MANAGEMENT ====================
+# Sessions
 
 SESSIONS = {}                   # session_id → {"memory": ..., "last_active": ...}
-SESSION_LOCK = Lock()           # Thread-safe access
+SESSION_LOCK = Lock()           # Lock access
 SESSION_TTL = 30 * 60           # 30 min inactivity → expire
 
 
 def get_or_create_session(session_id=None):
-    """Get existing session or create new one. Auto-cleanup expired."""
+    """Get or create session."""
     now = time.time()
 
     with SESSION_LOCK:
-        # Lazy cleanup of expired sessions
+        # Remove expired sessions
         expired = [sid for sid, s in SESSIONS.items()
                    if now - s["last_active"] > SESSION_TTL]
         for sid in expired:
@@ -40,7 +40,7 @@ def get_or_create_session(session_id=None):
         return session_id, SESSIONS[session_id]["memory"]
 
 
-# ========================== ROUTES ==========================
+# Routes
 
 @app.route("/", methods=["GET"])
 def home():
@@ -73,13 +73,13 @@ def chat():
         return jsonify(result), 200
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
 @app.route("/reset", methods=["POST"])
 def reset():
-    """Clear conversation history for a session."""
+    """Reset session memory."""
     try:
         data = request.get_json() or {}
         session_id = data.get("session_id")
@@ -94,7 +94,7 @@ def reset():
         return jsonify({"error": "Session not found"}), 404
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f" Error: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -107,5 +107,5 @@ def health():
 
 
 if __name__ == "__main__":
-    print("🚀 TechHub Chatbot API on http://localhost:5001")
+    print(" TechHub Chatbot API on http://localhost:5001")
     app.run(host="0.0.0.0", port=5001, debug=True)

@@ -23,14 +23,12 @@ splitter = RecursiveCharacterTextSplitter(
 )
 
 
-# ===== تحويل ثواني لـ MM:SS =====
 def seconds_to_timestamp(seconds):
     mins = int(seconds) // 60
     secs = int(seconds) % 60
     return f"{mins:02d}:{secs:02d}"
 
 
-# ===== بناء رابط يوتيوب بالوقت =====
 def build_youtube_url_with_time(video_url, start_seconds):
     base_url = video_url.split("&t=")[0]
     if start_seconds > 0:
@@ -38,7 +36,6 @@ def build_youtube_url_with_time(video_url, start_seconds):
     return base_url
 
 
-# ===== قراءة الداتا =====
 with open(TRANSCRIPTS_PATH, "r", encoding="utf-8") as f:
     transcripts = json.load(f)
 
@@ -52,7 +49,7 @@ for video in transcripts:
     video_url = video["video_url"]
     youtube_id = video.get("youtube_id", "")
     description = video.get("description", "")
-    course_name = video.get("course_name", "")          # ← جديد
+    course_name = video.get("course_name", "")          
 
     for segment in video["segments"]:
         segment_text = segment["text"]
@@ -68,9 +65,10 @@ for video in transcripts:
             chunks = [segment_text]
 
         for chunk in chunks:
-            texts.append(chunk)
+            embedding_text = f"Course: {course_name}. Video: {video_title}. Chapter: {chapter_title}. Content: {chunk}"
+            texts.append(embedding_text)
             meta_items.append({
-                "course_name": course_name,              # ← جديد
+                "course_name": course_name,             
                 "video_title": video_title,
                 "video_url": video_url,
                 "video_url_with_time": build_youtube_url_with_time(video_url, start_seconds),
@@ -88,17 +86,16 @@ print(f"[INFO] Total videos: {len(transcripts)}")
 print(f"[INFO] Total segments: {sum(len(v['segments']) for v in transcripts)}")
 print(f"[INFO] Total chunks: {len(texts)}")
 
-# ===== عرض ملخص لكل فيديو =====
-print("\n📋 Details:")
+print("\n Details:")
 for video in transcripts:
     seg_count = len(video["segments"])
     chunk_count = sum(
         1 for m in meta_items if m["video_title"] == video["video_title"]
     )
-    course = video.get("course_name", "Unknown")         # ← جديد
-    print(f"   📹 [{course}] {video['video_title']}: {seg_count} segments → {chunk_count} chunks")
+    course = video.get("course_name", "Unknown")       
+    print(f"    [{course}] {video['video_title']}: {seg_count} segments → {chunk_count} chunks")
 
-# ===== Embedding =====
+# Embeddings
 print("\n[INFO] Generating embeddings...")
 embeddings = model.encode(
     texts,
@@ -110,7 +107,7 @@ embeddings = model.encode(
 norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
 embeddings = embeddings / np.clip(norms, a_min=1e-10, a_max=None)
 
-# ===== FAISS Index =====
+# FAISS
 dim = embeddings.shape[1]
 index = faiss.IndexFlatIP(dim)
 index.add(embeddings)
@@ -121,6 +118,6 @@ with open(VIDEO_META_PATH, "w", encoding="utf-8") as f:
     json.dump(meta_items, f, ensure_ascii=False, indent=2)
 
 print(f"\n[DONE] Video pipeline built!")
-print(f"   📦 {len(meta_items)} chunks indexed")
-print(f"   💾 FAISS: {VIDEO_FAISS_PATH}")
-print(f"   📁 Meta: {VIDEO_META_PATH}")
+print(f"   {len(meta_items)} chunks indexed")
+print(f"   FAISS: {VIDEO_FAISS_PATH}")
+print(f"    Meta: {VIDEO_META_PATH}")

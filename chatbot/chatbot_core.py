@@ -2,7 +2,6 @@ import os
 import re
 import json
 import time
-
 import faiss
 import numpy as np
 from groq import Groq
@@ -12,11 +11,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    raise RuntimeError("GROQ_API_KEY is missing. Please add it to your .env file.")
 os.environ["HF_HUB_OFFLINE"] = "1"
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
-# ======================== CONFIG ========================
-
+# Config
 DATA_DIR = "data"
 PATHS = {
     "qa_meta":   os.path.join(DATA_DIR, "meta_items.json"),
@@ -27,38 +27,51 @@ PATHS = {
 
 EMBED_MODEL_NAME    = "multi-qa-mpnet-base-dot-v1"
 RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-ANSWER_MODEL        = "llama-3.3-70b-versatile"   # Strong model for answers
-CONTEXT_MODEL       = "llama-3.1-8b-instant"      # Fast model for contextualization
+ANSWER_MODEL        = "llama-3.3-70b-versatile"   
+CONTEXT_MODEL       = "llama-3.1-8b-instant"      
 TOP_K = 5
 
 THRESHOLDS = {
-    "qa_sim": 0.50, "vid_sim": 0.45,
-    "qa_rerank": -5.0, "vid_rerank": -5.0,
+    # Minimum cosine similarity for QA answers
+    "qa_sim": 0.50,
+
+    # Minimum cosine similarity for video chunks
+    "vid_sim": 0.45,
+
+    # CrossEncoder scores can be negative, so this threshold is intentionally low
+    "qa_rerank": -5.0,
+    "vid_rerank": -5.0,
+
+    # Difference required to confidently choose QA or video
     "margin": 0.08,
+
+    # Domain detection threshold
     "scope": 0.35,
 }
 
 REJECTION = {
-    "no_data":      "I'm sorry, I don't have information about that topic in my current database. Please try different keywords or contact TechHub Support.",
+    "no_data": "I'm sorry, I couldn't find information about that topic in my current TechHub database. You can ask about courses, accounts, assignments, certificates, instructor features, or HTML lessons.",
     "bad_question": "I couldn't understand your question. Could you please rephrase it? You can ask about courses, assignments, account settings, or topics like HTML.",
     "no_match":     "I found some information but it doesn't match your question. Could you try rephrasing? I can help with TechHub courses, assignments, account management, or certificates.",
     "out_of_scope": "I can only help with TechHub-related topics like courses, HTML lessons, assignments, account settings, and certificates.",
 }
 
-# Domain anchors for scope detection (embedding-based, no LLM)
+# Scope anchors
 SCOPE_ANCHORS = [
     "TechHub online learning platform courses and lessons",
     "HTML web development tags elements attributes",
-    "user account signup login profile settings",
+    "user account signup login profile settings password reset",
     "assignments certificates course progress",
+    "TechHub support contact us help center technical issues customer service",
+    "instructor dashboard create publish courses students assignments",
 ]
 
 PROTECTED_WORDS = {
     "techhub", "signup", "signin", "html", "css", "sql", "api", "json",
     "xml", "dom", "div", "br", "hr", "src", "href", "alt", "h1", "h2",
-    "h3", "h4", "h5", "h6", "rgb", "hex", "ai",
+    "h3", "h4", "h5", "h6", "rgb", "hex", "ai", "javascript",
+    "python", "cpp", "c++", "c"
 }
-
 GREETING_PATTERNS = {
     "hi", "hello", "hey", "good morning", "good evening", "good afternoon",
     "good night", "greetings", "howdy", "yo", "hola",
@@ -69,28 +82,41 @@ GREETING_PATTERNS = {
     "help", "help me", "ok", "okay", "yes", "no", "sure", "got it",
 }
 
-# ==================== INITIALIZATION ====================
-
-print("📦 Loading...")
+# Init
+print("Loading...")
 spell = SpellChecker()
-QA_ITEMS    = json.load(open(PATHS["qa_meta"], encoding="utf-8"))
-VIDEO_ITEMS = json.load(open(PATHS["vid_meta"], encoding="utf-8"))
-qa_index    = faiss.read_index(PATHS["qa_faiss"])
+for name, path in PATHS.items():
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"Required file missing: {name} -> {path}. Please run the data pipelines first."
+        )
+
+with open(PATHS["qa_meta"], encoding="utf-8") as f:
+    QA_ITEMS = json.load(f)
+
+with open(PATHS["vid_meta"], encoding="utf-8") as f:
+    VIDEO_ITEMS = json.load(f)
+
+qa_index = faiss.read_index(PATHS["qa_faiss"])
 video_index = faiss.read_index(PATHS["vid_faiss"])
-embed_model = SentenceTransformer(EMBED_MODEL_NAME)
-reranker    = CrossEncoder(RERANKER_MODEL_NAME)
+try:
+    embed_model = SentenceTransformer(EMBED_MODEL_NAME)
+    reranker = CrossEncoder(RERANKER_MODEL_NAME)
+except Exception as e:
+    raise RuntimeError(
+        "Failed to load local HuggingFace models. Make sure the embedding and reranker models are downloaded before running offline."
+    ) from e
 groq_client = Groq(api_key=GROQ_API_KEY)
 
-# Pre-compute scope anchor embeddings (one-time cost)
+# Cache scope embeddings
 _anchor_embs = embed_model.encode(SCOPE_ANCHORS).astype("float32")
 faiss.normalize_L2(_anchor_embs)
 
-print(f"✅ QA: {len(QA_ITEMS)} | Video: {len(VIDEO_ITEMS)}")
+print(f"QA: {len(QA_ITEMS)} | Video: {len(VIDEO_ITEMS)}")
 
-# ======================== MEMORY ========================
-
+# Memory
 class ConversationMemory:
-    """Stores recent turns for context-aware retrieval. Per-session instance."""
+    """Store recent chat history."""
     def __init__(self, max_turns=3):
         self.turns = []
         self.max_turns = max_turns
@@ -101,7 +127,7 @@ class ConversationMemory:
             self.turns.pop(0)
 
     def as_text(self, max_answer_chars=150):
-        """Format history for LLM prompts."""
+        """Format chat history."""
         lines = []
         for t in self.turns:
             ans = t["answer"][:max_answer_chars]
@@ -114,8 +140,10 @@ class ConversationMemory:
     def clear(self):
         self.turns = []
 
+# Utils
+def normalize_greeting_key(text):
+    return re.sub(r"[^a-zA-Z\s]", "", text.strip().lower()).strip()
 
-# ======================== UTILS =========================
 
 def preprocess(text):
     text = re.sub(r"[^a-zA-Z0-9@+#\s]", " ", text)
@@ -123,6 +151,12 @@ def preprocess(text):
 
 
 def is_gibberish(text):
+    raw = text.strip().lower()
+    raw_clean = re.sub(r"[^a-zA-Z0-9+#]+", "", raw)
+
+    if raw in PROTECTED_WORDS or raw_clean in PROTECTED_WORDS:
+        return False
+
     cleaned = re.sub(r"[^a-zA-Z\s]", "", text).strip()
     if len(cleaned) < 2:
         return True
@@ -141,10 +175,16 @@ def is_greeting(text):
     if cleaned in GREETING_PATTERNS:
         return True
     return any(cleaned.startswith(g) for g in GREETING_PATTERNS if len(g) > 4)
+QA_TOPIC_LOOKUP = {
+    normalize_greeting_key(item.get("topic", "")): {
+        "topic": item.get("topic", ""),
+        "answer": item.get("full_answer", "")
+    }
+    for item in QA_ITEMS
+    if item.get("topic")
+}
 
-
-# ======================== LLM ===========================
-
+# LLM
 def call_llm(system, user, model=ANSWER_MODEL, max_tokens=150, temperature=0.3):
     try:
         resp = groq_client.chat.completions.create(
@@ -155,12 +195,11 @@ def call_llm(system, user, model=ANSWER_MODEL, max_tokens=150, temperature=0.3):
         )
         return resp.choices[0].message.content.strip()
     except Exception as e:
-        print(f"⚠️ LLM error: {e}")
+        print(f"LLM error: {e}")
         return None
 
 
-# ============== QUERY CONTEXTUALIZATION =================
-
+# Context
 CONTEXTUALIZER_SYSTEM = (
     "Given the chat history and the latest user question, formulate a standalone question "
     "that can be understood without the chat history. Resolve all pronouns (it, this, that, they) "
@@ -170,12 +209,8 @@ CONTEXTUALIZER_SYSTEM = (
 
 
 def contextualize(query, memory):
-    """
-    Rewrite query as standalone using chat history.
-    Returns (standalone_query, was_rewritten).
-    Skips LLM call when not needed.
-    """
-    # Skip conditions (no LLM call)
+    """Rewrite question using chat history."""
+   # Skip unnecessary rewrite
     if memory.is_empty():
         return query, False
     if len(query.split()) >= 10:  # Long queries are usually self-contained
@@ -189,24 +224,22 @@ def contextualize(query, memory):
     if not result:
         return query, False
 
-    # Strip quotes/artifacts
+    # Clean output
     standalone = re.sub(r'^["\'\s]+|["\'\s]+$', '', result)
     rewritten = standalone.lower() != query.lower()
     return standalone, rewritten
 
 
-# =================== SCOPE DETECTION ====================
-
+# Scope check
 def in_scope(query):
-    """Check if query is about TechHub domain (embedding similarity)."""
+    """Check if query matches TechHub topics."""
     q_emb = embed_model.encode([query]).astype("float32")
     faiss.normalize_L2(q_emb)
     max_sim = float((q_emb @ _anchor_embs.T).max())
     return max_sim >= THRESHOLDS["scope"], max_sim
 
 
-# ======================= SEARCH =========================
-
+# Search
 def encode_query(text):
     emb = embed_model.encode([text]).astype("float32")
     faiss.normalize_L2(emb)
@@ -215,9 +248,13 @@ def encode_query(text):
 
 def search_qa(q_emb):
     scores, idxs = qa_index.search(q_emb, TOP_K)
-    return [{"source": "qa", "answer": QA_ITEMS[i]["full_answer"],
-             "score": float(s), "metadata": QA_ITEMS[i]}
-            for s, i in zip(scores[0], idxs[0]) if i >= 0]
+    return [{
+        "source": "qa",
+        "topic": QA_ITEMS[i].get("topic", ""),
+        "answer": QA_ITEMS[i]["full_answer"],
+        "score": float(s),
+        "metadata": QA_ITEMS[i]
+    } for s, i in zip(scores[0], idxs[0]) if i >= 0]
 
 
 def search_video(q_emb):
@@ -245,7 +282,7 @@ def select_best(qa_res, vid_res):
     vid_ok = vid_s >= THRESHOLDS["vid_sim"]
     margin = THRESHOLDS["margin"]
 
-    print(f"📊 QA: {qa_s:.3f} {'✅' if qa_ok else '❌'} | Video: {vid_s:.3f} {'✅' if vid_ok else '❌'}")
+    print(f"QA: {qa_s:.3f} {'OK' if qa_ok else 'FAIL'} | Video: {vid_s:.3f} {'OK' if vid_ok else 'FAIL'}")
 
     if not qa_ok and not vid_ok:
         return None, None
@@ -267,7 +304,7 @@ def rerank(query, results, source):
 
     th = THRESHOLDS[f"{'qa' if source == 'qa' else 'vid'}_rerank"]
     passed = results[0]["rerank_score"] >= th
-    print(f"🔀 Rerank: {results[0]['rerank_score']:.3f} {'✅' if passed else '❌'}")
+    print(f"Rerank: {results[0]['rerank_score']:.3f} {'OK' if passed else 'FAIL'}")    
     return results, passed
 
 
@@ -298,7 +335,7 @@ ANSWER_SYSTEM_QA = (
 ANSWER_SYSTEM_VIDEO = (
     "You are TechHub Assistant. Answer using ONLY the Video Content below. "
     "Never add facts that aren't in the content. Keep responses under 4 sentences. "
-    "End with: '📺 To learn more, go to {ref}'"
+    "End with: ' To learn more, go to {ref}'"
 )
 
 
@@ -320,7 +357,7 @@ def generate_answer(original_query, standalone_query, best, source):
     answer = call_llm(ANSWER_SYSTEM_VIDEO.format(ref=ref), user_msg, max_tokens=160)
 
     if answer and best["video_title"] not in answer:
-        answer += f"\n\n📺 To learn more, go to {ref}"
+        answer += f"\n\nTo learn more, go to {ref}"
     return answer
 
 
@@ -338,60 +375,90 @@ def respond(text, memory):
         dict with answer, source, time, and metadata
     """
     t0 = time.time()
-    print(f"\n{'='*60}\n📥 {text}")
+    print(f"\n{'='*60}\n {text}")
 
-    # Stage 1: Input validation
+    # Stage 1: Empty input validation
     if not text.strip():
         return _result("", "rejected", t0, reason="empty")
-    if is_gibberish(text):
-        return _result(REJECTION["bad_question"], "rejected", t0, reason="gibberish")
 
-    # Stage 2: Greeting fast path (no retrieval, no LLM)
+    # Stage 2: Greeting fast path
     if is_greeting(text):
+        cleaned = normalize_greeting_key(text)
+
+        if cleaned in QA_TOPIC_LOOKUP:
+            item = QA_TOPIC_LOOKUP[cleaned]
+            return _result(
+                item["answer"],
+                "qa",
+                t0,
+                path="GREETING",
+                matched_topic=item["topic"]
+            )
+
         q_emb = encode_query(preprocess(text))
         qa_res = search_qa(q_emb)
         if qa_res and qa_res[0]["score"] >= 0.40:
             qa_res, _ = rerank(preprocess(text), qa_res, "qa")
-            return _result(qa_res[0]["answer"], "qa", t0, path="GREETING",
-                           score=qa_res[0]["score"])
+            return _result(
+                qa_res[0]["answer"],
+                "qa",
+                t0,
+                path="GREETING",
+                score=qa_res[0]["score"],
+                matched_topic=qa_res[0].get("topic")
+            )
 
-    # Stage 3: Contextualization (LLM rewrite using history)
+    # Stage 3: Gibberish detection
+    if is_gibberish(text):
+        return _result(REJECTION["bad_question"], "rejected", t0, reason="gibberish")
+
+    # Stage 4: Contextualization (LLM rewrite using history)
     standalone, rewritten = contextualize(text, memory)
     if rewritten:
-        print(f"🔄 Standalone: {standalone}")
+        print(f"Standalone: {standalone}")
 
-    # Stage 4: Scope check (embedding-based, no LLM)
+    # Stage 5: Scope check (embedding-based, no LLM)
     in_domain, scope_sim = in_scope(standalone)
-    print(f"🎯 Scope: {scope_sim:.3f} {'✅' if in_domain else '❌'}")
+    print(f"Scope: {scope_sim:.3f} {'OK' if in_domain else 'FAIL'}")
     if not in_domain:
         return _result(REJECTION["out_of_scope"], "rejected", t0, reason="out_of_scope")
 
-    # Stage 5: Retrieval
+    # Stage 6: Retrieval
     q_emb = encode_query(preprocess(standalone))
     qa_res, vid_res = search_qa(q_emb), search_video(q_emb)
     pool, source = select_best(qa_res, vid_res)
     if pool is None:
         return _result(REJECTION["no_data"], "rejected", t0, reason="below_threshold")
 
-    # Stage 6: Rerank
+    # Stage 7: Rerank
     pool, passed = rerank(standalone, pool, source)
     if not passed:
         return _result(REJECTION["no_match"], "rejected", t0, reason="rerank_failed")
     best = pool[0]
+    if source == "qa":
+        print(f"Matched QA Topic: {best.get('topic', 'N/A')}")
+    else:
+        print(f"Matched Video: {best.get('video_title', 'N/A')} | Chapter: {best.get('chapter_title', 'N/A')} | Time: {best.get('timestamp', 'N/A')}")
 
-    # Stage 7: Generate answer
+    # Stage 8: Generate answer
     answer = generate_answer(text, standalone, best, source)
     if not answer:
         return _result(REJECTION["no_data"], "rejected", t0, reason="llm_failed")
 
-    # Stage 8: Save to memory
+    # Stage 9: Save to memory
     memory.add(text, answer)
 
-    print(f"⏱ {time.time()-t0:.2f}s | 🤖 {answer[:100]}...")
-    return _result(answer, source, t0, path="FOLLOW_UP" if rewritten else "FULL",
-                   score=best["score"], rerank=best.get("rerank_score"),
-                   metadata=best if source == "video" else None)
-
+    print(f" {time.time()-t0:.2f}s |  {answer[:100]}...")
+    return _result(
+        answer,
+        source,
+        t0,
+        path="FOLLOW_UP" if rewritten else "FULL",
+        score=best["score"],
+        rerank=best.get("rerank_score"),
+        matched_topic=best.get("topic") if source == "qa" else None,
+        metadata=best if source == "video" else None
+    )
 
 def _result(answer, source, t0, **extras):
     out = {"answer": answer, "source": source, "time": round(time.time() - t0, 3)}
@@ -406,7 +473,7 @@ def _result(answer, source, t0, **extras):
 # ========================= CLI ==========================
 
 if __name__ == "__main__":
-    print("\n🤖 TechHub Chatbot | 'exit' to quit | 'clear' to reset memory\n")
+    print("\n TechHub Chatbot | 'exit' to quit | 'clear' to reset memory\n")
     cli_memory = ConversationMemory(max_turns=3)
     while True:
         inp = input("You: ").strip()
@@ -416,9 +483,9 @@ if __name__ == "__main__":
             break
         if inp.lower() in ("clear", "reset"):
             cli_memory.clear()
-            print("🧹 Memory cleared.\n")
+            print("Memory cleared.\n")
             continue
 
         r = respond(inp, cli_memory)
         tag = r.get("reason") or r.get("path", "")
-        print(f"\n🤖 [{r['source'].upper()} · {tag} · {r['time']}s]\n{r['answer']}\n")
+        print(f"\n[{r['source'].upper()} · {tag} · {r['time']}s]\n{r['answer']}\n")

@@ -6,7 +6,7 @@
         "video_url": "https://www.youtube.com/watch?v=it1rTvBcfRg&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=1",
         "youtube_id": "it1rTvBcfRg",
         "description": "This video is a short introduction to HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 4,
         "segments": [
             {
@@ -51,7 +51,7 @@
         "video_url": "https://www.youtube.com/watch?v=bBP0ckEln4Y&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=2",
         "youtube_id": "bBP0ckEln4Y",
         "description": "This video is an overview of HTML Editors, and how to edit HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 5,
         "segments": [
             {
@@ -104,7 +104,7 @@
         "video_url": "https://www.youtube.com/watch?v=vIoO52MdZFE&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=3",
         "youtube_id": "vIoO52MdZFE",
         "description": "This video explains what HTML Elements are.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 5,
         "segments": [
             {
@@ -157,7 +157,7 @@
         "video_url": "https://www.youtube.com/watch?v=yMX901oVtn8&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=4",
         "youtube_id": "yMX901oVtn8",
         "description": "This video explains what HTML attributes are, and how they work.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 6,
         "segments": [
             {
@@ -218,7 +218,7 @@
         "video_url": "https://www.youtube.com/watch?v=9gHPpwq6IaY&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=5",
         "youtube_id": "9gHPpwq6IaY",
         "description": "This video is an explanation of Headings in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 5,
         "segments": [
             {
@@ -271,7 +271,7 @@
         "video_url": "https://www.youtube.com/watch?v=qis4kAOThLw&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=6",
         "youtube_id": "qis4kAOThLw",
         "description": "This video is an explanation of Paragraphs in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 3,
         "segments": [
             {
@@ -308,7 +308,7 @@
         "video_url": "https://www.youtube.com/watch?v=twdNPJfbj_8&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=7",
         "youtube_id": "twdNPJfbj_8",
         "description": "This video is a short introduction to styles in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 6,
         "segments": [
             {
@@ -369,7 +369,7 @@
         "video_url": "https://www.youtube.com/watch?v=7FqQLqNIEY8&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=8",
         "youtube_id": "7FqQLqNIEY8",
         "description": "This video shows how to format text in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 7,
         "segments": [
             {
@@ -438,7 +438,7 @@
         "video_url": "https://www.youtube.com/watch?v=229HYq40vaA&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=9",
         "youtube_id": "229HYq40vaA",
         "description": "This video is a short introduction to comments, and how they work in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 3,
         "segments": [
             {
@@ -475,7 +475,7 @@
         "video_url": "https://www.youtube.com/watch?v=zCrolmdqmF8&list=PLP9IO4UYNF0VdAajP_5pYG-jG2JRrG72s&index=10",
         "youtube_id": "zCrolmdqmF8",
         "description": "This video is a short introduction to Colors in HTML.",
-        "segmentation_method": "📑 YouTube Chapters",
+        "segmentation_method": " YouTube Chapters",
         "chapters_count": 6,
         "segments": [
             {
