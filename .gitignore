@@ -1,8 +1,8 @@
 .env
 __pycache__/
-#data/
-#*.npy
-#*.index
+data/
+*.npy
+*.index
 node_modules/
 chat.html
 evaluate_bot.py
