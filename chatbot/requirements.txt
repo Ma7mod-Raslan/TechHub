@@ -5,7 +5,9 @@
 # Embeddings & Reranker
 sentence-transformers>=2.2.2
 transformers>=4.30.0
-torch>=2.0.0
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
+torchaudio==2.2.2+cpu
 
 # Vector Search
 faiss-cpu>=1.7.4
@@ -27,3 +29,5 @@ flask-cors>=3.0.10
 # This from Mahmoud Raslan
 groq
 python-dotenv
+
+--extra-index-url https://download.pytorch.org/whl/cpu
