@@ -1,189 +1,99 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  MessageSquare,
-  Bell,
-  User,
-  Settings,
-  Code2,
-  FileText,
-  LogOut,
-  Check,
-  Trash2,
-  AlertCircle,
-  CheckCircle,
-  Info,
-  UserPlus,
-  Menu,
-} from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import HeaderIcons from '../../components/HeaderIcons';
-import AIAssistant from '../../components/AIAssistant';
-import Sidebar from '../../components/Sidebar';
-import { useNavigate } from 'react-router-dom';
-import { notifyUpdate } from '../../utils/notifications';
+// ============================================================
+// Notifications.tsx — Admin Notifications (Clean Version)
+// Applies: Single Responsibility, DRY
+// ============================================================
 
-interface NotificationsProps {
+import { useEffect, useState } from "react";
+import { Bell, Check, Trash2, BookOpen, UserPlus, AlertCircle, Menu } from "lucide-react";
+import { motion } from "motion/react";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import HeaderIcons from "../../components/HeaderIcons";
+import Sidebar from "../../components/Sidebar";
+import {
+  fetchNotifications as apiFetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification as apiDeleteNotification,
+} from "../admin/config/adminApi";
+import { getAdminMenuItems } from "../admin/config/adminMenu";
+import { notifyUpdate } from "../../utils/notifications";
+
+interface AdminNotificationsProps {
   logout: () => void;
   userRole: string;
 }
 
+// ─── Pure helper ─────────────────────────────────────────────
+
 const getIcon = (type: string) => {
-  switch (type) {
-    case "contact": return AlertCircle;
-    case "user": return UserPlus;
-    case "course": return BookOpen;
-    default: return Bell;
-  }
+  const iconMap: Record<string, React.ElementType> = {
+    contact: AlertCircle,
+    user: UserPlus,
+    course: BookOpen,
+  };
+  return iconMap[type] ?? Bell;
 };
 
-export default function AdminNotifications({ logout }: NotificationsProps) {
-  const navigate = useNavigate();
+// ─── Main Component ──────────────────────────────────────────
+
+export default function AdminNotifications({ logout }: AdminNotificationsProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', page: '/admin/dashboard' },
-    { icon: Users, label: 'Users', page: '/admin/users' },
-    { icon: BookOpen, label: 'Courses', page: '/admin/courses' },
-    { icon: MessageSquare, label: 'Communities', page: '/admin/communities' },
-    { icon: FileText, label: 'Reports', page: '/admin/reports' },
-    { icon: Bell, label: 'Notifications', page: '/admin/notifications', active: true },
-    { icon: User, label: 'Profile', page: '/admin/profile' },
-    { icon: Settings, label: 'Settings', page: '/admin/settings' },
-  ];
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-
-
-
-
-  const markAsRead = async (id: number) => {
-    try {
-      await fetch(`/api/admin/notifications/${id}/read`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
-      });
-
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === id
-            ? { ...n, read: true, is_read: true }
-            : n
-        )
-      );
-
-      notifyUpdate();
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      await fetch("/api/admin/notifications/read-all", {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
-      });
-
-      setNotifications(prev =>
-        prev.map(n => ({
-          ...n,
-          read: true,
-          is_read: true
-        }))
-      );
-
-      notifyUpdate();
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const deleteNotification = async (id: number) => {
-    try {
-      await fetch(`/api/notifications/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
-      });
-
-      setNotifications(prev => prev.filter(n => n.id !== id));
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    fetchNotifications();
+    apiFetchNotifications()
+      .then((data: any) =>
+        setNotifications(
+          data.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            time: new Date(n.created_at).toLocaleString(),
+            read: n.is_read,
+            type: n.type,
+            bg: "bg-blue-50",
+          }))
+        )
+      )
+      .catch(console.error);
   }, []);
 
-  const fetchNotifications = async () => {
+  const handleMarkRead = async (id: number) => {
     try {
-      const res = await fetch("/api/admin/notifications", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
-      });
+      await markNotificationRead(id);
+      setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+      notifyUpdate();
+    } catch (err) { console.error(err); }
+  };
 
-      const data = await res.json();
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      notifyUpdate();
+    } catch (err) { console.error(err); }
+  };
 
-      setNotifications(
-        data.map((n: any) => ({
-          id: n.id,
-          title: n.title,
-          message: n.message,
-          time: new Date(n.created_at).toLocaleString(),
-          read: n.is_read,
-          type: n.type,
-          icon: Bell, // ممكن تطوريها بعدين حسب النوع
-          color: "text-blue-600",
-          bg: "bg-blue-50"
-        }))
-      );
-
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDelete = async (id: number) => {
+    try {
+      await apiDeleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) { console.error(err); }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex">
-        {/* Sidebar */}
-        <Sidebar
-          menuItems={menuItems}
-          logout={logout}
-          userRole="admin"
-          activePage="admin-dashboard"
-          isMobileOpen={isMobileOpen}
-          setIsMobileOpen={setIsMobileOpen}
-        />
+        <Sidebar menuItems={getAdminMenuItems("/admin/notifications")} logout={logout} userRole="admin" activePage="admin-dashboard" isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
-        {/* Main Content */}
         <div className="flex-1 w-full">
           <header className="bg-white border-b px-6 py-4">
             <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setIsMobileOpen(true)}
-              >
+              <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsMobileOpen(true)}>
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
@@ -196,92 +106,47 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
 
           <main className="p-6">
             <div className="max-w-4xl mx-auto">
-              {/* Actions */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-gradient-to-r from-violet-600 to-cyan-500">
-                    {unreadCount} Unread
-                  </Badge>
-                  <Badge variant="outline">
-                    {notifications.length} Total
-                  </Badge>
+                  <Badge className="bg-gradient-to-r from-violet-600 to-cyan-500">{unreadCount} Unread</Badge>
+                  <Badge variant="outline">{notifications.length} Total</Badge>
                 </div>
                 {unreadCount > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={markAllAsRead}
-                    className="hover:bg-gradient-to-r hover:from-violet-600 hover:to-cyan-500 hover:text-white transition-all duration-300"
-                  >
-                    <Check className="h-4 w-4 mr-2" />
-                    Mark All as Read
+                  <Button variant="outline" size="sm" onClick={handleMarkAllRead}
+                    className="hover:bg-gradient-to-r hover:from-violet-600 hover:to-cyan-500 hover:text-white transition-all duration-300">
+                    <Check className="h-4 w-4 mr-2" /> Mark All as Read
                   </Button>
                 )}
               </div>
 
-              {/* Notifications List */}
               <div className="space-y-3">
                 {notifications.map((notification) => {
                   const Icon = getIcon(notification.type);
-
                   return (
-                    <motion.div
-                      key={notification.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -100 }}
-                    >
-                      <Card className={`${!notification.read ? 'border-l-4 border-l-violet-600' : ''}`}>
+                    <motion.div key={notification.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -100 }}>
+                      <Card className={!notification.read ? "border-l-4 border-l-violet-600" : ""}>
                         <CardContent className="p-4">
                           <div className="flex gap-4">
-
-                            {/* Icon */}
                             <div className={`${notification.bg} p-3 rounded-lg h-fit`}>
                               <Icon className="h-5 w-5 text-blue-600" />
                             </div>
-
-                            {/* Content */}
                             <div className="flex-1">
                               <div className="flex items-start justify-between mb-1">
-
-                                <h3 className={`${!notification.read ? 'font-semibold' : ''}`}>
-                                  {notification.title}
-                                </h3>
-
+                                <h3 className={!notification.read ? "font-semibold" : ""}>{notification.title}</h3>
                                 <div className="flex gap-2">
-
                                   {!notification.read && (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      onClick={() => markAsRead(notification.id)}
-                                      className="h-8 px-2 hover:bg-green-50 hover:text-green-600"
-                                    >
+                                    <Button size="sm" variant="ghost" onClick={() => handleMarkRead(notification.id)} className="h-8 px-2 hover:bg-green-50 hover:text-green-600">
                                       <Check className="h-4 w-4" />
                                     </Button>
                                   )}
-
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => deleteNotification(notification.id)}
-                                    className="h-8 px-2 hover:bg-red-50 hover:text-red-600"
-                                  >
+                                  <Button size="sm" variant="ghost" onClick={() => handleDelete(notification.id)} className="h-8 px-2 hover:bg-red-50 hover:text-red-600">
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
-
                                 </div>
                               </div>
-
-                              <p className="text-sm text-gray-600 mb-2">
-                                {notification.message}
-                              </p>
-
-                              <span className="text-xs text-gray-500">
-                                {notification.time}
-                              </span>
+                              <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
+                              <span className="text-xs text-gray-500">{notification.time}</span>
                             </div>
-
                           </div>
                         </CardContent>
                       </Card>
@@ -301,8 +166,6 @@ export default function AdminNotifications({ logout }: NotificationsProps) {
           </main>
         </div>
       </div>
-
-      <AIAssistant />
     </div>
   );
 }

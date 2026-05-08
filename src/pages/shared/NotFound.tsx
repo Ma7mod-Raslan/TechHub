@@ -1,8 +1,8 @@
 import { motion } from 'motion/react';
 import { Home, Search } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { Button } from '../../components/ui/button';
 import { Code2 } from 'lucide-react';
-import AIAssistant from '../components/AIAssistant';
+import AIAssistant from '../../components/AIAssistant';
 import { useNavigate } from 'react-router-dom';
 
 export default function NotFound() {

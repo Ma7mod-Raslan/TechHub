@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 
-import Home from './pages/Home';
+import Home from './pages/shared/Home';
 import Login from './pages/auth/Login';
 import SignUp from './pages/auth/SignUp';
 import Verification from './pages/auth/Verification';
@@ -52,12 +52,12 @@ import AdminNotifications from './pages/admin/Notifications';
 
 // Shared
 import CourseDetails from './pages/student/CourseDetails';
-import CourseDetailsGuest from './pages/CourseDetailsGuest';
-import AllCourses from './pages/AllCourses';
-import Community from './pages/Community';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import NotFound from './pages/NotFound';
+import CourseDetailsGuest from './pages/shared/CourseDetailsGuest';
+import AllCourses from './pages/shared/AllCourses';
+import Community from './pages/shared/Community';
+import About from './pages/shared/About';
+import Contact from './pages/shared/Contact';
+import NotFound from './pages/shared/NotFound';
 
 import { Toaster } from './components/ui/sonner';
 import PageWrapper from './types/animation';
