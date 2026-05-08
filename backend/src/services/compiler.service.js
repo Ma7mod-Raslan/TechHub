@@ -1,62 +1,79 @@
-import axios from "axios";
+import * as pty from "node-pty";
+import { getLanguageConfig } from "../utils/languageMap.js";
 
-const BASE_URL = "https://judge0-ce.p.rapidapi.com/submissions";
+// Kill session after 30s total life, or 10s of no output
+const MAX_SESSION_MS = 30_000;
+const MAX_IDLE_MS    = 10_000;
 
-const getHeaders = () => ({
-  "X-RapidAPI-Key": process.env.JUDGE0_API_KEY,
-  "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-  "Content-Type": "application/json",
-});
+/**
+ * Spawns a real PTY process for the given language and source code.
+ * Returns a session object the route layer can hold onto.
+ *
+ * @param {object}   opts
+ * @param {string}   opts.source_code
+ * @param {string}   opts.language       - e.g. "python", "javascript", "cpp"
+ * @param {Function} opts.onData         - called with every output chunk (string)
+ * @param {Function} opts.onExit         - called with { exitCode, signal }
+ * @returns {{ write: Function, kill: Function, pid: number }}
+ */
+export const spawnSession = ({ source_code, language, onData, onExit }) => {
+  const config = getLanguageConfig(language);
 
-const createSubmission = async ({ source_code, language_id, stdin }) => {
-  const { data } = await axios.post(
-    `${BASE_URL}?base64_encoded=false&wait=false`,
-    {
-      source_code,
-      language_id,
-      stdin,
-    },
-    { headers: getHeaders() }
-  );
-
-  return data.token;
-};
-
-const getSubmission = async (token) => {
-  const { data } = await axios.get(`${BASE_URL}/${token}`, {
-    headers: getHeaders(),
-  });
-
-  return data;
-};
-
-const waitForResult = async (token) => {
-  const delays = [500, 1000, 1000, 1500, 1500, 2000, 2000, 2000, 2000, 2000];
-  let attempts = 0;
-
-  while (attempts < delays.length) {
-    await new Promise((r) => setTimeout(r, delays[attempts]));
-
-    const result = await getSubmission(token);
-
-    // status.id > 2 means finished (3 = Accepted, 4+ = error states)
-    if (result.status.id > 2) return result;
-
-    attempts++;
+  if (!config) {
+    throw new Error(`Unsupported language: ${language}`);
   }
 
-  throw new Error("Execution timeout");
-};
+  // Pass source code as base64 to avoid shell-escaping issues.
+  // The language runner script decodes $SOURCE_B64, writes it to a temp
+  // file, then executes it — see /scripts/ in your Docker image.
+  const encoded = Buffer.from(source_code).toString("base64");
 
-export const executeCode = async ({ source_code, language_id, stdin }) => {
-  const token = await createSubmission({ source_code, language_id, stdin });
-  const result = await waitForResult(token);
+  const ptyProcess = pty.spawn(config.cmd, config.args, {
+    name: "xterm-color",
+    cols: 80,
+    rows: 24,
+    cwd: "/tmp",
+    env: {
+      ...process.env,
+      TERM: "xterm-color",
+      SOURCE_B64: encoded,
+    },
+  });
+
+  let idleTimer = null;
+
+  const resetIdle = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => ptyProcess.kill(), MAX_IDLE_MS);
+  };
+
+  // Hard cap — no session lives longer than MAX_SESSION_MS
+  const lifetimeTimer = setTimeout(() => ptyProcess.kill(), MAX_SESSION_MS);
+
+  ptyProcess.onData((data) => {
+    resetIdle();
+    onData(data);
+  });
+
+  ptyProcess.onExit(({ exitCode, signal }) => {
+    clearTimeout(idleTimer);
+    clearTimeout(lifetimeTimer);
+    onExit({ exitCode, signal });
+  });
+
+  resetIdle();
 
   return {
-    output: result.stdout || null,
-    error: result.stderr || result.compile_output || null,
-    status: result.status.description,
-    time: result.time,
-    memory: result.memory,
+    /** Send user keystrokes into the running process */
+    write: (data) => ptyProcess.write(data),
+
+    /** Forcefully terminate the session */
+    kill: () => {
+      clearTimeout(idleTimer);
+      clearTimeout(lifetimeTimer);
+      ptyProcess.kill();
+    },
+
+    pid: ptyProcess.pid,
   };
 };

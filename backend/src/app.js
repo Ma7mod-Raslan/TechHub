@@ -11,6 +11,9 @@ console.log(
   process.env.JWT_SECRET ? "[SET]" : "[NOT SET]"
 );
 
+// ===== CORS (must be before routes) =====
+app.use(cors({ origin: false }));
+
 // ===== Import routes =====
 import authRoutes from "./routes/auth.js";
 import coursesRoutes from "./routes/courses.js";
@@ -25,7 +28,7 @@ import communityRoutes  from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import adminRoutes  from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
-import compilerRoutes from "./routes/compiler.routes.js";
+import compilerRoutes, { attachCompilerWS } from "./routes/compiler.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import roadmapsRoutes from "./routes/roadmaps.js";
 
@@ -36,8 +39,7 @@ const app = express();
 // ===== Middlewares =====
 app.use(express.json());
 
-// ===== CORS (must be before routes) =====
-app.use(cors({ origin: false }));
+
 // ===== Routes =====
 
 // Auth
@@ -89,6 +91,7 @@ app.use("/", contactRoutes);
 app.use("/api", roadmapsRoutes);
 
 // ===== Start server =====
-app.listen(5000, () => {
+const server = app.listen(5000, () => {        // ← save return value
   console.log("Server running on http://localhost:5000");
 });
+attachCompilerWS(server);
