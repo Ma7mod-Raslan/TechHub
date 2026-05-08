@@ -1,18 +1,18 @@
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Card, CardContent } from '../components/ui/card';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Textarea } from '../../components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Card, CardContent } from '../../components/ui/card';
 import { toast } from 'sonner';
-import AIAssistant from '../components/AIAssistant';
+import AIAssistant from '../../components/AIAssistant';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { notifyUpdate } from '../utils/notifications';
+import { notifyUpdate } from '../../utils/notifications';
 
 
 export default function Contact() {

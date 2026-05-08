@@ -1,10 +1,10 @@
 import { motion } from 'motion/react';
 import { Target, Users, Award, TrendingUp, Heart, Zap } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { Card, CardContent } from '../components/ui/card';
-import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
-import AIAssistant from '../components/AIAssistant';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import { Card, CardContent } from '../../components/ui/card';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
+import AIAssistant from '../../components/AIAssistant';
 import { useNavigate } from 'react-router-dom';
 
 

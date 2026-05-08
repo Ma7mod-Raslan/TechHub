@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 const API_URL = import.meta.env.VITE_API_URL;
 import { Star, Users, Clock, Filter, Grid, List, Search, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Badge } from '../../components/ui/badge';
 import { motion } from 'motion/react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
-import { COURSE_CATEGORIES } from '../constants/courseCategories';
-import AIAssistant from '../components/AIAssistant';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
+import AIAssistant from '../../components/AIAssistant';
 import { useNavigate } from 'react-router-dom';
 
 

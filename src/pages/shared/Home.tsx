@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 const API_URL = import.meta.env.VITE_API_URL;
 import { motion } from 'motion/react';
 import { Code, Database, Brain, Shield, Smartphone, Globe, Users, Award, Star, ChevronRight, BookOpen, TrendingUp } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
-import AIAssistant from '../components/AIAssistant';
-import { COURSE_CATEGORIES } from '../constants/courseCategories';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
+import AIAssistant from '../../components/AIAssistant';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { useNavigate } from 'react-router-dom';
 
 interface HomeProps {

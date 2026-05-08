@@ -14,17 +14,17 @@ import {
     Award,
     MessageSquare,
 } from 'lucide-react';
-import Navbar from '../components/Navbar';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { UserRole } from '../App';
-import { ImageWithFallback } from '../components/Assets/ImageWithFallback';
+import Navbar from '../../components/Navbar';
+import { Button } from '../../components/ui/button';
+import { Card, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { UserRole } from '../../App';
+import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { toast } from 'sonner';
-import { COURSE_CATEGORIES } from '../constants/courseCategories';
-import AIAssistant from '../components/AIAssistant';
+import { COURSE_CATEGORIES } from '../../constants/courseCategories';
+import AIAssistant from '../../components/AIAssistant';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 
