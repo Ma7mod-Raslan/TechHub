@@ -750,5 +750,97 @@
   {
     "topic": "Where can I see my notifications as an instructor?",
     "answer": "Click 'Notifications' in the sidebar or the bell icon at the top right to see updates about your courses, student activities, and platform announcements."
+  },
+  {
+    "topic": "Hello",
+    "answer": "Hello! Welcome to TechHub. I am your AI assistant and I can help with questions about the platform, courses, assignments, accounts, certificates, and HTML lessons. How can I assist you today?"
+  },
+  {
+    "topic": "Hi there",
+    "answer": "Hi there! Welcome to TechHub. I can help with courses, assignments, your account, certificates, and HTML course content. Just ask!"
+  },
+  {
+    "topic": "Hey",
+    "answer": "Hey! How can I help you today? Feel free to ask me about TechHub courses, assignments, accounts, certificates, or your learning journey."
+  },
+  {
+    "topic": "Good morning",
+    "answer": "Good morning! Welcome to TechHub. I can help with your courses, account, assignments, certificates, and HTML lessons. How can I assist you today?"
+  },
+  {
+    "topic": "Good afternoon",
+    "answer": "Good afternoon! Welcome to TechHub. I can help with courses, accounts, assignments, certificates, and HTML lessons. How can I assist you today?"
+  },
+  {
+    "topic": "Good evening",
+    "answer": "Good evening! Welcome to TechHub. I can help with courses, assignments, certificates, account settings, and HTML lessons. What would you like help with?"
+  },
+  {
+    "topic": "Good night",
+    "answer": "Good night! If you need help later with TechHub courses, accounts, assignments, certificates, or HTML lessons, I will be here."
+  },
+  {
+    "topic": "What's up",
+    "answer": "Hey! I am here and ready to help with TechHub. You can ask me about courses, assignments, accounts, certificates, roadmaps, or HTML lessons."
+  },
+  {
+    "topic": "Thank you",
+    "answer": "You are very welcome! I am glad I could help. If you have more questions about TechHub, feel free to ask. Happy learning!"
+  },
+  {
+    "topic": "Thanks for your help",
+    "answer": "Happy to help! If you need anything else about TechHub, your courses, assignments, certificates, or HTML lessons, feel free to ask anytime."
+  },
+  {
+    "topic": "I appreciate your assistance",
+    "answer": "You are very welcome! I am always here to help you succeed on TechHub. Feel free to come back with more questions anytime."
+  },
+  {
+    "topic": "That was helpful",
+    "answer": "I am glad I could help! I am always here if you need more assistance with TechHub. Keep up the great work with your learning!"
+  },
+  {
+    "topic": "Thanks a lot",
+    "answer": "You are most welcome! Feel free to reach out anytime you have questions about TechHub, your courses, assignments, certificates, or HTML lessons."
+  },
+  {
+    "topic": "Goodbye",
+    "answer": "Goodbye! I wish you all the best in your studies on TechHub. Keep learning and growing!"
+  },
+  {
+    "topic": "See you later",
+    "answer": "See you later! Best of luck with your courses and assignments. I am always here whenever you need help with TechHub."
+  },
+  {
+    "topic": "Bye",
+    "answer": "Bye! Keep up the great work with your studies on TechHub. Come back anytime you have questions."
+  },
+  {
+    "topic": "Have a good day",
+    "answer": "Thank you, you too! Keep making progress on your learning journey. I am here whenever you need assistance with TechHub."
+  },
+  {
+    "topic": "See you soon",
+    "answer": "See you soon! I hope your studies are going well. I am always here to help you with TechHub. Take care!"
+  },
+  {
+    "topic": "Help",
+    "answer": "I can help you with TechHub platform questions, account settings, course enrollment, assignments, certificates, roadmaps, instructor features, and HTML course content with video timestamps."
+  },
+  {
+    "topic": "Who are you?",
+    "answer": "I am TechHub Assistant, an AI chatbot designed to help students and instructors with TechHub platform questions, courses, assignments, certificates, and HTML course content."
+  },
+  {
+    "topic": "thx",
+    "answer": "You're welcome! If you have more questions about TechHub, feel free to ask."
+  },
+  {
+    "topic": "ty",
+    "answer": "You're welcome! Happy learning on TechHub!"
+  },
+  {
+    "topic": "ok",
+    "answer": "Got it. You can ask me anything about TechHub courses, accounts, assignments, certificates, or HTML lessons."
   }
 ]
