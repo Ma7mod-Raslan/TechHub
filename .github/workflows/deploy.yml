@@ -19,5 +19,6 @@ jobs:
           script: |
             cd ~/TechHub
             git pull
+            cp nginx/nginx.prod.conf nginx/nginx.conf
             docker compose down
             docker compose up --build -d

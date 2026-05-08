@@ -8,6 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+RUN python build_pipeline.py && python build_video_pipeline.py
+
 EXPOSE 5001
 
 CMD ["python", "chatbot_api.py"]
