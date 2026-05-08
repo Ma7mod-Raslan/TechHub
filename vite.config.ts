@@ -54,8 +54,15 @@ export default defineConfig({
     outDir: 'build',
   },
   server: {
-    port: Number(process.env.PORT) || 5173, 
-    strictPort: false, // لو حبيتي تفرضي البورت خليها true
+    port: Number(process.env.PORT) || 5173,
+    strictPort: false,
     open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        ws: true,
+      }
+    }
   },
 });
