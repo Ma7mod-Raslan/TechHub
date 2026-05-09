@@ -1,1 +1,7 @@
 .env
+# frontend/.dockerignore  AND  backend/.dockerignore
+node_modules
+.git
+*.log
+dist
+build

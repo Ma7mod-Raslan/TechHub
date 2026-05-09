@@ -7,3 +7,9 @@ node_modules/
 chat.html
 evaluate_bot.py
 test_questions.json
+# frontend/.dockerignore  AND  backend/.dockerignore
+node_modules
+.git
+*.log
+dist
+build
