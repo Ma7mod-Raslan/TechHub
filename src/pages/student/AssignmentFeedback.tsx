@@ -63,7 +63,7 @@ export default function StudentAssignmentFeedback({ logout, userRole }: Props) {
           <main className="p-6 max-w-3xl mx-auto">
             <Card className="mb-6">
               <CardContent className="p-6 text-center space-y-3">
-                <h2 className="text-xl font-semibold">Assessments Result</h2>
+                <h2 className="text-xl font-semibold">Assessment Result</h2>
                 <p>Score: {data.score}/{data.questions.length}</p>
                 <p>Percentage: {data.percentage.toFixed(2)}%</p>
                 <p className={data.is_passed ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
