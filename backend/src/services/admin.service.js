@@ -213,24 +213,41 @@ export const toggleUserStatus = async (userId) => {
 // Get Courses Data
 export const getAllCourses = async () => {
   const result = await db.query(`
-  SELECT 
-    c.id,
-    c.title AS course_name,
-    c.category,
-    u.full_name AS instructor_name,
-    COUNT(e.id) AS enrolled_students,
-    CASE 
-      WHEN c.is_active = true AND c.status = 'Published' THEN 'active'
-      ELSE 'inactive'
-    END AS status
-  FROM courses c
-  LEFT JOIN users u 
-    ON c.instructor_id = u.id
-  LEFT JOIN enrollments e 
-    ON c.id = e.course_id
-  WHERE c.status = 'Published'
-  GROUP BY c.id, u.full_name
-  ORDER BY c.created_at DESC;
+    SELECT 
+      c.id,
+      c.title AS course_name,
+      c.category,
+      c.status,
+      c.is_active,
+      u.full_name AS instructor_name,
+      COUNT(e.id) AS enrolled_students,
+
+      CASE 
+        WHEN c.status = 'Pending' THEN 'pending'
+        WHEN c.is_active = true 
+             AND c.status = 'Published' THEN 'active'
+        ELSE 'inactive'
+      END AS course_state
+
+    FROM courses c
+
+    LEFT JOIN users u 
+      ON c.instructor_id = u.id
+
+    LEFT JOIN enrollments e 
+      ON c.id = e.course_id
+
+    WHERE c.status IN ('Published', 'Pending')
+
+    GROUP BY 
+      c.id,
+      c.title,
+      c.category,
+      c.status,
+      c.is_active,
+      u.full_name
+
+    ORDER BY c.created_at DESC;
   `);
 
   return result.rows;
@@ -246,8 +263,13 @@ export const toggleCourseStatus = async (courseId) => {
     // Get course + instructor
     const courseResult = await client.query(
       `
-      SELECT c.id, c.is_active, c.instructor_id,
-             u.is_active AS instructor_active
+      SELECT 
+        c.id,
+        c.title,
+        c.status,
+        c.is_active,
+        c.instructor_id,
+        u.is_active AS instructor_active
       FROM courses c
       JOIN users u ON c.instructor_id = u.id
       WHERE c.id = $1
@@ -261,33 +283,133 @@ export const toggleCourseStatus = async (courseId) => {
 
     const course = courseResult.rows[0];
 
-    // Toggle
+    // Toggle active state
     const newStatus = !course.is_active;
 
+    // Prevent activating suspended instructor course
     if (newStatus === true && course.instructor_active === false) {
-      throw new Error("Cannot activate course: instructor is suspended");
+      throw new Error(
+        "Cannot activate course: instructor is suspended"
+      );
     }
+
+    // Determine course status
+    let coursePublishStatus = course.status;
+
+    // If admin activates a pending course => Published
+    if (newStatus === true && course.status === "Pending") {
+      coursePublishStatus = "Published";
+    }
+
+    // Optional:
+    // If admin disables published course => Draft
+    /*
+    if (newStatus === false && course.status === "Published") {
+      coursePublishStatus = "Draft";
+    }
+    */
 
     // Update course
     const updatedCourse = await client.query(
       `
       UPDATE courses
-      SET is_active = $1
-      WHERE id = $2
-      RETURNING id, title, is_active
+      SET 
+        is_active = $1,
+        status = $2
+      WHERE id = $3
+      RETURNING id, title, is_active, status
       `,
-      [newStatus, courseId]
+      [newStatus, coursePublishStatus, courseId]
     );
 
-    // Cascade to communities
-    await client.query(
-      `
-      UPDATE communities
-      SET is_active = $1
-      WHERE course_id = $2
-      `,
-      [newStatus, courseId]
-    );
+    // Create community ONLY when activating first time
+    if (newStatus === true) {
+
+      let community = await client.query(
+        `
+        SELECT id
+        FROM communities
+        WHERE course_id = $1
+        `,
+        [courseId]
+      );
+
+      let communityId;
+
+      if (community.rows.length === 0) {
+        const newCommunity = await client.query(
+          `
+          INSERT INTO communities (
+            course_id,
+            members_count,
+            posts_count,
+            is_active
+          )
+          VALUES ($1, 0, 0, true)
+          RETURNING id
+          `,
+          [courseId]
+        );
+
+        communityId = newCommunity.rows[0].id;
+      } else {
+        communityId = community.rows[0].id;
+
+        await client.query(
+          `
+          UPDATE communities
+          SET is_active = true
+          WHERE id = $1
+          `,
+          [communityId]
+        );
+      }
+
+      // Add instructor as admin member
+      const memberExists = await client.query(
+        `
+        SELECT id
+        FROM community_members
+        WHERE community_id = $1
+        AND user_id = $2
+        `,
+        [communityId, course.instructor_id]
+      );
+
+      if (memberExists.rows.length === 0) {
+        await client.query(
+          `
+          INSERT INTO community_members (
+            community_id,
+            user_id,
+            role
+          )
+          VALUES ($1, $2, 'admin')
+          `,
+          [communityId, course.instructor_id]
+        );
+
+        await client.query(
+          `
+          UPDATE communities
+          SET members_count = members_count + 1
+          WHERE id = $1
+          `,
+          [communityId]
+        );
+      }
+
+    } else {
+      // Disable community when course disabled
+      await client.query(
+        `
+        UPDATE communities
+        SET is_active = false
+        WHERE course_id = $1
+        `,
+        [courseId]
+      );
+    }
 
     await client.query("COMMIT");
 
@@ -296,6 +418,7 @@ export const toggleCourseStatus = async (courseId) => {
   } catch (err) {
     await client.query("ROLLBACK");
     throw err;
+
   } finally {
     client.release();
   }

@@ -531,9 +531,13 @@ router.put(
 
       await client.query("BEGIN");
 
-      // 1️⃣ check course exists
+      // check course exists
       const c = await client.query(
-        "SELECT instructor_id, status, title FROM courses WHERE id=$1",
+        `
+        SELECT instructor_id, status, title
+        FROM courses
+        WHERE id=$1
+        `,
         [courseId]
       );
 
@@ -542,98 +546,74 @@ router.put(
         return res.status(404).json({ error: "Course not found" });
       }
 
-      if (c.rows[0].instructor_id !== instructorId) {
+      const course = c.rows[0];
+
+      if (course.instructor_id !== instructorId) {
         await client.query("ROLLBACK");
         return res.status(403).json({ error: "Not allowed" });
       }
 
-      const courseTitle = c.rows[0].title;
+      // prevent republishing
+      if (course.status === "Pending") {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "Course already pending review" });
+      }
 
-      // 2️⃣ update status
+      if (course.status === "Published") {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "Course already published" });
+      }
+
+      const courseTitle = course.title;
+
+      // update status to Pending ONLY
       const result = await client.query(
-        "UPDATE courses SET status='Published' WHERE id=$1 RETURNING *",
-        [courseId]
-      );
-
-      // 3️⃣ community logic (زي ما هو)
-      let community = await client.query(
-        "SELECT id FROM communities WHERE course_id=$1",
-        [courseId]
-      );
-
-      let communityId;
-
-      if (community.rows.length === 0) {
-        const newCommunity = await client.query(
-          `
-          INSERT INTO communities (course_id, members_count, posts_count)
-          VALUES ($1, 0, 0)
-          RETURNING id
-          `,
-          [courseId]
-        );
-
-        communityId = newCommunity.rows[0].id;
-      } else {
-        communityId = community.rows[0].id;
-      }
-
-      const memberExists = await client.query(
         `
-        SELECT id FROM community_members
-        WHERE community_id=$1 AND user_id=$2
+        UPDATE courses
+        SET status='Pending',
+            is_active=FALSE
+        WHERE id=$1
+        RETURNING *
         `,
-        [communityId, instructorId]
+        [courseId]
       );
-
-      if (memberExists.rows.length === 0) {
-        await client.query(
-          `
-          INSERT INTO community_members (community_id, user_id, role)
-          VALUES ($1, $2, 'admin')
-          `,
-          [communityId, instructorId]
-        );
-
-        await client.query(
-          `
-          UPDATE communities
-          SET members_count = members_count + 1
-          WHERE id=$1
-          `,
-          [communityId]
-        );
-      }
 
       await client.query("COMMIT");
 
       // Notification for instructor
       await notificationService.createNotification(
         instructorId,
-        "Course Published",
-        `Your course "${courseTitle}" has been published successfully.`,
-        "course_publish",
+        "Course Submitted",
+        `Your course "${courseTitle}" has been submitted for admin review.`,
+        "course_pending",
         courseId
       );
 
       // Notification for Admin
       await createAdminNotification({
-      title: "New Course Created",
-      message: `New course "${courseTitle}" added`,
-      type: "course_created",
-      reference_id: courseId
-    });
-
+        title: "Course Review Request",
+        message: `Instructor submitted course "${courseTitle}" for publishing approval.`,
+        type: "course_pending",
+        reference_id: courseId,
+      });
 
       res.json({
-        message: "Course published successfully",
+        message: "Course submitted for review successfully",
         course: result.rows[0],
       });
 
     } catch (err) {
       await client.query("ROLLBACK");
       console.error("Publish error:", err);
-      res.status(500).json({ error: err.message });
+
+      res.status(500).json({
+        error: err.message,
+      });
+
     } finally {
       client.release();
     }
