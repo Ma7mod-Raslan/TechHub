@@ -89,6 +89,7 @@ export const getAllFeedbacks = async () => {
       f.stars_num,
       f.comment,
       u.full_name AS name,
+      u.profile_image,
       'Student' AS role,
       f.created_at
     FROM feedback f
