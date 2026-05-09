@@ -53,7 +53,7 @@ export default function StudentAssignmentFeedback({ logout, userRole }: Props) {
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => navigate("/student/assignments")}><ArrowLeft className="h-5 w-5" /></Button>
               <div>
-                <h1 className="text-xl font-semibold">Assignment Feedback</h1>
+                <h1 className="text-xl font-semibold">Assessment Feedback</h1>
                 <p className="text-gray-500 text-sm">Review your answers and results</p>
               </div>
             </div>
@@ -63,7 +63,7 @@ export default function StudentAssignmentFeedback({ logout, userRole }: Props) {
           <main className="p-6 max-w-3xl mx-auto">
             <Card className="mb-6">
               <CardContent className="p-6 text-center space-y-3">
-                <h2 className="text-xl font-semibold">Assignment Result</h2>
+                <h2 className="text-xl font-semibold">Assessments Result</h2>
                 <p>Score: {data.score}/{data.questions.length}</p>
                 <p>Percentage: {data.percentage.toFixed(2)}%</p>
                 <p className={data.is_passed ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>

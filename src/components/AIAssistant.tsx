@@ -13,7 +13,7 @@ interface ChatMessage {
 const getWelcomeMessage = (): ChatMessage => ({
   id: 1,
   role: 'assistant',
-  content: "Hello! I'm your AI learning assistant. I can help you with questions about courses, assignments, coding help, or general guidance. How can I assist you today?",
+  content: "Hello! I'm your AI learning assistant. I can help you with questions about courses, assessments, coding help, or general guidance. How can I assist you today?",
   timestamp: new Date().toLocaleTimeString()
 });
 

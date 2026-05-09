@@ -58,7 +58,7 @@ export default function StudentAssignmentDetails({ logout, userRole }: Props) {
   };
 
   if (loading) return <div className="p-6">Loading...</div>;
-  if (!assignment) return <div className="p-6">Assignment not found</div>;
+  if (!assignment) return <div className="p-6">Assessment not found</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,7 +70,7 @@ export default function StudentAssignmentDetails({ logout, userRole }: Props) {
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={() => navigate("/student/assignments")}><ArrowLeft className="h-5 w-5" /></Button>
               <div>
-                <h1 className="text-xl font-semibold">Course Assignment</h1>
+                <h1 className="text-xl font-semibold">Course Assessment</h1>
                 <p className="text-gray-500 text-sm">{assignment.title}</p>
               </div>
             </div>
@@ -97,13 +97,13 @@ export default function StudentAssignmentDetails({ logout, userRole }: Props) {
               </Card>
             ))}
 
-            <Button onClick={handleSubmit} className="bg-gradient-to-r from-violet-600 to-cyan-500">Submit Assignment</Button>
+            <Button onClick={handleSubmit} className="bg-gradient-to-r from-violet-600 to-cyan-500">Submit Assessment</Button>
 
             <Dialog open={openResult} onOpenChange={setOpenResult}>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Assignment Result</DialogTitle>
-                  <DialogDescription>Here is your assignment result</DialogDescription>
+                  <DialogTitle>Assessments Result</DialogTitle>
+                  <DialogDescription>Here is your assessments result</DialogDescription>
                 </DialogHeader>
                 {result && (
                   <div className="space-y-3 text-center">
@@ -113,7 +113,7 @@ export default function StudentAssignmentDetails({ logout, userRole }: Props) {
                       {result.is_passed ? "Passed 🎉" : "Failed"}
                     </p>
                     <button onClick={() => navigate("/student/assignments")} className="mt-4 bg-gradient-to-r from-violet-600 to-cyan-500 text-white px-4 py-2 rounded">
-                      Back to Assignments
+                      Back to Assessments
                     </button>
                   </div>
                 )}

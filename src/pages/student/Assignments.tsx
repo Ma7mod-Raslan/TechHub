@@ -63,7 +63,7 @@ function AssignmentCard({ assignment, onNavigate }: { assignment: Assignment; on
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
-                <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />Full Course Assignment</span>
+                <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" />Full Course Assessment</span>
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />Due: {assignment.dueDate}</span>
                 <span className="flex items-center gap-1"><Award className="h-4 w-4" />{assignment.points} points</span>
               </div>
@@ -124,7 +124,7 @@ export default function StudentAssignments({ logout, userRole }: StudentAssignme
             <div className="flex items-center justify-between gap-4">
               <Button variant="ghost" size="icon" className="lg:hidden flex-shrink-0" onClick={() => setIsMobileOpen(true)}><Menu className="h-5 w-5" /></Button>
               <div className="flex-1">
-                <h1 className="text-xl md:text-2xl">Assignments</h1>
+                <h1 className="text-xl md:text-2xl">Assessments</h1>
                 <p className="text-gray-600 text-sm md:text-base">Track your assignments and submissions</p>
               </div>
               <HeaderIcons logout={logout} userRole={userRole} />
