@@ -18,6 +18,13 @@ interface HomeProps {
   logout?: () => void;
 }
 
+interface Feedback {
+  name: string;
+  role: string;
+  stars_num: number;
+  comment: string;
+}
+
 const categories = [
   { icon: Code, name: 'Web Development', courses: 120, color: 'from-blue-500 to-cyan-500' },
   { icon: Database, name: 'Data Science', courses: 85, color: 'from-purple-500 to-pink-500' },
@@ -27,72 +34,6 @@ const categories = [
   { icon: Globe, name: 'Cloud Computing', courses: 55, color: 'from-yellow-500 to-orange-500' },
 ];
 
-const featuredCourses = [
-  {
-    id: 1,
-    title: 'Complete Web Development Bootcamp',
-    instructor: 'Sarah Johnson',
-    rating: 4.9,
-    students: 12500,
-    image: 'https://images.unsplash.com/photo-1675495277087-10598bf7bcd1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9ncmFtbWluZyUyMGNvZGUlMjBjb21wdXRlcnxlbnwxfHx8fDE3NjI2MTM4NTZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Web Development',
-    level: 'Beginner',
-  },
-  {
-    id: 2,
-    title: 'Machine Learning A-Z',
-    instructor: 'Dr. Alex Chen',
-    rating: 4.8,
-    students: 9800,
-    image: 'https://images.unsplash.com/photo-1688413709025-5f085266935a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMHRlY2hub2xvZ3klMjBwYXR0ZXJufGVufDF8fHx8MTc2MjY0NjI5Mnww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'AI & ML',
-    level: 'Intermediate',
-  },
-  {
-    id: 3,
-    title: 'Python for Data Science',
-    instructor: 'Maria Garcia',
-    rating: 4.9,
-    students: 15200,
-    image: 'https://images.unsplash.com/photo-1762330910399-95caa55acf04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobm9sb2d5JTIwZWR1Y2F0aW9uJTIwbGVhcm5pbmd8ZW58MXx8fHwxNzYyNzAxOTc0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Data Science',
-    level: 'Beginner',
-  },
-  {
-    id: 4,
-    title: 'iOS App Development with Swift',
-    instructor: 'James Wilson',
-    rating: 4.7,
-    students: 7500,
-    image: 'https://images.unsplash.com/photo-1646153114001-495dfb56506d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3b3Jrc3BhY2UlMjB0ZWNofGVufDF8fHx8MTc2MjYxMjQyOXww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Mobile Dev',
-    level: 'Intermediate',
-  },
-];
-
-const testimonials = [
-  {
-    name: 'Emily Davis',
-    role: 'Software Engineer at Google',
-    content: 'TechHub transformed my career. The courses are practical, engaging, and taught by industry experts.',
-    avatar: 'https://images.unsplash.com/photo-1758270704025-0e1a1793e1ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwc3R1ZGVudHMlMjBzdHVkeWluZ3xlbnwxfHx8fDE3NjI2NzYxNTB8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    rating: 5,
-  },
-  {
-    name: 'Michael Brown',
-    role: 'Data Scientist at Amazon',
-    content: "Best investment I've made in my education. The hands-on projects helped me land my dream job.",
-    avatar: 'https://images.unsplash.com/photo-1617153817979-283ffdcd52f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMHdvcmt8ZW58MXx8fHwxNzYyNzAxOTc1fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    rating: 5,
-  },
-  {
-    name: 'Lisa Martinez',
-    role: 'Full Stack Developer',
-    content: 'The community support and structured learning paths made all the difference in my journey.',
-    avatar: 'https://images.unsplash.com/photo-1646153114001-495dfb56506d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB3b3Jrc3BhY2UlMjB0ZWNofGVufDF8fHx8MTc2MjYxMjQyOXww&ixlib=rb-4.1.0&q=80&w=1080',
-    rating: 5,
-  },
-];
 
 const stats = [
   { icon: Users, label: 'Active Learners', value: '500K+' },
@@ -104,21 +45,21 @@ const stats = [
 export default function Home({ isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
-  const [allTestimonials, setAllTestimonials] = useState(testimonials);
+  const [allTestimonials, setAllTestimonials] = useState<Feedback[]>([]); 
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
-
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const role = user?.role || userRole;
 
 
   useEffect(() => {
-    // Load user testimonials from localStorage
-    const userTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
-
-    // Combine user testimonials with default ones
-    // Show latest 3 user testimonials first, then default ones
-    const combined = [...userTestimonials.slice(-3).reverse(), ...testimonials].slice(0, 3);
-    setAllTestimonials(combined);
+    fetch("/api/feedbacks")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAllTestimonials(data.slice(0, 3));
+        }
+      })
+      .catch(console.error);
   }, []);
 
 
@@ -393,7 +334,7 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                 whileHover={{ y: -5 }}
               >
                 <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => navigate(userRole === 'guest' ? '/course-details-guest' : '/course-details')}>                  
+                  onClick={() => navigate(userRole === 'guest' ? '/course-details-guest' : '/course-details')}>
                   <div className="relative">
                     <ImageWithFallback
                       src={course.thumbnail}
@@ -451,17 +392,12 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex gap-1 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
+                      {[...Array(testimonial.stars_num)].map((_, i) => (
                         <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                       ))}
                     </div>
-                    <p className="text-gray-600 mb-4">{testimonial.content}</p>
+                    <p className="text-gray-600 mb-4">{testimonial.comment}</p>
                     <div className="flex items-center gap-3">
-                      <ImageWithFallback
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
                       <div>
                         <div>{testimonial.name}</div>
                         <div className="text-sm text-gray-600">{testimonial.role}</div>

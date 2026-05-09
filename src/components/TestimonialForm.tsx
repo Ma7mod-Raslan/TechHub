@@ -3,9 +3,9 @@ import { Star, Send, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from './ui/textarea';
-import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
+import { submitFeedback } from "../pages/student/config/studentApi";
 
 interface TestimonialFormProps {
   onClose?: () => void;
@@ -17,8 +17,6 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [testimonialText, setTestimonialText] = useState('');
-  const [name, setName] = useState(studentName);
-  const [role, setRole] = useState(studentRole);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,35 +32,12 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
       return;
     }
 
-    if (name.trim().length === 0) {
-      toast.error('Please enter your name');
-      return;
-    }
-
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Get existing testimonials from localStorage
-    const existingTestimonials = JSON.parse(localStorage.getItem('userTestimonials') || '[]');
-
-    // Create new testimonial
-    const newTestimonial = {
-      id: Date.now(),
-      name: name.trim(),
-      role: role.trim(),
-      content: testimonialText.trim(),
-      rating: rating,
-      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=7F56D9&color=fff`,
-      createdAt: new Date().toISOString(),
-    };
-
-    // Add to existing testimonials
-    existingTestimonials.push(newTestimonial);
-
-    // Save to localStorage
-    localStorage.setItem('userTestimonials', JSON.stringify(existingTestimonials));
+    await submitFeedback({
+      stars_num: rating,
+      comment: testimonialText.trim()
+    });
 
     setIsSubmitting(false);
     toast.success('Thank you for your feedback! Your testimonial has been submitted.');
@@ -70,8 +45,6 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
     // Reset form
     setRating(0);
     setTestimonialText('');
-    setName(studentName);
-    setRole(studentRole);
 
     // Close modal if callback provided
     if (onClose) {
@@ -116,11 +89,10 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
                     className="transition-transform hover:scale-110"
                   >
                     <Star
-                      className={`h-8 w-8 transition-colors ${
-                        star <= (hoveredRating || rating)
+                      className={`h-8 w-8 transition-colors ${star <= (hoveredRating || rating)
                           ? 'fill-yellow-400 text-yellow-400'
                           : 'text-gray-300'
-                      }`}
+                        }`}
                     />
                   </button>
                 ))}
@@ -157,34 +129,6 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
               <p className="text-xs text-gray-500 mt-1">
                 {testimonialText.length}/500 characters
               </p>
-            </div>
-
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm mb-2">
-                Your Name *
-              </label>
-              <Input
-                id="name"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={50}
-              />
-            </div>
-
-            {/* Role */}
-            <div>
-              <label htmlFor="role" className="block text-sm mb-2">
-                Your Role/Title
-              </label>
-              <Input
-                id="role"
-                placeholder="e.g., Software Engineer at Google, Full Stack Developer"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                maxLength={100}
-              />
             </div>
 
             {/* Submit Button */}

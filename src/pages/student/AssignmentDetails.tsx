@@ -102,8 +102,8 @@ export default function StudentAssignmentDetails({ logout, userRole }: Props) {
             <Dialog open={openResult} onOpenChange={setOpenResult}>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Assessments Result</DialogTitle>
-                  <DialogDescription>Here is your assessments result</DialogDescription>
+                  <DialogTitle>Assessment Result</DialogTitle>
+                  <DialogDescription>Here is your assessment result</DialogDescription>
                 </DialogHeader>
                 {result && (
                   <div className="space-y-3 text-center">
