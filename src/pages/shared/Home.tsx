@@ -403,12 +403,15 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                       <div className="flex items-center gap-3">
                         <img
                           src={
-                            testimonial.profile_image
-                              ? `${API_URL}${testimonial.profile_image}`
-                              : "https://ui-avatars.com/api/?name=" + testimonial.name
+                            testimonial.profile_image ||
+                            `https://ui-avatars.com/api/?name=${testimonial.name}`
                           }
                           alt={testimonial.name}
-                          className="w-12 h-12 rounded-full object-cover border"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              `https://ui-avatars.com/api/?name=${testimonial.name}`;
+                          }}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-violet-200"
                         />
 
                         <div>
