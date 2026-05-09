@@ -50,3 +50,54 @@ export const sendContactMessage = async (data, userId = null) => {
     id: messageId
   };
 };
+
+
+export const createFeedback = async (data, studentId) => {
+  const { stars_num, comment } = data;
+
+  // 🔹 validation
+  if (!stars_num || !comment) {
+    throw new Error("Stars number and comment are required");
+  }
+
+  if (stars_num < 1 || stars_num > 5) {
+    throw new Error("Stars number must be between 1 and 5");
+  }
+
+  // 🔹 insert
+  const result = await db.query(
+    `
+    INSERT INTO feedback
+    (student_id, stars_num, comment)
+    VALUES ($1, $2, $3)
+    RETURNING id
+    `,
+    [studentId, stars_num, comment]
+  );
+
+  return {
+    message: "Feedback submitted successfully",
+    id: result.rows[0].id
+  };
+};
+
+export const getAllFeedbacks = async () => {
+  const result = await db.query(
+    `
+    SELECT
+      f.id,
+      f.stars_num,
+      f.comment,
+      u.full_name AS name,
+      'Student' AS role,
+      f.created_at
+    FROM feedback f
+    JOIN users u
+      ON f.student_id = u.id
+    WHERE f.is_visible = TRUE
+    ORDER BY f.stars_num DESC, f.created_at DESC
+    `
+  );
+
+  return result.rows;
+};
