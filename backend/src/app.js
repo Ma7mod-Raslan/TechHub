@@ -11,8 +11,6 @@ console.log(
   process.env.JWT_SECRET ? "[SET]" : "[NOT SET]"
 );
 
-// ===== CORS (must be before routes) =====
-app.use(cors({ origin: false }));
 
 // ===== Import routes =====
 import authRoutes from "./routes/auth.js";
@@ -39,6 +37,8 @@ const app = express();
 // ===== Middlewares =====
 app.use(express.json());
 
+// ===== CORS (must be before routes) =====
+app.use(cors({ origin: false }));
 
 // ===== Routes =====
 
