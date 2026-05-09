@@ -1,4 +1,4 @@
-.env
+#.env
 # frontend/.dockerignore  AND  backend/.dockerignore
 node_modules
 .git
