@@ -71,7 +71,7 @@ function AssignmentCard({ assignment, onNavigate }: { assignment: Assignment; on
             <div className="flex gap-2">
               {assignment.status === "pending" && (
                 <Button onClick={() => onNavigate(assignment.id, "pending")} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">
-                  <Upload className="mr-2 h-4 w-4" /> Take Assignment
+                  <Upload className="mr-2 h-4 w-4" /> Take Assessment
                 </Button>
               )}
               {assignment.status === "submitted" && (
