@@ -7,6 +7,7 @@ import {
   LayoutDashboard, BookOpen, FileText, Award, Users,
   Code, Map, Bell, User, Settings, MessageSquare,
   LucideIcon,
+  GraduationCap,
 } from "lucide-react";
 
 export interface MenuItem {
@@ -19,7 +20,7 @@ export interface MenuItem {
 const BASE_MENU_ITEMS: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard",    page: "/student/dashboard"    },
   { icon: BookOpen,        label: "Courses",      page: "/student/courses"      },
-  { icon: FileText,        label: "Assignments",  page: "/student/assignments"  },
+  { icon: GraduationCap,        label: "Assessments",  page: "/student/assignments"  },
   { icon: Award,           label: "Certificates", page: "/student/certificates" },
   { icon: Users,           label: "Community",    page: "/student/community"    },
   { icon: Map,             label: "Roadmaps",     page: "/student/roadmaps"     },
