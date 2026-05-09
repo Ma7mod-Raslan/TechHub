@@ -85,7 +85,7 @@ app.use("/api/me", meRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Contact Us
-app.use("/", contactRoutes);
+app.use("/api", contactRoutes);
 
 // Roadmaps
 app.use("/api", roadmapsRoutes);
