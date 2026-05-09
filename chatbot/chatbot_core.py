@@ -282,7 +282,7 @@ def select_best(qa_res, vid_res):
     vid_ok = vid_s >= THRESHOLDS["vid_sim"]
     margin = THRESHOLDS["margin"]
 
-    print(f"QA: {qa_s:.3f} {'OK' if qa_ok else 'FAIL'} | Video: {vid_s:.3f} {'OK' if vid_ok else 'FAIL'}")
+    print(f"QA: {qa_s:.3f} {'OK' if qa_ok else 'FAIL'} | Video: {vid_s:.3f} {'OK' if vid_ok else 'FAIL'}", flush=True)
 
     if not qa_ok and not vid_ok:
         return None, None
@@ -375,7 +375,7 @@ def respond(text, memory):
         dict with answer, source, time, and metadata
     """
     t0 = time.time()
-    print(f"\n{'='*60}\n {text}")
+    print(f"\n{'='*60}\n {text}", flush=True)
 
     # Stage 1: Empty input validation
     if not text.strip():
@@ -419,7 +419,7 @@ def respond(text, memory):
 
     # Stage 5: Scope check (embedding-based, no LLM)
     in_domain, scope_sim = in_scope(standalone)
-    print(f"Scope: {scope_sim:.3f} {'OK' if in_domain else 'FAIL'}")
+    print(f"Scope: {scope_sim:.3f} {'OK' if in_domain else 'FAIL'}", flush=True)
     if not in_domain:
         return _result(REJECTION["out_of_scope"], "rejected", t0, reason="out_of_scope")
 
