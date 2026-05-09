@@ -33,10 +33,10 @@ COPY . .
 # ─────────────────────────────────────────────
 #  Copy runner scripts and make them executable
 # ─────────────────────────────────────────────
-COPY scripts/run_python.sh     /usr/local/bin/run_python.sh
-COPY scripts/run_javascript.sh /usr/local/bin/run_javascript.sh
-COPY scripts/run_cpp.sh        /usr/local/bin/run_cpp.sh
-COPY scripts/run_java.sh       /usr/local/bin/run_java.sh
+COPY src/scripts/run_python.sh     /usr/local/bin/run_python.sh
+COPY src/scripts/run_javascript.sh /usr/local/bin/run_javascript.sh
+COPY src/scripts/run_cpp.sh        /usr/local/bin/run_cpp.sh
+COPY src/scripts/run_java.sh       /usr/local/bin/run_java.sh
 
 RUN chmod +x \
     /usr/local/bin/run_python.sh \

@@ -18,7 +18,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/TechHub
-            git pull
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
             cp nginx/nginx.prod.conf nginx/nginx.conf
             docker compose down
             docker compose up --build -d
