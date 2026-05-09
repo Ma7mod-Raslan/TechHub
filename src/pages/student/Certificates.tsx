@@ -59,7 +59,7 @@ export default function StudentCertificates({ logout, userRole }: Props) {
                   <Trophy className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl mb-2">No Certificates Yet</h3>
                   <p className="text-gray-600 mb-4">Complete courses to earn certificates</p>
-                  <Button onClick={() => navigate("/student/courses")} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Browse Courses</Button>
+                  <Button type="button" onClick={() => navigate("/student/courses")} className="bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600">Browse Courses</Button>
                 </CardContent>
               </Card>
             ) : (
