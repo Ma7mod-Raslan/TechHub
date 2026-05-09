@@ -23,6 +23,7 @@ interface Feedback {
   role: string;
   stars_num: number;
   comment: string;
+  profile_image?: string;
 }
 
 const categories = [
@@ -45,7 +46,7 @@ const stats = [
 export default function Home({ isLoggedIn = false, userRole = 'guest', logout }: HomeProps) {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<'student' | 'instructor'>('student');
-  const [allTestimonials, setAllTestimonials] = useState<Feedback[]>([]); 
+  const [allTestimonials, setAllTestimonials] = useState<Feedback[]>([]);
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
   const user = JSON.parse(localStorage.getItem("user") || "null");
   const role = user?.role || userRole;
@@ -55,6 +56,7 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
     fetch("/api/feedbacks")
       .then(res => res.json())
       .then(data => {
+        console.log(data)
         if (Array.isArray(data) && data.length > 0) {
           setAllTestimonials(data.slice(0, 3));
         }
@@ -398,9 +400,26 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                     </div>
                     <p className="text-gray-600 mb-4">{testimonial.comment}</p>
                     <div className="flex items-center gap-3">
-                      <div>
-                        <div>{testimonial.name}</div>
-                        <div className="text-sm text-gray-600">{testimonial.role}</div>
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={
+                            testimonial.profile_image
+                              ? `${API_URL}${testimonial.profile_image}`
+                              : "https://ui-avatars.com/api/?name=" + testimonial.name
+                          }
+                          alt={testimonial.name}
+                          className="w-12 h-12 rounded-full object-cover border"
+                        />
+
+                        <div>
+                          <div className="font-medium">
+                            {testimonial.name}
+                          </div>
+
+                          <div className="text-sm text-gray-600">
+                            {testimonial.role}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
