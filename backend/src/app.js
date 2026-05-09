@@ -11,7 +11,6 @@ console.log(
   process.env.JWT_SECRET ? "[SET]" : "[NOT SET]"
 );
 
-
 // ===== Import routes =====
 import authRoutes from "./routes/auth.js";
 import coursesRoutes from "./routes/courses.js";
@@ -22,14 +21,13 @@ import videoQuestionsRoutes from "./routes/videoQuestions.js";
 import videoProgressRoutes from "./routes/videoProgress.js";
 import instructorRoutes from "./routes/instructor.js";
 import certificateRoutes from "./routes/certificate.routes.js";
-import communityRoutes  from "./routes/community.routes.js";
+import communityRoutes from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
-import adminRoutes  from "./routes/admin.js";
+import adminRoutes from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
 import compilerRoutes, { attachCompilerWS } from "./routes/compiler.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import roadmapsRoutes from "./routes/roadmaps.js";
-
 
 // ===== Create app =====
 const app = express();
@@ -37,8 +35,9 @@ const app = express();
 // ===== Middlewares =====
 app.use(express.json());
 
-// ===== CORS (must be before routes) =====
-app.use(cors({ origin: false }));
+// ===== CORS =====
+// ✅ Removed origin: false — it was blocking all requests including WebSocket
+app.use(cors());
 
 // ===== Routes =====
 
@@ -54,14 +53,15 @@ app.use("/api/courses", videosRoutes);
 // Practice questions (video questions)
 app.use("/api", videoQuestionsRoutes);
 
-// Community 
+// Community
 app.use("/api/communities", communityRoutes);
 
-// Notificaations Route
+// Notifications Route
 app.use("/api/notifications", notificationRoutes);
 
 // Assignment
 app.use("/api/assignments", assignmentRoutes);
+
 // Video Progress
 app.use("/api", videoProgressRoutes);
 
@@ -91,7 +91,9 @@ app.use("/api", contactRoutes);
 app.use("/api", roadmapsRoutes);
 
 // ===== Start server =====
-const server = app.listen(5000, () => {        // ← save return value
+// ✅ server saved so attachCompilerWS can attach the WebSocket upgrade handler
+const server = app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
 });
+
 attachCompilerWS(server);
