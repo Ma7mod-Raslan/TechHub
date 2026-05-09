@@ -104,8 +104,22 @@ export default function App() {
         <Routes location={location} key={location.pathname}>
 
           {/* Auth */}
-          <Route path="/" element={<PageWrapper><Home isLoggedIn={isLoggedIn} userRole={userRole} logout={logout} /></PageWrapper>} />
-          <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+          <Route
+            path="/"
+            element={
+              userRole === "admin" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <PageWrapper>
+                  <Home
+                    isLoggedIn={isLoggedIn}
+                    userRole={userRole}
+                    logout={logout}
+                  />
+                </PageWrapper>
+              )
+            }
+          />          <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
           <Route path="/signup" element={<PageWrapper><SignUp /></PageWrapper>} />
           <Route path="/verification" element={<PageWrapper><Verification /></PageWrapper>} />
           <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
@@ -119,9 +133,9 @@ export default function App() {
           <Route path="/instructor/course-view" element={<PageWrapper><InstructorCourseView logout={logout} userRole="instructor" /></PageWrapper>} />
           <Route path="/instructor/edit-course" element={<PageWrapper><InstructorEditCourse logout={logout} userRole="instructor" /></PageWrapper>} />
           <Route path="/instructor/create-course" element={<PageWrapper><InstructorCreateCourse logout={logout} userRole="instructor" /></PageWrapper>} />
-          <Route path="/instructor/assignments" element={<PageWrapper><InstructorAssignments /></PageWrapper>} />
-          <Route path="/instructor/manage-assignment" element={<PageWrapper><InstructorManageAssignment /></PageWrapper>} />
-          <Route path="/instructor/create-assignment" element={<PageWrapper><InstructorCreateAssignment /></PageWrapper>} />
+          <Route path="/instructor/assignments" element={<PageWrapper><InstructorAssignments logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/manage-assignment" element={<PageWrapper><InstructorManageAssignment logout={logout} userRole="instructor" /></PageWrapper>} />
+          <Route path="/instructor/create-assignment" element={<PageWrapper><InstructorCreateAssignment logout={logout} userRole="instructor" /></PageWrapper>} />
           <Route path="/instructor/profile" element={<PageWrapper><InstructorProfile logout={logout} userRole="instructor" /></PageWrapper>} />
           <Route path="/instructor/settings" element={<PageWrapper><InstructorSettings logout={logout} userRole="instructor" /></PageWrapper>} />
           <Route path="/instructor/notifications" element={<PageWrapper><InstructorNotifications logout={logout} userRole="instructor" /></PageWrapper>} />

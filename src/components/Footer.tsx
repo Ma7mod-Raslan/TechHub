@@ -102,14 +102,14 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-cyan-400" />
-                <span className="text-sm">San Francisco, CA</span>
+                <span className="text-sm">Cairo, Egypt</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-          <p>&copy; 2025 TechHub. All rights reserved.</p>
+          <p>&copy; 2026 TechHub. All rights reserved.</p>
         </div>
       </div>
     </footer>

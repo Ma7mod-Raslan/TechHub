@@ -178,7 +178,7 @@ export default function Contact() {
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Address</div>
-                        <div>123 Tech Street, San Francisco, CA 94105</div>
+                        <div>123 Tech Street, Cairo, Egypt </div>
                       </div>
                     </div>
                   </div>

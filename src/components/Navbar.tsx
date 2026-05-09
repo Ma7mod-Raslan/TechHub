@@ -35,12 +35,15 @@ export default function Navbar({ isLoggedIn = false, userRole = 'guest', transpa
     navigate('/login');
   };
 
-  const menuLinks = [
-    { label: 'Home', page: '/', icon: Home },
-    { label: 'Courses', page: '/courses', icon: BookOpen },
-    { label: 'About', page: '/about', icon: Info },
-    { label: 'Contact', page: '/contact', icon: Mail },
-  ];
+  const menuLinks =
+    userRole === 'admin'
+      ? []
+      : [
+        { label: 'Home', page: '/', icon: Home },
+        { label: 'Courses', page: '/courses', icon: BookOpen },
+        { label: 'About', page: '/about', icon: Info },
+        { label: 'Contact', page: '/contact', icon: Mail },
+      ];
 
   return (
     <motion.nav

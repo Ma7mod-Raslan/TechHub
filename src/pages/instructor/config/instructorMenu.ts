@@ -18,7 +18,7 @@ export interface MenuItem {
 const BASE_MENU_ITEMS: MenuItem[] = [
   { icon: LayoutDashboard, label: "Dashboard",    page: "/instructor/dashboard"    },
   { icon: BookOpen,        label: "My Courses",   page: "/instructor/courses"      },
-  { icon: BarChart3,       label: "Assignments",  page: "/instructor/assignments"  },
+  { icon: BarChart3,       label: "Assessments",  page: "/instructor/assignments"  },
   { icon: Users,           label: "Community",    page: "/instructor/community"    },
   { icon: Bell,            label: "Notifications",page: "/instructor/notifications"},
   { icon: User,            label: "Profile",      page: "/instructor/profile"      },

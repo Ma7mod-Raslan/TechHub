@@ -1,4 +1,9 @@
-// src/pages/auth/Login.tsx
+// ============================================================
+// Login.tsx — Clean Version
+// Applies: Single Responsibility, Dependency Inversion
+// No axios — uses authApi (native fetch)
+// ============================================================
+
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Code2, Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -8,25 +13,27 @@ import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Card, CardContent } from "../../components/ui/card";
 import { Separator } from "../../components/ui/separator";
-import api from "../../api";
 import { toast } from "sonner";
 import AIAssistant from "../../components/AIAssistant";
 import GoogleGSIButton from "../../GoogleGSIButton";
 import { useNavigate } from "react-router-dom";
 import { validatePassword, STRONG_PASSWORD_REGEX } from "../../utils/passwordValidation";
-
-
-declare global {
-  interface Window {
-    google?: any;
-    __gsi_initialized?: boolean;
-  }
-}
+import { login, googleAuth } from "../auth/config/authApi";
 
 const GOOGLE_CLIENT_ID = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ?? "";
 
-console.log("GOOGLE CLIENT ID FROM ENV 👉", GOOGLE_CLIENT_ID);
+// ─── Pure helper ──────────────────────────────────────────────
 
+const navigateByRole = (role: string, navigate: (path: string, opts?: any) => void) => {
+  const routes: Record<string, string> = {
+    admin: "/admin/dashboard",
+    instructor: "/instructor/dashboard",
+    student: "/student/dashboard",
+  };
+  navigate(routes[role] ?? "/student/dashboard", { replace: true });
+};
+
+// ─── Main Component ──────────────────────────────────────────
 
 export default function Login() {
   const navigate = useNavigate();
@@ -36,138 +43,76 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (token && user) navigateByRole(user.role, navigate);
+  }, []);
 
-
-
-  // Choose the password rule to apply for the app
-  const PASSWORD_REGEX = STRONG_PASSWORD_REGEX;
-  // If you want digits-only rule, use DIGITS_ONLY_REGEX from the utils file.
-
-
-  // Validate password on input change
-  function handlePasswordChange(value: string) {
+  const handlePasswordChange = (value: string) => {
     setPassword(value);
-    setPasswordError(validatePassword(value, PASSWORD_REGEX));
-  }
+    setPasswordError(validatePassword(value, STRONG_PASSWORD_REGEX));
+  };
 
-  // Handle email/password login
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validate password before sending the request
-    const err = validatePassword(password, PASSWORD_REGEX);
+    const err = validatePassword(password, STRONG_PASSWORD_REGEX);
     setPasswordError(err);
-    if (err) {
-      toast.error(err);
-      return;
-    }
+    if (err) { toast.error(err); return; }
 
     setLoading(true);
     try {
-      const res = await api.post("/auth/login", { email, password });
-      const { token, user } = res.data;
+      const { token, user } = await login(email, password);
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       toast.success("Logged in successfully");
-      const redirect = localStorage.getItem('redirectAfterAuth');
 
+      const redirect = localStorage.getItem("redirectAfterAuth");
       if (redirect) {
         const parsed = JSON.parse(redirect);
-        localStorage.removeItem('redirectAfterAuth');
-
-        navigate('/' + parsed.page, { replace: true });
+        localStorage.removeItem("redirectAfterAuth");
+        navigate("/" + parsed.page, { replace: true });
         return;
       }
 
-
-
-      if (user.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
-      }
-      else if (user.role === "instructor") {
-        navigate("/instructor/dashboard", { replace: true });
-      }
-      else {
-        navigate("/student/dashboard", { replace: true });
-      }
-      return;
+      navigateByRole(user.role, navigate);
     } catch (err: any) {
-      const msg = err?.response?.data?.error;
+      const msg = err?.message ?? "Login failed";
       if (msg === "Please verify your email before login.") {
-        const backendRole = err?.response?.data?.role || "student";
-        localStorage.setItem("pendingVerification", JSON.stringify({ email, role: backendRole }));
+        localStorage.setItem("pendingVerification", JSON.stringify({ email, role: "student" }));
         toast.error("Please verify your email before logging in.");
         navigate("/verification");
-        setLoading(false);
         return;
       }
-      toast.error(msg || "Login failed");
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
-  // Google Sign-In callback
-  async function handleGsiCallback(response: any) {
+  const handleGsiCallback = async (response: any) => {
     const idToken: string | undefined = response?.credential;
-    if (!idToken) {
-      toast.error("Google authentication failed");
-      return;
-    }
-
-    try {
-      const payload = JSON.parse(atob(idToken.split(".")[1]));
-      console.log("GSI payload:", payload);
-    } catch (e) {
-      // ignore parse errors
-    }
+    if (!idToken) { toast.error("Google authentication failed"); return; }
 
     setLoading(true);
     try {
-      const res = await api.post("/auth/google", { id_token: idToken });
-      const { token, user: backendUser } = res.data;
-
+      const { token, user } = await googleAuth(idToken);
       localStorage.setItem("accessToken", token);
-      localStorage.setItem("user", JSON.stringify(backendUser));
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      localStorage.setItem("user", JSON.stringify(user));
       toast.success("Signed in with Google");
-
-      if (backendUser.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
-      }
-      else if (backendUser.role === "instructor") {
-        navigate("/instructor/dashboard", { replace: true });
-      }
-      else {
-        navigate("/student/dashboard", { replace: true });
-      }
+      navigateByRole(user.role, navigate);
     } catch (err: any) {
-      console.error("Google login error:", err);
-      toast.error(err?.response?.data?.error || err?.message || "Google Sign in failed");
+      toast.error(err?.message ?? "Google Sign in failed");
     } finally {
       setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-
-    if (token && user) {
-      if (user.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
-      } else if (user.role === "instructor") {
-        navigate("/instructor/dashboard", { replace: true });
-      } else {
-        navigate("/student/dashboard", { replace: true });
-      }
-    }
-  }, []);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 via-cyan-50 to-blue-50 flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
           <motion.div whileHover={{ scale: 1.05 }} className="inline-flex items-center gap-2 cursor-pointer mb-4" onClick={() => navigate("/")}>
             <div className="bg-gradient-to-br from-violet-600 to-cyan-500 p-3 rounded-xl"><Code2 className="h-8 w-8 text-white" /></div>
@@ -180,7 +125,6 @@ export default function Login() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleLogin} className="space-y-4">
-              {/* email/password fields */}
               <div>
                 <Label htmlFor="email">Email Address</Label>
                 <div className="relative mt-1">
@@ -193,15 +137,7 @@ export default function Login() {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    className="pl-10 pr-10"
-                    value={password}
-                    onChange={(e) => handlePasswordChange(e.target.value)}
-                    required
-                  />
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" className="pl-10 pr-10" value={password} onChange={(e) => handlePasswordChange(e.target.value)} required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -227,7 +163,6 @@ export default function Login() {
               <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">Or continue as Student with</span>
             </div>
 
-            {/* Pass the callback and client id here */}
             <GoogleGSIButton clientId={GOOGLE_CLIENT_ID} onCredential={handleGsiCallback} />
 
             <p className="text-center text-sm text-gray-600 mt-6">

@@ -42,13 +42,10 @@ export default function About() {
             <motion.div initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <h2 className="text-4xl mb-6">Our Story</h2>
               <p className="text-lg text-gray-600 mb-4">
-                Founded in 2020, TechHub was born from a simple belief: quality tech education should be accessible to everyone, everywhere.
+                Founded in 2026, TechHub was born from a simple belief: quality tech education should be accessible to everyone, everywhere.
               </p>
               <p className="text-lg text-gray-600 mb-4">
                 We started with a small team of passionate educators and developers who wanted to create something different - a platform that combines expert instruction, hands-on projects, and a supportive community.
-              </p>
-              <p className="text-lg text-gray-600">
-                Today, we've grown to serve over 500,000 students worldwide, but our mission remains the same: to help you achieve your tech career goals.
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>

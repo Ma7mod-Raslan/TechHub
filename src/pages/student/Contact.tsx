@@ -54,7 +54,7 @@ export default function StudentContact({ logout, userRole }: Props) {
   const contactInfo = [
     { icon: <Mail className="h-5 w-5 text-violet-600" />, label: "Email", value: "support@techhub.com" },
     { icon: <Phone className="h-5 w-5 text-violet-600" />, label: "Phone", value: "+1 (555) 123-4567" },
-    { icon: <MapPin className="h-5 w-5 text-violet-600" />, label: "Address", value: "123 Tech Street, San Francisco, CA 94105" },
+    { icon: <MapPin className="h-5 w-5 text-violet-600" />, label: "Address", value: "123 Tech Street, Cairo, Egypt " },
   ];
 
   return (

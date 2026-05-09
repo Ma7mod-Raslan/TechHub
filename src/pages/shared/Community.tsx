@@ -590,7 +590,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       ? [
         { icon: LayoutDashboard, label: 'Dashboard', page: '/instructor/dashboard' },
         { icon: BookOpen, label: 'My Courses', page: '/instructor/courses' },
-        { icon: BarChart3, label: 'Assignments', page: '/instructor/assignments' },
+        { icon: BarChart3, label: 'Assessments', page: '/instructor/assignments' },
         { icon: Users, label: 'Community', page: '/community' },
         { icon: Bell, label: 'Notifications', page: '/instructor/notifications' },
         { icon: User, label: 'Profile', page: '/instructor/profile' },
@@ -600,7 +600,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
       : [
         { icon: LayoutDashboard, label: 'Dashboard', page: '/student/dashboard' },
         { icon: BookOpen, label: 'Courses', page: '/student/courses' },
-        { icon: FileText, label: 'Assignments', page: '/student/assignments' },
+        { icon: FileText, label: 'Assessments', page: '/student/assignments' },
         { icon: Award, label: 'Certificates', page: '/student/certificates' },
         { icon: Users, label: 'Community', page: '/community', active: true },
         { icon: Map, label: 'Roadmaps', page: '/student/roadmaps' },
