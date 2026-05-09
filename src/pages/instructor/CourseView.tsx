@@ -374,10 +374,15 @@ export default function InstructorCourseView({
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Details
                     </Button>
-                    {course.status === 'Draft' && (
+                    {course.status === 'Draft' && course.is_active !== false && (
                       <Button onClick={handlePublishCourse} className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white">
                         Publish Course
                       </Button>
+                    )}
+                    {course.status === 'Pending' && (
+                      <Badge className="bg-yellow-100 text-yellow-700 px-3 py-1">
+                        ⏳ Pending Admin Approval
+                      </Badge>
                     )}
                   </>
                 ) : (

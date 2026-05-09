@@ -34,7 +34,7 @@ interface CourseData {
   instructor: string;
   category: string;
   enrolledStudents: number;
-  status: "Active" | "Suspended";
+  status: "Active" | "Suspended" | "Pending";
 }
 
 // ─── Pure mapper ─────────────────────────────────────────────
@@ -45,7 +45,12 @@ const mapCourse = (course: any): CourseData => ({
   instructor: course.instructor_name ?? course.instructor ?? "Unknown",
   category: COURSE_CATEGORIES[course.category] ?? course.category,
   enrolledStudents: course.enrolled_students ?? 0,
-  status: course.status === "active" ? "Active" : "Suspended",
+  status:
+    course.course_state === "pending"
+      ? "Pending"
+      : course.course_state === "active"
+        ? "Active"
+        : "Suspended",
 });
 
 // ─── Main Component ──────────────────────────────────────────
@@ -150,8 +155,13 @@ export default function AdminCourses({ logout }: AdminCoursesProps) {
                           <TableCell><Badge className="bg-violet-100 text-violet-700">{course.category}</Badge></TableCell>
                           <TableCell>{course.enrolledStudents.toLocaleString()}</TableCell>
                           <TableCell>
-                            <Badge className={course.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}>
-                              {course.status}
+                            <Badge className={
+                              course.status === "Active"
+                                ? "bg-green-100 text-green-700"
+                                : course.status === "Pending"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-gray-100 text-gray-700"
+                            }>                              {course.status}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -160,7 +170,13 @@ export default function AdminCourses({ logout }: AdminCoursesProps) {
                                 onClick={() => navigate("/admin/course-details", { state: { courseId: course.id } })}>
                                 <Eye className="h-4 w-4 mr-2" /> View
                               </Button>
-                              {course.status === "Active" ? (
+
+                              {course.status === "Pending" ? (
+                                <Button variant="outline" size="sm" className="text-blue-600 hover:bg-blue-50 border-blue-200"
+                                  onClick={() => setConfirmAction({ show: true, course, action: "activate" })}>
+                                  <CheckCircle className="h-4 w-4 mr-2" /> Approve
+                                </Button>
+                              ) : course.status === "Active" ? (
                                 <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50 border-red-200"
                                   onClick={() => setConfirmAction({ show: true, course, action: "suspend" })}>
                                   <Ban className="h-4 w-4 mr-2" /> Suspend
@@ -187,9 +203,21 @@ export default function AdminCourses({ logout }: AdminCoursesProps) {
       <AlertDialog open={confirmAction.show} onOpenChange={() => setConfirmAction({ show: false, course: null, action: "suspend" })}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{confirmAction.action === "suspend" ? "Suspend Course" : "Activate Course"}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {confirmAction.action === "suspend"
+                ? "Suspend Course"
+                : confirmAction.course?.status === "Pending"
+                  ? "Approve Course"
+                  : "Activate Course"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to {confirmAction.action} "{confirmAction.course?.courseName}"?
+              Are you sure you want to{" "}
+              {confirmAction.action === "suspend"
+                ? "suspend"
+                : confirmAction.course?.status === "Pending"
+                  ? "approve and publish"
+                  : "activate"}{" "}
+              "{confirmAction.course?.courseName}"?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
