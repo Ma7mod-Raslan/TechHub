@@ -158,7 +158,7 @@ export default function Contact() {
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Email</div>
-                        <div>contact@techhub.com</div>
+                        <div>admin@techhub-learn.com</div>
                       </div>
                     </div>
 
@@ -168,7 +168,7 @@ export default function Contact() {
                       </div>
                       <div>
                         <div className="text-sm text-gray-600">Phone</div>
-                        <div>+1 (555) 123-4567</div>
+                        <div>+20 112 1662942</div>
                       </div>
                     </div>
 
