@@ -489,7 +489,9 @@ EDUCATIONAL_FALLBACK_SYSTEM = """
     OUT_OF_SCOPE
 
     Rules:
-    - Always answer in clear English.
+ Rules:
+    - ALL responses must be written in English only.
+    - Never answer in Arabic.
     - Keep answers concise and educational.
     - Never invent TechHub platform features.
 """
