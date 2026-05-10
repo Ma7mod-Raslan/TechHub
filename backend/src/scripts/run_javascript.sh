@@ -1,4 +1,5 @@
 #!/bin/bash
-# Decode source code from env var and run it with Node.js
-echo "$SOURCE_B64" | base64 -d > /tmp/main.js
-node /tmp/main.js
+DIR=$(mktemp -d)
+echo "$SOURCE_B64" | base64 -d > "$DIR/main.js"
+node "$DIR/main.js"
+rm -rf "$DIR"
