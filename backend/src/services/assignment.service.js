@@ -318,23 +318,35 @@ const submitAssignment = async (assignmentId, studentId, answers) => {
 
     /* ===============================
        8️⃣ Generate certificate if passed
+       — isolated try/catch so a Puppeteer/Chrome crash
+         never prevents the submission response
     =============================== */
     let certificate = null;
 
     if (isPassed) {
-      certificate = await certificateService.generateCertificate(
-        studentId,
-        assignment.course_id
-      );
+      try {
+        certificate = await certificateService.generateCertificate(
+          studentId,
+          assignment.course_id
+        );
+      } catch (certError) {
+        // Log the error but don't fail the submission — the student
+        // passed and their attempt is already saved in the DB.
+        console.error("⚠️  Certificate generation failed (submission still saved):", certError.message);
+      }
     }
 
     return {
       score,
       totalQuestions,
       percentage,
-      is_passed:      isPassed,
-      attempt_number: attemptNumber,
-      certificate
+      is_passed:        isPassed,
+      attempt_number:   attemptNumber,
+      certificate,
+      // lets the frontend know if the cert failed so it can show a fallback msg
+      certificate_error: isPassed && certificate === null
+        ? "Certificate will be generated shortly. Please check your profile."
+        : null
     };
 
   } catch (error) {
