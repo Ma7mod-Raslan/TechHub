@@ -103,76 +103,65 @@ router.get("/", authMiddleware, async (req, res) => {
  * Update user profile
  * =========================
  */
-router.put(
-  "/",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const userId = req.user.id;
-      const {
-        full_name,
-        profile_image,
-        bio,
-        job_title,
-        linkedin,
-        expertise
-      } = req.body;
+/* PUT /api/me - Update user profile including expertise */
+router.put('/me', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { full_name, bio, linkedin, expertise } = req.body;
 
-      // 1️⃣ Update users table
+    if (full_name || bio) {
       await db.query(
-        `
-        UPDATE users
-        SET
-          full_name = COALESCE($1, full_name),
-          profile_image = COALESCE($2, profile_image),
-          bio = COALESCE($3, bio)
-        WHERE id = $4
-        `,
-        [full_name, profile_image, bio, userId]
+        `UPDATE users 
+         SET full_name=$1, bio=$2 
+         WHERE id=$3`,
+        [full_name, bio, userId]
       );
+    }
 
-      // 2️⃣ Check if user is instructor
-      const roleRes = await db.query(
-        "SELECT role FROM users WHERE id=$1",
+    if (expertise || linkedin) {
+      const existing = await db.query(
+        'SELECT id FROM instructor_profiles WHERE user_id=$1',
         [userId]
       );
 
-      if (roleRes.rows[0].role === "instructor") {
-        // Upsert instructor profile
-        const current = await db.query(
-          "SELECT job_title, linkedin, expertise FROM instructor_profiles WHERE user_id=$1",
-          [userId]
-        );
-        const currentProfile = current.rows[0] || {};
+      if (existing.rows.length === 0) {
 
         await db.query(
-          `
-          INSERT INTO instructor_profiles (user_id, job_title, linkedin, expertise)
-          VALUES ($1, $2, $3, $4)
-          ON CONFLICT (user_id) DO UPDATE SET
-            job_title = $2,
-            linkedin = $3,
-            expertise = $4
-          `,
-          [
-            userId,
-            job_title ?? currentProfile.job_title,
-            linkedin ?? currentProfile.linkedin,
-            expertise ?? currentProfile.expertise
-          ]
+          `INSERT INTO instructor_profiles (user_id, expertise, linkedin) 
+           VALUES ($1, $2, $3)`,
+          [userId, expertise || [], linkedin || '']
+        );
+      } else {
+
+        await db.query(
+          `UPDATE instructor_profiles 
+           SET expertise=$1, linkedin=$2 
+           WHERE user_id=$3`,
+          [expertise || [], linkedin || '', userId]
         );
       }
-
-      res.json({
-        message: "Profile updated successfully"
-      });
-
-    } catch (err) {
-      console.error("Update profile error:", err);
-      res.status(500).json({ error: err.message });
     }
+
+    const result = await db.query(
+      `SELECT 
+        u.id, u.email, u.full_name, u.bio, u.profile_image, u.created_at,
+        ip.expertise, ip.linkedin
+      FROM users u
+      LEFT JOIN instructor_profiles ip ON ip.user_id = u.id
+      WHERE u.id=$1`,
+      [userId]
+    );
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ error: err.message });
   }
-);
+});
 
 
 /**
