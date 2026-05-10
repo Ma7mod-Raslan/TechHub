@@ -1,10 +1,9 @@
 import express from "express";
 import assignmentService from "../services/assignment.service.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { 
-  createAdminNotification,
+import {
   createNotification
- } from "../services/notification.service.js";
+} from "../services/notification.service.js";
 
 const router = express.Router();
 
@@ -13,7 +12,8 @@ const router = express.Router();
 ========================================================= */
 
 /**
- * GET all assignments for all enrolled courses (Student Dashboard)
+ * GET /student/all
+ * All assignments across enrolled courses (student dashboard)
  */
 router.get(
   "/student/all",
@@ -24,15 +24,11 @@ router.get(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const studentId = req.user.id;
-
-      const data =
-        await assignmentService.getAllAssignmentsForStudentDashboard(
-          studentId
-        );
+      const data = await assignmentService.getAllAssignmentsForStudentDashboard(
+        req.user.id
+      );
 
       res.json(data);
-
     } catch (error) {
       next(error);
     }
@@ -40,9 +36,10 @@ router.get(
 );
 
 /**
- * GET Assugnment Details
+ * GET /student/:assignmentId
+ * Assignment details for the student (questions without correct answers).
+ * Blocked if course progress < 100% or attempts exhausted.
  */
-
 router.get(
   "/student/:assignmentId",
   authMiddleware,
@@ -52,25 +49,21 @@ router.get(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
-
-      const assignment =
-        await assignmentService.getAssignmentDetailsForStudent(
-          assignmentId,
-          req.user.id
-        );
+      const assignment = await assignmentService.getAssignmentDetailsForStudent(
+        req.params.assignmentId,
+        req.user.id
+      );
 
       res.json(assignment);
-
     } catch (error) {
       next(error);
     }
   }
 );
 
-
 /**
- * POST submit assignment
+ * POST /:assignmentId/submit
+ * Submit answers for an assignment
  */
 router.post(
   "/:assignmentId/submit",
@@ -81,22 +74,17 @@ router.post(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
-      const studentId = req.user.id;
       const { answers } = req.body;
 
       if (!answers || !Array.isArray(answers)) {
-        return res.status(400).json({
-          message: "Answers are required",
-        });
+        return res.status(400).json({ message: "Answers are required" });
       }
 
-      const result =
-        await assignmentService.submitAssignment(
-          assignmentId,
-          studentId,
-          answers
-        );
+      const result = await assignmentService.submitAssignment(
+        req.params.assignmentId,
+        req.user.id,
+        answers
+      );
 
       res.json({
         message: "Assignment submitted successfully",
@@ -109,7 +97,8 @@ router.post(
 );
 
 /**
- * GET student attempts
+ * GET /:assignmentId/attempts
+ * All attempts made by the student on an assignment
  */
 router.get(
   "/:assignmentId/attempts",
@@ -120,14 +109,10 @@ router.get(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
-      const studentId = req.user.id;
-
-      const attempts =
-        await assignmentService.getStudentAttempts(
-          assignmentId,
-          studentId
-        );
+      const attempts = await assignmentService.getStudentAttempts(
+        req.params.assignmentId,
+        req.user.id
+      );
 
       res.json(attempts);
     } catch (error) {
@@ -136,53 +121,45 @@ router.get(
   }
 );
 
+/**
+ * GET /:assignmentId/attempts/:attemptId
+ * Detailed review of a specific attempt (shows correct answers)
+ */
 router.get(
   "/:assignmentId/attempts/:attemptId",
   authMiddleware,
   async (req, res, next) => {
-
     try {
-
       if (req.user.role !== "student") {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId, attemptId } = req.params;
-
-      const result =
-        await assignmentService.getAttemptDetails(
-          assignmentId,
-          attemptId,
-          req.user.id
-        );
+      const result = await assignmentService.getAttemptDetails(
+        req.params.assignmentId,
+        req.params.attemptId,
+        req.user.id
+      );
 
       res.json(result);
-
     } catch (error) {
       next(error);
     }
-
   }
 );
 
-
 /* =========================================================
    👨‍🏫 INSTRUCTOR ROUTES
-   (Basic structure – expand later)
 ========================================================= */
 
 /**
- * POST create assignment
+ * POST /
+ * Create a new assignment for a course
  */
 router.post(
   "/",
   authMiddleware,
   async (req, res, next) => {
     try {
-
-      const userId = req.user.id;
-      const courseTitle = req.title;
-
       if (req.user.role !== "instructor") {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -196,28 +173,25 @@ router.post(
       } = req.body;
 
       if (!course_id || !title) {
-        return res.status(400).json({
-          message: "course_id and title are required",
-        });
+        return res.status(400).json({ message: "course_id and title are required" });
       }
 
-      const result =
-        await assignmentService.createAssignment({
-          course_id,
-          title,
-          description,
-          passing_percentage,
-          max_attempts,
-          instructor_id: req.user.id
-        });
+      const result = await assignmentService.createAssignment({
+        course_id,
+        title,
+        description,
+        passing_percentage,
+        max_attempts,
+        instructor_id: req.user.id,
+      });
 
-        // Notification 
+      // BUG FIX #6: courseTitle now comes from the service result, not req.title
       await createNotification(
-      userId,
-      "Assignment Added",
-      `Assignment Added successfully for ${courseTitle} course`,
-      "ASSIGNMENT_ADDED"
-    );
+        req.user.id,
+        "Assignment Added",
+        `Assignment "${result.title}" added successfully`,
+        "ASSIGNMENT_ADDED"
+      );
 
       res.status(201).json(result);
     } catch (error) {
@@ -227,7 +201,8 @@ router.post(
 );
 
 /**
- * POST add question to assignment
+ * POST /:assignmentId/question
+ * Add a question to an assignment
  */
 router.post(
   "/:assignmentId/question",
@@ -238,21 +213,17 @@ router.post(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
       const { question_text } = req.body;
 
       if (!question_text) {
-        return res.status(400).json({
-          message: "Question text is required",
-        });
+        return res.status(400).json({ message: "Question text is required" });
       }
 
-      const result =
-        await assignmentService.addQuestion(
-          assignmentId,
-          question_text,
-          req.user.id
-        );
+      const result = await assignmentService.addQuestion(
+        req.params.assignmentId,
+        question_text,
+        req.user.id
+      );
 
       res.status(201).json(result);
     } catch (error) {
@@ -262,7 +233,9 @@ router.post(
 );
 
 /**
- * POST add options to question
+ * POST /question/:questionId/options
+ * Add options to a question
+ * Expected body: { options: [{ option_text, is_correct }] }
  */
 router.post(
   "/question/:questionId/options",
@@ -273,29 +246,17 @@ router.post(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { questionId } = req.params;
       const { options } = req.body;
 
-      /*
-        Expected format:
-        options: [
-          { option_text: "A", is_correct: false },
-          { option_text: "B", is_correct: true }
-        ]
-      */
-
       if (!options || !Array.isArray(options)) {
-        return res.status(400).json({
-          message: "Options array is required",
-        });
+        return res.status(400).json({ message: "Options array is required" });
       }
 
-      const result =
-        await assignmentService.addOptions(
-          questionId,
-          options,
-          req.user.id
-        );
+      const result = await assignmentService.addOptions(
+        req.params.questionId,
+        options,
+        req.user.id
+      );
 
       res.status(201).json(result);
     } catch (error) {
@@ -305,7 +266,8 @@ router.post(
 );
 
 /**
- * Edit Question
+ * PUT /question/:questionId
+ * Edit a question's text and/or options
  */
 router.put(
   "/question/:questionId",
@@ -316,23 +278,15 @@ router.put(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { questionId } = req.params;
       const { question_text, options } = req.body;
 
       const result = await assignmentService.updateQuestion(
-        questionId,
-        {
-          question_text,
-          options
-        },
+        req.params.questionId,
+        { question_text, options },
         req.user.id
       );
 
-      res.json({
-        message: "Question updated successfully",
-        data: result
-      });
-
+      res.json({ message: "Question updated successfully", data: result });
     } catch (error) {
       next(error);
     }
@@ -340,7 +294,8 @@ router.put(
 );
 
 /**
- * Delete Question
+ * DELETE /question/:questionId
+ * Delete a question (and its options via cascade)
  */
 router.delete(
   "/question/:questionId",
@@ -351,17 +306,12 @@ router.delete(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { questionId } = req.params;
-
       const result = await assignmentService.deleteQuestion(
-        questionId,
+        req.params.questionId,
         req.user.id
       );
 
-      res.json({
-        message: "Question deleted successfully",
-        data: result,
-      });
+      res.json({ message: "Question deleted successfully", data: result });
     } catch (error) {
       next(error);
     }
@@ -369,7 +319,8 @@ router.delete(
 );
 
 /**
- * Get Assignment to Edit
+ * GET /:assignmentId
+ * Assignment details for the instructor (includes correct answers)
  */
 router.get(
   "/:assignmentId",
@@ -380,13 +331,10 @@ router.get(
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
-
-      const assignment =
-        await assignmentService.getAssignmentDetailsForInstructor(
-          assignmentId,
-          req.user.id
-        );
+      const assignment = await assignmentService.getAssignmentDetailsForInstructor(
+        req.params.assignmentId,
+        req.user.id
+      );
 
       res.json(assignment);
     } catch (error) {
@@ -396,39 +344,31 @@ router.get(
 );
 
 /**
- * Delete Assignment
+ * DELETE /:assignmentId
+ * Delete an assignment entirely
  */
 router.delete(
   "/:assignmentId",
   authMiddleware,
   async (req, res, next) => {
     try {
-
-      const userId = req.user.id;
-
       if (req.user.role !== "instructor") {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const { assignmentId } = req.params;
-
       const result = await assignmentService.deleteAssignment(
-        assignmentId,
+        req.params.assignmentId,
         req.user.id
       );
 
-      // Notification 
       await createNotification(
-      userId,
-      "Assignment Deleted",
-      `Assignment deleted successfully`,
-      "ASSIGNMENT_DELETED"
-    );
+        req.user.id,
+        "Assignment Deleted",
+        "Assignment deleted successfully",
+        "ASSIGNMENT_DELETED"
+      );
 
-      res.json({
-        message: "Assignment deleted successfully",
-        data: result,
-      });
+      res.json({ message: "Assignment deleted successfully", data: result });
     } catch (error) {
       next(error);
     }

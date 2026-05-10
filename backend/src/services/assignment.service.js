@@ -2,17 +2,21 @@ import pool from "../db.js";
 import certificateService from "./certificate.service.js";
 import notificationService from "./notification.service.js";
 
-async function getAllAssignmentsForStudentDashboard(studentId) {
+/* =========================================================
+   👨‍🎓 STUDENT — Get all assignments for dashboard
+========================================================= */
+const getAllAssignmentsForStudentDashboard = async (studentId) => {
 
   const result = await pool.query(`
     SELECT
-      a.id AS assignment_id,
-      a.title AS assignment_title,
+      a.id              AS assignment_id,
+      a.title           AS assignment_title,
       a.max_attempts,
-      c.id AS course_id,
-      c.title AS course_title,
+      c.id              AS course_id,
+      c.title           AS course_title,
+      e.progress        AS course_progress,
 
-      COUNT(DISTINCT q.id) AS questions_count,
+      COUNT(DISTINCT q.id)  AS questions_count,
       COUNT(DISTINCT at.id) AS attempts_used
 
     FROM enrollments e
@@ -32,31 +36,46 @@ async function getAllAssignmentsForStudentDashboard(studentId) {
 
     WHERE e.student_id = $1
 
-    GROUP BY a.id, c.id
+    GROUP BY a.id, c.id, e.progress
 
     ORDER BY c.title ASC, a.created_at ASC
   `, [studentId]);
 
-  return result.rows.map(row => ({
-    assignment_id: row.assignment_id,
-    assignment_title: row.assignment_title,
-    course_id: row.course_id,
-    course_title: row.course_title,
-    max_attempts: row.max_attempts,
-    attempts_used: parseInt(row.attempts_used),
-    questions_count: parseInt(row.questions_count),
-    is_unlocked:
-      parseInt(row.attempts_used) < row.max_attempts
-  }));
-}
+  return result.rows.map(row => {
+    const attemptsUsed = parseInt(row.attempts_used);
+    const maxAttempts  = row.max_attempts;           // null = unlimited
 
+    // BUG FIX #1: null max_attempts (unlimited) must evaluate to true, not false
+    const attemptsLeft =
+      maxAttempts === null
+        ? true
+        : attemptsUsed < maxAttempts;
+
+    return {
+      assignment_id:   row.assignment_id,
+      assignment_title: row.assignment_title,
+      course_id:       row.course_id,
+      course_title:    row.course_title,
+      course_progress: parseInt(row.course_progress),
+      max_attempts:    maxAttempts,
+      attempts_used:   attemptsUsed,
+      questions_count: parseInt(row.questions_count),
+      // BUG FIX #2: course must be 100% complete AND attempts remaining
+      is_unlocked:     parseInt(row.course_progress) >= 100 && attemptsLeft,
+    };
+  });
+};
+
+/* =========================================================
+   👨‍🎓 STUDENT — Get assignment details (questions, no answers)
+========================================================= */
 const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
   const client = await pool.connect();
 
   try {
-    // Check enrollment
+    // BUG FIX #3: check enrollment AND course progress in one query
     const checkRes = await client.query(
-      `SELECT a.id
+      `SELECT a.id, a.max_attempts, e.progress
        FROM assignments a
        JOIN courses c ON a.course_id = c.id
        JOIN enrollments e ON e.course_id = c.id
@@ -66,6 +85,27 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
 
     if (checkRes.rows.length === 0) {
       throw new Error("Not authorized");
+    }
+
+    const { progress, max_attempts } = checkRes.rows[0];
+
+    // BUG FIX #3: guard access behind progress check
+    if (progress < 100) {
+      throw new Error("Complete the course before accessing the assignment");
+    }
+
+    // BUG FIX #4: guard access if attempts already exhausted
+    const attemptsRes = await client.query(
+      `SELECT COUNT(*) AS attempts_used
+       FROM student_assignment_attempts
+       WHERE assignment_id = $1 AND student_id = $2`,
+      [assignmentId, studentId]
+    );
+
+    const attemptsUsed = parseInt(attemptsRes.rows[0].attempts_used);
+
+    if (max_attempts !== null && attemptsUsed >= max_attempts) {
+      throw new Error("Max attempts reached");
     }
 
     // Get assignment basic info
@@ -78,16 +118,16 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
 
     const assignment = assignmentRes.rows[0];
 
-    // Get questions + options
+    // Get questions + options (no is_correct exposed to student)
     const questionsRes = await client.query(
-      `SELECT 
-         q.id as question_id,
+      `SELECT
+         q.id   AS question_id,
          q.question_text,
-         o.id as option_id,
+         o.id   AS option_id,
          o.option_text
        FROM assignment_questions q
        LEFT JOIN assignment_options o
-       ON q.id = o.question_id
+         ON q.id = o.question_id
        WHERE q.assignment_id = $1
        ORDER BY q.id`,
       [assignmentId]
@@ -114,6 +154,7 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
 
     return {
       ...assignment,
+      attempts_used: attemptsUsed,
       questions: Array.from(questionsMap.values())
     };
 
@@ -122,7 +163,10 @@ const getAssignmentDetailsForStudent = async (assignmentId, studentId) => {
   }
 };
 
-export const submitAssignment = async (assignmentId, studentId, answers) => {
+/* =========================================================
+   👨‍🎓 STUDENT — Submit assignment
+========================================================= */
+const submitAssignment = async (assignmentId, studentId, answers) => {
   const client = await pool.connect();
 
   try {
@@ -153,12 +197,12 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     /* ===============================
-       2️⃣ Check enrollment
+       2️⃣ Check enrollment + progress
     =============================== */
     const progressRes = await client.query(
       `SELECT progress
        FROM enrollments
-       WHERE course_id=$1 AND student_id=$2`,
+       WHERE course_id = $1 AND student_id = $2`,
       [assignment.course_id, studentId]
     );
 
@@ -171,18 +215,18 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
     }
 
     /* ===============================
-       3️⃣ Get last attempt
+       3️⃣ Check attempts
     =============================== */
     const attemptsRes = await client.query(
       `SELECT attempt_number
        FROM student_assignment_attempts
-       WHERE assignment_id=$1 AND student_id=$2
+       WHERE assignment_id = $1 AND student_id = $2
        ORDER BY attempt_number DESC
        LIMIT 1`,
       [assignmentId, studentId]
     );
 
-    const lastAttempt = attemptsRes.rows[0]?.attempt_number || 0;
+    const lastAttempt  = attemptsRes.rows[0]?.attempt_number || 0;
     const attemptNumber = lastAttempt + 1;
 
     if (
@@ -196,11 +240,11 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
        4️⃣ Get correct answers
     =============================== */
     const questionsRes = await client.query(
-      `SELECT q.id as question_id, o.id as correct_option_id
+      `SELECT q.id AS question_id, o.id AS correct_option_id
        FROM assignment_questions q
        JOIN assignment_options o
-       ON q.id = o.question_id
-       WHERE q.assignment_id=$1 AND o.is_correct=true`,
+         ON q.id = o.question_id
+       WHERE q.assignment_id = $1 AND o.is_correct = true`,
       [assignmentId]
     );
 
@@ -218,28 +262,25 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
     let score = 0;
 
     for (const answer of answers) {
-
       if (!correctMap.has(answer.question_id)) {
         throw new Error("Invalid question submitted");
       }
 
-      const correctOption = correctMap.get(answer.question_id);
-
-      if (correctOption === answer.selected_option_id) {
+      if (correctMap.get(answer.question_id) === answer.selected_option_id) {
         score++;
       }
     }
 
     const totalQuestions = correctMap.size;
-    const percentage = (score / totalQuestions) * 100;
-    const isPassed = percentage >= assignment.passing_percentage;
+    const percentage     = (score / totalQuestions) * 100;
+    const isPassed       = percentage >= assignment.passing_percentage;
 
     /* ===============================
        6️⃣ Insert attempt
     =============================== */
     const attemptInsert = await client.query(
       `INSERT INTO student_assignment_attempts
-       (assignment_id, student_id, score, percentage, is_passed, attempt_number)
+         (assignment_id, student_id, score, percentage, is_passed, attempt_number)
        VALUES ($1,$2,$3,$4,$5,$6)
        RETURNING id`,
       [assignmentId, studentId, score, percentage, isPassed, attemptNumber]
@@ -254,23 +295,21 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
     const params = [];
 
     answers.forEach((answer, index) => {
-
       const base = index * 4;
-      const correctOption = correctMap.get(answer.question_id);
 
       params.push(
         attemptId,
         answer.question_id,
         answer.selected_option_id,
-        correctOption === answer.selected_option_id
+        correctMap.get(answer.question_id) === answer.selected_option_id
       );
 
-      values.push(`($${base+1},$${base+2},$${base+3},$${base+4})`);
+      values.push(`($${base + 1},$${base + 2},$${base + 3},$${base + 4})`);
     });
 
     await client.query(
       `INSERT INTO student_attempt_answers
-       (attempt_id, question_id, selected_option_id, is_correct)
+         (attempt_id, question_id, selected_option_id, is_correct)
        VALUES ${values.join(",")}`,
       params
     );
@@ -278,7 +317,7 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
     await client.query("COMMIT");
 
     /* ===============================
-       8️⃣ Generate certificate
+       8️⃣ Generate certificate if passed
     =============================== */
     let certificate = null;
 
@@ -293,24 +332,26 @@ export const submitAssignment = async (assignmentId, studentId, answers) => {
       score,
       totalQuestions,
       percentage,
-      is_passed: isPassed,
+      is_passed:      isPassed,
       attempt_number: attemptNumber,
       certificate
     };
 
   } catch (error) {
-
     await client.query("ROLLBACK");
     throw error;
-
   } finally {
     client.release();
   }
 };
 
+/* =========================================================
+   👨‍🎓 STUDENT — Get all attempts for an assignment
+========================================================= */
 const getStudentAttempts = async (assignmentId, studentId) => {
   const res = await pool.query(
-    `SELECT * FROM student_assignment_attempts
+    `SELECT *
+     FROM student_assignment_attempts
      WHERE assignment_id = $1 AND student_id = $2
      ORDER BY attempt_number DESC`,
     [assignmentId, studentId]
@@ -319,6 +360,86 @@ const getStudentAttempts = async (assignmentId, studentId) => {
   return res.rows;
 };
 
+/* =========================================================
+   👨‍🎓 STUDENT — Get single attempt details (review)
+========================================================= */
+const getAttemptDetails = async (assignmentId, attemptId, studentId) => {
+  const client = await pool.connect();
+
+  try {
+    // Get attempt info
+    const attemptRes = await client.query(
+      `SELECT score, percentage, is_passed, attempt_number
+       FROM student_assignment_attempts
+       WHERE id = $1
+         AND assignment_id = $2
+         AND student_id = $3`,
+      [attemptId, assignmentId, studentId]
+    );
+
+    if (attemptRes.rows.length === 0) {
+      throw new Error("Attempt not found");
+    }
+
+    const attempt = attemptRes.rows[0];
+
+    // Get questions + options + student answer + correct flag
+    const questionsRes = await client.query(
+      `SELECT
+         q.id              AS question_id,
+         q.question_text,
+         o.id              AS option_id,
+         o.option_text,
+         o.is_correct,
+         sa.selected_option_id
+
+       FROM assignment_questions q
+
+       LEFT JOIN assignment_options o
+         ON o.question_id = q.id
+
+       LEFT JOIN student_attempt_answers sa
+         ON sa.question_id = q.id
+        AND sa.attempt_id  = $1
+
+       WHERE q.assignment_id = $2
+
+       ORDER BY q.id`,
+      [attemptId, assignmentId]
+    );
+
+    const questionsMap = new Map();
+
+    questionsRes.rows.forEach(row => {
+      if (!questionsMap.has(row.question_id)) {
+        questionsMap.set(row.question_id, {
+          question_id:        row.question_id,
+          question_text:      row.question_text,
+          selected_option_id: row.selected_option_id,
+          options: []
+        });
+      }
+
+      questionsMap.get(row.question_id).options.push({
+        id:          row.option_id,
+        option_text: row.option_text,
+        is_correct:  row.is_correct
+      });
+    });
+
+    return {
+      ...attempt,
+      questions: Array.from(questionsMap.values())
+    };
+
+  } finally {
+    client.release();
+  }
+};
+
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Create assignment
+========================================================= */
 const createAssignment = async ({
   course_id,
   title,
@@ -332,54 +453,50 @@ const createAssignment = async ({
   try {
     await client.query("BEGIN");
 
-    // Check course exists & belongs to instructor
+    // BUG FIX #5: existence check BEFORE reading courseTitle
     const courseRes = await client.query(
-      `SELECT id, title FROM courses
+      `SELECT id, title
+       FROM courses
        WHERE id = $1 AND instructor_id = $2`,
       [course_id, instructor_id]
     );
-    const courseTitle = courseRes.rows[0].title;
 
     if (courseRes.rows.length === 0) {
       throw new Error("Course not found or not authorized");
     }
 
+    const courseTitle = courseRes.rows[0].title;
+
     const insertRes = await client.query(
       `INSERT INTO assignments
-       (course_id, title, description, passing_percentage, max_attempts)
+         (course_id, title, description, passing_percentage, max_attempts)
        VALUES ($1,$2,$3,$4,$5)
        RETURNING *`,
-      [
-        course_id,
-        title,
-        description,
-        passing_percentage,
-        max_attempts,
-      ]
+      [course_id, title, description, passing_percentage, max_attempts]
     );
 
     await client.query("COMMIT");
-    // 🔔 send notifications to enrolled students
+
+    // Notify enrolled students about the new assignment
     const students = await pool.query(
-      `SELECT student_id
-      FROM enrollments
-      WHERE course_id = $1`,
+      `SELECT student_id FROM enrollments WHERE course_id = $1`,
       [course_id]
     );
 
-    const studentIds = students.rows.map(
-      s => s.student_id
-    );
+    const studentIds = students.rows.map(s => s.student_id);
 
-    await notificationService.createBulkNotifications(
-      studentIds,
-      "New Assignment Available",
-      `A new assignment was added to "${courseTitle}"`,
-      "assignment",
-      insertRes.rows[0].id
-    );
+    if (studentIds.length > 0) {
+      await notificationService.createBulkNotifications(
+        studentIds,
+        "New Assignment Available",
+        `A new assignment "${title}" was added to "${courseTitle}"`,
+        "assignment",
+        insertRes.rows[0].id
+      );
+    }
 
     return insertRes.rows[0];
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -388,13 +505,16 @@ const createAssignment = async ({
   }
 };
 
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Add question to assignment
+========================================================= */
 const addQuestion = async (assignmentId, question_text, instructor_id) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Check assignment belongs to instructor
+    // Verify assignment belongs to instructor
     const assignmentRes = await client.query(
       `SELECT a.id
        FROM assignments a
@@ -408,8 +528,7 @@ const addQuestion = async (assignmentId, question_text, instructor_id) => {
     }
 
     const insertRes = await client.query(
-      `INSERT INTO assignment_questions
-       (assignment_id, question_text)
+      `INSERT INTO assignment_questions (assignment_id, question_text)
        VALUES ($1,$2)
        RETURNING *`,
       [assignmentId, question_text]
@@ -418,6 +537,7 @@ const addQuestion = async (assignmentId, question_text, instructor_id) => {
     await client.query("COMMIT");
 
     return insertRes.rows[0];
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -426,35 +546,52 @@ const addQuestion = async (assignmentId, question_text, instructor_id) => {
   }
 };
 
-const deleteQuestion = async (questionId, instructor_id) => {
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Add options to a question
+========================================================= */
+const addOptions = async (questionId, options, instructor_id) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Check ownership
-    const checkRes = await client.query(
+    // Verify question belongs to instructor
+    const questionRes = await client.query(
       `SELECT q.id
        FROM assignment_questions q
        JOIN assignments a ON q.assignment_id = a.id
-       JOIN courses c ON a.course_id = c.id
+       JOIN courses c     ON a.course_id     = c.id
        WHERE q.id = $1 AND c.instructor_id = $2`,
       [questionId, instructor_id]
     );
 
-    if (checkRes.rows.length === 0) {
-      throw new Error("Not authorized to delete this question");
+    if (questionRes.rows.length === 0) {
+      throw new Error("Not authorized to modify this question");
     }
 
-    await client.query(
-      `DELETE FROM assignment_questions
-       WHERE id = $1`,
-      [questionId]
-    );
+    // Exactly one correct answer required
+    const correctCount = options.filter(o => o.is_correct).length;
+
+    if (correctCount !== 1) {
+      throw new Error("There must be exactly one correct option");
+    }
+
+    const insertedOptions = [];
+
+    for (const option of options) {
+      const res = await client.query(
+        `INSERT INTO assignment_options (question_id, option_text, is_correct)
+         VALUES ($1,$2,$3)
+         RETURNING *`,
+        [questionId, option.option_text, option.is_correct]
+      );
+      insertedOptions.push(res.rows[0]);
+    }
 
     await client.query("COMMIT");
 
-    return { questionId };
+    return insertedOptions;
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -463,18 +600,21 @@ const deleteQuestion = async (questionId, instructor_id) => {
   }
 };
 
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Update question text and/or options
+========================================================= */
 const updateQuestion = async (questionId, data, instructor_id) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // 🔐 Check ownership
+    // Verify ownership
     const checkRes = await client.query(
       `SELECT q.id
        FROM assignment_questions q
        JOIN assignments a ON q.assignment_id = a.id
-       JOIN courses c ON a.course_id = c.id
+       JOIN courses c     ON a.course_id     = c.id
        WHERE q.id = $1 AND c.instructor_id = $2`,
       [questionId, instructor_id]
     );
@@ -483,37 +623,31 @@ const updateQuestion = async (questionId, data, instructor_id) => {
       throw new Error("Not authorized to edit this question");
     }
 
-    // ✏️ Update question text
+    // Update question text
     if (data.question_text) {
       await client.query(
-        `UPDATE assignment_questions
-         SET question_text = $1
-         WHERE id = $2`,
+        `UPDATE assignment_questions SET question_text = $1 WHERE id = $2`,
         [data.question_text, questionId]
       );
     }
 
-    // ✏️ Update options (لو بعت options)
+    // Replace options if provided
     if (data.options && Array.isArray(data.options)) {
-
-      // لازم يكون فيه إجابة صحيحة واحدة بس
       const correctCount = data.options.filter(o => o.is_correct).length;
+
       if (correctCount !== 1) {
         throw new Error("There must be exactly one correct option");
       }
 
-      // نحذف الاختيارات القديمة
+      // Delete old options then re-insert
       await client.query(
-        `DELETE FROM assignment_options
-         WHERE question_id = $1`,
+        `DELETE FROM assignment_options WHERE question_id = $1`,
         [questionId]
       );
 
-      // نضيف الاختيارات الجديدة
-      for (let option of data.options) {
+      for (const option of data.options) {
         await client.query(
-          `INSERT INTO assignment_options
-           (question_id, option_text, is_correct)
+          `INSERT INTO assignment_options (question_id, option_text, is_correct)
            VALUES ($1,$2,$3)`,
           [questionId, option.option_text, option.is_correct]
         );
@@ -532,50 +666,37 @@ const updateQuestion = async (questionId, data, instructor_id) => {
   }
 };
 
-const addOptions = async (questionId, options, instructor_id) => {
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Delete question
+========================================================= */
+const deleteQuestion = async (questionId, instructor_id) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Check question belongs to instructor
-    const questionRes = await client.query(
+    const checkRes = await client.query(
       `SELECT q.id
        FROM assignment_questions q
        JOIN assignments a ON q.assignment_id = a.id
-       JOIN courses c ON a.course_id = c.id
+       JOIN courses c     ON a.course_id     = c.id
        WHERE q.id = $1 AND c.instructor_id = $2`,
       [questionId, instructor_id]
     );
 
-    if (questionRes.rows.length === 0) {
-      throw new Error("Not authorized to modify this question");
+    if (checkRes.rows.length === 0) {
+      throw new Error("Not authorized to delete this question");
     }
 
-    // Ensure exactly one correct answer
-    const correctCount = options.filter(o => o.is_correct).length;
-
-    if (correctCount !== 1) {
-      throw new Error("There must be exactly one correct option");
-    }
-
-    const insertedOptions = [];
-
-    for (let option of options) {
-      const res = await client.query(
-        `INSERT INTO assignment_options
-         (question_id, option_text, is_correct)
-         VALUES ($1,$2,$3)
-         RETURNING *`,
-        [questionId, option.option_text, option.is_correct]
-      );
-
-      insertedOptions.push(res.rows[0]);
-    }
+    await client.query(
+      `DELETE FROM assignment_questions WHERE id = $1`,
+      [questionId]
+    );
 
     await client.query("COMMIT");
 
-    return insertedOptions;
+    return { questionId };
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -584,14 +705,14 @@ const addOptions = async (questionId, options, instructor_id) => {
   }
 };
 
-const getAssignmentDetailsForInstructor = async (
-  assignmentId,
-  instructor_id
-) => {
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Get assignment details (with correct answers)
+========================================================= */
+const getAssignmentDetailsForInstructor = async (assignmentId, instructor_id) => {
   const client = await pool.connect();
 
   try {
-    // Check ownership
+    // Verify ownership
     const assignmentRes = await client.query(
       `SELECT a.*
        FROM assignments a
@@ -606,59 +727,61 @@ const getAssignmentDetailsForInstructor = async (
 
     const assignment = assignmentRes.rows[0];
 
-    // Get questions + options
+    // Get questions + options (with is_correct visible to instructor)
     const questionsRes = await client.query(
-      `SELECT 
-         q.id as question_id,
+      `SELECT
+         q.id   AS question_id,
          q.question_text,
-         o.id as option_id,
+         o.id   AS option_id,
          o.option_text,
          o.is_correct
        FROM assignment_questions q
        LEFT JOIN assignment_options o
-       ON q.id = o.question_id
+         ON q.id = o.question_id
        WHERE q.assignment_id = $1
        ORDER BY q.id`,
       [assignmentId]
     );
 
-    // Arrange data properly
     const questionsMap = new Map();
 
-    questionsRes.rows.forEach((row) => {
+    questionsRes.rows.forEach(row => {
       if (!questionsMap.has(row.question_id)) {
         questionsMap.set(row.question_id, {
           id: row.question_id,
           question_text: row.question_text,
-          options: [],
+          options: []
         });
       }
 
       if (row.option_id) {
         questionsMap.get(row.question_id).options.push({
-          id: row.option_id,
+          id:          row.option_id,
           option_text: row.option_text,
-          is_correct: row.is_correct,
+          is_correct:  row.is_correct
         });
       }
     });
 
     return {
       ...assignment,
-      questions: Array.from(questionsMap.values()),
+      questions: Array.from(questionsMap.values())
     };
+
   } finally {
     client.release();
   }
 };
 
+/* =========================================================
+   👨‍🏫 INSTRUCTOR — Delete assignment
+========================================================= */
 const deleteAssignment = async (assignmentId, instructor_id) => {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
 
-    // Check ownership
     const checkRes = await client.query(
       `SELECT a.id
        FROM assignments a
@@ -671,15 +794,12 @@ const deleteAssignment = async (assignmentId, instructor_id) => {
       throw new Error("Not authorized to delete this assignment");
     }
 
-    await client.query(
-      `DELETE FROM assignments
-       WHERE id = $1`,
-      [assignmentId]
-    );
+    await client.query(`DELETE FROM assignments WHERE id = $1`, [assignmentId]);
 
     await client.query("COMMIT");
 
     return { assignmentId };
+
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -688,111 +808,17 @@ const deleteAssignment = async (assignmentId, instructor_id) => {
   }
 };
 
-const getAttemptDetails = async (
-  assignmentId,
-  attemptId,
-  studentId
-) => {
-
-  const client = await pool.connect();
-
-  try {
-
-    // Get attempt info
-    const attemptRes = await client.query(
-      `SELECT score, percentage, is_passed, attempt_number
-       FROM student_assignment_attempts
-       WHERE id = $1
-       AND assignment_id = $2
-       AND student_id = $3`,
-      [attemptId, assignmentId, studentId]
-    );
-
-    if (attemptRes.rows.length === 0) {
-      throw new Error("Attempt not found");
-    }
-
-    const attempt = attemptRes.rows[0];
-
-    // Get questions + options + student answer
-    const questionsRes = await client.query(
-      `SELECT
-        q.id AS question_id,
-        q.question_text,
-        o.id AS option_id,
-        o.option_text,
-        o.is_correct,
-        sa.selected_option_id
-
-       FROM assignment_questions q
-
-       LEFT JOIN assignment_options o
-       ON o.question_id = q.id
-
-       LEFT JOIN student_attempt_answers sa
-       ON sa.question_id = q.id
-       AND sa.attempt_id = $1
-
-       WHERE q.assignment_id = $2
-
-       ORDER BY q.id`,
-      [attemptId, assignmentId]
-    );
-
-    const questionsMap = new Map();
-
-    questionsRes.rows.forEach(row => {
-
-      if (!questionsMap.has(row.question_id)) {
-
-        questionsMap.set(row.question_id, {
-
-          question_id: row.question_id,
-          question_text: row.question_text,
-          selected_option_id: row.selected_option_id,
-          options: []
-
-        });
-
-      }
-
-      questionsMap.get(row.question_id).options.push({
-
-        id: row.option_id,
-        option_text: row.option_text,
-        is_correct: row.is_correct
-
-      });
-
-    });
-
-    return {
-
-      ...attempt,
-
-      questions: Array.from(questionsMap.values())
-
-    };
-
-  } finally {
-
-    client.release();
-
-  }
-
-};
-
 export default {
   getAllAssignmentsForStudentDashboard,
   getAssignmentDetailsForStudent,
   submitAssignment,
   getStudentAttempts,
+  getAttemptDetails,
   createAssignment,
   addQuestion,
+  addOptions,
+  updateQuestion,
   deleteQuestion,
   getAssignmentDetailsForInstructor,
   deleteAssignment,
-  updateQuestion,
-  addOptions,
-  getAttemptDetails
 };
