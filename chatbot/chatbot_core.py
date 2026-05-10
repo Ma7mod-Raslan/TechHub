@@ -489,6 +489,7 @@ EDUCATIONAL_FALLBACK_SYSTEM = """
     OUT_OF_SCOPE
 
     Rules:
+    - Always answer in clear English.
     - Keep answers concise and educational.
     - Never invent TechHub platform features.
 """
