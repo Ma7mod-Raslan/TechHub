@@ -1032,7 +1032,7 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
 
             <main className="p-6">
               {/* Community Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center gap-3">
@@ -1054,8 +1054,6 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-                <Card>
                 </Card>
                 <Card className="mb-6">
                   <CardContent className="p-4">
