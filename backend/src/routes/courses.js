@@ -527,6 +527,8 @@ router.put(
 
     try {
       const courseId = req.params.id;
+      const courseIdInt = parseInt(courseId);
+
       const instructorId = req.user.id;
 
       await client.query("BEGIN");
@@ -590,7 +592,7 @@ router.put(
         "Course Submitted",
         `Your course "${courseTitle}" has been submitted for admin review.`,
         "course_pending",
-        courseId
+        courseIdInt
       );
 
       // Notification for Admin
@@ -599,7 +601,7 @@ router.put(
         title: "Course Review Request",
         message: `Instructor submitted course "${courseTitle}" for publishing approval.`,
         type: "course_pending",
-        reference_id: courseId,
+        reference_id: courseIdInt,
       });
     } catch (notifErr) {
       console.error("Admin notification failed:", notifErr);
