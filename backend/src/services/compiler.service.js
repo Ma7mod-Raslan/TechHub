@@ -42,7 +42,7 @@ export const spawnSession = ({ source_code, language, onData, onExit }) => {
     "--memory-swap", "128m",       // disable swap
     "--cpus", "0.5",               // CPU cap
     "--read-only",                 // filesystem is read-only
-    "--tmpfs", "/tmp:size=32m",    // /tmp is writable (runner scripts need it)
+    "--tmpfs", "/tmp:size=32m,exec",    // /tmp is writable (runner scripts need it)
     "--env", `SOURCE_B64=${encoded}`,
     "--name", `sandbox_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     "techhub-sandbox",             // the sandbox image
