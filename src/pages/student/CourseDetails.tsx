@@ -505,7 +505,11 @@ export default function CourseDetails({ userRole, logout }: CourseDetailsProps) 
                     <TabsContent value="instructor" className="mt-6">
                       <Card><CardContent className="p-6">
                         <div className="flex items-start gap-4">
-                          <ImageWithFallback src="https://images.unsplash.com/photo-1758270704025-0e1a1793e1ca?w=200" alt="Instructor" className="w-24 h-24 rounded-full object-cover" />
+                          <ImageWithFallback
+                            src={course?.instructor_image}
+                            alt="Instructor"
+                            className="w-24 h-24 rounded-full object-cover"
+                          />
                           <div><h2 className="text-2xl mb-2">{course?.instructor_name}</h2><p className="text-gray-600">Course Instructor</p></div>
                         </div>
                       </CardContent></Card>
