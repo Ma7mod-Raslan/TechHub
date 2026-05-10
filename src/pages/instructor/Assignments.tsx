@@ -91,7 +91,7 @@ export default function InstructorAssignments({ logout, userRole }: Props) {
                         <p className="text-sm text-gray-500 mb-3">{course.questions_count ?? 0} Questions</p>
                         <Button className="w-full bg-gradient-to-r from-violet-600 to-cyan-500 hover:from-violet-700 hover:to-cyan-600"
                           onClick={(e) => { e.stopPropagation(); navigate("/instructor/manage-assignment", { state: { courseId: course.id } }); }}>
-                          Manage Assessments
+                          Manage Assessment
                         </Button>
                       </CardContent>
                     </Card>

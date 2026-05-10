@@ -36,6 +36,7 @@ import { ImageWithFallback } from '../../components/Assets/ImageWithFallback';
 import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getInstructorMenuItems } from './config/instructorMenu';
+import { toast } from 'sonner';
 
 interface InstructorCourseViewProps {
   logout: () => void;
@@ -243,9 +244,12 @@ export default function InstructorCourseView({
       if (!res.ok) throw new Error('Failed to publish course');
       const data = await res.json();
       setCourse(data.course);
+      // ADD THIS:
+      toast.success('Course submitted for review! Waiting for admin approval.');
     } catch (error) {
       console.error(error);
-      alert('Failed to publish course');
+      // CHANGE alert to toast:
+      toast.error('Failed to submit course for review');
     }
   };
 
@@ -368,7 +372,7 @@ export default function InstructorCourseView({
                   <>
                     <Button variant="outline" onClick={() => navigate('/instructor/manage-assignment', { state: { courseId } })}>
                       <BarChart3 className="mr-2 h-4 w-4" />
-                      Manage Assessments
+                      Manage Assessment
                     </Button>
                     <Button variant="outline" onClick={() => navigate('/instructor/edit-course', { state: { courseId } })}>
                       <Edit className="mr-2 h-4 w-4" />
@@ -415,8 +419,14 @@ export default function InstructorCourseView({
                     {course.category && <Badge variant="outline">{COURSE_CATEGORIES[course.category] ?? course.category}</Badge>}
                     {course.level && <Badge variant="outline">{course.level}</Badge>}
                     {course.status && (
-                      <Badge className={!course.is_active ? 'bg-red-600 text-white' : course.status === 'Published' ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'}>
-                        {!course.is_active ? 'Suspended' : course.status}
+                      <Badge className={
+                        course.status === 'Published' && !course.is_active
+                          ? 'bg-red-600 text-white'
+                          : course.status === 'Published' && course.is_active
+                            ? 'bg-green-600 text-white'
+                            : 'bg-yellow-600 text-white'
+                      }>
+                        {course.status === 'Published' && !course.is_active ? 'Suspended' : course.status}
                       </Badge>
                     )}
                   </div>
