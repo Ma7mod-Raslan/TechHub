@@ -1,10 +1,10 @@
 // ============================================================
-// Certificates.tsx — Student Certificates (Clean Version)
+// Certificates.tsx — Student Certificates
 // ============================================================
 
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
-import { Trophy, Download, Share2, Menu } from "lucide-react";
+import { Trophy, Download, Share2, Menu, CheckCheck } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import AIAssistant from "../../components/AIAssistant";
@@ -28,6 +28,7 @@ export default function StudentCertificates({ logout, userRole }: Props) {
   const navigate = useNavigate();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user") || "null");
@@ -35,6 +36,15 @@ export default function StudentCertificates({ logout, userRole }: Props) {
     if (u.role !== "student") navigate(`/${u.role}/dashboard`, { replace: true });
     fetchMyCertificates().then((data: any) => setCertificates(data)).catch(console.error);
   }, []);
+
+  const handleShare = (cert: Certificate) => {
+    // Build the full public URL — cert.certificate_link is already /uploads/certificates/file.pdf
+    const fullUrl = `${window.location.origin}${cert.certificate_link}`;
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      setCopiedId(cert.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -73,13 +83,40 @@ export default function StudentCertificates({ logout, userRole }: Props) {
                       <p className="text-sm opacity-90">{new Date(cert.issued_at).toLocaleDateString()}</p>
                     </div>
                     <CardContent className="p-4">
+                      <p className="text-xs text-gray-400 text-center mb-3 font-mono tracking-wide">
+                        ID: {cert.certificate_code}
+                      </p>
                       <div className="flex gap-2">
-                        <a href={`/api/${cert.certificate_link}`} download className="flex-1">
-                          <Button variant="outline" className="w-full hover:bg-gray-100"><Download className="mr-2 h-4 w-4" />Download</Button>
+
+                        {/*
+                          ✅ FIX: cert.certificate_link is already "/uploads/certificates/file.pdf"
+                          — use it directly as the href, no /api/ prefix needed.
+                          Nginx proxies /uploads/ → backend → Express static middleware.
+                        */}
+                        <a
+                          href={cert.certificate_link}
+                          download={`${cert.certificate_code}.pdf`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full hover:bg-gray-100">
+                            <Download className="mr-2 h-4 w-4" />
+                            Download PDF
+                          </Button>
                         </a>
-                        <Button variant="outline" className="flex-1 hover:bg-gray-100" onClick={() => { navigator.clipboard.writeText(cert.certificate_link); alert("Certificate link copied!"); }}>
-                          <Share2 className="mr-2 h-4 w-4" />Share
+
+                        <Button
+                          variant="outline"
+                          className="flex-1 hover:bg-gray-100"
+                          onClick={() => handleShare(cert)}
+                        >
+                          {copiedId === cert.id
+                            ? <><CheckCheck className="mr-2 h-4 w-4 text-green-500" />Copied!</>
+                            : <><Share2 className="mr-2 h-4 w-4" />Share</>
+                          }
                         </Button>
+
                       </div>
                     </CardContent>
                   </Card>
