@@ -1,19 +1,25 @@
 import * as pty from "node-pty";
 import { getLanguageConfig } from "../utils/languageMap.js";
 
-// Kill session after 30s total life, or 10s of no output
-const MAX_SESSION_MS = 30_000;
-const MAX_IDLE_MS    = 10_000;
+const MAX_SESSION_MS = 30_000; // hard lifetime cap — 30 seconds
+const MAX_IDLE_MS    = 10_000; // kill after 10s of no output
 
 /**
- * Spawns a real PTY process for the given language and source code.
- * Returns a session object the route layer can hold onto.
+ * Spawns a throwaway Docker sandbox container for each code execution.
+ * The container has:
+ *  - no network access        (--network none)
+ *  - 128MB RAM cap            (--memory 128m)
+ *  - 0.5 CPU cap              (--cpus 0.5)
+ *  - read-only filesystem     (--read-only)
+ *  - /tmp writable via tmpfs  (--tmpfs /tmp)
+ *  - no access to host env or secrets
+ *  - auto-removed on exit     (--rm)
  *
  * @param {object}   opts
  * @param {string}   opts.source_code
- * @param {string}   opts.language       - e.g. "python", "javascript", "cpp"
- * @param {Function} opts.onData         - called with every output chunk (string)
- * @param {Function} opts.onExit         - called with { exitCode, signal }
+ * @param {string}   opts.language
+ * @param {Function} opts.onData   - called with each output chunk
+ * @param {Function} opts.onExit   - called with { exitCode, signal }
  * @returns {{ write: Function, kill: Function, pid: number }}
  */
 export const spawnSession = ({ source_code, language, onData, onExit }) => {
@@ -23,32 +29,50 @@ export const spawnSession = ({ source_code, language, onData, onExit }) => {
     throw new Error(`Unsupported language: ${language}`);
   }
 
-  // Pass source code as base64 to avoid shell-escaping issues.
-  // The language runner script decodes $SOURCE_B64, writes it to a temp
-  // file, then executes it — see /scripts/ in your Docker image.
   const encoded = Buffer.from(source_code).toString("base64");
 
-  const ptyProcess = pty.spawn(config.cmd, config.args, {
+  // ── Docker run args ───────────────────────────────────────────
+  const dockerArgs = [
+    "run",
+    "--rm",                        // delete container on exit
+    "-i",                          // keep stdin open (needed for interactive)
+    "-t",                          // allocate a pseudo-TTY (needed for xterm)
+    "--network", "none",           // no internet access
+    "--memory", "128m",            // RAM cap
+    "--memory-swap", "128m",       // disable swap
+    "--cpus", "0.5",               // CPU cap
+    "--read-only",                 // filesystem is read-only
+    "--tmpfs", "/tmp:size=32m",    // /tmp is writable (runner scripts need it)
+    "--env", `SOURCE_B64=${encoded}`,
+    "--name", `sandbox_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    "techhub-sandbox",             // the sandbox image
+    config.cmd,                    // e.g. run_cpp.sh
+  ];
+
+  const ptyProcess = pty.spawn("docker", dockerArgs, {
     name: "xterm-color",
     cols: 80,
     rows: 24,
     cwd: "/tmp",
-    env: {
-      ...process.env,
-      TERM: "xterm-color",
-      SOURCE_B64: encoded,
-    },
+    env: { TERM: "xterm-color" }, // do NOT pass process.env — keeps secrets out
   });
 
   let idleTimer = null;
+  let timedOut  = false;
 
   const resetIdle = () => {
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => ptyProcess.kill(), MAX_IDLE_MS);
+    idleTimer = setTimeout(() => {
+      timedOut = true;
+      ptyProcess.kill();
+    }, MAX_IDLE_MS);
   };
 
-  // Hard cap — no session lives longer than MAX_SESSION_MS
-  const lifetimeTimer = setTimeout(() => ptyProcess.kill(), MAX_SESSION_MS);
+  // Hard lifetime cap
+  const lifetimeTimer = setTimeout(() => {
+    timedOut = true;
+    ptyProcess.kill();
+  }, MAX_SESSION_MS);
 
   ptyProcess.onData((data) => {
     resetIdle();
@@ -58,22 +82,24 @@ export const spawnSession = ({ source_code, language, onData, onExit }) => {
   ptyProcess.onExit(({ exitCode, signal }) => {
     clearTimeout(idleTimer);
     clearTimeout(lifetimeTimer);
+
+    if (timedOut) {
+      // Show a visible timeout message in the terminal
+      onData("\r\n\x1b[33m⚠ Execution timed out (30s limit reached)\x1b[0m\r\n");
+    }
+
     onExit({ exitCode, signal });
   });
 
   resetIdle();
 
   return {
-    /** Send user keystrokes into the running process */
     write: (data) => ptyProcess.write(data),
-
-    /** Forcefully terminate the session */
     kill: () => {
       clearTimeout(idleTimer);
       clearTimeout(lifetimeTimer);
       ptyProcess.kill();
     },
-
     pid: ptyProcess.pid,
   };
 };
