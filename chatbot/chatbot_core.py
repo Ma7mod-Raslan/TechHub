@@ -29,14 +29,16 @@ EMBED_MODEL_NAME    = "multi-qa-mpnet-base-dot-v1"
 RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 ANSWER_MODEL        = "llama-3.3-70b-versatile"   
 CONTEXT_MODEL       = "llama-3.1-8b-instant"      
-TOP_K = 5
+TOP_K = 3
 
 THRESHOLDS = {
-    # Minimum cosine similarity for QA answers
+    # High confidence
     "qa_sim": 0.50,
-
-    # Minimum cosine similarity for video chunks
     "vid_sim": 0.45,
+
+    # Medium confidence
+    "qa_soft": 0.30,
+    "vid_soft": 0.25,
 
     # CrossEncoder scores can be negative, so this threshold is intentionally low
     "qa_rerank": -5.0,
@@ -46,7 +48,7 @@ THRESHOLDS = {
     "margin": 0.08,
 
     # Domain detection threshold
-    "scope": 0.35,
+    "scope": 0.28,
 }
 
 REJECTION = {
@@ -204,24 +206,26 @@ def call_llm(system, user, model=ANSWER_MODEL, max_tokens=150, temperature=0.3):
 
 
 # Context
-CONTEXTUALIZER_SYSTEM = (
-    "Given the chat history and the latest user question, formulate a standalone question "
-    "that can be understood without the chat history. Resolve all pronouns (it, this, that, they) "
-    "and references to previous topics. If the question is already standalone, return it unchanged. "
-    "Output ONLY the reformulated question, nothing else."
-)
-DOMAIN_VALIDATOR_SYSTEM = """
-You are a strict domain validator for the TechHub chatbot.
+CONTEXTUALIZER_SYSTEM = """
+    You rewrite follow-up questions into standalone questions ONLY when necessary.
 
-The chatbot ONLY supports questions related to:
-- TechHub platform
-- courses
-- assignments
-- certificates
-- learning roadmaps
-- HTML lessons
-- student dashboards
-- instructor tools
+    Rules:
+    - If the latest user question is already clear and standalone, return it unchanged.
+    - If the latest question introduces a new topic, return it unchanged.
+    - ONLY use chat history when the latest question truly depends on previous context.
+    - NEVER force the previous topic into a new unrelated question.
+    - NEVER assume the user still means the previous topic unless clearly implied.
+    - Output ONLY the final standalone question.
+    """
+DOMAIN_VALIDATOR_SYSTEM = """
+You are a strict validator for the TechHub educational assistant.
+
+The assistant supports:
+- TechHub platform questions
+- programming learning
+- coding concepts
+- web development
+- computer science learning
 
 You will receive:
 1. User question
@@ -313,21 +317,57 @@ def search_video(q_emb):
 
 
 def select_best(qa_res, vid_res):
-    qa_s  = qa_res[0]["score"]  if qa_res  else 0
+
+    qa_s  = qa_res[0]["score"] if qa_res else 0
     vid_s = vid_res[0]["score"] if vid_res else 0
-    qa_ok  = qa_s  >= THRESHOLDS["qa_sim"]
-    vid_ok = vid_s >= THRESHOLDS["vid_sim"]
+
+    # HIGH
+    qa_high = qa_s >= THRESHOLDS["qa_sim"]
+    vid_high = vid_s >= THRESHOLDS["vid_sim"]
+
+    # SOFT
+    qa_soft = qa_s >= THRESHOLDS["qa_soft"]
+    vid_soft = vid_s >= THRESHOLDS["vid_soft"]
+
     margin = THRESHOLDS["margin"]
 
-    print(f"QA: {qa_s:.3f} {'OK' if qa_ok else 'FAIL'} | Video: {vid_s:.3f} {'OK' if vid_ok else 'FAIL'}", flush=True)
+    print(
+        f"QA={qa_s:.3f} | VIDEO={vid_s:.3f}",
+        flush=True
+    )
 
-    if not qa_ok and not vid_ok:
-        return None, None
-    if qa_ok and not vid_ok:        return qa_res,  "qa"
-    if vid_ok and not qa_ok:        return vid_res, "video"
-    if qa_s >= vid_s + margin:      return qa_res,  "qa"
-    if vid_s >= qa_s + margin:      return vid_res, "video"
-    return qa_res, "qa"
+    # ================= HIGH =================
+
+    if qa_high and not vid_high:
+        return qa_res, "qa", "high"
+
+    if vid_high and not qa_high:
+        return vid_res, "video", "high"
+
+    if qa_high and vid_high:
+        if qa_s >= vid_s + margin:
+            return qa_res, "qa", "high"
+        if vid_s >= qa_s + margin:
+            return vid_res, "video", "high"
+
+        return qa_res, "qa", "high"
+
+    # ================= SOFT =================
+
+    if qa_soft and not vid_soft:
+        return qa_res, "qa", "soft"
+
+    if vid_soft and not qa_soft:
+        return vid_res, "video", "soft"
+
+    if qa_soft and vid_soft:
+        if qa_s >= vid_s:
+            return qa_res, "qa", "soft"
+        return vid_res, "video", "soft"
+
+    # ================= FAIL =================
+
+    return None, None, "fail"
 
 
 def rerank(query, results, source):
@@ -364,7 +404,7 @@ Retrieved Content:
         DOMAIN_VALIDATOR_SYSTEM,
         user_msg,
         model=CONTEXT_MODEL,
-        max_tokens=5,
+        max_tokens=1,
         temperature=0
     )
 
@@ -402,8 +442,11 @@ def video_reference(r):
 
 
 ANSWER_SYSTEM_QA = (
-    "You are TechHub Assistant. Answer the user's question using ONLY the Retrieved Answer below. "
-    "Never add facts that aren't in the source. Keep responses under 3 sentences and natural."
+    "You are TechHub Assistant. "
+    "Answer the user's question using ONLY the Retrieved Contexts below. "
+    "You may combine information from multiple contexts. "
+    "Never invent facts not present in the contexts. "
+    "Keep responses natural and concise."
 )
 
 ANSWER_SYSTEM_VIDEO = (
@@ -411,31 +454,181 @@ ANSWER_SYSTEM_VIDEO = (
     "Never add facts that aren't in the content. Keep responses under 4 sentences. "
     "End with: ' To learn more, go to {ref}'"
 )
+SOFT_RAG_SYSTEM = """
+    You are TechHub Assistant.
 
+    You will receive:
+    1. User question
+    2. Retrieved context from TechHub database
 
-def generate_answer(original_query, standalone_query, best, source):
+    Task:
+    - If the context is enough to answer the question, generate a helpful answer.
+    - You may infer simple conclusions.
+    - If the context is unrelated or insufficient, reply exactly:
+    NOT_ENOUGH_INFORMATION
+
+    Rules:
+    - NEVER invent features.
+    - NEVER use outside knowledge.
+    - ONLY use provided context.
+    """
+EDUCATIONAL_FALLBACK_SYSTEM = """
+    You are TechHub Educational Assistant.
+
+    TechHub is an educational programming platform.
+
+    You will receive a student's question.
+
+    Your task:
+    - If the question is suitable for beginner or intermediate programming students on an educational learning platform, answer helpfully.
+    - If the question is highly specialized, unrelated to learning, or outside educational support scope, reply exactly:
+    OUT_OF_SCOPE
+
+    Rules:
+    - Keep answers concise and educational.
+    - Never invent TechHub platform features.
+    - You may answer general programming learning questions even if they are not in the database.
+    """
+def educational_fallback(query):
+
+    answer = call_llm(
+        EDUCATIONAL_FALLBACK_SYSTEM,
+        query,
+        model=ANSWER_MODEL,
+        max_tokens=180,
+        temperature=0.3
+    )
+
+    if not answer:
+        return None
+
+    if answer.strip().upper() == "OUT_OF_SCOPE":
+        return None
+
+    return answer.strip()
+def generate_soft_answer(query, results, source):
+
+    contexts = []
+
+    for i, r in enumerate(results[:5], start=1):
+
+        if source == "qa":
+            ctx = r["answer"]
+
+        else:
+            ctx = (
+                f"Video: {r['video_title']}\n"
+                f"Chapter: {r.get('chapter_title', '')}\n"
+                f"Content: {r['chunk']}"
+            )
+
+        contexts.append(
+            f"Similarity Score: {r['score']:.3f}\n"
+            f"Rerank Score: {r.get('rerank_score', 0):.3f}\n"
+            f"Context {i}:\n{ctx}"
+        )
+
+    joined = "\n\n".join(contexts)
+
+    user_msg = f"""
+        User Question:
+        {query}
+
+        Retrieved Context:
+        {joined}
+        """
+
+    answer = call_llm(
+        SOFT_RAG_SYSTEM,
+        user_msg,
+        max_tokens=180,
+        temperature=0.2
+    )
+
+    if not answer:
+        return None
+
+    if answer.strip().upper() == "NOT_ENOUGH_INFORMATION":
+        return None
+
+    return answer.strip()
+def generate_answer(standalone_query, contexts, source):
     """Generate final answer. Uses standalone query for grounding, original for tone."""
     if source == "qa":
-        user_msg = (
-            f"User Question: {standalone_query}\n\n"
-            f"Retrieved Answer: {best['answer']}"
-        )
-        return call_llm(ANSWER_SYSTEM_QA, user_msg, max_tokens=120)
 
+        joined_contexts = []
+
+        for i, r in enumerate(contexts[:3], start=1):
+
+            joined_contexts.append(
+                f"Context {i}:\n"
+                f"Topic: {r.get('topic', '')}\n"
+                f"Answer: {r['answer']}"
+            )
+
+        ctx = "\n\n".join(joined_contexts)
+
+        user_msg = (
+            f"User Question:\n{standalone_query}\n\n"
+            f"Retrieved Contexts:\n{ctx}"
+        )
+
+        return call_llm(
+            ANSWER_SYSTEM_QA,
+            user_msg,
+            max_tokens=150
+        )
+
+    joined_contexts = []
+
+    for i, r in enumerate(contexts[:3], start=1):
+
+        joined_contexts.append(
+            f"Context {i}:\n"
+            f"Course: {r.get('course_name', '')}\n"
+            f"Video: {r['video_title']}\n"
+            f"Chapter: {r.get('chapter_title', '')}\n"
+            f"Content: {r['chunk']}"
+        )
+
+    ctx = "\n\n".join(joined_contexts)
+
+    best = contexts[0]
     ref = video_reference(best)
-    ctx = (f"Course: {best.get('course_name','')}\n"
-           f"Video: {best['video_title']}\n"
-           f"Chapter: {best.get('chapter_title','')}\n"
-           f"Content: {best['chunk']}")
-    user_msg = f"User Question: {standalone_query}\n\nVideo Content:\n{ctx}"
-    answer = call_llm(ANSWER_SYSTEM_VIDEO.format(ref=ref), user_msg, max_tokens=160)
+
+    user_msg = (
+        f"User Question:\n{standalone_query}\n\n"
+        f"Retrieved Video Contexts:\n{ctx}"
+    )
+
+    answer = call_llm(
+        ANSWER_SYSTEM_VIDEO.format(ref=ref),
+        user_msg,
+        max_tokens=180
+    )
 
     if answer and best["video_title"] not in answer:
         answer += f"\n\nTo learn more, go to {ref}"
+
     return answer
 
+def try_educational_fallback(text, standalone, memory, t0):
 
-# ===================== MAIN PIPELINE ====================
+    fallback = educational_fallback(standalone)
+
+    if fallback:
+
+        memory.add(text, fallback)
+
+        return _result(
+            fallback,
+            "llm",
+            t0,
+            path="EDUCATIONAL_FALLBACK"
+        )
+
+    return None
+# MAIN PIPELINE 
 
 def respond(text, memory):
     """
@@ -494,41 +687,121 @@ def respond(text, memory):
     # Stage 5: Scope check (embedding-based, no LLM)
     in_domain, scope_sim = in_scope(standalone)
     print(f"Scope: {scope_sim:.3f} {'OK' if in_domain else 'FAIL'}", flush=True)
+    
     if not in_domain:
-        return _result(REJECTION["out_of_scope"], "rejected", t0, reason="out_of_scope")
+        print("Low scope, continuing cautiously...")
 
     # Stage 6: Retrieval
     q_emb = encode_query(preprocess(standalone))
     qa_res, vid_res = search_qa(q_emb), search_video(q_emb)
-    pool, source = select_best(qa_res, vid_res)
-    if pool is None:
-        return _result(REJECTION["no_data"], "rejected", t0, reason="below_threshold")
+    pool, source, confidence = select_best(qa_res, vid_res)
+    if confidence == "fail":
+        print("Retrieval confidence too low, trying educational fallback...")
+        fallback_result = try_educational_fallback(
+            text,
+            standalone,
+            memory,
+            t0
+        )
+
+        if fallback_result:
+            return fallback_result
+
+        return _result(
+            REJECTION["no_data"],
+            "rejected",
+            t0,
+            reason="below_threshold"
+        )
 
     # Stage 7: Rerank
     pool, passed = rerank(standalone, pool, source)
     if not passed:
-        return _result(REJECTION["no_match"], "rejected", t0, reason="rerank_failed")
-    best = pool[0]
-    # Stage 7.5: Domain validation
-    is_valid = validate_domain(standalone, best, source)
+        print("Rerank failed, trying educational fallback...")
+        fallback_result = try_educational_fallback(
+            text,
+            standalone,
+            memory,
+            t0
+        )
 
-    if not is_valid:
+        if fallback_result:
+            return fallback_result
+
         return _result(
-            REJECTION["out_of_scope"],
+            REJECTION["no_match"],
             "rejected",
             t0,
-            reason="domain_validation_failed"
+            reason="rerank_failed"
         )
+    top_contexts = pool[:3]
+    best = pool[0]
+    # Stage 7.3 : DOMAIN VALIDATION
+    if confidence == "high":
+
+        is_valid = validate_domain(
+            standalone,
+            best,
+            source
+        )
+
+        if not is_valid:
+            return _result(
+                REJECTION["out_of_scope"],
+                "rejected",
+                t0,
+                reason="domain_validation_failed"
+            )
     if source == "qa":
         print(f"Matched QA Topic: {best.get('topic', 'N/A')}")
     else:
         print(f"Matched Video: {best.get('video_title', 'N/A')} | Chapter: {best.get('chapter_title', 'N/A')} | Time: {best.get('timestamp', 'N/A')}")
 
+    # Stage 7.5: SOFT RAG 
+
+    if confidence == "soft":
+
+        answer = generate_soft_answer(
+            standalone,
+            top_contexts,
+            source
+        )
+
+        if answer:
+
+            memory.add(text, answer)
+
+            return _result(
+                answer,
+                source,
+                t0,
+                path="SOFT_RAG",
+                score=pool[0]["score"],
+                rerank=pool[0].get("rerank_score")
+            )
+
+        print("Soft RAG failed, trying educational fallback...")
+
+        fallback_result = try_educational_fallback(
+            text,
+            standalone,
+            memory,
+            t0
+        )
+
+        if fallback_result:
+            return fallback_result
+
+        return _result(
+            REJECTION["no_match"],
+            "rejected",
+            t0,
+            reason="soft_rag_failed"
+        )
     # Stage 8: Generate answer
-    answer = generate_answer(text, standalone, best, source)
+    answer = generate_answer(standalone, top_contexts, source)
     if not answer:
         return _result(REJECTION["no_data"], "rejected", t0, reason="llm_failed")
-
     # Stage 9: Save to memory
     memory.add(text, answer)
 
