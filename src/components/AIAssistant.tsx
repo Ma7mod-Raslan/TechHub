@@ -20,11 +20,12 @@ const getWelcomeMessage = (): ChatMessage => ({
 
 export default function AIAssistant() {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([getWelcomeMessage()]); 
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const SESSION_STORAGE_KEY = "chat_session_id";
+  const CHAT_STORAGE_KEY = "chat_messages";
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const sendMessageToBot = async (message: string): Promise<string> => {
@@ -34,7 +35,10 @@ export default function AIAssistant() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message, session_id: sessionId }),
+        body: JSON.stringify({
+          message,
+          session_id: sessionId,
+        }),
       });
 
       if (!response.ok) {
@@ -42,6 +46,7 @@ export default function AIAssistant() {
       }
 
       const data = await response.json();
+
       if (data.session_id && data.session_id !== sessionId) {
         setSessionId(data.session_id);
         localStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
@@ -58,7 +63,7 @@ export default function AIAssistant() {
     if (!newMessage.trim() || isTyping) return;
 
     const userMessage: ChatMessage = {
-      id: chatMessages.length + 1,
+      id: Date.now(),
       role: "user",
       content: newMessage,
       timestamp: new Date().toLocaleTimeString(),
@@ -72,7 +77,7 @@ export default function AIAssistant() {
     const botReply = await sendMessageToBot(currentMessage);
 
     const aiResponse: ChatMessage = {
-      id: chatMessages.length + 2,
+      id: Date.now() + 1,
       role: "assistant",
       content: botReply,
       timestamp: new Date().toLocaleTimeString(),
@@ -93,7 +98,23 @@ export default function AIAssistant() {
     const savedSession = localStorage.getItem(SESSION_STORAGE_KEY);
     if (savedSession) setSessionId(savedSession);
   }, []);
+  useEffect(() => {
+    if (chatMessages.length > 0) {
+      localStorage.setItem(
+        CHAT_STORAGE_KEY,
+        JSON.stringify(chatMessages)
+      );
+    }
+  }, [chatMessages]);
+  useEffect(() => {
+    const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
 
+    if (savedMessages) {
+      setChatMessages(JSON.parse(savedMessages));
+    } else {
+      setChatMessages([getWelcomeMessage()]);
+    }
+  }, []);
   return (
     <>
       {/* AI Assistant Chat */}
@@ -118,10 +139,25 @@ export default function AIAssistant() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => {
-                      setChatMessages([getWelcomeMessage()]);
-                      setSessionId(null);
+                    onClick={async () => {
+
+                      if (sessionId) {
+                        await fetch("/chatbot/reset", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            session_id: sessionId,
+                          }),
+                        });
+                      }
+
                       localStorage.removeItem(SESSION_STORAGE_KEY);
+                      localStorage.removeItem(CHAT_STORAGE_KEY);
+
+                      setSessionId(null);
+                      setChatMessages([getWelcomeMessage()]);
                     }}
                     title="New conversation"
                     className="text-white hover:bg-white/20 p-2 rounded-full transition-colors duration-200"
