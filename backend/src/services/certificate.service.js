@@ -427,7 +427,7 @@ const generateCertificate = async (studentId, courseId) => {
 
     await browser.close();
 
-    const fileUrl = `../uploads/certificates/${fileName}`;
+    const fileUrl = `/uploads/certificates/${fileName}`;
 
     /* 6️⃣ Save to database */
     const insert = await client.query(
