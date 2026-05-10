@@ -49,7 +49,7 @@ export default function StudentRoadmaps({ logout, userRole }: Props) {
               <Button variant="ghost" size="icon" className="lg:hidden flex-shrink-0" onClick={() => setIsMobileOpen(true)}><Menu className="h-5 w-5" /></Button>
               <div className="flex-1">
                 <h1 className="text-xl md:text-2xl">Learning Roadmaps</h1>
-                <p className="text-gray-600 text-sm md:text-base">AI-powered personalized learning paths</p>
+                <p className="text-gray-600 text-sm md:text-base">learning paths</p>
               </div>
               <HeaderIcons logout={logout} userRole={userRole} />
             </div>
