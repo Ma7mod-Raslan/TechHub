@@ -169,7 +169,8 @@ export default function InstructorManageAssignment({ logout, userRole }: any) {
           <main className="p-6 space-y-6">
             <Card>
               <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold">Assessment Settings</h3>
+                <h3 className="text-lg font-semibold">Success rate
+                </h3>
                 <Input
                   type="number"
                   value={assignment.passing_percentage}
