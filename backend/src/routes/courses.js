@@ -984,7 +984,8 @@ router.get(
         c.thumbnail,
         c.instructor_id,
         c.created_at,
-        u.full_name AS instructor_name
+        u.full_name AS instructor_name,
+        u.profile_image AS instructor_image
       FROM courses c
       JOIN users u ON u.id = c.instructor_id
       WHERE c.id = $1 `,
