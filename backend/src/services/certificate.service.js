@@ -4,6 +4,10 @@ import fs from "fs";
 import path from "path";
 import notificationService from "./notification.service.js";
 import { createAdminNotification } from "../services/notification.service.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 /* =========================================================
    Certificate HTML Template
@@ -390,7 +394,7 @@ const generateCertificate = async (studentId, courseId) => {
     });
 
     /* 4️⃣ Ensure output folder exists */
-    const certificatesDir = path.join(process.cwd(), "src", "uploads", "certificates");
+    const certificatesDir = path.join(__dirname, "..", "uploads", "certificates");
     if (!fs.existsSync(certificatesDir)) {
       fs.mkdirSync(certificatesDir, { recursive: true });
     }
