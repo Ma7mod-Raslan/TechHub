@@ -594,12 +594,17 @@ router.put(
       );
 
       // Notification for Admin
+    try {
       await createAdminNotification({
         title: "Course Review Request",
         message: `Instructor submitted course "${courseTitle}" for publishing approval.`,
         type: "course_pending",
         reference_id: courseId,
       });
+    } catch (notifErr) {
+      console.error("Admin notification failed:", notifErr);
+      // Don't block the response — notification failure is non-critical
+    }
 
       res.json({
         message: "Course submitted for review successfully",
