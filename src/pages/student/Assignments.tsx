@@ -57,7 +57,7 @@ function AssignmentCard({ assignment, onNavigate }: { assignment: Assignment; on
                 <Badge className={
                   assignment.status === "graded" ? "bg-gradient-to-r from-green-500 to-green-600 text-white" :
                   assignment.status === "submitted" ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white" :
-                  "border-violet-600 text-violet-600"
+                  "bg-gradient-to-r from-violet-600 to-cyan-500 text-white"
                 }>
                   {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
                 </Badge>
