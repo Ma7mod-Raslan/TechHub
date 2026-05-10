@@ -5,6 +5,9 @@ services:
     env_file:
       - ./backend/.env
     restart: always
+    volumes:
+      # ✅ Mount Docker socket so backend can spin up sandbox containers
+      - /var/run/docker.sock:/var/run/docker.sock
 
   chatbot:
     build: ./chatbot
@@ -14,10 +17,20 @@ services:
     restart: always
 
   frontend:
-    build:
-      context: .
+    build: .
     container_name: frontend
     restart: always
+
+  # ✅ Build the sandbox image so it's ready on the host
+  # The backend will reference it by name: techhub-sandbox
+  sandbox:
+    build: ./sandbox
+    image: techhub-sandbox
+    container_name: sandbox_builder
+    # This service only exists to build the image.
+    # It exits immediately — the real containers are
+    # spawned dynamically by compiler.service.js via Docker.
+    command: echo "Sandbox image built successfully"
 
   nginx:
     image: nginx:alpine
@@ -25,7 +38,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
@@ -33,5 +45,3 @@ services:
       - backend
       - chatbot
       - frontend
-
-# This to test the pipline

@@ -58,12 +58,16 @@ REJECTION = {
 
 # Scope anchors
 SCOPE_ANCHORS = [
-    "TechHub online learning platform courses and lessons",
-    "HTML web development tags elements attributes",
-    "user account signup login profile settings password reset",
-    "assignments certificates course progress",
-    "TechHub support contact us help center technical issues customer service",
-    "instructor dashboard create publish courses students assignments",
+    "TechHub online learning platform for computer science students and developers",
+    "TechHub programming courses HTML CSS JavaScript SQL web development lessons and tutorials",
+    "TechHub student account signup login authentication profile settings password reset dashboard",
+    "TechHub enrolled courses learning progress completed lessons quizzes assignments certificates",
+    "TechHub e learning education platform roadmaps coding exercises exams and certificates",
+    "TechHub support help center contact us technical issues account recovery platform assistance",
+    "TechHub instructor dashboard create publish manage courses students assignments and exams",
+    "HTML course web page structure tags elements attributes headings paragraphs links images tables",
+    "TechHub course communities student discussions learning groups and collaboration",
+    "TechHub recorded video lessons self paced learning educational content and course navigation",
 ]
 
 PROTECTED_WORDS = {
@@ -206,8 +210,41 @@ CONTEXTUALIZER_SYSTEM = (
     "and references to previous topics. If the question is already standalone, return it unchanged. "
     "Output ONLY the reformulated question, nothing else."
 )
+DOMAIN_VALIDATOR_SYSTEM = """
+You are a strict domain validator for the TechHub chatbot.
 
+The chatbot ONLY supports questions related to:
+- TechHub platform
+- courses
+- assignments
+- certificates
+- learning roadmaps
+- HTML lessons
+- student dashboards
+- instructor tools
 
+You will receive:
+1. User question
+2. Retrieved answer or retrieved content
+
+Your task:
+Determine whether the retrieved content truly belongs to the same domain and correctly answers the user's question.
+
+Rules:
+- If the question mentions another platform, company, or service unrelated to TechHub, return INVALID.
+- If the retrieved answer is about TechHub but the user asked about another platform, return INVALID.
+- Only return VALID if the retrieved answer genuinely matches the user's intent and domain.
+
+You MUST return exactly one word.
+
+VALID
+or
+INVALID
+
+Do not explain.
+Do not add punctuation.
+Do not add extra text.
+"""
 def contextualize(query, memory):
     """Rewrite question using chat history."""
    # Skip unnecessary rewrite
@@ -307,7 +344,44 @@ def rerank(query, results, source):
     print(f"Rerank: {results[0]['rerank_score']:.3f} {'OK' if passed else 'FAIL'}")    
     return results, passed
 
+def validate_domain(query, best, source):
+    """Validate retrieved result against user query."""
 
+    if source == "qa":
+        retrieved = best.get("answer", "")
+    else:
+        retrieved = best.get("chunk", "")
+
+    user_msg = f"""
+User Question:
+{query}
+
+Retrieved Content:
+{retrieved}
+"""
+
+    result = call_llm(
+        DOMAIN_VALIDATOR_SYSTEM,
+        user_msg,
+        model=CONTEXT_MODEL,
+        max_tokens=5,
+        temperature=0
+    )
+
+    if not result:
+        return False
+
+    result = result.strip().upper()
+
+    print(f"Domain Validation Raw: {result}")
+
+    if result == "VALID":
+        return True
+
+    if result == "INVALID":
+        return False
+
+    return False
 # ==================== ANSWER GENERATION =================
 
 def video_reference(r):
@@ -435,6 +509,16 @@ def respond(text, memory):
     if not passed:
         return _result(REJECTION["no_match"], "rejected", t0, reason="rerank_failed")
     best = pool[0]
+    # Stage 7.5: Domain validation
+    is_valid = validate_domain(standalone, best, source)
+
+    if not is_valid:
+        return _result(
+            REJECTION["out_of_scope"],
+            "rejected",
+            t0,
+            reason="domain_validation_failed"
+        )
     if source == "qa":
         print(f"Matched QA Topic: {best.get('topic', 'N/A')}")
     else:
