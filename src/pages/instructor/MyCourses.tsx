@@ -161,7 +161,7 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
                                   ? 'bg-red-600'
                                   : course.status?.toLowerCase() === 'pending'
                                     ? 'bg-yellow-600'
-                                    : 'bg-gray-500'
+                                    : 'bg-yellow-600'
                               }`}>
                               {course.status?.toLowerCase() === 'published' && !course.is_active
                                 ? 'Suspended'
