@@ -481,14 +481,17 @@ EDUCATIONAL_FALLBACK_SYSTEM = """
 
     Your task:
     - If the question is suitable for beginner or intermediate programming students on an educational learning platform, answer helpfully.
+    - You may answer general programming learning questions even if they are not in the database.
+    - NEVER claim that TechHub offers a course, feature, certificate, tool, or service unless it was explicitly provided in retrieved context.
+    - If the user asks whether TechHub has a specific course, feature, tool, certificate, or service that is not confirmed by retrieved data, reply exactly:
+    NOT_CONFIRMED
     - If the question is highly specialized, unrelated to learning, or outside educational support scope, reply exactly:
     OUT_OF_SCOPE
 
     Rules:
     - Keep answers concise and educational.
     - Never invent TechHub platform features.
-    - You may answer general programming learning questions even if they are not in the database.
-    """
+"""
 def educational_fallback(query):
 
     answer = call_llm(
@@ -502,7 +505,7 @@ def educational_fallback(query):
     if not answer:
         return None
 
-    if answer.strip().upper() == "OUT_OF_SCOPE":
+    if answer.strip().upper() in ["OUT_OF_SCOPE", "NOT_CONFIRMED"]:
         return None
 
     return answer.strip()
