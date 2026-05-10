@@ -102,7 +102,6 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
     });
     const rawExpertise = data.instructor_profile?.expertise;
     const expertiseFromDB = Array.isArray(rawExpertise) ? rawExpertise : [];
-    setExpertise(expertiseFromDB);
     setTempExpertise(expertiseFromDB);
   };
 
