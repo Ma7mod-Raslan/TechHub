@@ -120,7 +120,6 @@ export default function About() {
               { icon: Users, value: '500K+', label: 'Students Worldwide' },
               { icon: Award, value: '1,200+', label: 'Expert Courses' },
               { icon: TrendingUp, value: '95%', label: 'Success Rate' },
-              { icon: Heart, value: '4.9/5', label: 'Average Rating' },
             ].map((stat, index) => (
               <motion.div
                 key={index}

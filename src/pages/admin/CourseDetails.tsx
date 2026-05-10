@@ -94,7 +94,6 @@ export default function AdminCourseDetails({ logout }: AdminCourseDetailsProps) 
           description: data.description,
           thumbnail: data.thumbnail,
           rating: data.rating ?? 0,
-          language: data.language,
           level: data.level,
           lastUpdated: data.updated_at,
           outcomes: data.outcomes ?? [],
