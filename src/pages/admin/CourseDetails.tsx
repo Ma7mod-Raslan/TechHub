@@ -363,30 +363,13 @@ export default function AdminCourseDetails({ logout }: AdminCourseDetailsProps) 
                   <CardHeader><CardTitle>Course Information</CardTitle></CardHeader>
                   <CardContent className="space-y-4">
                     {[
-                      { label: "Language", value: courseData.language },
+                      { label: "Language", value: "English" },
                       { label: "Level", value: courseData.level },
-                      { label: "Last Updated", value: courseData.lastUpdated },
                       { label: "Total Duration", value: minutesToHumanDuration(totalDuration) },
                     ].map(({ label, value }) => (
                       <div key={label}>
                         <p className="text-sm text-gray-600 mb-1">{label}</p>
                         <p>{value}</p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader><CardTitle>Enrollment Stats</CardTitle></CardHeader>
-                  <CardContent className="space-y-4">
-                    {[
-                      { label: "Total Enrolled", value: courseData.enrolledStudents.toLocaleString() },
-                      { label: "Completion Rate", value: "68%" },
-                      { label: "Average Rating", value: `${courseData.rating} / 5.0` },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="flex justify-between mb-2">
-                        <span className="text-sm text-gray-600">{label}</span>
-                        <span className="text-sm">{value}</span>
                       </div>
                     ))}
                   </CardContent>
