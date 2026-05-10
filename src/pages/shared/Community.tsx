@@ -1056,15 +1056,6 @@ export default function Community({ logout, userRole, initialCommunityId }: Comm
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center gap-3">
-                      <TrendingUp className="h-8 w-8 text-green-600" />
-                      <div>
-                        <div className="text-2xl">142</div>
-                        <div className="text-sm text-gray-600">Active Today</div>
-                      </div>
-                    </div>
-                  </CardContent>
                 </Card>
                 <Card className="mb-6">
                   <CardContent className="p-4">
