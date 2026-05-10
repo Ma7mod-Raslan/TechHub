@@ -155,8 +155,17 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
                         <Card className="overflow-hidden">
                           <div className="relative">
                             <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
-                            <Badge className={`absolute top-2 right-2 ${!course.is_active ? 'bg-red-600' : course.status?.toLowerCase() === 'published' ? 'bg-green-600' : 'bg-yellow-600'}`}>
-                              {!course.is_active ? 'Suspended' : course.status}
+                            <Badge className={`absolute top-2 right-2 ${course.status?.toLowerCase() === 'published' && course.is_active
+                                ? 'bg-green-600'
+                                : course.status?.toLowerCase() === 'published' && !course.is_active
+                                  ? 'bg-red-600'
+                                  : course.status?.toLowerCase() === 'pending'
+                                    ? 'bg-yellow-600'
+                                    : 'bg-gray-500'
+                              }`}>
+                              {course.status?.toLowerCase() === 'published' && !course.is_active
+                                ? 'Suspended'
+                                : course.status}
                             </Badge>
                           </div>
                           <CardContent className="p-4">

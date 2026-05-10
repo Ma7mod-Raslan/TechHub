@@ -300,7 +300,7 @@ export default function StudentCompiler({ logout, userRole }: Props) {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold">Code Compiler</h1>
-                <p className="text-gray-500 text-sm">Interactive terminal — real execution</p>
+                <p className="text-gray-500 text-sm">Online IDE</p>
               </div>
 
               <div className="flex items-center gap-2">
