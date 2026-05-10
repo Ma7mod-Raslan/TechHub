@@ -212,6 +212,7 @@ CONTEXTUALIZER_SYSTEM = """
     Rules:
     - If the latest user question is already clear and standalone, return it unchanged.
     - If the latest question introduces a new topic, return it unchanged.
+    - If the latest question is vague (for example: "tell me more", "explain more", "why", "how"), use the most recent technical topic from the conversation.
     - ONLY use chat history when the latest question truly depends on previous context.
     - NEVER force the previous topic into a new unrelated question.
     - NEVER assume the user still means the previous topic unless clearly implied.
@@ -253,8 +254,6 @@ def contextualize(query, memory):
     """Rewrite question using chat history."""
    # Skip unnecessary rewrite
     if memory.is_empty():
-        return query, False
-    if len(query.split()) >= 10:  # Long queries are usually self-contained
         return query, False
 
     history = memory.as_text(max_answer_chars=120)
@@ -462,15 +461,17 @@ SOFT_RAG_SYSTEM = """
     2. Retrieved context from TechHub database
 
     Task:
-    - If the context is enough to answer the question, generate a helpful answer.
-    - You may infer simple conclusions.
-    - If the context is unrelated or insufficient, reply exactly:
+    - If the context is enough to answer the question, generate a helpful educational answer.
+    - You may infer simple beginner-level educational concepts strongly implied by the context.
+    - If the retrieved context does not clearly support a useful educational answer, reply with EXACTLY:
     NOT_ENOUGH_INFORMATION
 
     Rules:
-    - NEVER invent features.
-    - NEVER use outside knowledge.
-    - ONLY use provided context.
+    - Do not explain why information is insufficient.
+    - Do not mention missing context.
+    - Do not describe retrieval limitations.
+    - NEVER invent TechHub platform features.
+    - Primarily rely on the provided context.
     """
 EDUCATIONAL_FALLBACK_SYSTEM = """
     You are TechHub Educational Assistant.
