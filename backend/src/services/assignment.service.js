@@ -35,6 +35,7 @@ const getAllAssignmentsForStudentDashboard = async (studentId) => {
       AND at.student_id = $1
 
     WHERE e.student_id = $1
+      AND e.progress = 100
 
     GROUP BY a.id, c.id, e.progress
 
@@ -43,25 +44,23 @@ const getAllAssignmentsForStudentDashboard = async (studentId) => {
 
   return result.rows.map(row => {
     const attemptsUsed = parseInt(row.attempts_used);
-    const maxAttempts  = row.max_attempts;           // null = unlimited
+    const maxAttempts  = row.max_attempts;
 
-    // BUG FIX #1: null max_attempts (unlimited) must evaluate to true, not false
     const attemptsLeft =
       maxAttempts === null
         ? true
         : attemptsUsed < maxAttempts;
 
     return {
-      assignment_id:   row.assignment_id,
+      assignment_id:    row.assignment_id,
       assignment_title: row.assignment_title,
-      course_id:       row.course_id,
-      course_title:    row.course_title,
-      course_progress: parseInt(row.course_progress),
-      max_attempts:    maxAttempts,
-      attempts_used:   attemptsUsed,
-      questions_count: parseInt(row.questions_count),
-      // BUG FIX #2: course must be 100% complete AND attempts remaining
-      is_unlocked:     parseInt(row.course_progress) >= 100 && attemptsLeft,
+      course_id:        row.course_id,
+      course_title:     row.course_title,
+      course_progress:  parseInt(row.course_progress),
+      max_attempts:     maxAttempts,
+      attempts_used:    attemptsUsed,
+      questions_count:  parseInt(row.questions_count),
+      is_unlocked:      attemptsLeft,
     };
   });
 };
