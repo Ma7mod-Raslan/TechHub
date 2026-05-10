@@ -522,7 +522,7 @@ export const getCourseFullDetails = async (courseId) => {
     category: course.category,
     level: course.level,
     instructor_name: course.instructor_name,
-
+    enrolled_students: Number(course.enrolled_students),
     // status
     status: course.is_active && course.status === 'Published'
   ? "active"
