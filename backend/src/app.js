@@ -92,10 +92,10 @@ app.use("/api", videoNotesRoutes);
 app.use("/api/me", meRoutes);
 
 // Admin
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Contact Us
-app.use("/", contactRoutes);
+app.use("/api", contactRoutes);
 
 // Roadmaps
 app.use("/api", roadmapsRoutes);
