@@ -980,6 +980,7 @@ router.get(
         c.category,
         c.level,
         c.status,
+        c.is_active,
         c.thumbnail,
         c.instructor_id,
         c.created_at,
