@@ -50,10 +50,17 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
   const handleSaveExpertise = async () => {
     await fetch('/api/me', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-      body: JSON.stringify({ expertise: tempExpertise }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      },
+      body: JSON.stringify({
+        expertise: tempExpertise
+      }),
     });
-    setExpertise(tempExpertise);
+
+    await fetchProfile();
+
     setEditingExpertise(false);
   };
 
