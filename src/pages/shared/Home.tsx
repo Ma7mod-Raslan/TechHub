@@ -357,8 +357,6 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                     <p className="text-sm text-gray-600 mb-3"> {course.instructor_name}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm">4.8</span>
                       </div>
                     </div>
                   </CardContent>

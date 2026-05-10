@@ -51,9 +51,6 @@ function AllCourseCard({ course, duration, onNavigate }: { course: any; duration
           <h3 className="mb-2 line-clamp-2">{course.title}</h3>
           <p className="text-sm text-gray-600 mb-3">{course.instructor_name}</p>
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{course.rating ?? 4.8}</span>
-            <span>•</span>
             <Clock className="h-4 w-4" />
             <span>{formatDuration(duration)}</span>
           </div>
@@ -77,9 +74,6 @@ function MyCourseCard({ course, duration, onNavigate }: { course: any; duration:
           <h3 className="mb-2 line-clamp-2">{course.title}</h3>
           <p className="text-sm text-gray-600 mb-3">{course.instructor_name}</p>
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span>{course.rating ?? 4.8}</span>
-            <span>•</span>
             <Clock className="h-4 w-4" />
             <span>{formatDuration(duration)}</span>
           </div>
