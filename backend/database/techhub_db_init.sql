@@ -20,7 +20,7 @@ CREATE TABLE instructor_profiles (
   user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   job_title VARCHAR(100),
   linkedin VARCHAR(255),
-  expertise TEXT,
+  expertise TEXT[] DEFAULT '{}',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
