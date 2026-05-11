@@ -352,7 +352,6 @@ node src/app.js
 
 #### Frontend
 ```bash
-cd src/frontend
 npm install
 npm run dev
 # Runs on http://localhost:5173
