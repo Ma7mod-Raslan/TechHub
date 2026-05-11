@@ -6,11 +6,11 @@ import { uploadProfileImage } from "../services/cloudinary.js";
 
 const router = express.Router();
 
-/**
- * =========================
- * Update profile image
- * =========================
- */
+// /
+//  * =========================
+//  * Update profile image
+//  * =========================
+//  */
 router.put(
   "/profile-image",
   authMiddleware,
@@ -39,11 +39,11 @@ router.put(
   }
 );
 
-/**
- * =========================
- * Get user profile
- * =========================
- */
+// /
+//  * =========================
+//  * Get user profile
+//  * =========================
+//  */
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -75,12 +75,7 @@ router.get("/", authMiddleware, async (req, res) => {
     }
 
     const user = result.rows[0];
-    console.log("📌 [GET /api/me] User data:", {
-      id: user.id,
-      role: user.role,
-      expertise: user.expertise,
-      hasInstructorProfile: user.job_title !== null || user.linkedin !== null || user.expertise !== null
-    });
+    console.log("📌 [GET /api/me] Raw expertise from DB:", user.expertise, "Type:", typeof user.expertise);
 
     const response = {
       id: user.id,
@@ -93,12 +88,27 @@ router.get("/", authMiddleware, async (req, res) => {
     };
 
     if (user.role === "instructor") {
+      // تحويل الـ expertise من PostgreSQL array إلى JavaScript array
+      let expertiseArray = [];
+      if (user.expertise) {
+        if (Array.isArray(user.expertise)) {
+          expertiseArray = user.expertise;
+        } else if (typeof user.expertise === 'string') {
+          // تحويل string مثل '["React","node.js"]' إلى array
+          try {
+            expertiseArray = JSON.parse(user.expertise);
+          } catch {
+            expertiseArray = [user.expertise];
+          }
+        }
+      }
+
       response.instructor_profile = {
-        job_title: user.job_title || null,
-        linkedin: user.linkedin || null,
-        expertise: Array.isArray(user.expertise) ? user.expertise : (user.expertise ? [user.expertise] : []),
+        job_title: user.job_title =  null,
+        linkedin: user.linkedin =  null,
+        expertise: expertiseArray,
       };
-      console.log("📌 [GET /api/me] Instructor profile:", response.instructor_profile);
+      console.log("📌 [GET /api/me] Instructor profile expertise:", expertiseArray);
     }
 
     res.json(response);
@@ -108,11 +118,11 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-/**
- * =========================
- * Update user profile 
- * =========================
- */
+// /
+//  * =========================
+//  * Update user profile - PUT /api/me
+//  * =========================
+//  */
 router.put("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -122,7 +132,9 @@ router.put("/", authMiddleware, async (req, res) => {
       full_name, 
       bio, 
       linkedin, 
-      expertise: Array.isArray(expertise) ? expertise.length + " items" : expertise,
+      expertise,
+      expertise_type: typeof expertise,
+      expertise_is_array: Array.isArray(expertise),
       job_title 
     });
 
@@ -136,51 +148,72 @@ router.put("/", authMiddleware, async (req, res) => {
          WHERE id = $3`,
         [full_name || null, bio || null, userId]
       );
+      console.log("✅ User basic info updated");
     }
 
+    // 2️⃣ تحديث بيانات الـ Instructor Profile
     if (expertise !== undefined || linkedin !== undefined || job_title !== undefined) {
       console.log("📌 Updating instructor profile...");
       
+      // تحقق إذا كان يوجد instructor profile
       const existing = await db.query(
-        'SELECT id FROM instructor_profiles WHERE user_id = $1',
+        'SELECT id, expertise FROM instructor_profiles WHERE user_id = $1',
         [userId]
       );
 
       console.log("📌 Existing instructor profile:", existing.rows.length > 0 ? "YES" : "NO");
+      if (existing.rows.length > 0) {
+        console.log("📌 Current expertise in DB:", existing.rows[0].expertise);
+      }
+
+      // تحويل expertise إلى array بشكل صحيح
+      let expertiseToSave = undefined;
+      if (expertise !== undefined) {
+        if (Array.isArray(expertise)) {
+          expertiseToSave = expertise;
+        } else if (typeof expertise === 'string') {
+          try {
+            expertiseToSave = JSON.parse(expertise);
+          } catch {
+            expertiseToSave = [expertise];
+          }
+        } else {
+          expertiseToSave = [];
+        }
+      }
+
+      console.log("📌 Expertise to save (processed):", expertiseToSave);
 
       if (existing.rows.length === 0) {
-
+        // 🆕 إنشء جديد إذا لم يكن موجود
         console.log("📌 Creating new instructor profile...");
-        const expertiseArray = Array.isArray(expertise) ? expertise : [];
-        console.log("📌 Expertise to save:", expertiseArray);
-
+        
         await db.query(
           `INSERT INTO instructor_profiles (user_id, expertise, linkedin, job_title) 
-           VALUES ($1, $2, $3, $4)`,
+           VALUES ($1, $2, $3, $4)
+           RETURNING id, expertise`,
           [
             userId,
-            expertiseArray,
+            expertiseToSave || [],
             linkedin || null,
             job_title || null
           ]
         );
         console.log("✅ Instructor profile created");
       } else {
-        
+        // 📝 تحديث الموجود - استخدم COALESCE بشكل صحيح
         console.log("📌 Updating existing instructor profile...");
-        const expertiseArray = Array.isArray(expertise) ? expertise : undefined;
-        console.log("📌 Expertise to update:", expertiseArray);
-
+        
         await db.query(
           `UPDATE instructor_profiles 
-           SET expertise = COALESCE($1, expertise),
+           SET expertise = $1,
                linkedin = COALESCE($2, linkedin),
                job_title = COALESCE($3, job_title)
            WHERE user_id = $4`,
           [
-            expertiseArray,
-            linkedin || undefined,
-            job_title || undefined,
+            expertiseToSave !== undefined ? expertiseToSave : undefined,
+            linkedin !== undefined ? linkedin : undefined,
+            job_title !== undefined ? job_title : undefined,
             userId
           ]
         );
@@ -217,10 +250,7 @@ router.put("/", authMiddleware, async (req, res) => {
     }
 
     const user = result.rows[0];
-    console.log("📌 Updated user data:", {
-      id: user.id,
-      expertise: user.expertise
-    });
+    console.log("📌 Updated expertise from DB:", user.expertise);
 
     const response = {
       id: user.id,
@@ -233,11 +263,26 @@ router.put("/", authMiddleware, async (req, res) => {
     };
 
     if (user.role === "instructor") {
+      // تحويل الـ expertise من PostgreSQL array
+      let expertiseArray = [];
+      if (user.expertise) {
+        if (Array.isArray(user.expertise)) {
+          expertiseArray = user.expertise;
+        } else if (typeof user.expertise === 'string') {
+          try {
+            expertiseArray = JSON.parse(user.expertise);
+          } catch {
+            expertiseArray = [user.expertise];
+          }
+        }
+      }
+
       response.instructor_profile = {
         job_title: user.job_title || null,
         linkedin: user.linkedin || null,
-        expertise: Array.isArray(user.expertise) ? user.expertise : (user.expertise ? [user.expertise] : []),
+        expertise: expertiseArray,
       };
+      console.log("📌 Final response expertise:", expertiseArray);
     }
 
     res.json({
@@ -247,16 +292,16 @@ router.put("/", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("❌ Update profile error:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, details: err.stack });
   }
 });
 
 
-/**
- * =========================
- * Get enrolled courses with progress (OPTIMIZED)
- * =========================
- */
+// /
+//  * =========================
+//  * Get enrolled courses with progress (OPTIMIZED)
+//  * =========================
+//  */
 router.get("/my-courses", authMiddleware, async (req, res) => {
   try {
     const studentId = req.user.id;
