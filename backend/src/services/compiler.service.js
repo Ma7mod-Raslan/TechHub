@@ -36,7 +36,7 @@ export const spawnSession = ({ source_code, language, onData, onExit }) => {
     rows: 24,
     cwd: "/tmp",
     env: {
-      // ✅ Explicit PATH so node-pty can find /usr/local/bin/docker
+      //  Explicit PATH so node-pty can find /usr/local/bin/docker
       PATH: "/usr/local/bin:/usr/bin:/bin",
       TERM: "xterm-color",
     },
