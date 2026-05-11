@@ -238,6 +238,8 @@ Determine whether the retrieved content truly belongs to the same domain and cor
 Rules:
 - If the question mentions another platform, company, or service unrelated to TechHub, return INVALID.
 - If the retrieved answer is about TechHub but the user asked about another platform, return INVALID.
+- If the user asks about a specific technology, topic, course, tool, certificate, or learning area (for example: AI, Flutter, DevOps, Cybersecurity), the retrieved content must explicitly mention the same topic.
+- If the retrieved content only partially matches the user's request, return INVALID.
 - Only return VALID if the retrieved answer genuinely matches the user's intent and domain.
 
 You MUST return exactly one word.
