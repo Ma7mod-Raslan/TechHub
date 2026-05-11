@@ -340,7 +340,7 @@ export default function InstructorCourseView({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+      <div className="flex h-screen overflow-hidden">
         <Sidebar
           menuItems={getInstructorMenuItems('/instructor/courses')}
           logout={logout}
@@ -350,7 +350,7 @@ export default function InstructorCourseView({
           setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
