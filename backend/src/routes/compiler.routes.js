@@ -3,7 +3,6 @@ import { WebSocketServer } from "ws";
 import rateLimit from "express-rate-limit";
 import { spawnSession } from "../services/compiler.service.js";
 import { languageMap } from "../utils/languageMap.js";
-import { authMiddleware } from "../middleware/auth.js";
 import { sessionManager } from "../services/session.manager.js";
 
 const router = express.Router();
@@ -23,31 +22,31 @@ router.get("/languages", (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-//  GET /api/compiler/ws
-//  This route exists ONLY to prevent Express
-//  from returning 404 on the WebSocket endpoint.
-//  The actual upgrade is handled by attachCompilerWS
-//  which intercepts at the HTTP server level BEFORE
-//  Express sees the request.
-// ─────────────────────────────────────────────
-router.get("/ws", (req, res) => {
-  res.status(426).json({ error: "This endpoint requires a WebSocket connection." });
-});
-
-// ─────────────────────────────────────────────
 //  WebSocket upgrade handler
-//  Call attachCompilerWS(server) in app.js after
-//  app.listen() to wire this up.
+//
+//  IMPORTANT: attachCompilerWS must be called BEFORE
+//  the server starts processing requests. It hooks
+//  into the raw Node.js HTTP server "upgrade" event
+//  which fires BEFORE Express sees the request.
+//  We no longer define a GET /ws route in Express —
+//  that was causing Express to respond before the
+//  upgrade could happen.
 // ─────────────────────────────────────────────
 export const attachCompilerWS = (server) => {
   const wss = new WebSocketServer({ noServer: true });
 
   server.on("upgrade", (req, socket, head) => {
-    // Only handle our compiler WebSocket path
-    // Strip query string if present
     const url = req.url.split("?")[0];
-    if (url !== "/api/compiler/ws") return;
 
+    // Only handle our compiler WebSocket path
+    if (url !== "/api/compiler/ws") {
+      // Reject unknown upgrade requests cleanly
+      socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      socket.destroy();
+      return;
+    }
+
+    // ✅ This fires BEFORE Express — upgrade is handled here
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
     });
@@ -122,7 +121,6 @@ export const attachCompilerWS = (server) => {
       }
     });
 
-    // Clean up on disconnect
     ws.on("close", () => {
       if (session) {
         session.kill();
