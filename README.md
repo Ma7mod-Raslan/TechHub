@@ -218,7 +218,7 @@ Browser (Monaco Editor + Xterm.js)
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/techhub.git
+git clone https://github.com/Ma7mod-Raslan/TechHub.git
 cd techhub
 ```
 
@@ -520,6 +520,6 @@ docker compose -f exe/docker-compose.yml up --build -d
 
 **🌐 [Visit TechHub → techhub-learn.com](https://techhub-learn.com)**
 
-Made with ❤️ — TechHub Team · 2024–2025
+Made with ❤️ — TechHub Team · 2026
 
 </div>
