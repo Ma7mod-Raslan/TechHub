@@ -110,7 +110,7 @@ router.get("/", authMiddleware, async (req, res) => {
 
 /**
  * =========================
- * Update user profile - مسار موحد (PUT /api/me)
+ * Update user profile 
  * =========================
  */
 router.put("/", authMiddleware, async (req, res) => {
