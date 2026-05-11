@@ -100,65 +100,115 @@ router.get("/", authMiddleware, async (req, res) => {
 
 /**
  * =========================
- * Update user profile
+ * Update user profile - مسار موحد (PUT /api/me)
  * =========================
  */
-/* PUT /api/me - Update user profile including expertise */
-router.put('/me', authMiddleware, async (req, res) => {
+router.put("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { full_name, bio, linkedin, expertise } = req.body;
+    const { full_name, bio, linkedin, expertise, job_title } = req.body;
 
+    // 1️⃣ تحديث بيانات المستخدم الأساسية
     if (full_name || bio) {
       await db.query(
         `UPDATE users 
-         SET full_name=$1, bio=$2 
-         WHERE id=$3`,
+         SET full_name = COALESCE($1, full_name),
+             bio = COALESCE($2, bio)
+         WHERE id = $3`,
         [full_name, bio, userId]
       );
     }
 
-    if (expertise || linkedin) {
+    // 2️⃣ تحديث بيانات الـ Instructor Profile
+    if (expertise !== undefined || linkedin !== undefined || job_title !== undefined) {
+      // تحقق إذا كان يوجد instructor profile
       const existing = await db.query(
-        'SELECT id FROM instructor_profiles WHERE user_id=$1',
+        'SELECT id FROM instructor_profiles WHERE user_id = $1',
         [userId]
       );
 
       if (existing.rows.length === 0) {
-
+        // 🆕 إنشء جديد إذا لم يكن موجود
         await db.query(
-          `INSERT INTO instructor_profiles (user_id, expertise, linkedin) 
-           VALUES ($1, $2, $3)`,
-          [userId, expertise || [], linkedin || '']
+          `INSERT INTO instructor_profiles (user_id, expertise, linkedin, job_title) 
+           VALUES ($1, $2, $3, $4)`,
+          [
+            userId,
+            Array.isArray(expertise) ? expertise : [],
+            linkedin || null,
+            job_title || null
+          ]
         );
       } else {
-
+        // 📝 تحديث الموجود
         await db.query(
           `UPDATE instructor_profiles 
-           SET expertise=$1, linkedin=$2 
-           WHERE user_id=$3`,
-          [expertise || [], linkedin || '', userId]
+           SET expertise = COALESCE($1, expertise),
+               linkedin = COALESCE($2, linkedin),
+               job_title = COALESCE($3, job_title)
+           WHERE user_id = $4`,
+          [
+            Array.isArray(expertise) ? expertise : undefined,
+            linkedin || undefined,
+            job_title || undefined,
+            userId
+          ]
         );
       }
     }
 
+    // 3️⃣ أرجع البيانات المحدثة الكاملة
     const result = await db.query(
-      `SELECT 
-        u.id, u.email, u.full_name, u.bio, u.profile_image, u.created_at,
-        ip.expertise, ip.linkedin
+      `
+      SELECT 
+        u.id,
+        u.full_name,
+        u.email,
+        u.role,
+        u.profile_image,
+        u.bio,
+        u.created_at,
+        ip.job_title,
+        ip.linkedin,
+        ip.expertise
       FROM users u
-      LEFT JOIN instructor_profiles ip ON ip.user_id = u.id
-      WHERE u.id=$1`,
+      LEFT JOIN instructor_profiles ip
+        ON u.id = ip.user_id
+      WHERE u.id = $1
+      `,
       [userId]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+    const response = {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+      profile_image: user.profile_image,
+      bio: user.bio,
+      created_at: user.created_at,
+    };
+
+    if (user.role === "instructor") {
+      response.instructor_profile = {
+        job_title: user.job_title,
+        linkedin: user.linkedin,
+        expertise: user.expertise ?? [],
+      };
+    }
+
     res.json({
-      message: 'Profile updated successfully',
-      user: result.rows[0]
+      message: "Profile updated successfully",
+      ...response
     });
 
   } catch (err) {
-    console.error('Update profile error:', err);
+    console.error("Update profile error:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -223,21 +273,14 @@ router.get("/my-courses", authMiddleware, async (req, res) => {
 
 /**
  * =========================
- * Get student stats: total enrolled courses, total time spent, total completed courses
+ * Get student stats
  * =========================
  */
-router.get(
-  "/stats",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const studentId = req.user.id;
+router.get("/stats", authMiddleware, async (req, res) => {
+  try {
+    const studentId = req.user.id;
 
-      /**
-       * Total enrolled courses
-       */
-
-      const enrolledRes = await db.query(
+    const enrolledRes = await db.query(
       `
       SELECT COUNT(*) 
       FROM enrollments e
@@ -247,48 +290,39 @@ router.get(
       `,
       [studentId]
     );
-      /**
-       * Total time spent (seconds)
-       */
-      const timeRes = await db.query(
-        `
-        SELECT COALESCE(SUM(watched_duration), 0) AS total_time
-        FROM student_video_progress
-        WHERE student_id = $1
-        `,
-        [studentId]
-      );
 
-      /**
-       * Total completed courses (NEW LOGIC)
-       */
-      const completedRes = await db.query(
-        `
-        SELECT COUNT(*)
-        FROM enrollments
-        WHERE student_id = $1
-          AND completed = true
-        `,
-        [studentId]
-      );
+    const timeRes = await db.query(
+      `
+      SELECT COALESCE(SUM(watched_duration), 0) AS total_time
+      FROM student_video_progress
+      WHERE student_id = $1
+      `,
+      [studentId]
+    );
 
-      res.json({
-        total_enrolled_courses: Number(enrolledRes.rows[0].count),
-        total_completed_courses: Number(completedRes.rows[0].count),
-        total_time_spent_seconds: Number(timeRes.rows[0].total_time),
-        total_time_spent_hours: Math.round(
-          Number(timeRes.rows[0].total_time) / 3600
-        )
-      });
+    const completedRes = await db.query(
+      `
+      SELECT COUNT(*)
+      FROM enrollments
+      WHERE student_id = $1
+        AND completed = true
+      `,
+      [studentId]
+    );
 
-    } catch (err) {
-      console.error("Student stats error:", err);
-      res.status(500).json({ error: err.message });
-    }
+    res.json({
+      total_enrolled_courses: Number(enrolledRes.rows[0].count),
+      total_completed_courses: Number(completedRes.rows[0].count),
+      total_time_spent_seconds: Number(timeRes.rows[0].total_time),
+      total_time_spent_hours: Math.round(
+        Number(timeRes.rows[0].total_time) / 3600
+      )
+    });
+
+  } catch (err) {
+    console.error("Student stats error:", err);
+    res.status(500).json({ error: err.message });
   }
-);
-
-
-
+});
 
 export default router;
