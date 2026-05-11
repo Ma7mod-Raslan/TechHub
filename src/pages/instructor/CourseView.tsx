@@ -403,7 +403,7 @@ export default function InstructorCourseView({
             </div>
           </header>
 
-          <Card className="mb-6">
+          <Card className="mb-6 sticky top-[73px] z-20 bg-white">
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
