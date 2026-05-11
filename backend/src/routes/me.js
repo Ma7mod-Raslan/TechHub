@@ -46,118 +46,9 @@ router.put(
  */
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const result = await db.query(
-      `
-      SELECT 
-        u.id,
-        u.full_name,
-        u.email,
-        u.role,
-        u.profile_image,
-        u.bio,
-        u.created_at,
-        ip.job_title,
-        ip.linkedin,
-        ip.expertise
-      FROM users u
-      LEFT JOIN instructor_profiles ip
-        ON u.id = ip.user_id
-      WHERE u.id = $1
-      `,
-      [req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const user = result.rows[0];
-
-    const response = {
-      id: user.id,
-      full_name: user.full_name,
-      email: user.email,
-      role: user.role,
-      profile_image: user.profile_image,
-      bio: user.bio,
-      created_at: user.created_at,
-    };
-
-    if (user.role === "instructor") {
-      response.instructor_profile = {
-        job_title: user.job_title,
-        linkedin: user.linkedin,
-        expertise: user.expertise ?? [],
-      };
-    }
-
-    res.json(response);
-  } catch (err) {
-    console.error("Get profile error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-/**
- * =========================
- * Update user profile - مسار موحد (PUT /api/me)
- * =========================
- */
-router.put("/", authMiddleware, async (req, res) => {
-  try {
     const userId = req.user.id;
-    const { full_name, bio, linkedin, expertise, job_title } = req.body;
+    console.log("📌 [GET /api/me] Fetching profile for user:", userId);
 
-    // 1️⃣ تحديث بيانات المستخدم الأساسية
-    if (full_name || bio) {
-      await db.query(
-        `UPDATE users 
-         SET full_name = COALESCE($1, full_name),
-             bio = COALESCE($2, bio)
-         WHERE id = $3`,
-        [full_name, bio, userId]
-      );
-    }
-
-    // 2️⃣ تحديث بيانات الـ Instructor Profile
-    if (expertise !== undefined || linkedin !== undefined || job_title !== undefined) {
-      // تحقق إذا كان يوجد instructor profile
-      const existing = await db.query(
-        'SELECT id FROM instructor_profiles WHERE user_id = $1',
-        [userId]
-      );
-
-      if (existing.rows.length === 0) {
-        // 🆕 إنشء جديد إذا لم يكن موجود
-        await db.query(
-          `INSERT INTO instructor_profiles (user_id, expertise, linkedin, job_title) 
-           VALUES ($1, $2, $3, $4)`,
-          [
-            userId,
-            Array.isArray(expertise) ? expertise : [],
-            linkedin || null,
-            job_title || null
-          ]
-        );
-      } else {
-        // 📝 تحديث الموجود
-        await db.query(
-          `UPDATE instructor_profiles 
-           SET expertise = COALESCE($1, expertise),
-               linkedin = COALESCE($2, linkedin),
-               job_title = COALESCE($3, job_title)
-           WHERE user_id = $4`,
-          [
-            Array.isArray(expertise) ? expertise : undefined,
-            linkedin || undefined,
-            job_title || undefined,
-            userId
-          ]
-        );
-      }
-    }
-
-    // 3️⃣ أرجع البيانات المحدثة الكاملة
     const result = await db.query(
       `
       SELECT 
@@ -184,6 +75,13 @@ router.put("/", authMiddleware, async (req, res) => {
     }
 
     const user = result.rows[0];
+    console.log("📌 [GET /api/me] User data:", {
+      id: user.id,
+      role: user.role,
+      expertise: user.expertise,
+      hasInstructorProfile: user.job_title !== null || user.linkedin !== null || user.expertise !== null
+    });
+
     const response = {
       id: user.id,
       full_name: user.full_name,
@@ -196,9 +94,149 @@ router.put("/", authMiddleware, async (req, res) => {
 
     if (user.role === "instructor") {
       response.instructor_profile = {
-        job_title: user.job_title,
-        linkedin: user.linkedin,
-        expertise: user.expertise ?? [],
+        job_title: user.job_title || null,
+        linkedin: user.linkedin || null,
+        expertise: Array.isArray(user.expertise) ? user.expertise : (user.expertise ? [user.expertise] : []),
+      };
+      console.log("📌 [GET /api/me] Instructor profile:", response.instructor_profile);
+    }
+
+    res.json(response);
+  } catch (err) {
+    console.error("❌ Get profile error:", err);
+    res.status(500).json({ error: "Internal server error", details: err.message });
+  }
+});
+
+/**
+ * =========================
+ * Update user profile - مسار موحد (PUT /api/me)
+ * =========================
+ */
+router.put("/", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { full_name, bio, linkedin, expertise, job_title } = req.body;
+
+    console.log("📌 [PUT /api/me] Request body:", { 
+      full_name, 
+      bio, 
+      linkedin, 
+      expertise: Array.isArray(expertise) ? expertise.length + " items" : expertise,
+      job_title 
+    });
+
+    // 1️⃣ تحديث بيانات المستخدم الأساسية
+    if (full_name || bio) {
+      console.log("📌 Updating user basic info...");
+      await db.query(
+        `UPDATE users 
+         SET full_name = COALESCE($1, full_name),
+             bio = COALESCE($2, bio)
+         WHERE id = $3`,
+        [full_name || null, bio || null, userId]
+      );
+    }
+
+    if (expertise !== undefined || linkedin !== undefined || job_title !== undefined) {
+      console.log("📌 Updating instructor profile...");
+      
+      const existing = await db.query(
+        'SELECT id FROM instructor_profiles WHERE user_id = $1',
+        [userId]
+      );
+
+      console.log("📌 Existing instructor profile:", existing.rows.length > 0 ? "YES" : "NO");
+
+      if (existing.rows.length === 0) {
+
+        console.log("📌 Creating new instructor profile...");
+        const expertiseArray = Array.isArray(expertise) ? expertise : [];
+        console.log("📌 Expertise to save:", expertiseArray);
+
+        await db.query(
+          `INSERT INTO instructor_profiles (user_id, expertise, linkedin, job_title) 
+           VALUES ($1, $2, $3, $4)`,
+          [
+            userId,
+            expertiseArray,
+            linkedin || null,
+            job_title || null
+          ]
+        );
+        console.log("✅ Instructor profile created");
+      } else {
+        
+        console.log("📌 Updating existing instructor profile...");
+        const expertiseArray = Array.isArray(expertise) ? expertise : undefined;
+        console.log("📌 Expertise to update:", expertiseArray);
+
+        await db.query(
+          `UPDATE instructor_profiles 
+           SET expertise = COALESCE($1, expertise),
+               linkedin = COALESCE($2, linkedin),
+               job_title = COALESCE($3, job_title)
+           WHERE user_id = $4`,
+          [
+            expertiseArray,
+            linkedin || undefined,
+            job_title || undefined,
+            userId
+          ]
+        );
+        console.log("✅ Instructor profile updated");
+      }
+    }
+
+    // 3️⃣ أرجع البيانات المحدثة الكاملة
+    console.log("📌 Fetching updated profile data...");
+    const result = await db.query(
+      `
+      SELECT 
+        u.id,
+        u.full_name,
+        u.email,
+        u.role,
+        u.profile_image,
+        u.bio,
+        u.created_at,
+        ip.job_title,
+        ip.linkedin,
+        ip.expertise
+      FROM users u
+      LEFT JOIN instructor_profiles ip
+        ON u.id = ip.user_id
+      WHERE u.id = $1
+      `,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      console.error("❌ User not found after update");
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+    console.log("📌 Updated user data:", {
+      id: user.id,
+      expertise: user.expertise
+    });
+
+    const response = {
+      id: user.id,
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+      profile_image: user.profile_image,
+      bio: user.bio,
+      created_at: user.created_at,
+    };
+
+    if (user.role === "instructor") {
+      response.instructor_profile = {
+        job_title: user.job_title || null,
+        linkedin: user.linkedin || null,
+        expertise: Array.isArray(user.expertise) ? user.expertise : (user.expertise ? [user.expertise] : []),
       };
     }
 
@@ -208,7 +246,7 @@ router.put("/", authMiddleware, async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Update profile error:", err);
+    console.error("❌ Update profile error:", err);
     res.status(500).json({ error: err.message });
   }
 });
