@@ -104,8 +104,8 @@ router.get("/", authMiddleware, async (req, res) => {
       }
 
       response.instructor_profile = {
-        job_title: user.job_title =  null,
-        linkedin: user.linkedin =  null,
+        job_title: user.job_title ||  null,
+        linkedin: user.linkedin ||  null,
         expertise: expertiseArray,
       };
       console.log("📌 [GET /api/me] Instructor profile expertise:", expertiseArray);
@@ -157,7 +157,7 @@ router.put("/", authMiddleware, async (req, res) => {
       
       // تحقق إذا كان يوجد instructor profile
       const existing = await db.query(
-        'SELECT id, expertise FROM instructor_profiles WHERE user_id = $1',
+        'SELECT expertise FROM instructor_profiles WHERE user_id = $1',
         [userId]
       );
 
@@ -205,11 +205,11 @@ router.put("/", authMiddleware, async (req, res) => {
         console.log("📌 Updating existing instructor profile...");
         
         await db.query(
-          `UPDATE instructor_profiles 
-           SET expertise = $1,
-               linkedin = COALESCE($2, linkedin),
-               job_title = COALESCE($3, job_title)
-           WHERE user_id = $4`,
+            `UPDATE instructor_profiles 
+            SET expertise = COALESCE($1, expertise),
+                linkedin = COALESCE($2, linkedin),
+                job_title = COALESCE($3, job_title)
+            WHERE user_id = $4`,
           [
             expertiseToSave !== undefined ? expertiseToSave : undefined,
             linkedin !== undefined ? linkedin : undefined,
