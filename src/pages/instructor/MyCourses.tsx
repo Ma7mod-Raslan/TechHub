@@ -16,6 +16,7 @@ import { UserRole } from '../../App';
 import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { useNavigate } from 'react-router-dom';
 import { getInstructorMenuItems } from './config/instructorMenu';
+import AIAssistant from '../../components/AIAssistant';
 
 interface InstructorCoursesProps {
   logout: () => void;
@@ -218,6 +219,7 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
           </div>
         </DialogContent>
       </Dialog>
+      <AIAssistant/>
     </div>
   );
 }

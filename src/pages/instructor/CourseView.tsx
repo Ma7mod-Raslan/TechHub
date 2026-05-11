@@ -37,6 +37,7 @@ import { COURSE_CATEGORIES } from '../../constants/courseCategories';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getInstructorMenuItems } from './config/instructorMenu';
 import { toast } from 'sonner';
+import AIAssistant from '../../components/AIAssistant';
 
 interface InstructorCourseViewProps {
   logout: () => void;
@@ -617,6 +618,7 @@ export default function InstructorCourseView({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AIAssistant/>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import HeaderIcons from '../../components/HeaderIcons';
 import Sidebar from '../../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import { getInstructorMenuItems } from './config/instructorMenu';
+import AIAssistant from '../../components/AIAssistant';
 
 interface InstructorProfileProps {
   logout: () => void;
@@ -346,6 +347,7 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
           </main>
         </div>
       </div>
+      <AIAssistant/>
     </div>
   );
 }

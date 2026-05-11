@@ -13,6 +13,7 @@ import { ImageWithFallback } from "../../components/Assets/ImageWithFallback";
 import { useLocation, useNavigate } from "react-router-dom";
 import { fetchInstructorCourses } from "./config/instructorApi";
 import { getInstructorMenuItems } from "./config/instructorMenu";
+import AIAssistant from "../../components/AIAssistant";
 
 interface Props { logout: () => void; userRole: any; }
 
@@ -102,6 +103,7 @@ export default function InstructorAssignments({ logout, userRole }: Props) {
           </main>
         </div>
       </div>
+      <AIAssistant/>
     </div>
   );
 }

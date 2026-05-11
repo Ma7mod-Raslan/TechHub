@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { notifyUpdate } from '../../utils/notifications';
 import { getInstructorMenuItems } from './config/instructorMenu';
+import AIAssistant from '../../components/AIAssistant';
 
 interface InstructorCreateCourseProps {
   logout: () => void;
@@ -272,6 +273,7 @@ export default function InstructorCreateCourse({ logout, userRole }: InstructorC
           </main>
         </div>
       </div>
+      <AIAssistant/>
     </div>
   );
 }

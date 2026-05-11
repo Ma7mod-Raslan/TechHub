@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
 import { notifyUpdate } from "../../utils/notifications";
 import { getInstructorMenuItems } from "./config/instructorMenu";
+import AIAssistant from "../../components/AIAssistant";
 
 export default function InstructorCreateAssignment({ logout, userRole }: any) {
   const navigate = useNavigate();
@@ -217,6 +218,7 @@ export default function InstructorCreateAssignment({ logout, userRole }: any) {
           </main>
         </div>
       </div>
+      <AIAssistant/>
     </div>
   );
 }

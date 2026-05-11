@@ -18,6 +18,7 @@ import { UserRole } from '../../App';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { notifyUpdate } from '../../utils/notifications';
 import { getInstructorMenuItems } from './config/instructorMenu';
+import AIAssistant from '../../components/AIAssistant';
 
 interface InstructorEditCourseProps {
   logout: () => void;
@@ -283,6 +284,7 @@ export default function InstructorEditCourse({ logout, userRole }: InstructorEdi
           </main>
         </div>
       </div>
+      <AIAssistant/>
     </div>
   );
 }
