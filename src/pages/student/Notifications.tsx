@@ -93,7 +93,7 @@ export default function StudentNotifications({ logout, userRole }: Props) {
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${getIconBg(n.type)}`}>
                             <Icon className={`h-6 w-6 ${getIconColor(n.type)}`} />
                           </div>
-                          <div className="flex-1">
+                          <div className="flex-1 overflow-y-auto">
                             <div className="flex items-start justify-between mb-1">
                               <h3>{n.title}</h3>
                               {!n.is_read && <Badge className="bg-gradient-to-r from-violet-600 to-cyan-500">New</Badge>}
