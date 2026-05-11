@@ -1,7 +1,12 @@
-# Use Node.js image
+# ─────────────────────────────────────────────
+#  Backend — Node.js API server
+# ─────────────────────────────────────────────
 FROM node:18
 
-# ── Chrome / Puppeteer dependencies ──────────────────────────────────────────
+# ── System dependencies ───────────────────────────────────────────────────────
+#  - Puppeteer/Chrome deps  → certificate generation
+#  - build-essential        → node-pty native compilation
+#  - curl                   → used to download Docker CLI binary
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     fonts-liberation \
@@ -40,26 +45,30 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     wget \
     xdg-utils \
+    build-essential \
+    curl \
     --no-install-recommends \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Tell Puppeteer not to download Chrome (we manage it ourselves via npx)
-# and run as non-root to avoid sandbox issues
+# ── Docker CLI (static binary) ────────────────────────────────────────────────
+#  Downloads only the docker CLI binary — not the daemon.
+#  The backend uses it to spawn sandbox containers via the mounted Docker socket.
+RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-27.3.1.tgz \
+    | tar -xz --strip-components=1 -C /usr/local/bin docker/docker \
+    && chmod +x /usr/local/bin/docker \
+    && docker --version
+
+# ── Puppeteer config ──────────────────────────────────────────────────────────
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false \
     PUPPETEER_ARGS="--no-sandbox --disable-setuid-sandbox"
 
-# Create app directory
 WORKDIR /app
 
-# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy rest of files
 COPY . .
 
-# Expose port
 EXPOSE 5000
 
-# Start app
 CMD ["node", "src/app.js"]
