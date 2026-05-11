@@ -33,6 +33,8 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
   const [tempExpertise, setTempExpertise] = useState<string[]>([]);
   const [editingExpertise, setEditingExpertise] = useState(false);
   const [newSkill, setNewSkill] = useState('');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState<InstructorStats | null>(null);
@@ -48,20 +50,48 @@ export default function InstructorProfile({ logout, userRole }: InstructorProfil
   ] : [];
 
   const handleSaveExpertise = async () => {
-    await fetch('/api/me', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-      },
-      body: JSON.stringify({
-        expertise: tempExpertise
-      }),
-    });
+    try {
+      setIsSaving(true);
+      setSaveError(null);
 
-    await fetchProfile();
+      console.log("💾 Saving expertise:", tempExpertise);
 
-    setEditingExpertise(false);
+      const response = await fetch('/api/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          expertise: tempExpertise
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save expertise');
+      }
+
+      const data = await response.json();
+      console.log("✅ Response from server:", data);
+
+      // تحديث البيانات من الـ Response مباشرة
+      if (data.instructor_profile?.expertise) {
+        console.log("📌 Updating expertise from response:", data.instructor_profile.expertise);
+        setExpertise(data.instructor_profile.expertise);
+        setTempExpertise(data.instructor_profile.expertise);
+      }
+
+      // أيضاً استدعي fetchProfile للتأكد من التحديث
+      await fetchProfile();
+
+      setEditingExpertise(false);
+    } catch (err) {
+      console.error("❌ Error saving expertise:", err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save expertise');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelExpertise = () => {
