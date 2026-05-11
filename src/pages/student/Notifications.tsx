@@ -61,10 +61,10 @@ export default function StudentNotifications({ logout, userRole }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative">
-      <div className="flex relative">
+    <div className="h-screen bg-gray-50 overflow-hidden relative">
+      <div className="flex h-full relative">
         <Sidebar menuItems={getStudentMenuItems("/student/notifications")} logout={logout} userRole="student" activePage="student-notifications" isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
-        <div className="flex-1 lg:ml-0 w-full">
+        <div className="flex-1 lg:ml-0 w-full overflow-y-auto">
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-4 flex-1 min-w-0">
