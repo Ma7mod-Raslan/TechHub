@@ -23,10 +23,10 @@ type Notification = { id: number; title: string; message: string; type: string; 
 
 const getIconAndColor = (type: string) => {
   const map: Record<string, { Icon: any; bg: string; color: string }> = {
-    revenue:     { Icon: DollarSign,  bg: "bg-green-100",  color: "text-green-600"  },
-    review:      { Icon: Star,        bg: "bg-yellow-100", color: "text-yellow-600" },
-    achievement: { Icon: TrendingUp,  bg: "bg-purple-100", color: "text-purple-600" },
-    student:     { Icon: UserPlus,    bg: "bg-blue-100",   color: "text-blue-600"   },
+    revenue: { Icon: DollarSign, bg: "bg-green-100", color: "text-green-600" },
+    review: { Icon: Star, bg: "bg-yellow-100", color: "text-yellow-600" },
+    achievement: { Icon: TrendingUp, bg: "bg-purple-100", color: "text-purple-600" },
+    student: { Icon: UserPlus, bg: "bg-blue-100", color: "text-blue-600" },
   };
   return map[type] ?? { Icon: MessageSquare, bg: "bg-blue-100", color: "text-blue-600" };
 };
@@ -59,10 +59,10 @@ export default function InstructorNotifications({ logout, userRole }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-full">
         <Sidebar menuItems={getInstructorMenuItems("/instructor/notifications")} logout={logout} userRole="instructor" activePage="instructor-notifications" isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">

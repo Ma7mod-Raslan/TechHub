@@ -81,8 +81,8 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-full">
         <Sidebar
           menuItems={getInstructorMenuItems('/instructor/courses')}
           logout={logout}
@@ -92,7 +92,7 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
           setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <header className="bg-white border-b px-4 md:px-6 py-4 sticky top-0 z-30">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -156,12 +156,12 @@ export default function InstructorCourses({ logout, userRole }: InstructorCourse
                           <div className="relative">
                             <ImageWithFallback src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover" />
                             <Badge className={`absolute top-2 right-2 ${course.status?.toLowerCase() === 'published' && course.is_active === true
-                                ? 'bg-green-600'
-                                : course.status?.toLowerCase() === 'published' && !course.is_active
-                                  ? 'bg-red-600'
-                                  : course.status?.toLowerCase() === 'pending'
-                                    ? 'bg-yellow-600'
-                                    : 'bg-yellow-600'
+                              ? 'bg-green-600'
+                              : course.status?.toLowerCase() === 'published' && !course.is_active
+                                ? 'bg-red-600'
+                                : course.status?.toLowerCase() === 'pending'
+                                  ? 'bg-yellow-600'
+                                  : 'bg-yellow-600'
                               }`}>
                               {course.status?.toLowerCase() === 'published' && !course.is_active
                                 ? 'Suspended'

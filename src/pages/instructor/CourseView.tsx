@@ -339,8 +339,8 @@ export default function InstructorCourseView({
   if (!course) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex h-screen overflow-hidden">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-full">
         <Sidebar
           menuItems={getInstructorMenuItems('/instructor/courses')}
           logout={logout}

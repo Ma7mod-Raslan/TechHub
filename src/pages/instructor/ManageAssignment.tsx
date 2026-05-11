@@ -139,8 +139,8 @@ export default function InstructorManageAssignment({ logout, userRole }: any) {
   if (!assignment) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="flex h-full">
         <Sidebar
           menuItems={getInstructorMenuItems("/instructor/assignments")}
           logout={logout}
@@ -150,7 +150,7 @@ export default function InstructorManageAssignment({ logout, userRole }: any) {
           setIsMobileOpen={setIsMobileOpen}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsMobileOpen(true)}>
