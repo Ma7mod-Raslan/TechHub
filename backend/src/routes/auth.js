@@ -154,10 +154,15 @@ router.post("/signup", async (req, res) => {
 
     // 7️⃣ Create instructor profile if needed
     if (role === "instructor") {
+      // Handle both "NodeJs, Docker" string and ["NodeJs", "Docker"] array formats
+      const expertiseArray = typeof expertise === "string"
+        ? expertise.split(",").map(s => s.trim()).filter(Boolean)
+        : expertise;
+
       await client.query(
         `INSERT INTO instructor_profiles (user_id, job_title, linkedin, expertise)
-         VALUES ($1, $2, $3, $4)`,
-        [user.id, job_title, linkedin || null, expertise]
+        VALUES ($1, $2, $3, $4)`,
+        [user.id, job_title, linkedin || null, expertiseArray]
       );
     }
 
