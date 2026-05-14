@@ -193,7 +193,14 @@ def is_greeting(text):
     cleaned = re.sub(r"[^a-zA-Z\s]", "", text.strip().lower()).strip()
     if cleaned in GREETING_PATTERNS:
         return True
-    return any(cleaned.startswith(g) for g in GREETING_PATTERNS if len(g) > 4)
+    return (
+    cleaned in GREETING_PATTERNS
+    or any(
+        cleaned == g
+        for g in GREETING_PATTERNS
+        if len(g) > 4
+    )
+)
 QA_TOPIC_LOOKUP = {
     normalize_greeting_key(item.get("topic", "")): {
         "topic": item.get("topic", ""),
