@@ -336,7 +336,21 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                 whileHover={{ y: -5 }}
               >
                 <Card className="overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                  onClick={() => navigate(userRole === 'guest' ? '/course-details-guest' : '/course-details')}>
+                  onClick={() => {
+
+                    localStorage.setItem("selectedCourseId", String(course.id));
+
+                    navigate(
+                      userRole === 'guest'
+                        ? '/course-details-guest'
+                        : '/course-details',
+                      {
+                        state: {
+                          courseId: course.id,
+                        },
+                      }
+                    );
+                  }}>
                   <div className="relative">
                     <ImageWithFallback
                       src={course.thumbnail}
