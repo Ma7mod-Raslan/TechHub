@@ -3,7 +3,6 @@ import re
 import json
 import time
 import faiss
-import numpy as np
 from groq import Groq
 from spellchecker import SpellChecker
 from sentence_transformers import SentenceTransformer, CrossEncoder
@@ -239,6 +238,7 @@ Rules:
 - If the question mentions another platform, company, or service unrelated to TechHub, return INVALID.
 - If the retrieved answer is about TechHub but the user asked about another platform, return INVALID.
 - If the user asks about a specific technology, topic, course, tool, certificate, or learning area (for example: AI, Flutter, DevOps, Cybersecurity), the retrieved content must explicitly mention the same topic.
+- If the retrieved content discusses a general TechHub feature but does not explicitly mention the specific requested technology, specialization, roadmap, or certificate, return INVALID.
 - If the retrieved content only partially matches the user's request, return INVALID.
 - Only return VALID if the retrieved answer genuinely matches the user's intent and domain.
 
@@ -464,7 +464,8 @@ SOFT_RAG_SYSTEM = """
 
     Task:
     - If the context is enough to answer the question, generate a helpful educational answer.
-    - You may infer simple beginner-level educational concepts strongly implied by the context.
+    - You may provide simple beginner-level explanations ONLY if they are directly supported by the retrieved context.
+    - Do not assume missing technologies, features, certificates, or courses unless explicitly mentioned in the context.
     - If the retrieved context does not clearly support a useful educational answer, reply with EXACTLY:
     NOT_ENOUGH_INFORMATION
 
