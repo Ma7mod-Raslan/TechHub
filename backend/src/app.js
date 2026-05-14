@@ -31,7 +31,7 @@ import communityRoutes  from "./routes/community.routes.js";
 import assignmentRoutes from "./routes/assignment.routes.js";
 import adminRoutes  from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
-import compilerRoutes from "./routes/compiler.routes.js";
+import compilerRoutes, { attachCompilerWS } from "./routes/compiler.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import roadmapsRoutes from "./routes/roadmaps.js";
 
@@ -101,6 +101,7 @@ app.use("/api", contactRoutes);
 app.use("/api", roadmapsRoutes);
 
 // ===== Start server =====
-app.listen(5000, () => {
+const server = app.listen(5000, () => {
   console.log("Server running on http://localhost:5000");
 });
+attachCompilerWS(server);

@@ -3,12 +3,11 @@ import { WebSocketServer } from "ws";
 import rateLimit from "express-rate-limit";
 import { spawnSession } from "../services/compiler.service.js";
 import { languageMap } from "../utils/languageMap.js";
-import { authMiddleware } from "../middleware/auth.js";
 import { sessionManager } from "../services/session.manager.js";
 
 const router = express.Router();
 
-// Max 10 runs per user per minute to prevent abuse
+// Max 10 runs per user per minute
 const compilerLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 10,
@@ -17,34 +16,37 @@ const compilerLimiter = rateLimit({
 
 // ─────────────────────────────────────────────
 //  GET /api/compiler/languages
-//  Returns supported languages so frontend
-//  (Monaco) doesn't need to hardcode anything.
 // ─────────────────────────────────────────────
 router.get("/languages", (req, res) => {
   res.json(languageMap);
 });
 
 // ─────────────────────────────────────────────
-//  GET /api/compiler/ws  (WebSocket upgrade)
+//  WebSocket upgrade handler
 //
-//  Flow:
-//   1. Client connects and sends:
-//      { type: "init", language: "python", source_code: "..." }
-//   2. Server spawns PTY, streams output back as:
-//      { type: "output", data: "..." }
-//   3. Client sends keystrokes as:
-//      { type: "input", data: "\n" }
-//   4. On process exit server sends:
-//      { type: "exit", exitCode: 0 }
-//   5. Either side can close the connection at any time.
+//  IMPORTANT: attachCompilerWS must be called BEFORE
+//  the server starts processing requests. It hooks
+//  into the raw Node.js HTTP server "upgrade" event
+//  which fires BEFORE Express sees the request.
+//  We no longer define a GET /ws route in Express —
+//  that was causing Express to respond before the
+//  upgrade could happen.
 // ─────────────────────────────────────────────
 export const attachCompilerWS = (server) => {
   const wss = new WebSocketServer({ noServer: true });
 
-  // Upgrade only requests to /api/compiler/ws
   server.on("upgrade", (req, socket, head) => {
-    if (req.url !== "/api/compiler/ws") return;
+    const url = req.url.split("?")[0];
 
+    // Only handle our compiler WebSocket path
+    if (url !== "/api/compiler/ws") {
+      // Reject unknown upgrade requests cleanly
+      socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+      socket.destroy();
+      return;
+    }
+
+    // ✅ This fires BEFORE Express — upgrade is handled here
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
     });
@@ -68,9 +70,8 @@ export const attachCompilerWS = (server) => {
         return;
       }
 
-      // ── init: start a new PTY session ──────────────────────────────
+      // ── init: start a new PTY session ──────────────────
       if (msg.type === "init") {
-        // Only one session per connection
         if (session) {
           session.kill();
           sessionManager.remove(session.pid);
@@ -102,7 +103,7 @@ export const attachCompilerWS = (server) => {
           send({ type: "error", data: err.message });
         }
 
-      // ── input: forward keystrokes to the running process ───────────
+      // ── input: forward keystrokes ───────────────────────
       } else if (msg.type === "input") {
         if (!session) {
           send({ type: "error", data: "No active session" });
@@ -110,7 +111,7 @@ export const attachCompilerWS = (server) => {
         }
         session.write(msg.data);
 
-      // ── kill: user clicked Stop ─────────────────────────────────────
+      // ── kill: user clicked Stop ─────────────────────────
       } else if (msg.type === "kill") {
         if (session) {
           session.kill();
@@ -120,7 +121,6 @@ export const attachCompilerWS = (server) => {
       }
     });
 
-    // Clean up on disconnect
     ws.on("close", () => {
       if (session) {
         session.kill();

@@ -3,7 +3,6 @@ import re
 import json
 import time
 import faiss
-import numpy as np
 from groq import Groq
 from spellchecker import SpellChecker
 from sentence_transformers import SentenceTransformer, CrossEncoder
@@ -52,10 +51,22 @@ THRESHOLDS = {
 }
 
 REJECTION = {
-    "no_data": "I'm sorry, I couldn't find information about that topic in my current TechHub database. You can ask about courses, accounts, assignments, certificates, instructor features, or HTML lessons.",
-    "bad_question": "I couldn't understand your question. Could you please rephrase it? You can ask about courses, assignments, account settings, or topics like HTML.",
-    "no_match":     "I found some information but it doesn't match your question. Could you try rephrasing? I can help with TechHub courses, assignments, account management, or certificates.",
-    "out_of_scope": "I can only help with TechHub-related topics like courses, HTML lessons, assignments, account settings, and certificates.",
+    "empty":
+        "Please type a question so I can help you.",
+    "gibberish":
+        "I couldn't clearly understand your question. Please rephrase it in English.",
+    "out_of_scope":
+        "I can help with TechHub topics, programming learning, web development, and beginner computer science questions.",
+    "below_threshold":
+        "I couldn't find reliable enough information related to your question in the TechHub database.",
+    "domain_validation_failed":
+        "The retrieved information does not closely match your request.",
+    "soft_rag_failed":
+        "I couldn't generate a reliable educational answer from the available information.",
+    "rerank_failed":
+        "I found related information, but it wasn't accurate enough to answer confidently.",
+    "llm_failed":
+        "Something went wrong while generating the answer. Please try again later.",
 }
 
 # Scope anchors
@@ -155,6 +166,8 @@ def preprocess(text):
     text = re.sub(r"[^a-zA-Z0-9@+#\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip().lower()
 
+def contains_arabic(text):
+    return bool(re.search(r"[\u0600-\u06FF]", text))
 
 def is_gibberish(text):
     raw = text.strip().lower()
@@ -180,7 +193,14 @@ def is_greeting(text):
     cleaned = re.sub(r"[^a-zA-Z\s]", "", text.strip().lower()).strip()
     if cleaned in GREETING_PATTERNS:
         return True
-    return any(cleaned.startswith(g) for g in GREETING_PATTERNS if len(g) > 4)
+    return (
+    cleaned in GREETING_PATTERNS
+    or any(
+        cleaned == g
+        for g in GREETING_PATTERNS
+        if len(g) > 4
+    )
+)
 QA_TOPIC_LOOKUP = {
     normalize_greeting_key(item.get("topic", "")): {
         "topic": item.get("topic", ""),
@@ -239,6 +259,7 @@ Rules:
 - If the question mentions another platform, company, or service unrelated to TechHub, return INVALID.
 - If the retrieved answer is about TechHub but the user asked about another platform, return INVALID.
 - If the user asks about a specific technology, topic, course, tool, certificate, or learning area (for example: AI, Flutter, DevOps, Cybersecurity), the retrieved content must explicitly mention the same topic.
+- If the retrieved content discusses a general TechHub feature but does not explicitly mention the specific requested technology, specialization, roadmap, or certificate, return INVALID.
 - If the retrieved content only partially matches the user's request, return INVALID.
 - Only return VALID if the retrieved answer genuinely matches the user's intent and domain.
 
@@ -405,7 +426,7 @@ Retrieved Content:
         DOMAIN_VALIDATOR_SYSTEM,
         user_msg,
         model=CONTEXT_MODEL,
-        max_tokens=1,
+        max_tokens=3,
         temperature=0
     )
 
@@ -447,7 +468,9 @@ ANSWER_SYSTEM_QA = (
     "Answer the user's question using ONLY the Retrieved Contexts below. "
     "You may combine information from multiple contexts. "
     "Never invent facts not present in the contexts. "
-    "Keep responses natural and concise."
+    "Keep responses natural and concise. "
+    "If the answer is not clearly supported by the contexts, reply with EXACTLY: "
+    "NOT_ENOUGH_INFORMATION"
 )
 
 ANSWER_SYSTEM_VIDEO = (
@@ -464,7 +487,8 @@ SOFT_RAG_SYSTEM = """
 
     Task:
     - If the context is enough to answer the question, generate a helpful educational answer.
-    - You may infer simple beginner-level educational concepts strongly implied by the context.
+    - You may provide simple beginner-level explanations ONLY if they are directly supported by the retrieved context.
+    - Do not assume missing technologies, features, certificates, or courses unless explicitly mentioned in the context.
     - If the retrieved context does not clearly support a useful educational answer, reply with EXACTLY:
     NOT_ENOUGH_INFORMATION
 
@@ -660,7 +684,12 @@ def respond(text, memory):
 
     # Stage 1: Empty input validation
     if not text.strip():
-        return _result("", "rejected", t0, reason="empty")
+        return _result(
+    REJECTION["empty"],
+    "rejected",
+    t0,
+    reason="empty"
+        )
 
     # Stage 2: Greeting fast path
     if is_greeting(text):
@@ -688,10 +717,22 @@ def respond(text, memory):
                 score=qa_res[0]["score"],
                 matched_topic=qa_res[0].get("topic")
             )
-
+    # Stage 2.5: Arabic detection
+    if contains_arabic(text):
+        return _result(
+        "TechHub Assistant currently supports English questions. Please write your question in English so I can help you better.",
+        "rejected",
+        t0,
+        reason="arabic_not_supported"
+    )
     # Stage 3: Gibberish detection
     if is_gibberish(text):
-        return _result(REJECTION["bad_question"], "rejected", t0, reason="gibberish")
+        return _result(
+    REJECTION["gibberish"],
+    "rejected",
+    t0,
+    reason="gibberish"
+            )
 
     # Stage 4: Contextualization (LLM rewrite using history)
     standalone, rewritten = contextualize(text, memory)
@@ -722,7 +763,7 @@ def respond(text, memory):
             return fallback_result
 
         return _result(
-            REJECTION["no_data"],
+            REJECTION["below_threshold"],
             "rejected",
             t0,
             reason="below_threshold"
@@ -743,7 +784,7 @@ def respond(text, memory):
             return fallback_result
 
         return _result(
-            REJECTION["no_match"],
+           REJECTION["rerank_failed"],
             "rejected",
             t0,
             reason="rerank_failed"
@@ -761,7 +802,7 @@ def respond(text, memory):
 
         if not is_valid:
             return _result(
-                REJECTION["out_of_scope"],
+                REJECTION["domain_validation_failed"],
                 "rejected",
                 t0,
                 reason="domain_validation_failed"
@@ -807,15 +848,42 @@ def respond(text, memory):
             return fallback_result
 
         return _result(
-            REJECTION["no_match"],
+            REJECTION["soft_rag_failed"],
             "rejected",
             t0,
             reason="soft_rag_failed"
         )
-    # Stage 8: Generate answer
+   # Stage 8: Generate answer
     answer = generate_answer(standalone, top_contexts, source)
+
+    if answer and answer.strip().upper() == "NOT_ENOUGH_INFORMATION":
+
+        print("Answer generation returned NOT_ENOUGH_INFORMATION")
+
+        fallback_result = try_educational_fallback(
+            text,
+            standalone,
+            memory,
+            t0
+        )
+
+        if fallback_result:
+            return fallback_result
+
+        return _result(
+            REJECTION["below_threshold"],
+            "rejected",
+            t0,
+            reason="not_enough_information"
+        )
+
     if not answer:
-        return _result(REJECTION["no_data"], "rejected", t0, reason="llm_failed")
+        return _result(
+            REJECTION["llm_failed"],
+            "rejected",
+            t0,
+            reason="llm_failed"
+        )
     # Stage 9: Save to memory
     memory.add(text, answer)
 
