@@ -63,11 +63,11 @@ export default function TestimonialForm({ onClose, studentName = 'Anonymous', st
               <Star className="h-5 w-5 text-violet-600" />
               Share Your Experience
             </CardTitle>
-            {onClose && (
+            {/* {onClose && (
               <Button variant="ghost" size="icon" onClick={onClose}>
                 <X className="h-4 w-4" />
               </Button>
-            )}
+            )} */}
           </div>
           <p className="text-sm text-gray-600 mt-2">
             Help other students by sharing your learning journey with TechHub
