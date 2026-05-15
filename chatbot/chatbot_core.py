@@ -28,7 +28,7 @@ EMBED_MODEL_NAME    = "multi-qa-mpnet-base-dot-v1"
 RERANKER_MODEL_NAME = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 ANSWER_MODEL        = "llama-3.3-70b-versatile"   
 CONTEXT_MODEL       = "llama-3.1-8b-instant"      
-TOP_K = 3
+TOP_K = 5
 
 THRESHOLDS = {
     # High confidence
@@ -44,19 +44,12 @@ THRESHOLDS = {
     "vid_rerank": -5.0,
 
     # Difference required to confidently choose QA or video
-    "margin": 0.08,
-
-    # Domain detection threshold
-    "scope": 0.28,
+    "margin": 0.08
 }
 
 REJECTION = {
-    "empty":
-        "Please type a question so I can help you.",
     "gibberish":
         "I couldn't clearly understand your question. Please rephrase it in English.",
-    "out_of_scope":
-        "I can help with TechHub topics, programming learning, web development, and beginner computer science questions.",
     "below_threshold":
         "I couldn't find reliable enough information related to your question in the TechHub database.",
     "domain_validation_failed":
@@ -68,20 +61,6 @@ REJECTION = {
     "llm_failed":
         "Something went wrong while generating the answer. Please try again later.",
 }
-
-# Scope anchors
-SCOPE_ANCHORS = [
-    "TechHub online learning platform for computer science students and developers",
-    "TechHub programming courses HTML CSS JavaScript SQL web development lessons and tutorials",
-    "TechHub student account signup login authentication profile settings password reset dashboard",
-    "TechHub enrolled courses learning progress completed lessons quizzes assignments certificates",
-    "TechHub e learning education platform roadmaps coding exercises exams and certificates",
-    "TechHub support help center contact us technical issues account recovery platform assistance",
-    "TechHub instructor dashboard create publish manage courses students assignments and exams",
-    "HTML course web page structure tags elements attributes headings paragraphs links images tables",
-    "TechHub course communities student discussions learning groups and collaboration",
-    "TechHub recorded video lessons self paced learning educational content and course navigation",
-]
 
 PROTECTED_WORDS = {
     "techhub", "signup", "signin", "html", "css", "sql", "api", "json",
@@ -124,10 +103,6 @@ except Exception as e:
         "Failed to load local HuggingFace models. Make sure the embedding and reranker models are downloaded before running offline."
     ) from e
 groq_client = Groq(api_key=GROQ_API_KEY)
-
-# Cache scope embeddings
-_anchor_embs = embed_model.encode(SCOPE_ANCHORS).astype("float32")
-faiss.normalize_L2(_anchor_embs)
 
 print(f"QA: {len(QA_ITEMS)} | Video: {len(VIDEO_ITEMS)}")
 
@@ -291,15 +266,6 @@ def contextualize(query, memory):
     standalone = re.sub(r'^["\'\s]+|["\'\s]+$', '', result)
     rewritten = standalone.lower() != query.lower()
     return standalone, rewritten
-
-
-# Scope check
-def in_scope(query):
-    """Check if query matches TechHub topics."""
-    q_emb = embed_model.encode([query]).astype("float32")
-    faiss.normalize_L2(q_emb)
-    max_sim = float((q_emb @ _anchor_embs.T).max())
-    return max_sim >= THRESHOLDS["scope"], max_sim
 
 
 # Search
@@ -682,16 +648,7 @@ def respond(text, memory):
     t0 = time.time()
     print(f"\n{'='*60}\n {text}", flush=True)
 
-    # Stage 1: Empty input validation
-    if not text.strip():
-        return _result(
-    REJECTION["empty"],
-    "rejected",
-    t0,
-    reason="empty"
-        )
-
-    # Stage 2: Greeting fast path
+    # Stage 1: Greeting fast path
     if is_greeting(text):
         cleaned = normalize_greeting_key(text)
 
@@ -717,7 +674,7 @@ def respond(text, memory):
                 score=qa_res[0]["score"],
                 matched_topic=qa_res[0].get("topic")
             )
-    # Stage 2.5: Arabic detection
+    # Stage 1.5: Arabic detection
     if contains_arabic(text):
         return _result(
         "TechHub Assistant currently supports English questions. Please write your question in English so I can help you better.",
@@ -725,7 +682,7 @@ def respond(text, memory):
         t0,
         reason="arabic_not_supported"
     )
-    # Stage 3: Gibberish detection
+    # Stage 2: Gibberish detection
     if is_gibberish(text):
         return _result(
     REJECTION["gibberish"],
@@ -734,19 +691,12 @@ def respond(text, memory):
     reason="gibberish"
             )
 
-    # Stage 4: Contextualization (LLM rewrite using history)
+    # Stage 3: Contextualization (LLM rewrite using history)
     standalone, rewritten = contextualize(text, memory)
     if rewritten:
         print(f"Standalone: {standalone}")
 
-    # Stage 5: Scope check (embedding-based, no LLM)
-    in_domain, scope_sim = in_scope(standalone)
-    print(f"Scope: {scope_sim:.3f} {'OK' if in_domain else 'FAIL'}", flush=True)
-    
-    if not in_domain:
-        print("Low scope, continuing cautiously...")
-
-    # Stage 6: Retrieval
+    # Stage 4: Retrieval
     q_emb = encode_query(preprocess(standalone))
     qa_res, vid_res = search_qa(q_emb), search_video(q_emb)
     pool, source, confidence = select_best(qa_res, vid_res)
@@ -758,7 +708,7 @@ def respond(text, memory):
             memory,
             t0
         )
-
+        
         if fallback_result:
             return fallback_result
 
@@ -769,7 +719,7 @@ def respond(text, memory):
             reason="below_threshold"
         )
 
-    # Stage 7: Rerank
+    # Stage 5: Rerank
     pool, passed = rerank(standalone, pool, source)
     if not passed:
         print("Rerank failed, trying educational fallback...")
@@ -791,7 +741,7 @@ def respond(text, memory):
         )
     top_contexts = pool[:3]
     best = pool[0]
-    # Stage 7.3 : DOMAIN VALIDATION
+    # Stage 6: DOMAIN VALIDATION
     if confidence == "high":
 
         is_valid = validate_domain(
@@ -812,7 +762,7 @@ def respond(text, memory):
     else:
         print(f"Matched Video: {best.get('video_title', 'N/A')} | Chapter: {best.get('chapter_title', 'N/A')} | Time: {best.get('timestamp', 'N/A')}")
 
-    # Stage 7.5: SOFT RAG 
+    # Stage 6.5: SOFT RAG 
 
     if confidence == "soft":
 
@@ -853,7 +803,7 @@ def respond(text, memory):
             t0,
             reason="soft_rag_failed"
         )
-   # Stage 8: Generate answer
+   # Stage 7: Generate answer
     answer = generate_answer(standalone, top_contexts, source)
 
     if answer and answer.strip().upper() == "NOT_ENOUGH_INFORMATION":
