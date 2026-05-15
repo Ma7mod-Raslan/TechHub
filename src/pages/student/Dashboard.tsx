@@ -144,7 +144,7 @@ export default function StudentDashboard({ logout, userRole }: StudentDashboardP
       <AIAssistant />
 
       <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide [&>button]:hidden">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide [&_[data-slot='dialog-close']]:hidden">
           <TestimonialForm onClose={() => setIsTestimonialOpen(false)} studentName="Alex Johnson" studentRole="Software Engineering Student" />
         </DialogContent>
       </Dialog>
