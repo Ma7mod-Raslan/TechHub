@@ -281,7 +281,7 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
             <p className="text-xl text-gray-600">Find your passion and start learning today</p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {categories.map((category, index) => (
               <motion.div
                 key={index}
@@ -292,9 +292,9 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                 whileHover={{ scale: 1.05 }}
               >
                 <Card className="cursor-pointer hover:shadow-lg transition-all">
-                  <CardContent className="p-6 text-center">
-                    <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center mx-auto mb-3`}>
-                      <category.icon className="h-8 w-8 text-white" />
+                  <CardContent className="p-3 sm:p-4 md:p-6 text-center">
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center mx-auto mb-2 sm:mb-3`}>
+                      <category.icon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
                     </div>
                     <h3 className="mb-1">{category.name}</h3>
                     <p className="text-sm text-gray-600">{category.courses} courses</p>
