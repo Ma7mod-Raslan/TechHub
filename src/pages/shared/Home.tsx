@@ -281,7 +281,7 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
             <p className="text-xl text-gray-600">Find your passion and start learning today</p>
           </motion.div>
 
-          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
             {categories.map((category, index) => (
               <motion.div
                 key={index}
@@ -296,8 +296,8 @@ export default function Home({ isLoggedIn = false, userRole = 'guest', logout }:
                     <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r ${category.color} flex items-center justify-center mx-auto mb-2 sm:mb-3`}>
                       <category.icon className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-white" />
                     </div>
-                    <h3 className="mb-1">{category.name}</h3>
-                    <p className="text-sm text-gray-600">{category.courses} courses</p>
+                    <h3 className="text-xs sm:text-sm md:text-base mb-1">{category.name}</h3>
+                    <p className="text-xs text-gray-600">{category.courses} courses</p>
                   </CardContent>
                 </Card>
               </motion.div>
