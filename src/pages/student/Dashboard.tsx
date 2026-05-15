@@ -70,7 +70,7 @@ export default function StudentDashboard({ logout, userRole }: StudentDashboardP
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6">
               {[
                 { label: "Enrolled Courses", value: stats.total_enrolled_courses, sub: `${totalInProgress} in progress`, icon: <BookOpen className="h-5 w-5 text-blue-600" />, subColor: "text-gray-600" },
-                { label: "Learning Hours",   value: stats.total_time_spent_hours,  sub: "Keep going",                   icon: <Clock className="h-5 w-5 text-purple-600" />, subColor: "text-green-600" },
+                { label: "Learning Hours", value: stats.total_time_spent_hours, sub: "Keep going", icon: <Clock className="h-5 w-5 text-purple-600" />, subColor: "text-green-600" },
               ].map(({ label, value, sub, icon, subColor }, i) => (
                 <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (i + 1) * 0.1 }}>
                   <Card>
@@ -144,7 +144,7 @@ export default function StudentDashboard({ logout, userRole }: StudentDashboardP
       <AIAssistant />
 
       <Dialog open={isTestimonialOpen} onOpenChange={setIsTestimonialOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide [&>button]:hidden">
           <TestimonialForm onClose={() => setIsTestimonialOpen(false)} studentName="Alex Johnson" studentRole="Software Engineering Student" />
         </DialogContent>
       </Dialog>
